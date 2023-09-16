@@ -37,6 +37,8 @@ yarn-error.*
 # tripz
 .idea
 .idea/*
+.husky
+.husky/*
 keychain
 keychain/*
 .yarn
