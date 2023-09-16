@@ -33,3 +33,10 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# tripz
+.idea
+.idea/*
+keychain
+keychain/*
+.yarn
