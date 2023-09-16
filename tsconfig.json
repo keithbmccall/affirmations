@@ -1,6 +1,15 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@*": ["./src/lib/content/*"],
+      "@global-types": ["./src/lib/types.ts"],
+      "@data": ["./src/lib/data"],
+      "@providers": ["./src/lib/providers"],
+      "@utils": ["./src/lib/utils"]
+    }
   }
 }
