@@ -1,12 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { StateContextProvider } from './lib/platform/state';
+import { PushNotifications } from './notifications-form';
 
 export const Root = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your affirmationz!!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <StateContextProvider>
+      <View style={styles.container}>
+        <Text>Open up App.tsx to start working on your affirmationz!!</Text>
+        <PushNotifications />
+
+        <StatusBar style="auto" />
+      </View>
+    </StateContextProvider>
   );
 };
 

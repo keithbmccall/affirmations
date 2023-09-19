@@ -4,10 +4,11 @@
     "strict": true,
     "noEmit": true,
     "resolveJsonModule": true,
+    "experimentalDecorators": true,
     "paths": {
       "@*": ["./src/lib/content/*"],
       "@global-types": ["./src/lib/types.ts"],
-      "@data": ["./src/lib/data"],
+      "@notifications": ["./src/lib/notifications"],
       "@providers": ["./src/lib/providers"],
       "@utils": ["./src/lib/utils"]
     }
