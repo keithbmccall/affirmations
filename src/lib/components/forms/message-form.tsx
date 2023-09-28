@@ -1,0 +1,51 @@
+import { Button, Input, InputProps, Text } from '@rneui/themed';
+import { useRef, useState } from 'react';
+import { TextInput, View } from 'react-native';
+import {useNotifications} from "@notifications";
+
+const useInputRef = () => useRef<any>();
+
+type InputRef = InputProps & TextInput;
+
+export const MessageForm = () => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const titleInput = useInputRef();
+  const descriptionInput = useInputRef();
+    const { sendPushNotification, notification, notificationToken } =
+        useNotifications();
+
+  return (
+    <View>
+      <Text h3>{title}</Text>
+      <Input
+        ref={titleInput}
+        onChangeText={value => {
+          setTitle(value);
+        }}
+        placeholder="INPUT WITH ERROR MESSAGE!!"
+      />
+      <Text h4>{description}</Text>
+      <Input
+        ref={descriptionInput}
+        onChangeText={value => {
+          setDescription(value);
+        }}
+        placeholder="INPUT WITH ERROR MESSAGE!!"
+      />
+      <Button
+        title="commit"
+        onPress={() => {
+          console.log(`Committed with ${title} and ${description}`);
+            if (notificationToken)
+              sendPushNotification({
+                    title: title,
+                    body:description,
+                });
+
+        }}
+
+      />
+    </View>
+  );
+};

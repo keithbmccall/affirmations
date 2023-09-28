@@ -6,10 +6,10 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "paths": {
-      "@*": ["./src/lib/content/*"],
+      "@components/*": ["./src/lib/components/*"],
       "@global-types": ["./src/lib/types.ts"],
       "@notifications": ["./src/lib/notifications"],
-      "@providers": ["./src/lib/providers"],
+      "@platform": ["./src/lib/platform"],
       "@utils": ["./src/lib/utils"]
     }
   }

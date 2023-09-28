@@ -9,6 +9,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "default",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -38,6 +39,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/b6f11482-5e3a-4128-bc25-1c2468552783"
-    }
+    },
+    "plugins": ["expo-router"]
   }
 }

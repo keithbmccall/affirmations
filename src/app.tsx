@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { StateContextProvider } from './lib/platform/state';
+import { StateContextProvider } from '@platform';
 import { PushNotifications } from './notifications-form';
 
 export const Root = () => {
