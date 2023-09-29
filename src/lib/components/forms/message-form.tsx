@@ -1,7 +1,7 @@
+import { useNotifications } from '@notifications';
 import { Button, Input, InputProps, Text } from '@rneui/themed';
 import { useRef, useState } from 'react';
 import { TextInput, View } from 'react-native';
-import {useNotifications} from "@notifications";
 
 const useInputRef = () => useRef<any>();
 
@@ -12,8 +12,8 @@ export const MessageForm = () => {
   const [description, setDescription] = useState('');
   const titleInput = useInputRef();
   const descriptionInput = useInputRef();
-    const { sendPushNotification, notification, notificationToken } =
-        useNotifications();
+  const { sendPushNotification, notification, notificationToken } =
+    useNotifications();
 
   return (
     <View>
@@ -37,14 +37,12 @@ export const MessageForm = () => {
         title="commit"
         onPress={() => {
           console.log(`Committed with ${title} and ${description}`);
-            if (notificationToken)
-              sendPushNotification({
-                    title: title,
-                    body:description,
-                });
-
+          if (notificationToken)
+            sendPushNotification({
+              title: title,
+              body: description,
+            });
         }}
-
       />
     </View>
   );

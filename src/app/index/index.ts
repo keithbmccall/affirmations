@@ -1,1 +1,1 @@
-export { default } from './index-page';
+export { IndexPage as default } from './index-page';

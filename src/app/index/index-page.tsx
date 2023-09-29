@@ -1,5 +1,6 @@
-import { MessageForm } from '@components/forms';
-import { makeStyles } from '@rneui/themed';
+import { Scheduler } from '@components/scheduler';
+import { makeStyles, Text } from '@rneui/themed';
+import { Link } from 'expo-router';
 import { ScrollView } from 'react-native';
 
 const useStyles = makeStyles((theme, props: any) => ({
@@ -12,12 +13,14 @@ const useStyles = makeStyles((theme, props: any) => ({
   },
 }));
 
-export default function IndexPage(props: any) {
+export const IndexPage = (props: any) => {
   const styles = useStyles(props);
 
   return (
     <ScrollView>
-      <MessageForm />
+      <Text>Index page</Text>
+      <Link href="/history"> go to history</Link>
+      <Scheduler />
     </ScrollView>
   );
-}
+};

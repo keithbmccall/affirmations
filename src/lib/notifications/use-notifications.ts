@@ -3,7 +3,10 @@ import { Notification, Subscription } from 'expo-notifications';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useActions, useNotificationToken } from '../platform/state';
 import { notificationsRegistration } from './notifications-registration';
-import { notificationsFetchOptions, notificationsFetchUrl } from './notifications.config';
+import {
+  notificationsFetchOptions,
+  notificationsFetchUrl,
+} from './notifications.config';
 
 export type NotificationMessage = {
   title: string;
