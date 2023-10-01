@@ -7,9 +7,10 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "nuke": "rm -rf node_modules; yarn;",
+    "nuke": "rm -rf node_modules; yarn",
     "prepare": "husky install",
-    "nukestart": "yarn nuke;yarn start;",
+    "nukestart": "yarn nuke;yarn start",
+    "build": "eas build",
     "build:sim": "eas build:run -p ios"
   },
   "dependencies": {
