@@ -1,3 +1,4 @@
+import { NotificationRequestWithData } from '@platform';
 import { ExpoPushToken } from 'expo-notifications';
 
 type ActionType<Name extends string, Payload = unknown> = {
@@ -5,4 +6,9 @@ type ActionType<Name extends string, Payload = unknown> = {
   payload: Payload;
 };
 
-export type Action = ActionType<'SET_NOTIFICATION_TOKEN', ExpoPushToken>;
+export type Action =
+  | ActionType<'SET_NOTIFICATION_TOKEN', ExpoPushToken>
+  | ActionType<
+      'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS',
+      NotificationRequestWithData[]
+    >;

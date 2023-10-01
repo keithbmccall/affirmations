@@ -6,10 +6,12 @@ import {
   useMemo,
   useReducer,
 } from 'react';
+import { useInitNotifications } from '../../notifications/use-init-notifications';
 import { Action } from './actions-types';
 import {
   initialState,
   initialStateContextActions,
+  setCurrentlyScheduledNotifications,
   setNotificationToken,
   StateContextActions,
   stateReducer,
@@ -36,9 +38,13 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const providerActions: StateContextActions = useMemo(
     () => ({
       onSetNotificationToken: setNotificationToken(dispatch),
+      onSetCurrentlyScheduledNotifications:
+        setCurrentlyScheduledNotifications(dispatch),
     }),
     [],
   );
+
+  useInitNotifications(providerActions);
 
   return (
     <StateContext.Provider

@@ -16,14 +16,22 @@ export const MessageForm = () => {
     useNotifications();
 
   return (
-    <View>
+    <View
+      style={{
+        width: '100%',
+        borderStyle: 'solid',
+        borderColor: 'blue',
+        borderWidth: 1,
+      }}
+    >
       <Text h3>{title}</Text>
       <Input
         ref={titleInput}
         onChangeText={value => {
           setTitle(value);
         }}
-        placeholder="INPUT WITH ERROR MESSAGE!!"
+        placeholder="Title"
+        style={{ width: '100%' }}
       />
       <Text h4>{description}</Text>
       <Input
@@ -31,7 +39,7 @@ export const MessageForm = () => {
         onChangeText={value => {
           setDescription(value);
         }}
-        placeholder="INPUT WITH ERROR MESSAGE!!"
+        placeholder="Message"
       />
       <Button
         title="commit"

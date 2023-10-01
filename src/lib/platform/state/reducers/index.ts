@@ -1,3 +1,4 @@
+import { NotificationRequestWithData } from '@platform';
 import { noop } from '@utils';
 import { ExpoPushToken } from 'expo-notifications';
 import { Dispatch } from 'react';
@@ -5,15 +6,20 @@ import { Action } from '../actions-types';
 
 export interface StateContextActions {
   onSetNotificationToken: (token: ExpoPushToken) => void;
+  onSetCurrentlyScheduledNotifications: (
+    notifications: NotificationRequestWithData[],
+  ) => void;
 }
 
 export const initialStateContextActions: StateContextActions = {
   onSetNotificationToken: noop,
+  onSetCurrentlyScheduledNotifications: noop,
 };
 
 export interface StateType {
   app: {
     notificationToken: ExpoPushToken;
+    currentlyScheduledNotifications: NotificationRequestWithData[];
   };
 }
 
@@ -23,6 +29,7 @@ export const initialState: StateType = {
       type: 'expo',
       data: '',
     },
+    currentlyScheduledNotifications: [],
   },
 };
 
@@ -42,6 +49,14 @@ export const stateReducer = (
           notificationToken: action.payload,
         },
       };
+    case 'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          currentlyScheduledNotifications: action.payload,
+        },
+      };
     default:
       return state;
   }
@@ -49,9 +64,20 @@ export const stateReducer = (
 
 export const setNotificationToken =
   (dispatch: Dispatch<Action>): StateContextActions['onSetNotificationToken'] =>
-  images => {
+  token => {
     return dispatch({
       type: 'SET_NOTIFICATION_TOKEN',
-      payload: images,
+      payload: token,
+    });
+  };
+
+export const setCurrentlyScheduledNotifications =
+  (
+    dispatch: Dispatch<Action>,
+  ): StateContextActions['onSetCurrentlyScheduledNotifications'] =>
+  notifications => {
+    return dispatch({
+      type: 'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS',
+      payload: notifications,
     });
   };

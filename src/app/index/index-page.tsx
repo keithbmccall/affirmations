@@ -17,7 +17,13 @@ export const IndexPage = (props: any) => {
   const styles = useStyles(props);
 
   return (
-    <ScrollView>
+    <ScrollView
+      style={{
+        borderStyle: 'solid',
+        borderColor: 'red',
+        borderWidth: 1,
+      }}
+    >
       <Text>Index page</Text>
       <Link href="/history"> go to history</Link>
       <Scheduler />
