@@ -1,5 +1,6 @@
 import { StateContextProvider } from '@platform';
-import { ThemeProvider, createTheme } from '@rneui/themed';
+import { ThemeProvider } from '@rneui/themed';
+import { Theme } from '@theme';
 import {
   Slot,
   useLocalSearchParams,
@@ -7,17 +8,6 @@ import {
   useRouter,
 } from 'expo-router';
 import { useStoreRouteInfo } from 'expo-router/src/global-state/router-store';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-const theme = createTheme({
-  lightColors: {
-    primary: '#e7e7e8',
-  },
-  darkColors: {
-    primary: '#000',
-  },
-  mode: 'light',
-});
 
 export default function Layout() {
   const router = useRouter();
@@ -32,10 +22,8 @@ export default function Layout() {
   });
   return (
     <StateContextProvider>
-      <ThemeProvider theme={theme}>
-        <SafeAreaView>
-          <Slot />
-        </SafeAreaView>
+      <ThemeProvider theme={Theme}>
+        <Slot />
       </ThemeProvider>
     </StateContextProvider>
   );

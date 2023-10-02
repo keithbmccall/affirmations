@@ -1,7 +1,9 @@
+import { ScheduledNotifications } from '@components/scheduled-notfications';
 import { Scheduler } from '@components/scheduler';
-import { makeStyles, Text } from '@rneui/themed';
+import { makeStyles, Text, useTheme } from '@rneui/themed';
 import { Link } from 'expo-router';
 import { ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const useStyles = makeStyles((theme, props: any) => ({
   container: {
@@ -14,19 +16,22 @@ const useStyles = makeStyles((theme, props: any) => ({
 }));
 
 export const IndexPage = (props: any) => {
-  const styles = useStyles(props);
+  const { theme } = useTheme();
 
   return (
-    <ScrollView
+    <SafeAreaView
       style={{
-        borderStyle: 'solid',
-        borderColor: 'red',
-        borderWidth: 1,
+        backgroundColor: theme.colors.background,
+        height: '100%',
+        paddingHorizontal: 10,
       }}
     >
-      <Text>Index page</Text>
-      <Link href="/history"> go to history</Link>
-      <Scheduler />
-    </ScrollView>
+      <ScrollView>
+        <Text>Index page</Text>
+        <Link href="/history"> go to history</Link>
+        <Scheduler />
+        <ScheduledNotifications />
+      </ScrollView>
+    </SafeAreaView>
   );
 };

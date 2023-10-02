@@ -1,5 +1,4 @@
 import { useNotifications } from '@notifications';
-import { NotificationRequestWithData } from '@platform';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Input, Text } from '@rneui/themed';
 import { useRef, useState } from 'react';
@@ -8,9 +7,6 @@ import { View } from 'react-native';
 const useInputRef = () => useRef<any>();
 
 export const Scheduler = () => {
-  const [previouslyScheduled, setPreviouslyScheduled] = useState<
-    NotificationRequestWithData[] | null
-  >(null);
   const [time, setTime] = useState<Date>(new Date());
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -27,7 +23,7 @@ export const Scheduler = () => {
     >
       <DateTimePicker
         value={time}
-        mode="time"
+        mode="datetime"
         display="default"
         onChange={(a, b) => {
           if (b) {
@@ -70,25 +66,11 @@ export const Scheduler = () => {
             //   await getAllScheduledNotifications();
             // setPreviouslyScheduled(previouslyScheduledNotifications);
           }}
+          buttonStyle={{
+            backgroundColor: 'pink',
+          }}
         />
-        {currentlyScheduledNotifications?.map(
-          ({
-            identifier,
-            content: {
-              title,
-              body,
-              data: { date, time, rawDate },
-            },
-          }) => {
-            return (
-              <View key={identifier}>
-                <Text>{`Time: ${rawDate}`}</Text>
-                <Text>{`Title: ${title}`}</Text>
-                <Text>{`Message: ${body}`}</Text>
-              </View>
-            );
-          },
-        )}
+
       </View>
     </View>
   );

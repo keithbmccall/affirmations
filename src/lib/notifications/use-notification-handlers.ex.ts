@@ -16,11 +16,11 @@ export const useNotificationHandlersEx = () => {
 
   useEffect(() => {
     notificationListener.current =
-      Notifications.addNotificationReceivedListener(notification => {
+      Notifications.addNotificationReceivedListener(noti => {
         // we can schedule a notification
         // then in here upon receipt of the previous notification
         // we can schedule the next one and on and on
-        setNotification(notification);
+        setNotification(noti);
       });
 
     responseListener.current =
