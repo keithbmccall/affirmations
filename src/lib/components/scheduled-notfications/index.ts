@@ -1,1 +1,1 @@
-export * from "./scheduled-notifications"
+export * from './scheduled-notifications';

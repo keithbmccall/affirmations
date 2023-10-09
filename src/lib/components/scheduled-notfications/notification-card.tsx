@@ -1,5 +1,6 @@
 import { NotificationRequestWithData } from '@platform';
-import { Text } from '@rneui/themed';
+import { makeStyles, Text } from '@rneui/themed';
+import { globalStyles } from '@theme';
 import { FC } from 'react';
 import { View } from 'react-native';
 
@@ -16,38 +17,26 @@ export const NotificationCard: FC<NotificationCardProps> = ({
   time,
   body,
 }) => {
+  const styles = useStyles();
   const { hours, minutes } = time;
+  const ampm = hours > 11 ? 'pm' : 'am';
+  const displayedHours = hours > 12 ? hours - 12 : hours;
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        paddingVertical: 10,
-      }}
-    >
-      <View
-        style={{
-          width: '30%',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 40,
-          }}
-        >
-          {`${hours}:${minutes}`}
+    <View style={styles.container}>
+      <View style={styles.timeContainer}>
+        <Text style={styles.timeText}>
+          {`${displayedHours}:${minutes}`}
+          <Text
+            style={{
+              fontSize: 20,
+            }}
+          >
+            {ampm}
+          </Text>
         </Text>
       </View>
-      <View
-        style={{
-          width: '70%',
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingHorizontal: 20,
-        }}
-      >
+      <View style={styles.descriptionContainer}>
         <Text
           numberOfLines={1}
           style={{
@@ -68,3 +57,21 @@ export const NotificationCard: FC<NotificationCardProps> = ({
     </View>
   );
 };
+export const useStyles = makeStyles((theme, props: any) => ({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+  },
+  timeContainer: {
+    width: '35%',
+    ...globalStyles.justifyCenter,
+  },
+  descriptionContainer: {
+    width: '65%',
+    ...globalStyles.justifyCenter,
+    paddingHorizontal: 20,
+  },
+  timeText: {
+    ...globalStyles.bigText,
+  },
+}));

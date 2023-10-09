@@ -1,5 +1,4 @@
 import { NotificationCard } from '@components/scheduled-notfications/notification-card';
-import { scheduledNotificationsData } from '@data';
 import { useNotifications } from '@notifications';
 import { View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,7 +8,7 @@ export const ScheduledNotifications = () => {
 
   return (
     <View>
-      {scheduledNotificationsData?.map(
+      {currentlyScheduledNotifications?.map(
         ({
           identifier,
           content: {
