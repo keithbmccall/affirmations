@@ -101,7 +101,7 @@ export const Scheduler = () => {
         </View>
 
         <Button
-          title="Set message"
+          title="Schedule message"
           onPress={onSubmit}
           buttonStyle={{
             backgroundColor: theme.colors.grey5,
