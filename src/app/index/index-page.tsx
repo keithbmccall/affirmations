@@ -1,7 +1,6 @@
 import { ScheduledNotifications } from '@components/scheduled-notfications';
 import { Scheduler } from '@components/scheduler';
-import { makeStyles, Text, useTheme } from '@rneui/themed';
-import { Link } from 'expo-router';
+import { makeStyles, useTheme } from '@rneui/themed';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,8 +28,6 @@ export const IndexPage = (props: any) => {
     >
       <StatusBar style="inverted" />
       <ScrollView>
-        <Text>Index page</Text>
-        <Link href="/history"> go to history</Link>
         <Scheduler />
         <ScheduledNotifications />
       </ScrollView>
