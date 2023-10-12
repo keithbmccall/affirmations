@@ -11,8 +11,10 @@
     "nuke": "rm -rf node_modules; yarn",
     "prepare": "husky install",
     "nukestart": "yarn nuke;yarn start",
-    "eas-build": "eas build",
-    "full-build": "nuke;yarn nuke;eas build;yarn ios"
+    "eas.build": "eas build",
+    "full.build": "nuke;yarn nuke;eas build;yarn ios",
+    "version": "eas build:version:set",
+    "build.submit": "eas build --auto-submit"
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
