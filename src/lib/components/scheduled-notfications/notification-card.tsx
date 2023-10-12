@@ -21,12 +21,13 @@ export const NotificationCard: FC<NotificationCardProps> = ({
   const { hours, minutes } = time;
   const ampm = hours > 11 ? 'pm' : 'am';
   const displayedHours = hours > 12 ? hours - 12 : hours;
+  const displayedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
   return (
     <View style={styles.container}>
       <View style={styles.timeContainer}>
         <Text style={styles.timeText}>
-          {`${displayedHours}:${minutes}`}
+          {`${displayedHours}:${displayedMinutes}`}
           <Text
             style={{
               fontSize: 20,
