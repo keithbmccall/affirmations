@@ -18,7 +18,8 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.keithinretrograde.affirmations"
+      "bundleIdentifier": "com.keithinretrograde.affirmations",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
