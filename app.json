@@ -3,7 +3,7 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "name": "affirmations",
+    "name": "Scheduled Affirmations",
     "slug": "affirmations",
     "version": "1.0.0",
     "orientation": "portrait",
