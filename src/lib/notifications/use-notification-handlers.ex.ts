@@ -1,31 +1,36 @@
-import { useNotificationToken } from '@platform';
+import { useActions, useNotificationToken } from '@platform';
 import * as Notifications from 'expo-notifications';
-import { Notification, Subscription } from 'expo-notifications';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Subscription } from 'expo-notifications';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   notificationsFetchOptions,
   notificationsFetchUrl,
 } from './notifications.config';
+import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 import { NotificationMessage } from './use-notifications';
 
 export const useNotificationHandlersEx = () => {
-  const [notification, setNotification] = useState<Notification>();
   const notificationListener = useRef<Subscription>();
   const responseListener = useRef<Subscription>();
   const notificationToken = useNotificationToken();
+  const { onSetCurrentlyScheduledNotifications } = useActions();
+  const { getCurrentlyScheduledNotifications } =
+    useCurrentlyScheduledNotifications();
 
   useEffect(() => {
     notificationListener.current =
-      Notifications.addNotificationReceivedListener(noti => {
-        // we can schedule a notification
-        // then in here upon receipt of the previous notification
-        // we can schedule the next one and on and on
-        setNotification(noti);
+      Notifications.addNotificationReceivedListener(async noti => {
+        console.log('notification received', {
+          noti,
+        });
+        onSetCurrentlyScheduledNotifications(
+          await getCurrentlyScheduledNotifications(),
+        );
       });
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener(response => {
-        console.log('responsssS', response);
+        console.log('notification responsssS', response);
       });
 
     return () => {
