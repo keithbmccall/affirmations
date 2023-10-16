@@ -1,4 +1,4 @@
-import { NotificationRequestWithData } from '@platform';
+import { HistoryNotification, NotificationRequestWithData } from '@platform';
 import { noop } from '@utils';
 import { ExpoPushToken } from 'expo-notifications';
 import { Dispatch } from 'react';
@@ -9,17 +9,20 @@ export interface StateContextActions {
   onSetCurrentlyScheduledNotifications: (
     notifications: NotificationRequestWithData[],
   ) => void;
+  onAddHistoryNotification: (notification: HistoryNotification) => void;
 }
 
 export const initialStateContextActions: StateContextActions = {
   onSetNotificationToken: noop,
   onSetCurrentlyScheduledNotifications: noop,
+  onAddHistoryNotification: noop,
 };
 
 export interface StateType {
   app: {
     notificationToken: ExpoPushToken;
     currentlyScheduledNotifications: NotificationRequestWithData[];
+    historyNotifications: HistoryNotification[];
   };
 }
 
@@ -30,6 +33,7 @@ export const initialState: StateType = {
       data: '',
     },
     currentlyScheduledNotifications: [],
+    historyNotifications: [],
   },
 };
 
@@ -57,6 +61,17 @@ export const stateReducer = (
           currentlyScheduledNotifications: action.payload,
         },
       };
+    case 'SET_ADD_NOTIFICATION':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          historyNotifications: [
+            ...state.app.historyNotifications,
+            action.payload,
+          ],
+        },
+      };
     default:
       return state;
   }
@@ -79,5 +94,16 @@ export const setCurrentlyScheduledNotifications =
     return dispatch({
       type: 'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS',
       payload: notifications,
+    });
+  };
+
+export const setHistoryNotifications =
+  (
+    dispatch: Dispatch<Action>,
+  ): StateContextActions['onAddHistoryNotification'] =>
+  notification => {
+    return dispatch({
+      type: 'SET_ADD_NOTIFICATION',
+      payload: notification,
     });
   };

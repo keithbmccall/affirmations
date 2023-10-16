@@ -1,4 +1,4 @@
-import { NotificationRequestWithData } from '@platform';
+import { HistoryNotification, NotificationRequestWithData } from '@platform';
 import { ExpoPushToken } from 'expo-notifications';
 
 type ActionType<Name extends string, Payload = unknown> = {
@@ -11,4 +11,5 @@ export type Action =
   | ActionType<
       'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS',
       NotificationRequestWithData[]
-    >;
+    >
+  | ActionType<'SET_ADD_NOTIFICATION', HistoryNotification>;

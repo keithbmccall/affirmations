@@ -8,11 +8,13 @@ export type NotificationMessage = {
   body: string;
 };
 export const useNotifications = () => {
-  const { currentlyScheduledNotifications } = useAppState();
   const notificationToken = useNotificationToken();
+  const { currentlyScheduledNotifications, historyNotifications } =
+    useAppState();
   const { getCurrentlyScheduledNotifications } =
     useCurrentlyScheduledNotifications();
-  const { onSetCurrentlyScheduledNotifications } = useActions();
+  const { onSetCurrentlyScheduledNotifications, onAddHistoryNotification } =
+    useActions();
 
   const refreshCurrentlyScheduledNotifications = async () =>
     onSetCurrentlyScheduledNotifications(
@@ -21,19 +23,32 @@ export const useNotifications = () => {
   const schedulePushNotification = useCallback(
     async (date: Date, title: string, message: string) => {
       if (notificationToken) {
+        const time = date.getTime();
+        const rawDate = date.toString();
+        const stringDate = date.toDateString();
+        const body = message;
+        const timeData = {
+          time,
+          rawDate,
+          date: stringDate,
+        };
         await Notifications.scheduleNotificationAsync({
           content: {
             title,
-            body: message,
-            data: {
-              time: date.getTime(),
-              rawDate: date.toString(),
-              date: date.toDateString(),
-            },
+            body,
+            data: timeData,
           },
           trigger: {
             channelId: 'calendar',
             date,
+          },
+        });
+        onAddHistoryNotification({
+          identifier: `${title}_${rawDate}`,
+          content: {
+            title,
+            body,
+            data: timeData,
           },
         });
         await refreshCurrentlyScheduledNotifications();
@@ -44,6 +59,7 @@ export const useNotifications = () => {
 
   return {
     currentlyScheduledNotifications,
+    historyNotifications,
     schedulePushNotification,
   };
 };
