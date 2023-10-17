@@ -12,4 +12,5 @@ export type Action =
       'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS',
       NotificationRequestWithData[]
     >
-  | ActionType<'SET_ADD_NOTIFICATION', HistoryNotification>;
+  | ActionType<'SET_ADD_NOTIFICATION', HistoryNotification>
+  | ActionType<'SET_ADD_NOTIFICATIONS', HistoryNotification[]>;

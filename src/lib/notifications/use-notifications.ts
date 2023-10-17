@@ -51,6 +51,8 @@ export const useNotifications = () => {
             data: timeData,
           },
         });
+
+
         await refreshCurrentlyScheduledNotifications();
       }
     },

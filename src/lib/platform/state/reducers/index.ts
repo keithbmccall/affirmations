@@ -10,12 +10,14 @@ export interface StateContextActions {
     notifications: NotificationRequestWithData[],
   ) => void;
   onAddHistoryNotification: (notification: HistoryNotification) => void;
+  onAddHistoryNotifications: (notifications: HistoryNotification[]) => void;
 }
 
 export const initialStateContextActions: StateContextActions = {
   onSetNotificationToken: noop,
   onSetCurrentlyScheduledNotifications: noop,
   onAddHistoryNotification: noop,
+  onAddHistoryNotifications: noop,
 };
 
 export interface StateType {
@@ -72,6 +74,14 @@ export const stateReducer = (
           ],
         },
       };
+    case 'SET_ADD_NOTIFICATIONS':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          historyNotifications: action.payload,
+        },
+      };
     default:
       return state;
   }
@@ -97,7 +107,7 @@ export const setCurrentlyScheduledNotifications =
     });
   };
 
-export const setHistoryNotifications =
+export const setHistoryNotification =
   (
     dispatch: Dispatch<Action>,
   ): StateContextActions['onAddHistoryNotification'] =>
@@ -105,5 +115,16 @@ export const setHistoryNotifications =
     return dispatch({
       type: 'SET_ADD_NOTIFICATION',
       payload: notification,
+    });
+  };
+
+export const setHistoryNotifications =
+  (
+    dispatch: Dispatch<Action>,
+  ): StateContextActions['onAddHistoryNotifications'] =>
+  notifications => {
+    return dispatch({
+      type: 'SET_ADD_NOTIFICATIONS',
+      payload: notifications,
     });
   };

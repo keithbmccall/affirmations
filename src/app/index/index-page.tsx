@@ -1,13 +1,12 @@
 import { ScheduledNotifications } from '@components/scheduled-notfications';
 import { Scheduler } from '@components/scheduler';
-import { makeStyles, Text, useTheme } from '@rneui/themed';
+import { useActions } from '@platform';
+import { makeStyles, useTheme } from '@rneui/themed';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-
+import { useCurrentlyScheduledNotifications } from '../../lib/notifications/use-currently-scheduled-notifications';
 
 const useStyles = makeStyles((theme, props: any) => ({
   container: {
@@ -21,6 +20,18 @@ const useStyles = makeStyles((theme, props: any) => ({
 
 export const IndexPage = (props: any) => {
   const { theme } = useTheme();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { getCurrentlyScheduledNotifications } =
+    useCurrentlyScheduledNotifications();
+  const { onSetCurrentlyScheduledNotifications } = useActions();
+
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    onSetCurrentlyScheduledNotifications(
+      await getCurrentlyScheduledNotifications(),
+    );
+    setIsRefreshing(false);
+  };
 
   return (
     <SafeAreaView
@@ -31,7 +42,11 @@ export const IndexPage = (props: any) => {
       }}
     >
       <StatusBar style="inverted" />
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+      >
         <Scheduler />
         <View
           style={{
@@ -47,7 +62,6 @@ export const IndexPage = (props: any) => {
         </View>
 
         <ScheduledNotifications />
-
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,22 +1,23 @@
 import {
-createContext,
-FC,
-PropsWithChildren,
-useContext,
-useMemo,
-useReducer,
+  createContext,
+  FC,
+  PropsWithChildren,
+  useContext,
+  useMemo,
+  useReducer,
 } from 'react';
 import { useInitNotifications } from '../../notifications/use-init-notifications';
 import { Action } from './actions-types';
 import {
-initialState,
-initialStateContextActions,
-setCurrentlyScheduledNotifications,
-setHistoryNotifications,
-setNotificationToken,
-StateContextActions,
-stateReducer,
-StateType,
+  initialState,
+  initialStateContextActions,
+  setCurrentlyScheduledNotifications,
+  setHistoryNotification,
+  setHistoryNotifications,
+  setNotificationToken,
+  StateContextActions,
+  stateReducer,
+  StateType,
 } from './reducers';
 
 export type StateContextType = StateType & {
@@ -41,7 +42,8 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       onSetNotificationToken: setNotificationToken(dispatch),
       onSetCurrentlyScheduledNotifications:
         setCurrentlyScheduledNotifications(dispatch),
-      onAddHistoryNotification: setHistoryNotifications(dispatch),
+      onAddHistoryNotification: setHistoryNotification(dispatch),
+      onAddHistoryNotifications: setHistoryNotifications(dispatch),
     }),
     [],
   );

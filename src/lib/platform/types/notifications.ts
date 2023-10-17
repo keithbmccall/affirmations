@@ -3,7 +3,7 @@ import { NotificationRequest } from 'expo-notifications';
 type NotificationData = {
   data: {
     date: string;
-    time: string;
+    time: number;
     rawDate: string;
   };
 };
