@@ -20,6 +20,6 @@ export type HistoryNotification = {
   content: {
     title: string;
     body: string;
-    data: { date: string; time: number; rawDate: string };
+    data: NotificationData['data'];
   };
 };
