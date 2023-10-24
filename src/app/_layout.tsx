@@ -8,6 +8,7 @@ import {
   useRouter,
 } from 'expo-router';
 import { useStoreRouteInfo } from 'expo-router/src/global-state/router-store';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function Layout() {
   const router = useRouter();
@@ -23,7 +24,9 @@ export default function Layout() {
   return (
     <StateContextProvider>
       <ThemeProvider theme={Theme}>
-        <Slot />
+        <SafeAreaProvider>
+          <Slot />
+        </SafeAreaProvider>
       </ThemeProvider>
     </StateContextProvider>
   );

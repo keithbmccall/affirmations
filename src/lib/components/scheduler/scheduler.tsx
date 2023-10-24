@@ -3,12 +3,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Input, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
 import { useInputRef } from '@utils';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { FC, useState } from 'react';
+import { View, ViewStyle } from 'react-native';
 
 export const minimumDate = new Date();
 
-export const Scheduler = () => {
+interface SchedulerProps {
+  containerStyle?: ViewStyle;
+}
+export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
   const [time, setTime] = useState<Date>(new Date());
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -57,7 +60,7 @@ export const Scheduler = () => {
   };
 
   return (
-    <View>
+    <View style={containerStyle}>
       <DateTimePicker
         display="spinner"
         minimumDate={minimumDate}

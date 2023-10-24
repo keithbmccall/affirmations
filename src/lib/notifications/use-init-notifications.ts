@@ -52,6 +52,14 @@ export const useInitNotifications = (
         providerActions.onSetCurrentlyScheduledNotifications(notifications);
       });
 
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+
     notificationListener.current =
       Notifications.addNotificationReceivedListener(async noti => {
         console.log('when notification is received', {
