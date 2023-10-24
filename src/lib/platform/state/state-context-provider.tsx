@@ -48,7 +48,7 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
     [],
   );
 
-  useInitNotifications(providerActions);
+  useInitNotifications(providerActions, state);
 
   return (
     <StateContext.Provider

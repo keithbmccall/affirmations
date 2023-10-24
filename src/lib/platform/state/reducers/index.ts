@@ -63,7 +63,7 @@ export const stateReducer = (
           currentlyScheduledNotifications: action.payload,
         },
       };
-    case 'SET_ADD_NOTIFICATION':
+    case 'SET_ADD_HISTORY_NOTIFICATION':
       return {
         ...state,
         app: {
@@ -74,7 +74,7 @@ export const stateReducer = (
           ],
         },
       };
-    case 'SET_ADD_NOTIFICATIONS':
+    case 'SET_ADD_HISTORY_NOTIFICATIONS':
       return {
         ...state,
         app: {
@@ -113,7 +113,7 @@ export const setHistoryNotification =
   ): StateContextActions['onAddHistoryNotification'] =>
   notification => {
     return dispatch({
-      type: 'SET_ADD_NOTIFICATION',
+      type: 'SET_ADD_HISTORY_NOTIFICATION',
       payload: notification,
     });
   };
@@ -124,7 +124,7 @@ export const setHistoryNotifications =
   ): StateContextActions['onAddHistoryNotifications'] =>
   notifications => {
     return dispatch({
-      type: 'SET_ADD_NOTIFICATIONS',
+      type: 'SET_ADD_HISTORY_NOTIFICATIONS',
       payload: notifications,
     });
   };

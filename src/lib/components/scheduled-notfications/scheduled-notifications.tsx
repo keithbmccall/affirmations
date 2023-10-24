@@ -1,6 +1,7 @@
 import { NotificationCard } from '@components/scheduled-notfications/notification-card';
 import { useNotifications } from '@notifications';
-import { Text, useTheme } from '@rneui/themed';
+import { makeStyles, Text, useTheme } from '@rneui/themed';
+import { globalStyles } from '@theme';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -12,7 +13,7 @@ enum VIEW_MODE {
 export const ScheduledNotifications = () => {
   const { theme } = useTheme();
   const [viewMode, setViewMode] = useState<VIEW_MODE>(VIEW_MODE.SCHEDULED);
-
+  const styles = useStyles(theme);
   const { currentlyScheduledNotifications, historyNotifications } =
     useNotifications();
 
@@ -21,7 +22,6 @@ export const ScheduledNotifications = () => {
       <View
         style={{
           flexDirection: 'row',
-
           borderWidth: 3,
           borderRadius: 10,
           borderColor: theme.colors.grey5,
@@ -34,18 +34,11 @@ export const ScheduledNotifications = () => {
           onPress={() => {
             setViewMode(VIEW_MODE.SCHEDULED);
           }}
-          containerStyle={{
-            width: '50%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            ...(viewMode === VIEW_MODE.SCHEDULED && {
-              borderStyle: 'solid',
-              borderColor: theme.colors.grey5,
-              backgroundColor: theme.colors.grey5,
-              borderWidth: 1,
-              borderRadius: 10,
-            }),
-          }}
+          containerStyle={[
+            styles.notificationCategoryOption,
+            viewMode === VIEW_MODE.SCHEDULED &&
+              styles.selectedNotificationCategoryOption,
+          ]}
         >
           <Text>Scheduled</Text>
         </TouchableOpacity>
@@ -56,18 +49,11 @@ export const ScheduledNotifications = () => {
           onPress={() => {
             setViewMode(VIEW_MODE.HISTORY);
           }}
-          containerStyle={{
-            width: '50%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            ...(viewMode === VIEW_MODE.HISTORY && {
-              borderStyle: 'solid',
-              borderColor: theme.colors.grey5,
-              backgroundColor: theme.colors.grey5,
-              borderWidth: 1,
-              borderRadius: 10,
-            }),
-          }}
+          containerStyle={[
+            styles.notificationCategoryOption,
+            viewMode === VIEW_MODE.HISTORY &&
+              styles.selectedNotificationCategoryOption,
+          ]}
         >
           <Text>History</Text>
         </TouchableOpacity>
@@ -117,7 +103,7 @@ export const ScheduledNotifications = () => {
               const minutes = dateObject.getMinutes();
               return (
                 <TouchableOpacity
-                  key={identifier}
+                  key={`${identifier}_${time}`}
                   style={{ paddingVertical: 10 }}
                 >
                   <NotificationCard
@@ -134,3 +120,16 @@ export const ScheduledNotifications = () => {
     </View>
   );
 };
+export const useStyles = makeStyles((theme, props: any) => ({
+  notificationCategoryOption: {
+    width: '50%',
+    ...globalStyles.justifyCenter,
+  },
+  selectedNotificationCategoryOption: {
+    borderStyle: 'solid',
+    borderColor: theme.colors.grey5,
+    backgroundColor: theme.colors.grey5,
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+}));

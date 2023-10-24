@@ -17,7 +17,12 @@ export const saveData: SaveData = async (key, value, onError) => {
 type LoadData = (key: string) => Promise<any>;
 export const loadData: LoadData = async (key: string) => {
   return AsyncStorage.getItem(key)
-    .then(value => value && JSON.parse(value))
+    .then(value => {
+      if (value) {
+        return JSON.parse(value);
+      }
+      return false;
+    })
     .catch(e => {
       console.log('Data failed to load!!!');
       return e;

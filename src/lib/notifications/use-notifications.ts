@@ -52,7 +52,6 @@ export const useNotifications = () => {
           },
         });
 
-
         await refreshCurrentlyScheduledNotifications();
       }
     },

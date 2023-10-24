@@ -1,40 +1,44 @@
-import {
-  loadData,
-  saveData,
-  StateContextActions,
-  StorageDevice,
-  useActions,
-  useAppState,
-} from '@platform';
+import { StateContextActions, StateType } from '@platform';
+import { StorageDevice, loadData, saveData } from '@storage';
 import * as Notifications from 'expo-notifications';
 import { Subscription } from 'expo-notifications';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { notificationsRegistration } from './notifications-registration';
 import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 
-const useInitHistory = () => {
-  const { onAddHistoryNotifications } = useActions();
-  const { historyNotifications } = useAppState();
-  useEffect(() => {
-    saveData(StorageDevice.HISTORY_NOTIFICATIONS, historyNotifications);
-  }, [historyNotifications]);
+const useInitHistory = (
+  providerActions: StateContextActions,
+  providerState: StateType,
+) => {
+  const [isHistoryInited, setIsHistoryInited] = useState(false);
+  const { historyNotifications } = providerState.app;
 
   useEffect(() => {
     loadData(StorageDevice.HISTORY_NOTIFICATIONS).then(
       _historyNotifications => {
-        if (historyNotifications)
-          onAddHistoryNotifications(_historyNotifications);
+        if (_historyNotifications) {
+          providerActions.onAddHistoryNotifications(_historyNotifications);
+          setIsHistoryInited(true);
+        }
       },
     );
   }, []);
+
+  useEffect(() => {
+    if (isHistoryInited && historyNotifications.length) {
+      saveData(StorageDevice.HISTORY_NOTIFICATIONS, historyNotifications);
+    }
+  }, [historyNotifications, isHistoryInited]);
 };
-export const useInitNotifications = (providerActions: StateContextActions) => {
+
+export const useInitNotifications = (
+  providerActions: StateContextActions,
+  providerState: StateType,
+) => {
   const notificationListener = useRef<Subscription>();
   const responseListener = useRef<Subscription>();
   const { getCurrentlyScheduledNotifications } =
     useCurrentlyScheduledNotifications();
-
-
 
   useEffect(() => {
     notificationsRegistration()
@@ -74,5 +78,5 @@ export const useInitNotifications = (providerActions: StateContextActions) => {
     };
   }, []);
 
-  useInitHistory();
+  useInitHistory(providerActions, providerState);
 };

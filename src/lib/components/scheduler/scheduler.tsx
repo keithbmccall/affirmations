@@ -23,6 +23,8 @@ export const Scheduler = () => {
   const messageInput = useInputRef('');
 
   const onSubmit = async () => {
+    const timeNow = Date.now();
+    const timeOfSchedule = time.getTime();
     console.log(
       `Committed with title of ${title} and message of ${message} and time of ${time}`,
     );
@@ -30,16 +32,23 @@ export const Scheduler = () => {
 
     if (title.length < 3) {
       isError = true;
-      setTitleError('Titles need to be at least 3 characters');
+      setTitleError('Titles need to be at least 3 characters!');
     }
     if (message.length < 8) {
       isError = true;
-      setMessageError('Messages need to be at least 8 characters');
+      setMessageError('Messages need to be at least 8 characters!');
+    }
+
+    if (timeNow > timeOfSchedule) {
+      isError = true;
+      setMessageError('Messages cannot be scheduled in the past!');
     }
 
     if (!isError) {
       if (titleError) setTitleError('');
       if (messageError) setMessageError('');
+      setTitle('');
+      setMessage('');
       console.log(
         `Sent with title of ${title} and message of ${message} and time of ${time}`,
       );
