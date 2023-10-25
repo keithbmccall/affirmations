@@ -7,5 +7,5 @@ export const useAppState = () => {
   return useStateContext().app;
 };
 export const useNotificationToken = () => {
-  return useStateContext().app.notificationToken;
+  return useAppState().notificationToken;
 };

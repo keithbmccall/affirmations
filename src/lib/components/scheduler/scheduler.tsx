@@ -4,7 +4,7 @@ import { Button, Input, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
 import { useInputRef } from '@utils';
 import { FC, useState } from 'react';
-import { View, ViewStyle } from 'react-native';
+import { Keyboard, View, ViewStyle } from 'react-native';
 
 export const minimumDate = new Date();
 
@@ -52,6 +52,7 @@ export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
       if (messageError) setMessageError('');
       setTitle('');
       setMessage('');
+      Keyboard.dismiss();
       console.log(
         `Sent with title of ${title} and message of ${message} and time of ${time}`,
       );
@@ -96,6 +97,7 @@ export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
             placeholder="Title"
             errorMessage={titleError}
             ref={titleInput}
+            value={title}
           />
 
           <Input
@@ -109,6 +111,7 @@ export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
             }}
             placeholder="Message"
             ref={messageInput}
+            value={message}
           />
         </View>
 

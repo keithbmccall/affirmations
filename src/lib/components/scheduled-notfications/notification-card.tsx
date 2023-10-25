@@ -1,24 +1,19 @@
-import { NotificationRequestWithData } from '@platform';
-import { makeStyles, Text } from '@rneui/themed';
+import { NotificationContent } from '@platform';
+import { Text, makeStyles } from '@rneui/themed';
 import { globalStyles } from '@theme';
 import { FC } from 'react';
 import { View } from 'react-native';
 
-interface NotificationCardProps {
-  title: NotificationRequestWithData['content']['title'];
-  body: NotificationRequestWithData['content']['body'];
-  time: {
-    hours: number;
-    minutes: number;
-  };
-}
+type NotificationCardProps = NotificationContent;
 export const NotificationCard: FC<NotificationCardProps> = ({
-  title,
-  time,
   body,
+  data: { time, date },
+  title,
 }) => {
   const styles = useStyles();
-  const { hours, minutes } = time;
+  const dateObject = new Date(time);
+  const hours = dateObject.getHours();
+  const minutes = dateObject.getMinutes();
   const ampm = hours > 11 ? 'pm' : 'am';
   const displayedHours = hours > 12 ? hours - 12 : hours;
   const displayedMinutes = minutes < 10 ? `0${minutes}` : minutes;
@@ -36,6 +31,7 @@ export const NotificationCard: FC<NotificationCardProps> = ({
             {ampm}
           </Text>
         </Text>
+        <Text style={styles.dateText}>{date}</Text>
       </View>
       <View style={styles.descriptionContainer}>
         <Text
@@ -74,5 +70,9 @@ export const useStyles = makeStyles((theme, props: any) => ({
   },
   timeText: {
     ...globalStyles.bigText,
+  },
+  dateText: {
+    ...globalStyles.smallText,
+    textAlign: 'center',
   },
 }));

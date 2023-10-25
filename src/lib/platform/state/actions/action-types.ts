@@ -1,5 +1,9 @@
-import { HistoryNotification, NotificationRequestWithData } from '@platform';
 import { ExpoPushToken } from 'expo-notifications';
+import {
+  HistoryNotification,
+  Modal,
+  NotificationRequestWithData,
+} from '../../types';
 
 type ActionType<Name extends string, Payload = unknown> = {
   type: Name;
@@ -13,4 +17,5 @@ export type Action =
       NotificationRequestWithData[]
     >
   | ActionType<'SET_ADD_HISTORY_NOTIFICATION', HistoryNotification>
-  | ActionType<'SET_ADD_HISTORY_NOTIFICATIONS', HistoryNotification[]>;
+  | ActionType<'SET_ADD_HISTORY_NOTIFICATIONS', HistoryNotification[]>
+  | ActionType<'SET_MODAL', Modal>;

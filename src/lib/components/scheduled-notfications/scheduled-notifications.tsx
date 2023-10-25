@@ -1,12 +1,16 @@
 import { NotificationCard } from '@components/scheduled-notfications/notification-card';
-import { useNotifications } from '@notifications';
+import {
+  useCurrentlyScheduledNotifications,
+  useNotifications,
+} from '@notifications';
 import { useActions } from '@platform';
-import { makeStyles, Text, useTheme } from '@rneui/themed';
+import { Text, makeStyles, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
 import { FC, useState } from 'react';
 import { RefreshControl, ScrollView, View, ViewStyle } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useCurrentlyScheduledNotifications } from '../../notifications/use-currently-scheduled-notifications';
+import { useModalContainer } from '../../modals';
+import { ModalTypes } from '../../platform/types';
 
 enum VIEW_MODE {
   SCHEDULED = 'SCHEDULED',
@@ -19,13 +23,14 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
   containerStyle,
 }) => {
   const { theme } = useTheme();
+
+  const { setActiveModal } = useModalContainer();
   const [viewMode, setViewMode] = useState<VIEW_MODE>(VIEW_MODE.SCHEDULED);
   const styles = useStyles(theme);
-  const { currentlyScheduledNotifications, historyNotifications } =
+  const { currentlyScheduledNotifications,getCurrentlyScheduledNotifications, historyNotifications } =
     useNotifications();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { getCurrentlyScheduledNotifications } =
-    useCurrentlyScheduledNotifications();
+
   const { onSetCurrentlyScheduledNotifications } = useActions();
 
   const onRefresh = async () => {
@@ -83,58 +88,38 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
         }
       >
         {viewMode === VIEW_MODE.SCHEDULED
-          ? currentlyScheduledNotifications?.map(
-              ({
-                identifier,
-                content: {
-                  title,
-                  body,
-                  data: { date, time, rawDate },
-                },
-              }) => {
-                const dateObject = new Date(time);
-                const hours = dateObject.getHours();
-                const minutes = dateObject.getMinutes();
-                return (
-                  <TouchableOpacity
-                    key={identifier}
-                    style={{ paddingVertical: 10 }}
-                  >
-                    <NotificationCard
-                      body={body}
-                      title={title}
-                      time={{ hours, minutes }}
-                    />
-                  </TouchableOpacity>
-                );
-              },
-            )
-          : historyNotifications?.map(
-              ({
-                identifier,
-                content: {
-                  title,
-                  body,
-                  data: { date, time, rawDate },
-                },
-              }) => {
-                const dateObject = new Date(time);
-                const hours = dateObject.getHours();
-                const minutes = dateObject.getMinutes();
-                return (
-                  <TouchableOpacity
-                    key={`${identifier}_${time}`}
-                    style={{ paddingVertical: 10 }}
-                  >
-                    <NotificationCard
-                      body={body}
-                      title={title}
-                      time={{ hours, minutes }}
-                    />
-                  </TouchableOpacity>
-                );
-              },
-            )}
+          ? currentlyScheduledNotifications?.map(({ identifier, content }) => {
+              const onPress = () => {
+                setActiveModal(ModalTypes.NOTIFICATION_MODAL, {
+                  [ModalTypes.NOTIFICATION_MODAL]: content,
+                });
+              };
+              return (
+                <TouchableOpacity
+                  key={identifier}
+                  onPress={onPress}
+                  style={{ paddingVertical: 10 }}
+                >
+                  <NotificationCard {...content} />
+                </TouchableOpacity>
+              );
+            })
+          : historyNotifications?.map(({ identifier, content }) => {
+              const onPress = () => {
+                setActiveModal(ModalTypes.NOTIFICATION_MODAL, {
+                  [ModalTypes.NOTIFICATION_MODAL]: content,
+                });
+              };
+              return (
+                <TouchableOpacity
+                  key={identifier}
+                  onPress={onPress}
+                  style={{ paddingVertical: 10 }}
+                >
+                  <NotificationCard {...content} />
+                </TouchableOpacity>
+              );
+            })}
       </ScrollView>
     </View>
   );
@@ -148,7 +133,5 @@ export const useStyles = makeStyles((theme, props: any) => ({
     borderStyle: 'solid',
     borderColor: theme.colors.grey5,
     backgroundColor: theme.colors.grey5,
-    borderWidth: 1,
-    borderRadius: 10,
   },
 }));

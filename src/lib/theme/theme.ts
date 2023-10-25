@@ -7,6 +7,9 @@ export const globalStyles: Record<string, ViewStyle | ImageStyle | TextStyle> =
     bigText: {
       fontSize: 40,
     },
+    smallText: {
+      fontSize: 10,
+    },
     largeText: {
       fontSize: 30,
     },
@@ -28,16 +31,8 @@ export const Theme = createTheme({
     background: '#232222',
     white: '#ffffff',
     grey5: '#2f3131',
+    grey4: '#3d3c3c',
     grey3: '#868a8a',
-  },
-  components: {
-    // Button: {
-    //   buttonStyle: {
-    //     borderStyle: 'dotted',
-    //     borderWidth: 5,
-    //     borderColor: 'gold',
-    //   },
-    // },
   },
   mode: 'dark',
 });

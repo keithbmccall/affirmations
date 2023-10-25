@@ -15,11 +15,12 @@ type NotificationWithCustomData<T> = Omit<NotificationRequest, 'content'> & {
 export type NotificationRequestWithData =
   NotificationWithCustomData<NotificationData>;
 
+export type NotificationContent = Omit<
+  NotificationRequestWithData['content'],
+  'sound' | 'subtitle'
+>;
+
 export type HistoryNotification = {
   identifier: string;
-  content: {
-    title: string;
-    body: string;
-    data: NotificationData['data'];
-  };
+  content: NotificationContent;
 };

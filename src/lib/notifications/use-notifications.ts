@@ -60,6 +60,7 @@ export const useNotifications = () => {
 
   return {
     currentlyScheduledNotifications,
+    getCurrentlyScheduledNotifications,
     historyNotifications,
     schedulePushNotification,
   };
