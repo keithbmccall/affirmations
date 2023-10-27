@@ -1,13 +1,12 @@
 import { useModalContainer } from '@modals';
 import { useNotifications } from '@notifications';
-import { useActions } from '@platform';
-import { Text, makeStyles, useTheme } from '@rneui/themed';
-import { globalStyles } from '@theme';
+import { ModalTypes, useActions } from '@platform';
+import { Text, useTheme } from '@rneui/themed';
 import { FC, useState } from 'react';
 import { RefreshControl, ScrollView, View, ViewStyle } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { ModalTypes } from '../../platform/types';
 import { NotificationCard } from './notification-card';
+import { useStyles } from './styles';
 
 enum VIEW_MODE {
   SCHEDULED = 'SCHEDULED',
@@ -124,14 +123,3 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
     </View>
   );
 };
-export const useStyles = makeStyles((theme, props: any) => ({
-  notificationCategoryOption: {
-    width: '50%',
-    ...globalStyles.justifyCenter,
-  },
-  selectedNotificationCategoryOption: {
-    borderStyle: 'solid',
-    borderColor: theme.colors.grey5,
-    backgroundColor: theme.colors.grey5,
-  },
-}));

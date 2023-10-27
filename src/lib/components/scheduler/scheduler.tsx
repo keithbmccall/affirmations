@@ -2,7 +2,7 @@ import { useNotifications } from '@notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Input, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
-import { useInputRef } from '@utils';
+import { fiveMinutesFromNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
 
@@ -12,15 +12,14 @@ interface SchedulerProps {
   containerStyle?: ViewStyle;
 }
 export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
-  const [time, setTime] = useState<Date>(new Date());
+  const [time, setTime] = useState<Date>(fiveMinutesFromNow);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  //
+
   const [titleError, setTitleError] = useState('');
   const [messageError, setMessageError] = useState('');
 
-  const { schedulePushNotification, currentlyScheduledNotifications } =
-    useNotifications();
+  const { schedulePushNotification } = useNotifications();
   const { theme } = useTheme();
   const titleInput = useInputRef('');
   const messageInput = useInputRef('');

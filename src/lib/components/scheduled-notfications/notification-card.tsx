@@ -1,8 +1,8 @@
 import { NotificationContent } from '@platform';
-import { Text, makeStyles } from '@rneui/themed';
-import { globalStyles } from '@theme';
+import { Text } from '@rneui/themed';
 import { FC } from 'react';
 import { View } from 'react-native';
+import { useStyles } from './styles';
 
 type NotificationCardProps = NotificationContent;
 export const NotificationCard: FC<NotificationCardProps> = ({
@@ -19,7 +19,7 @@ export const NotificationCard: FC<NotificationCardProps> = ({
   const displayedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
   return (
-    <View style={styles.container}>
+    <View style={styles.cardContainer}>
       <View style={styles.timeContainer}>
         <Text style={styles.timeText}>
           {`${displayedHours}:${displayedMinutes}`}
@@ -54,25 +54,3 @@ export const NotificationCard: FC<NotificationCardProps> = ({
     </View>
   );
 };
-export const useStyles = makeStyles((theme, props: any) => ({
-  container: {
-    flexDirection: 'row',
-    paddingVertical: 10,
-  },
-  timeContainer: {
-    width: '35%',
-    ...globalStyles.justifyCenter,
-  },
-  descriptionContainer: {
-    width: '65%',
-    ...globalStyles.justifyCenter,
-    paddingHorizontal: 20,
-  },
-  timeText: {
-    ...globalStyles.bigText,
-  },
-  dateText: {
-    ...globalStyles.smallText,
-    textAlign: 'center',
-  },
-}));
