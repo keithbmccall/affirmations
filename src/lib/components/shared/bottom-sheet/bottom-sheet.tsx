@@ -1,8 +1,9 @@
-import { Icon, Text, useTheme } from '@rneui/themed';
+import { useTheme } from '@rneui/themed';
 import { FC, ReactNode } from 'react';
-import { TouchableOpacity, View, ViewStyle } from 'react-native';
+import { View, ViewStyle } from 'react-native';
 import Modal from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomSheetHeader } from './bottom-sheet-header';
 
 export interface BottomSheetProps {
   children: ReactNode;
@@ -44,26 +45,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
             paddingBottom: safeAreaBottom,
           }}
         >
-          <View
-            style={{
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexDirection: 'row',
-              padding: 15,
-            }}
-          >
-            <Icon name="close" size={30} color={theme.colors.background} />
-            <Text
-              style={{
-                fontSize: 30,
-              }}
-            >
-              {title}
-            </Text>
-            <TouchableOpacity onPress={onClose}>
-              <Icon name="close" size={30} />
-            </TouchableOpacity>
-          </View>
+          <BottomSheetHeader onClose={onClose} title={title} />
           <View style={containerStyle}>{children}</View>
         </View>
       </Modal>

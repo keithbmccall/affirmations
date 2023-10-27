@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import {
   notificationsFetchOptions,
   notificationsFetchUrl,
-} from './notifications.config';
+} from '../notifications.config';
 import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 import { NotificationMessage } from './use-notifications';
 

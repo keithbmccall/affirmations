@@ -1,6 +1,7 @@
 import { useActions, useAppState, useNotificationToken } from '@platform';
 import * as Notifications from 'expo-notifications';
 import { useCallback } from 'react';
+import { NotificationSounds } from '../notification-sounds';
 import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 
 export type NotificationMessage = {
@@ -35,6 +36,7 @@ export const useNotifications = () => {
         await Notifications.scheduleNotificationAsync({
           content: {
             title,
+            sound: NotificationSounds.DEFAULT,
             body,
             data: timeData,
           },
@@ -44,7 +46,7 @@ export const useNotifications = () => {
           },
         });
         onAddHistoryNotification({
-          identifier: `${title}_${rawDate}`,
+          identifier: `${title}_${time}`,
           content: {
             title,
             body,

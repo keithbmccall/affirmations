@@ -1,16 +1,13 @@
-import { NotificationCard } from '@components/scheduled-notfications/notification-card';
-import {
-  useCurrentlyScheduledNotifications,
-  useNotifications,
-} from '@notifications';
+import { useModalContainer } from '@modals';
+import { useNotifications } from '@notifications';
 import { useActions } from '@platform';
 import { Text, makeStyles, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
 import { FC, useState } from 'react';
 import { RefreshControl, ScrollView, View, ViewStyle } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useModalContainer } from '../../modals';
 import { ModalTypes } from '../../platform/types';
+import { NotificationCard } from './notification-card';
 
 enum VIEW_MODE {
   SCHEDULED = 'SCHEDULED',
@@ -27,8 +24,11 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
   const { setActiveModal } = useModalContainer();
   const [viewMode, setViewMode] = useState<VIEW_MODE>(VIEW_MODE.SCHEDULED);
   const styles = useStyles(theme);
-  const { currentlyScheduledNotifications,getCurrentlyScheduledNotifications, historyNotifications } =
-    useNotifications();
+  const {
+    currentlyScheduledNotifications,
+    getCurrentlyScheduledNotifications,
+    historyNotifications,
+  } = useNotifications();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { onSetCurrentlyScheduledNotifications } = useActions();

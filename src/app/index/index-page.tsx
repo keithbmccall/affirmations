@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export const IndexPage = (props: any) => {
+export const IndexPage = () => {
   const { theme } = useTheme();
   const { remainingHeight: scheduledNotificationsHeight, setRemainingHeight } =
     useDimensions();

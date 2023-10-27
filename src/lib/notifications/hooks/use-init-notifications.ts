@@ -3,7 +3,7 @@ import { StorageDevice, loadData, saveData } from '@storage';
 import * as Notifications from 'expo-notifications';
 import { Subscription } from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { notificationsRegistration } from './notifications-registration';
+import { notificationsRegistration } from '../notifications.registration';
 import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 
 const useInitHistory = (

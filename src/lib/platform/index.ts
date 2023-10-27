@@ -1,3 +1,3 @@
 export * from './dimensions';
 export * from './state';
-export * from './types/notifications';
+export * from './types';

@@ -6,7 +6,7 @@ import {
   useMemo,
   useReducer,
 } from 'react';
-import { useInitNotifications } from '../../notifications/use-init-notifications';
+import { useInitNotifications } from '../../notifications/hooks/use-init-notifications';
 import {
   initialStateContextActions,
   setCurrentlyScheduledNotifications,
