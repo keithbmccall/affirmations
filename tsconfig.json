@@ -10,9 +10,11 @@
       "@global-types": ["./src/lib/types.ts"],
       "@notifications": ["./src/lib/notifications"],
       "@platform": ["./src/lib/platform"],
+      "@storage": ["./src/lib/storage"],
       "@utils": ["./src/lib/utils"],
       "@theme": ["./src/lib/theme"],
-      "@data": ["./src/data"]
+      "@data": ["./src/data"],
+      "@modals": ["./src/lib/modals"]
     }
   }
 }

@@ -1,3 +1,4 @@
+import { ModalContainer } from '@modals';
 import { StateContextProvider } from '@platform';
 import { ThemeProvider } from '@rneui/themed';
 import { Theme } from '@theme';
@@ -8,6 +9,8 @@ import {
   useRouter,
 } from 'expo-router';
 import { useStoreRouteInfo } from 'expo-router/src/global-state/router-store';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function Layout() {
   const router = useRouter();
@@ -21,10 +24,15 @@ export default function Layout() {
     storeInfo,
   });
   return (
-    <StateContextProvider>
-      <ThemeProvider theme={Theme}>
-        <Slot />
-      </ThemeProvider>
-    </StateContextProvider>
+    <GestureHandlerRootView style={{ flex: 1, opacity: 1 }}>
+      <StateContextProvider>
+        <ThemeProvider theme={Theme}>
+          <SafeAreaProvider>
+            <Slot />
+            <ModalContainer />
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </StateContextProvider>
+    </GestureHandlerRootView>
   );
 }

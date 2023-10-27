@@ -1,22 +1,11 @@
 import { createTheme } from '@rneui/themed';
-import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
+import { textStyles } from './text';
+import { StyleType } from './types';
 
-export const globalStyles: Record<string, ViewStyle | ImageStyle | TextStyle> =
-  {
-    justifyCenter: { alignItems: 'center', justifyContent: 'center' },
-    bigText: {
-      fontSize: 40,
-    },
-    largeText: {
-      fontSize: 30,
-    },
-    mediumText: {
-      fontSize: 20,
-    },
-    mildText: {
-      fontSize: 15,
-    },
-  };
+export const globalStyles: StyleType = {
+  justifyCenter: { alignItems: 'center', justifyContent: 'center' },
+  ...textStyles,
+};
 
 export const Theme = createTheme({
   lightColors: {
@@ -28,16 +17,8 @@ export const Theme = createTheme({
     background: '#232222',
     white: '#ffffff',
     grey5: '#2f3131',
+    grey4: '#3d3c3c',
     grey3: '#868a8a',
-  },
-  components: {
-    // Button: {
-    //   buttonStyle: {
-    //     borderStyle: 'dotted',
-    //     borderWidth: 5,
-    //     borderColor: 'gold',
-    //   },
-    // },
   },
   mode: 'dark',
 });

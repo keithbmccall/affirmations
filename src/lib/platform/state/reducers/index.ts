@@ -1,25 +1,17 @@
-import { NotificationRequestWithData } from '@platform';
-import { noop } from '@utils';
 import { ExpoPushToken } from 'expo-notifications';
-import { Dispatch } from 'react';
-import { Action } from '../actions-types';
-
-export interface StateContextActions {
-  onSetNotificationToken: (token: ExpoPushToken) => void;
-  onSetCurrentlyScheduledNotifications: (
-    notifications: NotificationRequestWithData[],
-  ) => void;
-}
-
-export const initialStateContextActions: StateContextActions = {
-  onSetNotificationToken: noop,
-  onSetCurrentlyScheduledNotifications: noop,
-};
+import {
+  HistoryNotification,
+  Modal,
+  NotificationRequestWithData,
+} from '../../types';
+import { Action } from '../actions';
 
 export interface StateType {
   app: {
     notificationToken: ExpoPushToken;
     currentlyScheduledNotifications: NotificationRequestWithData[];
+    historyNotifications: HistoryNotification[];
+    modal: Modal;
   };
 }
 
@@ -30,6 +22,11 @@ export const initialState: StateType = {
       data: '',
     },
     currentlyScheduledNotifications: [],
+    historyNotifications: [],
+    modal: {
+      openModal: null,
+      withData: {},
+    },
   },
 };
 
@@ -57,27 +54,35 @@ export const stateReducer = (
           currentlyScheduledNotifications: action.payload,
         },
       };
+    case 'SET_ADD_HISTORY_NOTIFICATION':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          historyNotifications: [
+            ...state.app.historyNotifications,
+            action.payload,
+          ],
+        },
+      };
+    case 'SET_ADD_HISTORY_NOTIFICATIONS':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          historyNotifications: action.payload,
+        },
+      };
+    case 'SET_MODAL':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          modal: action.payload,
+        },
+      };
+
     default:
       return state;
   }
 };
-
-export const setNotificationToken =
-  (dispatch: Dispatch<Action>): StateContextActions['onSetNotificationToken'] =>
-  token => {
-    return dispatch({
-      type: 'SET_NOTIFICATION_TOKEN',
-      payload: token,
-    });
-  };
-
-export const setCurrentlyScheduledNotifications =
-  (
-    dispatch: Dispatch<Action>,
-  ): StateContextActions['onSetCurrentlyScheduledNotifications'] =>
-  notifications => {
-    return dispatch({
-      type: 'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS',
-      payload: notifications,
-    });
-  };

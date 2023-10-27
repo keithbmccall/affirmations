@@ -2,27 +2,31 @@ import { useNotifications } from '@notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Input, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
-import { useInputRef } from '@utils';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { fiveMinutesFromNow, useInputRef } from '@utils';
+import { FC, useState } from 'react';
+import { Keyboard, View, ViewStyle } from 'react-native';
 
 export const minimumDate = new Date();
 
-export const Scheduler = () => {
-  const [time, setTime] = useState<Date>(new Date());
+interface SchedulerProps {
+  containerStyle?: ViewStyle;
+}
+export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
+  const [time, setTime] = useState<Date>(fiveMinutesFromNow);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  //
+
   const [titleError, setTitleError] = useState('');
   const [messageError, setMessageError] = useState('');
 
-  const { schedulePushNotification, currentlyScheduledNotifications } =
-    useNotifications();
+  const { schedulePushNotification } = useNotifications();
   const { theme } = useTheme();
   const titleInput = useInputRef('');
   const messageInput = useInputRef('');
 
   const onSubmit = async () => {
+    const timeNow = Date.now();
+    const timeOfSchedule = time.getTime();
     console.log(
       `Committed with title of ${title} and message of ${message} and time of ${time}`,
     );
@@ -30,16 +34,24 @@ export const Scheduler = () => {
 
     if (title.length < 3) {
       isError = true;
-      setTitleError('Titles need to be at least 3 characters');
+      setTitleError('Titles need to be at least 3 characters!');
     }
     if (message.length < 8) {
       isError = true;
-      setMessageError('Messages need to be at least 8 characters');
+      setMessageError('Messages need to be at least 8 characters!');
+    }
+
+    if (timeNow > timeOfSchedule) {
+      isError = true;
+      setMessageError('Messages cannot be scheduled in the past!');
     }
 
     if (!isError) {
       if (titleError) setTitleError('');
       if (messageError) setMessageError('');
+      setTitle('');
+      setMessage('');
+      Keyboard.dismiss();
       console.log(
         `Sent with title of ${title} and message of ${message} and time of ${time}`,
       );
@@ -48,7 +60,7 @@ export const Scheduler = () => {
   };
 
   return (
-    <View>
+    <View style={containerStyle}>
       <DateTimePicker
         display="spinner"
         minimumDate={minimumDate}
@@ -84,6 +96,7 @@ export const Scheduler = () => {
             placeholder="Title"
             errorMessage={titleError}
             ref={titleInput}
+            value={title}
           />
 
           <Input
@@ -97,6 +110,7 @@ export const Scheduler = () => {
             }}
             placeholder="Message"
             ref={messageInput}
+            value={message}
           />
         </View>
 

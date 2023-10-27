@@ -6,17 +6,18 @@ import {
   useMemo,
   useReducer,
 } from 'react';
-import { useInitNotifications } from '../../notifications/use-init-notifications';
-import { Action } from './actions-types';
+import { useInitNotifications } from '../../notifications/hooks/use-init-notifications';
 import {
-  initialState,
   initialStateContextActions,
   setCurrentlyScheduledNotifications,
+  setHistoryNotification,
+  setHistoryNotifications,
+  setModal,
   setNotificationToken,
   StateContextActions,
-  stateReducer,
-  StateType,
-} from './reducers';
+} from './actions';
+import { Action } from './actions/action-types';
+import { initialState, stateReducer, StateType } from './reducers';
 
 export type StateContextType = StateType & {
   actions: StateContextActions;
@@ -40,11 +41,14 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       onSetNotificationToken: setNotificationToken(dispatch),
       onSetCurrentlyScheduledNotifications:
         setCurrentlyScheduledNotifications(dispatch),
+      onAddHistoryNotification: setHistoryNotification(dispatch),
+      onAddHistoryNotifications: setHistoryNotifications(dispatch),
+      onSetModal: setModal(dispatch),
     }),
     [],
   );
 
-  useInitNotifications(providerActions);
+  useInitNotifications(providerActions, state);
 
   return (
     <StateContext.Provider
