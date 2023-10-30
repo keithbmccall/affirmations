@@ -1,7 +1,7 @@
-import { BottomSheet } from '@components/shared';
+import { ModalTypes } from '@platform';
 import { Text } from '@rneui/themed';
+import { BottomSheet } from '@shared-components';
 import { globalStyles } from '@theme';
-import { ModalTypes } from '../platform/types';
 import { useModalContainer } from './use-modal-container';
 
 export const NotificationModal = () => {

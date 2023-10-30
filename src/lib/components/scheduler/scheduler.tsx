@@ -5,6 +5,7 @@ import { globalStyles } from '@theme';
 import { fiveMinutesFromNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
+import { schedulerValidator } from './scheduler-validator';
 
 export const minimumDate = new Date();
 
@@ -25,35 +26,29 @@ export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
   const messageInput = useInputRef('');
 
   const onSubmit = async () => {
-    const timeNow = Date.now();
-    const timeOfSchedule = time.getTime();
     console.log(
       `Committed with title of ${title} and message of ${message} and time of ${time}`,
     );
-    let isError = false;
 
-    if (title.length < 3) {
-      isError = true;
-      setTitleError('Titles need to be at least 3 characters!');
-    }
-    if (message.length < 8) {
-      isError = true;
-      setMessageError('Messages need to be at least 8 characters!');
-    }
-
-    if (timeNow > timeOfSchedule) {
-      isError = true;
-      setMessageError('Messages cannot be scheduled in the past!');
-    }
-
-    if (!isError) {
+    if (
+      schedulerValidator({
+        title,
+        message,
+        time,
+        callbacks: {
+          onTitleError: setTitleError,
+          onMessageError: setMessageError,
+          onTimeError: setMessageError,
+        },
+      })
+    ) {
       if (titleError) setTitleError('');
       if (messageError) setMessageError('');
       setTitle('');
       setMessage('');
       Keyboard.dismiss();
       console.log(
-        `Sent with title of ${title} and message of ${message} and time of ${time}`,
+        `Successfully scheduled with title of ${title} and message of ${message} and time of ${time}`,
       );
       await schedulePushNotification(time, title, message);
     }

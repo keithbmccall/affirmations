@@ -1,8 +1,8 @@
-import { ScheduledNotifications } from '@components/scheduled-notfications';
-import { Scheduler } from '@components/scheduler';
-import { Divider } from '@components/shared';
 import { useDimensions } from '@platform';
 import { useTheme } from '@rneui/themed';
+import { ScheduledNotifications } from '@scheduled-notifications';
+import { Scheduler } from '@scheduler';
+import { Divider } from '@shared-components';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

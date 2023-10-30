@@ -1,6 +1,6 @@
-import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
+import { StyleType } from './types';
 
-export const textStyles: Record<string, ViewStyle | ImageStyle | TextStyle> = {
+export const textStyles: StyleType = {
   bigText: {
     fontSize: 40,
   },

@@ -33,7 +33,7 @@ export const useNotifications = () => {
           rawDate,
           date: stringDate,
         };
-        await Notifications.scheduleNotificationAsync({
+        const identifier = await Notifications.scheduleNotificationAsync({
           content: {
             title,
             sound: NotificationSounds.DEFAULT,
@@ -46,7 +46,7 @@ export const useNotifications = () => {
           },
         });
         onAddHistoryNotification({
-          identifier: `${title}_${time}`,
+          identifier,
           content: {
             title,
             body,
@@ -59,6 +59,10 @@ export const useNotifications = () => {
     },
     [notificationToken, Notifications],
   );
+
+
+
+
 
   return {
     currentlyScheduledNotifications,

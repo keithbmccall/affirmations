@@ -1,8 +1,11 @@
 import { makeStyles } from '@rneui/themed';
-import { globalStyles } from '@theme';
+import { globalStyles, spacingValues } from '@theme';
 
 export const useStyles = makeStyles((theme, props: any) => ({
   notificationCategoryOption: {
+    padding: spacingValues.standard,
+  },
+  notificationCategoryOptionContainer: {
     width: '50%',
     ...globalStyles.justifyCenter,
   },
@@ -13,7 +16,7 @@ export const useStyles = makeStyles((theme, props: any) => ({
   },
   cardContainer: {
     flexDirection: 'row',
-    paddingVertical: 10,
+    paddingVertical: spacingValues.standard,
   },
   timeContainer: {
     width: '35%',
