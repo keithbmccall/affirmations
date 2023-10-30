@@ -9,6 +9,7 @@ import {
 import { useInitNotifications } from '../../notifications/hooks/use-init-notifications';
 import {
   initialStateContextActions,
+  removeHistoryNotification,
   setCurrentlyScheduledNotifications,
   setHistoryNotification,
   setHistoryNotifications,
@@ -42,6 +43,7 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       onSetCurrentlyScheduledNotifications:
         setCurrentlyScheduledNotifications(dispatch),
       onAddHistoryNotification: setHistoryNotification(dispatch),
+      onRemoveHistoryNotification: removeHistoryNotification(dispatch),
       onAddHistoryNotifications: setHistoryNotifications(dispatch),
       onSetModal: setModal(dispatch),
     }),
