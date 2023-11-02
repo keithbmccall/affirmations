@@ -34,38 +34,26 @@ export const NotificationModal = () => {
       onClose={onClose}
       title="Notification"
     >
+      <View style={{ flexDirection: 'row' }}>
+        <Button
+          title="Delete"
+          onPress={async () => {
+            if (identifier) await cancelPushNotification(identifier);
+          }}
+          containerStyle={{ paddingHorizontal: 30 }}
+          buttonStyle={{
+            backgroundColor: 'brown',
+          }}
+        />
+      </View>
       {content &&
         (isScheduledView ? (
-          <>
-            <View style={{ flexDirection: 'row' }}>
-              <Button
-                title="Delete"
-                onPress={async () => {
-                  if (identifier) await cancelPushNotification(identifier);
-                }}
-                containerStyle={{ paddingHorizontal: 30 }}
-                buttonStyle={{
-                  backgroundColor: 'brown',
-                }}
-              />
-              <Button
-                title="Edit"
-                onPress={() => {}}
-                containerStyle={{ paddingHorizontal: 30 }}
-                buttonStyle={{
-                  backgroundColor: 'blue',
-                }}
-              />
-            </View>
-            {content && (
-              <Scheduler
-                defaultTitle={content.title}
-                defaultMessage={content.body}
-                defaultTime={content.data.time}
-                identifier={identifier}
-              />
-            )}
-          </>
+          <Scheduler
+            defaultTitle={content.title}
+            defaultMessage={content.body}
+            defaultTime={content.data.time}
+            identifier={identifier}
+          />
         ) : (
           <>
             <Text style={{ fontSize: 80 }}>
