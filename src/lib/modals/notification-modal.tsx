@@ -39,6 +39,7 @@ export const NotificationModal = () => {
           title="Delete"
           onPress={async () => {
             if (identifier) await cancelPushNotification(identifier);
+            onClose();
           }}
           containerStyle={{ paddingHorizontal: 30 }}
           buttonStyle={{
