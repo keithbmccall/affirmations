@@ -1,6 +1,11 @@
 import { useModalContainer } from '@modals';
 import { useNotifications } from '@notifications';
-import { ModalTypes, NotificationContent, useActions } from '@platform';
+import {
+  ModalTypes,
+  NotificationContent,
+  NotificationIdentifier,
+  useActions,
+} from '@platform';
 import { Text, useTheme } from '@rneui/themed';
 import { FC, useMemo, useState } from 'react';
 import { FlatList, View, ViewStyle } from 'react-native';
@@ -38,9 +43,12 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
     setIsRefreshing(false);
   };
 
-  const onPress = (content: NotificationContent) => {
+  const onPress = (
+    content: NotificationContent,
+    identifier: NotificationIdentifier,
+  ) => {
     setActiveModal(ModalTypes.NOTIFICATION_MODAL, {
-      [ModalTypes.NOTIFICATION_MODAL]: content,
+      [ModalTypes.NOTIFICATION_MODAL]: { content, identifier, viewMode },
     });
   };
 
@@ -67,6 +75,7 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
       >
         {notificationCategoryOptions.map(({ option, display }) => (
           <TouchableOpacity
+            key={option}
             style={styles.notificationCategoryOption}
             onPress={() => {
               setViewMode(option);
@@ -88,7 +97,7 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
         renderItem={({ item: { identifier, content } }) => (
           <TouchableOpacity
             key={identifier}
-            onPress={() => onPress(content)}
+            onPress={() => onPress(content, identifier)}
             style={{ paddingVertical: 10 }}
           >
             <NotificationCard {...content} />

@@ -21,7 +21,8 @@ export type NotificationContent = Omit<
 
 export type NotificationIdentifier = NotificationWithData['identifier'];
 
-export type HistoryNotification = {
+export type Notification = {
   identifier: NotificationIdentifier;
   content: NotificationContent;
-};
+}
+export type HistoryNotification = Notification

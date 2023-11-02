@@ -1,26 +1,37 @@
 import { useNotifications } from '@notifications';
+import { Maybe, NotificationIdentifier } from '@platform';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Input, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
-import { fiveMinutesFromNow, useInputRef } from '@utils';
+import { fiveMinutesFromNow, rightNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
 import { schedulerValidator } from './scheduler-validator';
 
-export const minimumDate = new Date();
-
 interface SchedulerProps {
   containerStyle?: ViewStyle;
+  defaultTime?: Maybe<Date | number>;
+  defaultTitle?: Maybe<string>;
+  defaultMessage?: Maybe<string>;
+  identifier?: Maybe<NotificationIdentifier>;
 }
-export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
-  const [time, setTime] = useState<Date>(fiveMinutesFromNow);
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
+export const Scheduler: FC<SchedulerProps> = ({
+  containerStyle,
+  defaultTime,
+  defaultTitle,
+  defaultMessage,
+  identifier,
+}) => {
+  const [time, setTime] = useState(
+    defaultTime ? new Date(defaultTime) : fiveMinutesFromNow,
+  );
+  const [title, setTitle] = useState(defaultTitle ?? '');
+  const [message, setMessage] = useState(defaultMessage ?? '');
 
   const [titleError, setTitleError] = useState('');
   const [messageError, setMessageError] = useState('');
 
-  const { schedulePushNotification } = useNotifications();
+  const { schedulePushNotification, editPushNotification } = useNotifications();
   const { theme } = useTheme();
   const titleInput = useInputRef('');
   const messageInput = useInputRef('');
@@ -50,6 +61,10 @@ export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
       console.log(
         `Successfully scheduled with title of ${title} and message of ${message} and time of ${time}`,
       );
+      if (identifier) {
+        await editPushNotification(identifier, time, title, message);
+        return;
+      }
       await schedulePushNotification(time, title, message);
     }
   };
@@ -58,7 +73,7 @@ export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
     <View style={containerStyle}>
       <DateTimePicker
         display="spinner"
-        minimumDate={minimumDate}
+        minimumDate={rightNow}
         mode="datetime"
         onChange={(a, b) => {
           if (b) {

@@ -17,12 +17,7 @@ export default function Layout() {
   const local = useLocalSearchParams();
   const path = usePathname();
   const storeInfo = useStoreRouteInfo();
-  console.log({
-    local,
-    path,
-    router,
-    storeInfo,
-  });
+
   return (
     <GestureHandlerRootView style={{ flex: 1, opacity: 1 }}>
       <StateContextProvider>
