@@ -38,7 +38,7 @@ export const NotificationModal = () => {
         },
       },
     };
-  }, []);
+  }, [identifier, cancelPushNotification]);
 
   return (
     <BottomSheet
