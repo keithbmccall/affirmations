@@ -2,7 +2,7 @@ import { useNotifications } from '@notifications';
 import { ModalTypes } from '@platform';
 import { Text } from '@rneui/themed';
 import { Scheduler } from '@scheduler';
-import { BottomSheet, BottomSheetProps } from '@shared-components';
+import { BottomSheet, BottomSheetProps, Icons } from '@shared-components';
 import { globalStyles } from '@theme';
 import { useMemo } from 'react';
 import { VIEW_MODE } from '../components/scheduled-notifications/notification-category-options';
@@ -31,7 +31,7 @@ export const NotificationModal = () => {
     return {
       leadingIconProps: {
         style: { marginLeft: 4 },
-        name: 'delete',
+        name: Icons.TRASH,
         onLongPress: async () => {
           if (identifier) await cancelPushNotification(identifier);
           onClose();

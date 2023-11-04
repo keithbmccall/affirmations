@@ -24,5 +24,5 @@ export type NotificationIdentifier = NotificationWithData['identifier'];
 export type Notification = {
   identifier: NotificationIdentifier;
   content: NotificationContent;
-}
-export type HistoryNotification = Notification
+};
+export type HistoryNotification = Notification;

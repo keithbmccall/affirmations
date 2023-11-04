@@ -1,9 +1,5 @@
 import { ExpoPushToken } from 'expo-notifications';
-import {
-  HistoryNotification,
-  Modal,
-  NotificationWithData,
-} from '../../types';
+import { HistoryNotification, Modal, NotificationWithData } from '../../types';
 import { Action } from '../actions';
 
 export interface StateType {
