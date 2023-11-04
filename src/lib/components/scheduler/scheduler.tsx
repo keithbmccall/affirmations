@@ -14,6 +14,7 @@ interface SchedulerProps {
   defaultTitle?: Maybe<string>;
   defaultMessage?: Maybe<string>;
   identifier?: Maybe<NotificationIdentifier>;
+  shouldClearOnSchedule?: boolean;
 }
 export const Scheduler: FC<SchedulerProps> = ({
   containerStyle,
@@ -21,6 +22,7 @@ export const Scheduler: FC<SchedulerProps> = ({
   defaultTitle,
   defaultMessage,
   identifier,
+  shouldClearOnSchedule = true,
 }) => {
   const [time, setTime] = useState(
     defaultTime ? new Date(defaultTime) : fiveMinutesFromNow,
@@ -55,8 +57,10 @@ export const Scheduler: FC<SchedulerProps> = ({
     ) {
       if (titleError) setTitleError('');
       if (messageError) setMessageError('');
-      setTitle('');
-      setMessage('');
+      if (shouldClearOnSchedule) {
+        setTitle('');
+        setMessage('');
+      }
       Keyboard.dismiss();
       console.log(
         `Successfully scheduled with title of ${title} and message of ${message} and time of ${time}`,

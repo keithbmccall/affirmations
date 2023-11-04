@@ -1,10 +1,10 @@
 import { useNotifications } from '@notifications';
 import { ModalTypes } from '@platform';
-import { Button, Text } from '@rneui/themed';
+import { Text } from '@rneui/themed';
 import { Scheduler } from '@scheduler';
-import { BottomSheet } from '@shared-components';
+import { BottomSheet, BottomSheetProps } from '@shared-components';
 import { globalStyles } from '@theme';
-import { View } from 'react-native';
+import { useMemo } from 'react';
 import { VIEW_MODE } from '../components/scheduled-notifications/notification-category-options';
 import { useModalContainer } from './use-modal-container';
 
@@ -26,27 +26,29 @@ export const NotificationModal = () => {
     content,
     identifier,
   });
+
+  const headerProps: BottomSheetProps['headerProps'] = useMemo(() => {
+    return {
+      leadingIconProps: {
+        style: { marginLeft: 4 },
+        name: 'delete',
+        onLongPress: async () => {
+          if (identifier) await cancelPushNotification(identifier);
+          onClose();
+        },
+      },
+    };
+  }, []);
+
   return (
     <BottomSheet
       avoidKeyboard
       containerStyle={{ ...globalStyles.justifyCenter }}
+      headerProps={headerProps}
       isOpen={activeModal === ModalTypes.NOTIFICATION_MODAL}
       onClose={onClose}
-      title="Notification"
+      title="Notification details"
     >
-      <View style={{ flexDirection: 'row' }}>
-        <Button
-          title="Delete"
-          onPress={async () => {
-            if (identifier) await cancelPushNotification(identifier);
-            onClose();
-          }}
-          containerStyle={{ paddingHorizontal: 30 }}
-          buttonStyle={{
-            backgroundColor: 'brown',
-          }}
-        />
-      </View>
       {content &&
         (isScheduledView ? (
           <Scheduler
@@ -54,6 +56,7 @@ export const NotificationModal = () => {
             defaultMessage={content.body}
             defaultTime={content.data.time}
             identifier={identifier}
+            shouldClearOnSchedule={false}
           />
         ) : (
           <>

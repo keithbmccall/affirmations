@@ -3,12 +3,16 @@ import { FC, ReactNode } from 'react';
 import { View, ViewStyle } from 'react-native';
 import Modal, { ModalProps } from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BottomSheetHeader } from './bottom-sheet-header';
+import {
+  BottomSheetHeader,
+  BottomSheetHeaderProps,
+} from './bottom-sheet-header';
 
 export interface BottomSheetProps {
   avoidKeyboard?: ModalProps['avoidKeyboard'];
   children: ReactNode;
   containerStyle?: ViewStyle;
+  headerProps?: Partial<BottomSheetHeaderProps>;
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -17,6 +21,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
   avoidKeyboard,
   children,
   containerStyle,
+  headerProps,
   isOpen,
   onClose,
   title,
@@ -47,7 +52,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
           paddingBottom: safeAreaBottom,
         }}
       >
-        <BottomSheetHeader onClose={onClose} title={title} />
+        <BottomSheetHeader {...headerProps} onClose={onClose} title={title} />
         <View style={containerStyle}>{children}</View>
       </View>
     </Modal>
