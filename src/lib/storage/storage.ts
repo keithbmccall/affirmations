@@ -16,6 +16,7 @@ export const saveData: SaveData = async (key, value, onError) => {
 
 type LoadData = (key: string) => Promise<any>;
 export const loadData: LoadData = async (key: string) => {
+  // AsyncStorage.clear()
   return AsyncStorage.getItem(key)
     .then(value => {
       if (value) {

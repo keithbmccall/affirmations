@@ -1,15 +1,11 @@
 import { ExpoPushToken } from 'expo-notifications';
-import {
-  HistoryNotification,
-  Modal,
-  NotificationRequestWithData,
-} from '../../types';
+import { HistoryNotification, Modal, NotificationWithData } from '../../types';
 import { Action } from '../actions';
 
 export interface StateType {
   app: {
     notificationToken: ExpoPushToken;
-    currentlyScheduledNotifications: NotificationRequestWithData[];
+    currentlyScheduledNotifications: NotificationWithData[];
     historyNotifications: HistoryNotification[];
     modal: Modal;
   };
@@ -63,6 +59,16 @@ export const stateReducer = (
             ...state.app.historyNotifications,
             action.payload,
           ],
+        },
+      };
+    case 'SET_REMOVE_HISTORY_NOTIFICATION':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          historyNotifications: state.app.historyNotifications.filter(
+            notification => notification.identifier !== action.payload,
+          ),
         },
       };
     case 'SET_ADD_HISTORY_NOTIFICATIONS':

@@ -1,108 +1,119 @@
 import { useNotifications } from '@notifications';
+import { Maybe, NotificationIdentifier } from '@platform';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Button, Input, useTheme } from '@rneui/themed';
+import { Button, Input, Text, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
-import { fiveMinutesFromNow, useInputRef } from '@utils';
+import { fiveMinutesFromNow, rightNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
-
-export const minimumDate = new Date();
+import { schedulerValidator } from './scheduler-validator';
+import { useStyles } from './styles';
 
 interface SchedulerProps {
   containerStyle?: ViewStyle;
+  defaultTime?: Maybe<Date | number>;
+  defaultTitle?: Maybe<string>;
+  defaultMessage?: Maybe<string>;
+  identifier?: Maybe<NotificationIdentifier>;
+  shouldClearOnSchedule?: boolean;
 }
-export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
-  const [time, setTime] = useState<Date>(fiveMinutesFromNow);
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
+export const Scheduler: FC<SchedulerProps> = ({
+  containerStyle,
+  defaultTime,
+  defaultTitle,
+  defaultMessage,
+  identifier,
+  shouldClearOnSchedule = true,
+}) => {
+  const [time, setTime] = useState(
+    defaultTime ? new Date(defaultTime) : fiveMinutesFromNow,
+  );
+  const [title, setTitle] = useState(defaultTitle ?? '');
+  const [message, setMessage] = useState(defaultMessage ?? '');
 
   const [titleError, setTitleError] = useState('');
   const [messageError, setMessageError] = useState('');
+  const [timeError, setTimeError] = useState('');
 
-  const { schedulePushNotification } = useNotifications();
+  const { schedulePushNotification, editPushNotification } = useNotifications();
   const { theme } = useTheme();
+  const styles = useStyles(theme);
   const titleInput = useInputRef('');
   const messageInput = useInputRef('');
 
   const onSubmit = async () => {
-    const timeNow = Date.now();
-    const timeOfSchedule = time.getTime();
     console.log(
       `Committed with title of ${title} and message of ${message} and time of ${time}`,
     );
-    let isError = false;
 
-    if (title.length < 3) {
-      isError = true;
-      setTitleError('Titles need to be at least 3 characters!');
-    }
-    if (message.length < 8) {
-      isError = true;
-      setMessageError('Messages need to be at least 8 characters!');
-    }
-
-    if (timeNow > timeOfSchedule) {
-      isError = true;
-      setMessageError('Messages cannot be scheduled in the past!');
-    }
-
-    if (!isError) {
+    if (
+      schedulerValidator({
+        title,
+        message,
+        time,
+        callbacks: {
+          onTitleError: setTitleError,
+          onMessageError: setMessageError,
+          onTimeError: setTimeError,
+        },
+      })
+    ) {
       if (titleError) setTitleError('');
       if (messageError) setMessageError('');
-      setTitle('');
-      setMessage('');
+      if (timeError) setTimeError('');
+      if (shouldClearOnSchedule) {
+        setTitle('');
+        setMessage('');
+      }
       Keyboard.dismiss();
       console.log(
-        `Sent with title of ${title} and message of ${message} and time of ${time}`,
+        `Successfully scheduled with title of ${title} and message of ${message} and time of ${time}`,
       );
+      if (identifier) {
+        await editPushNotification(identifier, time, title, message);
+        return;
+      }
       await schedulePushNotification(time, title, message);
     }
   };
 
   return (
     <View style={containerStyle}>
-      <DateTimePicker
-        display="spinner"
-        minimumDate={minimumDate}
-        mode="datetime"
-        onChange={(a, b) => {
-          if (b) {
-            setTime(b);
-          }
-        }}
-        textColor={theme.colors.white}
-        value={time}
-      />
-      <View
-        style={{
-          ...globalStyles.justifyCenter,
-        }}
-      >
-        <View
-          style={{
-            width: '100%',
-            backgroundColor: theme.colors.grey5,
-            borderRadius: 10,
-            paddingTop: 15,
-            paddingHorizontal: 20,
+      <View style={styles.dateTimePickerContainer}>
+        <DateTimePicker
+          display="spinner"
+          minimumDate={rightNow}
+          mode="datetime"
+          onChange={(_, b) => {
+            if (b) {
+              setTime(b);
+            }
           }}
-        >
+          textColor={theme.colors.white}
+          value={time}
+        />
+        <Text style={[styles.errorStyle, styles.dateTimePickerErrorStyle]}>
+          {timeError}
+        </Text>
+      </View>
+
+      <View style={globalStyles.justifyCenter}>
+        <View style={styles.inputContainer}>
           <Input
-            inputContainerStyle={{ borderBottomWidth: 0 }}
-            inputStyle={{ color: theme.colors.white, borderBottomWidth: 0 }}
+            errorMessage={titleError}
+            errorStyle={styles.errorStyle}
             onChangeText={value => {
               setTitle(value);
             }}
             placeholder="Title"
-            errorMessage={titleError}
             ref={titleInput}
             value={title}
           />
 
           <Input
-            containerStyle={{ height: 150 }}
+            containerStyle={styles.messageInput}
             errorMessage={messageError}
-            inputContainerStyle={{ borderBottomWidth: 0 }}
+            errorStyle={styles.errorStyle}
             multiline={true}
             numberOfLines={50}
             onChangeText={value => {
@@ -120,11 +131,7 @@ export const Scheduler: FC<SchedulerProps> = ({ containerStyle }) => {
           buttonStyle={{
             backgroundColor: theme.colors.grey5,
           }}
-          containerStyle={{
-            width: '100%',
-            borderRadius: 10,
-            marginTop: 10,
-          }}
+          containerStyle={styles.submit}
         />
       </View>
     </View>

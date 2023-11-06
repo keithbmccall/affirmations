@@ -1,14 +1,19 @@
-import { BottomSheet } from '@components/shared';
+import { useNotifications } from '@notifications';
+import { ModalTypes } from '@platform';
 import { Text } from '@rneui/themed';
+import { Scheduler } from '@scheduler';
+import { BottomSheet, BottomSheetProps, Icons } from '@shared-components';
 import { globalStyles } from '@theme';
-import { ModalTypes } from '../platform/types';
+import { useMemo } from 'react';
+import { VIEW_MODE } from '../components/scheduled-notifications/notification-category-options';
 import { useModalContainer } from './use-modal-container';
 
 export const NotificationModal = () => {
   const { clearActiveModal, withData, activeModal } = useModalContainer();
-
-  const content = withData[ModalTypes.NOTIFICATION_MODAL];
-
+  const { content, identifier, viewMode } =
+    withData[ModalTypes.NOTIFICATION_MODAL] ?? {};
+  const { cancelPushNotification } = useNotifications();
+  const isScheduledView = viewMode === VIEW_MODE.SCHEDULED;
   const onClose = () => clearActiveModal();
 
   const dateObject = new Date(content?.data?.time ?? '');
@@ -17,45 +22,73 @@ export const NotificationModal = () => {
   const ampm = hours > 11 ? 'pm' : 'am';
   const displayedHours = hours > 12 ? hours - 12 : hours;
   const displayedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  console.log({
+    content,
+    identifier,
+  });
+
+  const headerProps: BottomSheetProps['headerProps'] = useMemo(() => {
+    return {
+      leadingIconProps: {
+        style: { marginLeft: 4 },
+        name: Icons.TRASH,
+        onPress: async () => {
+          if (identifier) await cancelPushNotification(identifier);
+          onClose();
+        },
+      },
+    };
+  }, [identifier, cancelPushNotification]);
 
   return (
     <BottomSheet
-      title="Notification"
+      avoidKeyboard
+      containerStyle={{ ...globalStyles.justifyCenter }}
+      headerProps={headerProps}
       isOpen={activeModal === ModalTypes.NOTIFICATION_MODAL}
       onClose={onClose}
-      containerStyle={{ ...globalStyles.justifyCenter }}
+      title="Notification details"
     >
-      {content && (
-        <>
-          <Text style={{ fontSize: 80 }}>
-            {`${displayedHours}:${displayedMinutes}`}
+      {content &&
+        (isScheduledView ? (
+          <Scheduler
+            defaultTitle={content.title}
+            defaultMessage={content.body}
+            defaultTime={content.data.time}
+            identifier={identifier}
+            shouldClearOnSchedule={false}
+          />
+        ) : (
+          <>
+            <Text style={{ fontSize: 80 }}>
+              {`${displayedHours}:${displayedMinutes}`}
+              <Text
+                style={{
+                  fontSize: 20,
+                }}
+              >
+                {ampm}
+              </Text>
+            </Text>
+            <Text style={{ fontSize: 30 }}>{content.data.date} </Text>
             <Text
               style={{
+                paddingTop: 30,
+                fontSize: 50,
+              }}
+            >
+              {content.title}
+            </Text>
+            <Text
+              style={{
+                paddingTop: 10,
                 fontSize: 20,
               }}
             >
-              {ampm}
+              {content.body}
             </Text>
-          </Text>
-          <Text style={{ fontSize: 30 }}>{content.data.date} </Text>
-          <Text
-            style={{
-              paddingTop: 30,
-              fontSize: 50,
-            }}
-          >
-            {content.title}
-          </Text>
-          <Text
-            style={{
-              paddingTop: 10,
-              fontSize: 20,
-            }}
-          >
-            {content.body}
-          </Text>
-        </>
-      )}
+          </>
+        ))}
     </BottomSheet>
   );
 };

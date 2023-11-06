@@ -6,7 +6,11 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "paths": {
-      "@components/*": ["./src/lib/components/*"],
+      "@shared-components": ["./src/lib/components/shared"],
+      "@scheduled-notifications": [
+        "./src/lib/components/scheduled-notifications"
+      ],
+      "@scheduler": ["./src/lib/components/scheduler"],
       "@global-types": ["./src/lib/types.ts"],
       "@notifications": ["./src/lib/notifications"],
       "@platform": ["./src/lib/platform"],

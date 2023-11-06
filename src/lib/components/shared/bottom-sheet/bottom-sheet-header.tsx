@@ -2,7 +2,7 @@ import { Icon, IconProps, Text, useTheme } from '@rneui/themed';
 import { FC } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
-interface BottomSheetHeaderProps {
+export interface BottomSheetHeaderProps {
   leadingIconProps?: IconProps;
   onClose: () => void;
   title: string;
@@ -12,11 +12,16 @@ const defaultLeadingIconProps: IconProps = {
   size: 30,
 };
 export const BottomSheetHeader: FC<BottomSheetHeaderProps> = ({
-  leadingIconProps = defaultLeadingIconProps,
+  leadingIconProps: {
+    color,
+    onPress,
+    ..._leadingIconProps
+  } = defaultLeadingIconProps,
   onClose,
   title,
 }) => {
   const { theme } = useTheme();
+
   return (
     <View
       style={{
@@ -26,7 +31,12 @@ export const BottomSheetHeader: FC<BottomSheetHeaderProps> = ({
         padding: 15,
       }}
     >
-      <Icon {...leadingIconProps} color={theme.colors.background} />
+      <TouchableOpacity onPress={onPress}>
+        <Icon
+          {..._leadingIconProps}
+          color={(!_leadingIconProps && theme.colors.background) || undefined}
+        />
+      </TouchableOpacity>
       <Text
         style={{
           fontSize: 30,
