@@ -32,7 +32,7 @@ export const NotificationModal = () => {
       leadingIconProps: {
         style: { marginLeft: 4 },
         name: Icons.TRASH,
-        onLongPress: async () => {
+        onPress: async () => {
           if (identifier) await cancelPushNotification(identifier);
           onClose();
         },
