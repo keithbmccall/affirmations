@@ -7,6 +7,7 @@ import {
   useActions,
 } from '@platform';
 import { Text, useTheme } from '@rneui/themed';
+import { globalStyles } from '@theme';
 import { FC, useMemo, useState } from 'react';
 import { FlatList, View, ViewStyle } from 'react-native';
 import { RefreshControl, TouchableOpacity } from 'react-native-gesture-handler';
@@ -69,7 +70,7 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
         style={{
           flexDirection: 'row',
           borderWidth: 3,
-          borderRadius: 10,
+          ...globalStyles.borderRadius10,
           borderColor: theme.colors.grey5,
         }}
       >

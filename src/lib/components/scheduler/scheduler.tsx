@@ -1,12 +1,13 @@
 import { useNotifications } from '@notifications';
 import { Maybe, NotificationIdentifier } from '@platform';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Button, Input, useTheme } from '@rneui/themed';
+import { Button, Input, Text, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
 import { fiveMinutesFromNow, rightNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
 import { schedulerValidator } from './scheduler-validator';
+import { useStyles } from './styles';
 
 interface SchedulerProps {
   containerStyle?: ViewStyle;
@@ -32,9 +33,11 @@ export const Scheduler: FC<SchedulerProps> = ({
 
   const [titleError, setTitleError] = useState('');
   const [messageError, setMessageError] = useState('');
+  const [timeError, setTimeError] = useState('');
 
   const { schedulePushNotification, editPushNotification } = useNotifications();
   const { theme } = useTheme();
+  const styles = useStyles(theme);
   const titleInput = useInputRef('');
   const messageInput = useInputRef('');
 
@@ -51,12 +54,13 @@ export const Scheduler: FC<SchedulerProps> = ({
         callbacks: {
           onTitleError: setTitleError,
           onMessageError: setMessageError,
-          onTimeError: setMessageError,
+          onTimeError: setTimeError,
         },
       })
     ) {
       if (titleError) setTitleError('');
       if (messageError) setMessageError('');
+      if (timeError) setTimeError('');
       if (shouldClearOnSchedule) {
         setTitle('');
         setMessage('');
@@ -75,48 +79,41 @@ export const Scheduler: FC<SchedulerProps> = ({
 
   return (
     <View style={containerStyle}>
-      <DateTimePicker
-        display="spinner"
-        minimumDate={rightNow}
-        mode="datetime"
-        onChange={(a, b) => {
-          if (b) {
-            setTime(b);
-          }
-        }}
-        textColor={theme.colors.white}
-        value={time}
-      />
-      <View
-        style={{
-          ...globalStyles.justifyCenter,
-        }}
-      >
-        <View
-          style={{
-            width: '100%',
-            backgroundColor: theme.colors.grey5,
-            borderRadius: 10,
-            paddingTop: 15,
-            paddingHorizontal: 20,
+      <View style={styles.dateTimePickerContainer}>
+        <DateTimePicker
+          display="spinner"
+          minimumDate={rightNow}
+          mode="datetime"
+          onChange={(_, b) => {
+            if (b) {
+              setTime(b);
+            }
           }}
-        >
+          textColor={theme.colors.white}
+          value={time}
+        />
+        <Text style={[styles.errorStyle, styles.dateTimePickerErrorStyle]}>
+          {timeError}
+        </Text>
+      </View>
+
+      <View style={globalStyles.justifyCenter}>
+        <View style={styles.inputContainer}>
           <Input
-            inputContainerStyle={{ borderBottomWidth: 0 }}
-            inputStyle={{ color: theme.colors.white, borderBottomWidth: 0 }}
+            errorMessage={titleError}
+            errorStyle={styles.errorStyle}
             onChangeText={value => {
               setTitle(value);
             }}
             placeholder="Title"
-            errorMessage={titleError}
             ref={titleInput}
             value={title}
           />
 
           <Input
-            containerStyle={{ height: 150 }}
+            containerStyle={styles.messageInput}
             errorMessage={messageError}
-            inputContainerStyle={{ borderBottomWidth: 0 }}
+            errorStyle={styles.errorStyle}
             multiline={true}
             numberOfLines={50}
             onChangeText={value => {
@@ -134,11 +131,7 @@ export const Scheduler: FC<SchedulerProps> = ({
           buttonStyle={{
             backgroundColor: theme.colors.grey5,
           }}
-          containerStyle={{
-            width: '100%',
-            borderRadius: 10,
-            marginTop: 10,
-          }}
+          containerStyle={styles.submit}
         />
       </View>
     </View>
