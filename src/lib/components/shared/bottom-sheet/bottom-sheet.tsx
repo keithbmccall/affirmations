@@ -1,6 +1,6 @@
 import { useTheme } from '@rneui/themed';
 import { FC, ReactNode } from 'react';
-import { View, ViewStyle } from 'react-native';
+import { View, ViewProps, ViewStyle } from 'react-native';
 import Modal, { ModalProps } from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -15,15 +15,17 @@ export interface BottomSheetProps {
   headerProps?: Partial<BottomSheetHeaderProps>;
   isOpen: boolean;
   onClose: () => void;
+  onLayout?: ViewProps['onLayout'];
   title: string;
 }
 export const BottomSheet: FC<BottomSheetProps> = ({
-  avoidKeyboard,
+  avoidKeyboard = true,
   children,
   containerStyle,
   headerProps,
   isOpen,
   onClose,
+  onLayout,
   title,
 }) => {
   const { theme } = useTheme();
@@ -53,7 +55,9 @@ export const BottomSheet: FC<BottomSheetProps> = ({
         }}
       >
         <BottomSheetHeader {...headerProps} onClose={onClose} title={title} />
-        <View style={containerStyle}>{children}</View>
+        <View style={containerStyle} onLayout={onLayout}>
+          {children}
+        </View>
       </View>
     </Modal>
   );

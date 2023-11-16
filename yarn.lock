@@ -7416,6 +7416,11 @@ react-native-screens@~3.22.0:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
 
+react-native-simple-toast@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-simple-toast/-/react-native-simple-toast-3.0.2.tgz#0c020cfeb7aa1c483b1553246a9f859c352c23c2"
+  integrity sha512-bugU0inRKXpcsHuPI92gyHUo5heGvrOkaFphzXldt9awoPl+NioN+aK0m/+I4gMyyxLo1T555LLIs2xU1jEYQw==
+
 react-native-size-matters@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/react-native-size-matters/-/react-native-size-matters-0.4.0.tgz#01bfd0d59454318f4e0b13fe9c1eb0523d70f2e0"

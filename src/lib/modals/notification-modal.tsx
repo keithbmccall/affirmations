@@ -5,6 +5,7 @@ import { Scheduler } from '@scheduler';
 import { BottomSheet, BottomSheetProps, Icons } from '@shared-components';
 import { globalStyles } from '@theme';
 import { useMemo } from 'react';
+import Toast from 'react-native-simple-toast';
 import { VIEW_MODE } from '../components/scheduled-notifications/notification-category-options';
 import { useModalContainer } from './use-modal-container';
 
@@ -14,7 +15,6 @@ export const NotificationModal = () => {
     withData[ModalTypes.NOTIFICATION_MODAL] ?? {};
   const { cancelPushNotification } = useNotifications();
   const isScheduledView = viewMode === VIEW_MODE.SCHEDULED;
-  const onClose = () => clearActiveModal();
 
   const dateObject = new Date(content?.data?.time ?? '');
   const hours = dateObject.getHours();
@@ -26,23 +26,33 @@ export const NotificationModal = () => {
     content,
     identifier,
   });
+  const onClose = () => {
+    clearActiveModal();
+  };
 
-  const headerProps: BottomSheetProps['headerProps'] = useMemo(() => {
-    return {
+  const headerProps: BottomSheetProps['headerProps'] = useMemo(
+    () => ({
       leadingIconProps: {
         style: { marginLeft: 4 },
         name: Icons.TRASH,
-        onPress: async () => {
+        onPress: () => {
+          console.log('pressed');
+          Toast.show(
+            'Hold the trash icon to delete this notification',
+            Toast.SHORT,
+          );
+        },
+        onLongPress: async () => {
           if (identifier) await cancelPushNotification(identifier);
           onClose();
         },
       },
-    };
-  }, [identifier, cancelPushNotification]);
+    }),
+    [identifier, cancelPushNotification],
+  );
 
   return (
     <BottomSheet
-      avoidKeyboard
       containerStyle={{ ...globalStyles.justifyCenter }}
       headerProps={headerProps}
       isOpen={activeModal === ModalTypes.NOTIFICATION_MODAL}

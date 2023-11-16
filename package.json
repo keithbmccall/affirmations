@@ -8,7 +8,7 @@
     "ios": "expo run:ios",
     "lint": "npx eslint src/**/* --fix",
     "web": "expo start --web",
-    "nuke": "rm -rf node_modules; yarn",
+    "nuke": "rm -rf node_modules; yarn; expo install;",
     "prepare": "husky install",
     "nukestart": "yarn nuke;yarn start",
     "eas.build": "eas build",
@@ -37,7 +37,8 @@
     "react-native-gesture-handler": "~2.12.0",
     "react-native-modal": "^13.0.1",
     "react-native-safe-area-context": "4.6.3",
-    "react-native-screens": "~3.22.0"
+    "react-native-screens": "~3.22.0",
+    "react-native-simple-toast": "^3.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
