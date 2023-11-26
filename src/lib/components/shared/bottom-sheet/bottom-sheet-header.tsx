@@ -14,6 +14,7 @@ const defaultLeadingIconProps: IconProps = {
 export const BottomSheetHeader: FC<BottomSheetHeaderProps> = ({
   leadingIconProps: {
     color,
+    onLongPress,
     onPress,
     ..._leadingIconProps
   } = defaultLeadingIconProps,
@@ -31,7 +32,7 @@ export const BottomSheetHeader: FC<BottomSheetHeaderProps> = ({
         padding: 15,
       }}
     >
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity onPress={onPress} onLongPress={onLongPress}>
         <Icon
           {..._leadingIconProps}
           color={(!_leadingIconProps && theme.colors.background) || undefined}
