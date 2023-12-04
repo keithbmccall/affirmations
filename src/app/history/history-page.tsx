@@ -5,13 +5,17 @@ import * as Calendar from 'expo-calendar';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { FlatList, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const HistoryPage = () => {
   const { theme } = useTheme();
-  const [state, setState] = useState<Calendar.Event[] | null>(null);
-  const [cal, setCal] = useState<Calendar.Calendar[] | null>(null);
+  const [calendarEvents, setCalendarEvents] = useState<Calendar.Event[] | null>(
+    null,
+  );
+  const [calendarCalendars, setCalendarCalendars] = useState<
+    Calendar.Calendar[] | null
+  >(null);
 
   useEffect(() => {
     void (async () => {
@@ -27,8 +31,8 @@ export const HistoryPage = () => {
               rightNow,
             )
           : null;
-        setState(events);
-        setCal(calendars);
+        setCalendarEvents(events);
+        setCalendarCalendars(calendars);
         console.log('Here are all your calendars and events:', {
           calendars,
           events,
@@ -62,19 +66,39 @@ export const HistoryPage = () => {
             marginTop: spacingValues.standard,
           }}
         />
-        {state?.map(event => {
-          return (
-            <View>
-              <Text>{event.title}</Text>
-              <Text>{event.organizer}</Text>
-              <Text>{event.availability}</Text>
-              <Text>{event.recurrenceRule?.frequency}</Text>
-              <Text>{new Date(event.startDate).toDateString()}</Text>
-              <Text>{cal?.find(c => event.calendarId === c.id)?.title}</Text>
-              <Text>/////</Text>
-            </View>
-          );
+        {calendarCalendars?.map((cal,i) => {
+          console.log(i,cal)
+          return<>
+            <Text>{cal.id}</Text>
+            <Text>{cal.title}</Text>
+          </>
         })}
+        <Text>-------</Text>
+        <Text>end of calendars</Text>
+        <Text>+++++++++</Text>
+        <FlatList
+          data={calendarEvents}
+          keyExtractor={(event, index) => `${event.id}_${index}`}
+          renderItem={({ item: event }) => {
+            // console.log({ event });
+            return (
+              <View>
+                <Text>{event.title}</Text>
+                <Text>{event.notes}</Text>
+                <Text>{event.availability}</Text>
+                <Text>{event.recurrenceRule?.frequency}</Text>
+                <Text>{new Date(event.startDate).toDateString()}</Text>
+                <Text>
+                  {
+                    calendarCalendars?.find(c => event.calendarId === c.id)
+                      ?.title
+                  }
+                </Text>
+                <Text>/////</Text>
+              </View>
+            );
+          }}
+        />
       </ScrollView>
     </SafeAreaView>
   );
