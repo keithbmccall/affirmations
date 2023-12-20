@@ -34,6 +34,8 @@ export const useInitEvents: Init = providerActions => {
             mainCalendar,
             mainCalendarEventsFromUs,
           );
+        } else {
+          console.log("no calendar found!")
         }
       }
     })();

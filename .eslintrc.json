@@ -1,5 +1,5 @@
 {
-  "extends": ["kentcdodds", "prettier"],
+  "extends": ["kentcdodds", "prettier", "plugin:react-hooks/recommended"],
   "plugins": ["react"],
   "rules": {
     "@typescript-eslint/no-explicit-any": 1,
@@ -23,6 +23,8 @@
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 0,
     "react/self-closing-comp": ["error", { "component": true, "html": true }],
-    "import/no-extraneous-dependencies": 0
+    "import/no-extraneous-dependencies": 0,
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": 1
   }
 }

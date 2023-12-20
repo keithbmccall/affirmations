@@ -32,6 +32,7 @@ export const useCalendarEvents = () => {
 
   const createCalendarEvent: CreateCalendarEvent = useCallback(
     async event => {
+      console.log('calendar found', calendar);
       if (calendar) {
         const newEvent: NewEvent = {
           ...event,

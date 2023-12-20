@@ -1,9 +1,9 @@
 import { useCalendarEvents } from '@calendar-events';
 import {
-NotificationIdentifier,
-useActions,
-useAppState,
-useNotificationToken,
+  NotificationIdentifier,
+  useActions,
+  useAppState,
+  useNotificationToken,
 } from '@platform';
 import * as Notifications from 'expo-notifications';
 import { useCallback } from 'react';
@@ -26,10 +26,14 @@ export const useNotifications = () => {
     onSetCurrentlyScheduledNotifications,
   } = useActions();
 
-  const refreshCurrentlyScheduledNotifications = async () =>
-    onSetCurrentlyScheduledNotifications(
-      await getCurrentlyScheduledNotifications(),
-    );
+  const refreshCurrentlyScheduledNotifications = useCallback(
+    async () =>
+      onSetCurrentlyScheduledNotifications(
+        await getCurrentlyScheduledNotifications(),
+      ),
+    [onSetCurrentlyScheduledNotifications],
+  );
+
   const schedulePushNotification = useCallback(
     async (date: Date, title: string, message: string, refresh = true) => {
       if (notificationToken) {
@@ -86,7 +90,12 @@ export const useNotifications = () => {
         }
       }
     },
-    [notificationToken, Notifications],
+    [
+      createCalendarEvent,
+      notificationToken,
+      onAddHistoryNotification,
+      refreshCurrentlyScheduledNotifications,
+    ],
   );
 
   const cancelPushNotification = useCallback(
@@ -107,7 +116,11 @@ export const useNotifications = () => {
         );
       }
     },
-    [notificationToken, Notifications],
+    [
+      onRemoveHistoryNotification,
+      deleteCalendarEvent,
+      refreshCurrentlyScheduledNotifications,
+    ],
   );
 
   const editPushNotification = useCallback(
@@ -121,7 +134,11 @@ export const useNotifications = () => {
       await cancelPushNotification(identifier, undefined, false);
       await refreshCurrentlyScheduledNotifications();
     },
-    [notificationToken, Notifications],
+    [
+      schedulePushNotification,
+      cancelPushNotification,
+      refreshCurrentlyScheduledNotifications,
+    ],
   );
 
   return {
