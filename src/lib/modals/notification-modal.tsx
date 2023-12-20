@@ -22,10 +22,7 @@ export const NotificationModal = () => {
   const ampm = hours > 11 ? 'pm' : 'am';
   const displayedHours = hours > 12 ? hours - 12 : hours;
   const displayedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  console.log({
-    content,
-    identifier,
-  });
+
   const onClose = () => {
     clearActiveModal();
   };

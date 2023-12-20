@@ -5,7 +5,7 @@
     },
     "name": "Scheduled Affirmations",
     "slug": "affirmations",
-    "version": "1.0.13",
+    "version": "1.0.14",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -42,6 +42,14 @@
     "updates": {
       "url": "https://u.expo.dev/b6f11482-5e3a-4128-bc25-1c2468552783"
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "The $(PRODUCT_NAME) needs to access your calendar..."
+        }
+      ]
+    ]
   }
 }

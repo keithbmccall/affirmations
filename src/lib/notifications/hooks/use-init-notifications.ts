@@ -1,15 +1,12 @@
-import { StateContextActions, StateType } from '@platform';
+import { Init } from '@platform';
 import { StorageDevice, loadData, saveData } from '@storage';
 import * as Notifications from 'expo-notifications';
 import { Subscription } from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
+import { getCurrentlyScheduledNotifications } from '../get-currently-scheduled-notifications';
 import { notificationsRegistration } from '../notifications.registration';
-import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 
-const useInitHistory = (
-  providerActions: StateContextActions,
-  providerState: StateType,
-) => {
+const useInitHistory: Init = (providerActions, providerState) => {
   const [isHistoryInited, setIsHistoryInited] = useState(false);
   const { historyNotifications } = providerState.app;
 
@@ -31,14 +28,9 @@ const useInitHistory = (
   }, [historyNotifications, isHistoryInited]);
 };
 
-export const useInitNotifications = (
-  providerActions: StateContextActions,
-  providerState: StateType,
-) => {
+export const useInitNotifications: Init = (providerActions, providerState) => {
   const notificationListener = useRef<Subscription>();
   const responseListener = useRef<Subscription>();
-  const { getCurrentlyScheduledNotifications } =
-    useCurrentlyScheduledNotifications();
 
   useEffect(() => {
     notificationsRegistration()

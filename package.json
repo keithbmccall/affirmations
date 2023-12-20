@@ -23,6 +23,7 @@
     "@rneui/base": "^4.0.0-rc.8",
     "@rneui/themed": "^4.0.0-rc.8",
     "expo": "~49.0.8",
+    "expo-calendar": "~11.3.2",
     "expo-constants": "~14.4.2",
     "expo-dev-client": "~2.4.11",
     "expo-device": "~5.4.0",

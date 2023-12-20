@@ -21,6 +21,20 @@ export const IndexPage = () => {
       }}
     >
       <StatusBar style="inverted" />
+      {/*<Button*/}
+      {/*  title="Events testing"*/}
+      {/*  onPress={() => {*/}
+      {/*    router.push('/history');*/}
+      {/*  }}*/}
+      {/*  buttonStyle={{*/}
+      {/*    backgroundColor: theme.colors.grey5,*/}
+      {/*  }}*/}
+      {/*  containerStyle={{*/}
+      {/*    width: '100%',*/}
+      {/*    ...globalStyles.borderRadius10,*/}
+      {/*    marginTop: spacingValues.standard,*/}
+      {/*  }}*/}
+      {/*/>*/}
       <View
         onLayout={event => {
           setRemainingHeight(event.nativeEvent.layout.height);
