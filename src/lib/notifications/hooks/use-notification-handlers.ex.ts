@@ -2,11 +2,11 @@ import { useActions, useNotificationToken } from '@platform';
 import * as Notifications from 'expo-notifications';
 import { Subscription } from 'expo-notifications';
 import { useCallback, useEffect, useRef } from 'react';
+import { getCurrentlyScheduledNotifications } from '../get-currently-scheduled-notifications';
 import {
   notificationsFetchOptions,
   notificationsFetchUrl,
 } from '../notifications.config';
-import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 import { NotificationMessage } from './use-notifications';
 
 export const useNotificationHandlersEx = () => {
@@ -14,8 +14,6 @@ export const useNotificationHandlersEx = () => {
   const responseListener = useRef<Subscription>();
   const notificationToken = useNotificationToken();
   const { onSetCurrentlyScheduledNotifications } = useActions();
-  const { getCurrentlyScheduledNotifications } =
-    useCurrentlyScheduledNotifications();
 
   useEffect(() => {
     notificationListener.current =

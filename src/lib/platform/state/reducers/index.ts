@@ -1,5 +1,10 @@
 import { ExpoPushToken } from 'expo-notifications';
-import { HistoryNotification, Modal, NotificationWithData } from '../../types';
+import {
+  CalendarEvents,
+  HistoryNotification,
+  Modal,
+  NotificationWithData,
+} from '../../types';
 import { Action } from '../actions';
 
 export interface StateType {
@@ -7,6 +12,7 @@ export interface StateType {
     notificationToken: ExpoPushToken;
     currentlyScheduledNotifications: NotificationWithData[];
     historyNotifications: HistoryNotification[];
+    calendarEvents: CalendarEvents;
     modal: Modal;
   };
 }
@@ -19,6 +25,10 @@ export const initialState: StateType = {
     },
     currentlyScheduledNotifications: [],
     historyNotifications: [],
+    calendarEvents: {
+      calendar: null,
+      events: [],
+    },
     modal: {
       openModal: null,
       withData: {},
@@ -77,6 +87,14 @@ export const stateReducer = (
         app: {
           ...state.app,
           historyNotifications: action.payload,
+        },
+      };
+    case 'SET_MAIN_CALENDAR':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          calendarEvents: action.payload,
         },
       };
     case 'SET_MODAL':

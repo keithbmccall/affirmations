@@ -3,7 +3,7 @@ import { Maybe, NotificationIdentifier } from '@platform';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Input, Text, useTheme } from '@rneui/themed';
 import { globalStyles } from '@theme';
-import { fiveMinutesFromNow, rightNow, useInputRef } from '@utils';
+import { fiveMinutesFromNow, january2030, rightNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
 import { schedulerValidator } from './scheduler-validator';
@@ -61,10 +61,7 @@ export const Scheduler: FC<SchedulerProps> = ({
       if (titleError) setTitleError('');
       if (messageError) setMessageError('');
       if (timeError) setTimeError('');
-      if (shouldClearOnSchedule) {
-        setTitle('');
-        setMessage('');
-      }
+
       Keyboard.dismiss();
       console.log(
         `Successfully scheduled with title of ${title} and message of ${message} and time of ${time}`,
@@ -74,6 +71,10 @@ export const Scheduler: FC<SchedulerProps> = ({
         return;
       }
       await schedulePushNotification(time, title, message);
+      if (shouldClearOnSchedule) {
+        setTitle('');
+        setMessage('');
+      }
     }
   };
 
@@ -83,6 +84,7 @@ export const Scheduler: FC<SchedulerProps> = ({
         <DateTimePicker
           display="spinner"
           minimumDate={rightNow}
+          maximumDate={january2030}
           mode="datetime"
           onChange={(_, b) => {
             if (b) {

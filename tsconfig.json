@@ -13,6 +13,7 @@
       "@scheduler": ["./src/lib/components/scheduler"],
       "@global-types": ["./src/lib/types.ts"],
       "@notifications": ["./src/lib/notifications"],
+      "@calendar-events": ["./src/lib/calendar-events"],
       "@platform": ["./src/lib/platform"],
       "@storage": ["./src/lib/storage"],
       "@utils": ["./src/lib/utils"],

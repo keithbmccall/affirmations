@@ -4,6 +4,7 @@ import {
   NotificationWithData,
 } from '@platform';
 import { noop } from '@utils';
+import { Calendar, Event } from 'expo-calendar';
 import { ExpoPushToken } from 'expo-notifications';
 import { Dispatch } from 'react';
 import { Modal } from '../../types';
@@ -17,6 +18,9 @@ export interface StateContextActions {
   onAddHistoryNotification: (notification: HistoryNotification) => void;
   onRemoveHistoryNotification: (identifier: NotificationIdentifier) => void;
   onAddHistoryNotifications: (notifications: HistoryNotification[]) => void;
+  //
+  onSetMainCalendar: (calendar: Calendar, events: Event[]) => void;
+  //
   onSetModal: (payload: Modal) => void;
 }
 
@@ -26,6 +30,7 @@ export const initialStateContextActions: StateContextActions = {
   onAddHistoryNotification: noop,
   onRemoveHistoryNotification: noop,
   onAddHistoryNotifications: noop,
+  onSetMainCalendar: noop,
   onSetModal: noop,
 };
 export const setNotificationToken =
@@ -81,6 +86,14 @@ export const setHistoryNotifications =
     });
   };
 
+export const setMainCalendar =
+  (dispatch: Dispatch<Action>): StateContextActions['onSetMainCalendar'] =>
+  (calendar, events) => {
+    return dispatch({
+      type: 'SET_MAIN_CALENDAR',
+      payload: { calendar, events },
+    });
+  };
 export const setModal =
   (dispatch: Dispatch<Action>): StateContextActions['onSetModal'] =>
   payload => {

@@ -1,3 +1,4 @@
+import { Calendar } from 'expo-calendar';
 import { ExpoPushToken } from 'expo-notifications';
 import {
   HistoryNotification,
@@ -5,6 +6,8 @@ import {
   NotificationIdentifier,
   NotificationWithData,
 } from '../../types';
+import {StateType} from "../reducers";
+import {CalendarEvents} from "../../types/calendar";
 
 type ActionType<Name extends string, Payload = unknown> = {
   type: Name;
@@ -17,4 +20,5 @@ export type Action =
   | ActionType<'SET_ADD_HISTORY_NOTIFICATION', HistoryNotification>
   | ActionType<'SET_ADD_HISTORY_NOTIFICATIONS', HistoryNotification[]>
   | ActionType<'SET_MODAL', Modal>
-  | ActionType<'SET_REMOVE_HISTORY_NOTIFICATION', NotificationIdentifier>;
+  | ActionType<'SET_REMOVE_HISTORY_NOTIFICATION', NotificationIdentifier>
+  | ActionType<'SET_MAIN_CALENDAR', CalendarEvents>;

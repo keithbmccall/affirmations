@@ -1,3 +1,4 @@
+import { useCalendarEvents } from '@calendar-events';
 import {
   NotificationIdentifier,
   useActions,
@@ -6,8 +7,8 @@ import {
 } from '@platform';
 import * as Notifications from 'expo-notifications';
 import { useCallback } from 'react';
+import { getCurrentlyScheduledNotifications } from '../get-currently-scheduled-notifications';
 import { NotificationSounds } from '../notification-sounds';
-import { useCurrentlyScheduledNotifications } from './use-currently-scheduled-notifications';
 
 export type NotificationMessage = {
   title: string;
@@ -18,8 +19,7 @@ export const useNotifications = () => {
   const notificationToken = useNotificationToken();
   const { currentlyScheduledNotifications, historyNotifications } =
     useAppState();
-  const { getCurrentlyScheduledNotifications } =
-    useCurrentlyScheduledNotifications();
+  const { createCalendarEvent } = useCalendarEvents();
   const {
     onAddHistoryNotification,
     onRemoveHistoryNotification,
@@ -64,6 +64,7 @@ export const useNotifications = () => {
               data: timeData,
             },
           });
+          createCalendarEvent({ title, startDate: date, notes: body });
           if (refresh) {
             await refreshCurrentlyScheduledNotifications();
           }
@@ -114,7 +115,6 @@ export const useNotifications = () => {
     cancelPushNotification,
     currentlyScheduledNotifications,
     editPushNotification,
-    getCurrentlyScheduledNotifications,
     historyNotifications,
     schedulePushNotification,
   };
