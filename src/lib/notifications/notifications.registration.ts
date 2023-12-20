@@ -14,6 +14,7 @@ export const notificationsRegistration = async () => {
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
+      // eslint-disable-next-line no-alert
       alert('Failed to get push token for push notification!');
       return;
     }

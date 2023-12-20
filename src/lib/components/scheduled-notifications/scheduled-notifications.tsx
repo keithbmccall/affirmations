@@ -11,6 +11,7 @@ import { globalStyles } from '@theme';
 import { FC, useMemo, useState } from 'react';
 import { FlatList, View, ViewStyle } from 'react-native';
 import { RefreshControl, TouchableOpacity } from 'react-native-gesture-handler';
+import { getCurrentlyScheduledNotifications } from '../../notifications/get-currently-scheduled-notifications';
 import { NotificationCard } from './notification-card';
 import {
   VIEW_MODE,
@@ -30,11 +31,8 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
   const { setActiveModal } = useModalContainer();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<VIEW_MODE>(VIEW_MODE.SCHEDULED);
-  const {
-    currentlyScheduledNotifications,
-    getCurrentlyScheduledNotifications,
-    historyNotifications,
-  } = useNotifications();
+  const { currentlyScheduledNotifications, historyNotifications } =
+    useNotifications();
 
   const onRefresh = async () => {
     setIsRefreshing(true);

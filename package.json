@@ -3,23 +3,25 @@
   "version": "1.0.3",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start --dev-client",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "start": "npx expo start --dev-client",
+    "android": "npx expo run:android",
+    "ios": "npx expo run:ios",
     "lint": "npx eslint src/**/* --fix",
     "web": "expo start --web",
-    "nuke": "rm -rf node_modules; yarn; expo install;",
+    "podpod": "cd ios && pod install && cd ../",
+    "nuke": "rm -rf node_modules; yarn;npx expo install;",
     "prepare": "husky install",
     "nukestart": "yarn nuke;yarn start",
     "eas.build": "eas build",
     "full.build": "nuke;yarn nuke;eas build;yarn ios",
+    "submit.build": "eas build --auto-submit",
     "version": "eas build:version:set",
-    "build.submit": "eas build --auto-submit"
+    "tc": "npx tsc"
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
     "@react-native-async-storage/async-storage": "1.18.2",
-    "@react-native-community/datetimepicker": "7.2.0",
+    "@react-native-community/datetimepicker": "7.6.2",
     "@rneui/base": "^4.0.0-rc.8",
     "@rneui/themed": "^4.0.0-rc.8",
     "expo": "~49.0.8",
@@ -44,6 +46,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~18.2.14",
+    "@types/url-parse": "^1.4.11",
     "@welldone-software/why-did-you-render": "^7.0.1",
     "eslint": "8.42.0",
     "eslint-config-kentcdodds": "^20.5.0",
@@ -56,7 +59,7 @@
     "prettier": "^2.1.2",
     "prettier-eslint": "^15.0.1",
     "prettier-plugin-organize-imports": "^3.2.2",
-    "typescript": "^5.1.3"
+    "typescript": "^5.3.3"
   },
   "private": true
 }

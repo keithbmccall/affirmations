@@ -368,7 +368,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.keithinretrograde.affirmations;
 				PRODUCT_NAME = ScheduledAffirmations;
 				SWIFT_OBJC_BRIDGING_HEADER = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h";
