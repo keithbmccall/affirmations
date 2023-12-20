@@ -20,7 +20,10 @@ type NewEvent = CreateCalendarEventInput &
     'availability' | 'endDate' | 'alarms' | 'organizer' | 'timeZone'
   >;
 
-type CreateCalendarEvent = (event: CreateCalendarEventInput) => void;
+type CreateCalendarEvent = (
+  event: CreateCalendarEventInput,
+) => Promise<string | false>;
+type DeleteCalendarEvent = (calendarEventId: string) => void;
 
 export const useCalendarEvents = () => {
   const {
@@ -46,16 +49,26 @@ export const useCalendarEvents = () => {
           timeZone: defaultTimezone,
           title: `${appIdentifierForCalendarEvents}:: ${event.title}`,
         };
-console.log("smack",newEvent)
+
         const calendarEventId = await Calendar.createEventAsync(
           calendar.id,
           newEvent,
         );
         console.log('newEvent::', newEvent, calendarEventId);
+        return calendarEventId;
       }
+      return false;
     },
     [calendar],
   );
 
-  return { calendar, events, createCalendarEvent };
+  const deleteCalendarEvent: DeleteCalendarEvent = useCallback(
+    calendarEventId => {
+      console.log('calendarEventId:', calendarEventId);
+      void Calendar.deleteEventAsync(calendarEventId);
+    },
+    [],
+  );
+
+  return { calendar, events, createCalendarEvent, deleteCalendarEvent };
 };

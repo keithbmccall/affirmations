@@ -1,9 +1,9 @@
 import { useCalendarEvents } from '@calendar-events';
 import {
-  NotificationIdentifier,
-  useActions,
-  useAppState,
-  useNotificationToken,
+NotificationIdentifier,
+useActions,
+useAppState,
+useNotificationToken,
 } from '@platform';
 import * as Notifications from 'expo-notifications';
 import { useCallback } from 'react';
@@ -19,7 +19,7 @@ export const useNotifications = () => {
   const notificationToken = useNotificationToken();
   const { currentlyScheduledNotifications, historyNotifications } =
     useAppState();
-  const { createCalendarEvent } = useCalendarEvents();
+  const { createCalendarEvent, deleteCalendarEvent } = useCalendarEvents();
   const {
     onAddHistoryNotification,
     onRemoveHistoryNotification,
@@ -44,27 +44,37 @@ export const useNotifications = () => {
         };
 
         try {
+          const calendarEventId = await createCalendarEvent({
+            title,
+            startDate: date,
+            notes: body,
+          });
+          const data = {
+            ...timeData,
+            calendarEventId: calendarEventId ? calendarEventId : undefined,
+          };
           const identifier = await Notifications.scheduleNotificationAsync({
             content: {
               title,
               sound: NotificationSounds.DEFAULT,
               body,
-              data: timeData,
+              data,
             },
             trigger: {
               channelId: 'calendar',
               date,
             },
           });
+
           onAddHistoryNotification({
             identifier,
             content: {
               title,
               body,
-              data: timeData,
+              data,
             },
           });
-          createCalendarEvent({ title, startDate: date, notes: body });
+
           if (refresh) {
             await refreshCurrentlyScheduledNotifications();
           }
@@ -80,10 +90,13 @@ export const useNotifications = () => {
   );
 
   const cancelPushNotification = useCallback(
-    async (identifier: string, refresh = true) => {
+    async (identifier: string, calendarEventId?: string, refresh = true) => {
       try {
         await Notifications.cancelScheduledNotificationAsync(identifier);
         onRemoveHistoryNotification(identifier);
+        if (calendarEventId) {
+          deleteCalendarEvent(calendarEventId);
+        }
         if (refresh) {
           await refreshCurrentlyScheduledNotifications();
         }
@@ -105,7 +118,7 @@ export const useNotifications = () => {
       message: string,
     ) => {
       await schedulePushNotification(date, title, message, false);
-      await cancelPushNotification(identifier, false);
+      await cancelPushNotification(identifier, undefined, false);
       await refreshCurrentlyScheduledNotifications();
     },
     [notificationToken, Notifications],

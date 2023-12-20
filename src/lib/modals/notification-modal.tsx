@@ -40,7 +40,11 @@ export const NotificationModal = () => {
           );
         },
         onLongPress: async () => {
-          if (identifier) await cancelPushNotification(identifier);
+          if (identifier)
+            await cancelPushNotification(
+              identifier,
+              content?.data.calendarEventId,
+            );
           onClose();
         },
       },

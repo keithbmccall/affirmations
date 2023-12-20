@@ -5,6 +5,7 @@ type NotificationData = {
     date: string;
     time: number;
     rawDate: string;
+    calendarEventId: string | undefined;
   };
 };
 
