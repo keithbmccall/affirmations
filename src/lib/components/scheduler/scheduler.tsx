@@ -1,12 +1,17 @@
 import { useNotifications } from '@notifications';
 import { Maybe, NotificationIdentifier } from '@platform';
+import { useQuotes } from '@quotes';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button, Input, Text, useTheme } from '@rneui/themed';
-import { globalStyles } from '@theme';
+import { Pill } from '@shared-components';
+import { globalStyles, spacingValues } from '@theme';
 import { fiveMinutesFromNow, january2030, rightNow, useInputRef } from '@utils';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
-import { useQuotes } from '../../quotes';
+import {
+  SCHEDULER_TYPE_VIEW_MODE,
+  schedulerTypeOptions,
+} from './scheduler-type-options';
 import { schedulerValidator } from './scheduler-validator';
 import { getPlaceholderStyle, useStyles } from './styles';
 
@@ -36,6 +41,10 @@ export const Scheduler: FC<SchedulerProps> = ({
   const [messageError, setMessageError] = useState('');
   const [timeError, setTimeError] = useState('');
 
+  const [viewMode, setViewMode] = useState<SCHEDULER_TYPE_VIEW_MODE>(
+    SCHEDULER_TYPE_VIEW_MODE.CUSTOM,
+  );
+
   const { schedulePushNotification, editPushNotification } = useNotifications();
   const { theme } = useTheme();
   const styles = useStyles(theme);
@@ -47,7 +56,7 @@ export const Scheduler: FC<SchedulerProps> = ({
     console.log(
       `Committed with title of ${title} and message of ${message} and time of ${time}`,
     );
-    console.log('quote:', tellQuote().q);
+
     if (
       schedulerValidator({
         title,
@@ -80,6 +89,22 @@ export const Scheduler: FC<SchedulerProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (viewMode === SCHEDULER_TYPE_VIEW_MODE.SUGGESTED) {
+      const quote = tellQuote();
+      console.log('quote', quote);
+      setTitle(quote.a);
+      setMessage(quote.q);
+    }
+    //  eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode]);
+  useEffect(() => {
+    if (viewMode === SCHEDULER_TYPE_VIEW_MODE.CUSTOM && !title && !message) {
+      setTitle('');
+      setMessage('');
+    }
+  }, [message, title, viewMode]);
+
   return (
     <View style={containerStyle}>
       <View style={styles.dateTimePickerContainer}>
@@ -93,6 +118,12 @@ export const Scheduler: FC<SchedulerProps> = ({
               setTime(b);
             }
           }}
+          // onLayout={e => {
+          //   console.log('dateP', e.nativeEvent.layout.height);
+          // }}
+          style={{
+            height: 176,
+          }}
           textColor={theme.colors.white}
           value={time}
         />
@@ -100,6 +131,22 @@ export const Scheduler: FC<SchedulerProps> = ({
           {timeError}
         </Text>
       </View>
+      <Pill.Container
+        style={{
+          marginBottom: spacingValues.standard,
+        }}
+      >
+        {schedulerTypeOptions.map(({ option, display }) => (
+          <Pill.Option
+            display={display}
+            isSelected={viewMode === option}
+            key={option}
+            onPress={() => {
+              setViewMode(option);
+            }}
+          />
+        ))}
+      </Pill.Container>
 
       <View style={globalStyles.justifyCenter}>
         <View style={styles.inputContainer}>

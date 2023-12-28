@@ -15,6 +15,7 @@
       "@global-types": ["./src/lib/types.ts"],
       "@notifications": ["./src/lib/notifications"],
       "@calendar-events": ["./src/lib/calendar-events"],
+      "@quotes": ["./src/lib/quotes"],
       "@platform": ["./src/lib/platform"],
       "@storage": ["./src/lib/storage"],
       "@utils": ["./src/lib/utils"],

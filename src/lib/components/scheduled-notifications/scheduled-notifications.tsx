@@ -6,18 +6,17 @@ import {
   NotificationIdentifier,
   useActions,
 } from '@platform';
-import { Text, useTheme } from '@rneui/themed';
-import { globalStyles } from '@theme';
+import { useTheme } from '@rneui/themed';
 import { FC, useMemo, useState } from 'react';
 import { FlatList, View, ViewStyle } from 'react-native';
 import { RefreshControl, TouchableOpacity } from 'react-native-gesture-handler';
 import { getCurrentlyScheduledNotifications } from '../../notifications/get-currently-scheduled-notifications';
+import { Pill } from '../shared/pill';
 import { NotificationCard } from './notification-card';
 import {
-  VIEW_MODE,
+  NOTIFICATION_CATEGORY_VIEW_MODE,
   notificationCategoryOptions,
 } from './notification-category-options';
-import { useStyles } from './styles';
 
 interface ScheduledNotificationsProps {
   containerStyle?: ViewStyle;
@@ -26,11 +25,10 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
   containerStyle,
 }) => {
   const { theme } = useTheme();
-  const styles = useStyles(theme);
   const { onSetCurrentlyScheduledNotifications } = useActions();
   const { setActiveModal } = useModalContainer();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [viewMode, setViewMode] = useState<VIEW_MODE>(VIEW_MODE.SCHEDULED);
+  const [viewMode, setViewMode] = useState<NOTIFICATION_CATEGORY_VIEW_MODE>(NOTIFICATION_CATEGORY_VIEW_MODE.SCHEDULED);
   const { currentlyScheduledNotifications, historyNotifications } =
     useNotifications();
 
@@ -53,7 +51,7 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
 
   const listData = useMemo(
     () =>
-      (viewMode === VIEW_MODE.SCHEDULED
+      (viewMode === NOTIFICATION_CATEGORY_VIEW_MODE.SCHEDULED
         ? currentlyScheduledNotifications
         : historyNotifications
       )
@@ -64,30 +62,18 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
 
   return (
     <View style={containerStyle}>
-      <View
-        style={{
-          flexDirection: 'row',
-          borderWidth: 3,
-          ...globalStyles.br10,
-          borderColor: theme.colors.grey5,
-        }}
-      >
+      <Pill.Container>
         {notificationCategoryOptions.map(({ option, display }) => (
-          <TouchableOpacity
+          <Pill.Option
+            display={display}
+            isSelected={viewMode === option}
             key={option}
-            style={styles.notificationCategoryOption}
             onPress={() => {
               setViewMode(option);
             }}
-            containerStyle={[
-              styles.notificationCategoryOptionContainer,
-              viewMode === option && styles.selectedNotificationCategoryOption,
-            ]}
-          >
-            <Text>{display}</Text>
-          </TouchableOpacity>
+          />
         ))}
-      </View>
+      </Pill.Container>
       <FlatList
         data={listData}
         refreshControl={

@@ -6,7 +6,7 @@ import { BottomSheet, BottomSheetProps, Icons } from '@shared-components';
 import { globalStyles } from '@theme';
 import { useMemo } from 'react';
 import Toast from 'react-native-simple-toast';
-import { VIEW_MODE } from '../components/scheduled-notifications/notification-category-options';
+import { NOTIFICATION_CATEGORY_VIEW_MODE } from '../components/scheduled-notifications/notification-category-options';
 import { useModalContainer } from './use-modal-container';
 
 export const NotificationModal = () => {
@@ -14,7 +14,7 @@ export const NotificationModal = () => {
   const { content, identifier, viewMode } =
     withData[ModalTypes.NOTIFICATION_MODAL] ?? {};
   const { cancelPushNotification } = useNotifications();
-  const isScheduledView = viewMode === VIEW_MODE.SCHEDULED;
+  const isScheduledView = viewMode === NOTIFICATION_CATEGORY_VIEW_MODE.SCHEDULED;
 
   const dateObject = new Date(content?.data?.time ?? '');
   const hours = dateObject.getHours();

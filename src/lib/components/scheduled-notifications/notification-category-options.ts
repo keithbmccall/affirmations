@@ -1,15 +1,15 @@
-export enum VIEW_MODE {
+export enum NOTIFICATION_CATEGORY_VIEW_MODE {
   SCHEDULED = 'SCHEDULED',
   HISTORY = 'HISTORY',
 }
 
 export const notificationCategoryOptions = [
   {
-    option: VIEW_MODE.SCHEDULED,
+    option: NOTIFICATION_CATEGORY_VIEW_MODE.SCHEDULED,
     display: 'Scheduled',
   },
   {
-    option: VIEW_MODE.HISTORY,
+    option: NOTIFICATION_CATEGORY_VIEW_MODE.HISTORY,
     display: 'History',
   },
 ];
