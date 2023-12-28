@@ -92,7 +92,6 @@ export const Scheduler: FC<SchedulerProps> = ({
   useEffect(() => {
     if (viewMode === SCHEDULER_TYPE_VIEW_MODE.SUGGESTED) {
       const quote = tellQuote();
-      console.log('quote', quote);
       setTitle(quote.a);
       setMessage(quote.q);
     }
@@ -118,9 +117,6 @@ export const Scheduler: FC<SchedulerProps> = ({
               setTime(b);
             }
           }}
-          // onLayout={e => {
-          //   console.log('dateP', e.nativeEvent.layout.height);
-          // }}
           style={{
             height: 176,
           }}
