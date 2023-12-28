@@ -5,6 +5,7 @@ import {
   useAppState,
   useNotificationToken,
 } from '@platform';
+import { catchError } from '@utils';
 import * as Notifications from 'expo-notifications';
 import { useCallback } from 'react';
 import { getCurrentlyScheduledNotifications } from '../get-currently-scheduled-notifications';
@@ -82,10 +83,11 @@ export const useNotifications = () => {
           if (refresh) {
             await refreshCurrentlyScheduledNotifications();
           }
-        } catch (e) {
-          console.log(
-            `Failed to schedule notification with title of: ${title} and message of: ${message}!!!`,
+        } catch (e: unknown) {
+          catchError(
             e,
+            `Failed to schedule notification with title of: ${title} and message of: ${message}!!!`,
+            'schedulePushNotification',
           );
         }
       }
@@ -109,10 +111,11 @@ export const useNotifications = () => {
         if (refresh) {
           await refreshCurrentlyScheduledNotifications();
         }
-      } catch (e) {
-        console.log(
-          `Failed to cancel notification with identifier: ${identifier}!!!`,
+      } catch (e: unknown) {
+        catchError(
           e,
+          `Failed to cancel notification with identifier: ${identifier}!!!`,
+          'cancelPushNotification',
         );
       }
     },

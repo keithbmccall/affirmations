@@ -1,6 +1,9 @@
 import { makeStyles } from '@rneui/themed';
 import { globalStyles, spacingValues } from '@theme';
 
+export const getPlaceHolderStyle = (value: string) =>
+  value ? undefined : globalStyles.mildText;
+
 export const useStyles = makeStyles((theme, props: any) => ({
   errorStyle: {
     fontSize: 10,
@@ -17,14 +20,14 @@ export const useStyles = makeStyles((theme, props: any) => ({
   inputContainer: {
     width: '100%',
     backgroundColor: theme.colors.grey5,
-    ...globalStyles.borderRadius10,
+    ...globalStyles.br10,
     paddingTop: 15,
     paddingHorizontal: 20,
   },
-  messageInput: { height: 150 },
+  messageInput: { height: 120 },
   submit: {
     width: '100%',
-    ...globalStyles.borderRadius10,
+    ...globalStyles.br10,
     marginTop: spacingValues.standard,
   },
 }));

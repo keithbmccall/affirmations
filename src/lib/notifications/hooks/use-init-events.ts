@@ -17,7 +17,7 @@ export const useInitEvents: Init = providerActions => {
 
         const mainCalendar =
           calendars.find(calendar => calendar.title === EVENT_EMAIL) ??
-          calendars.find(calendar => calendar.title === DEFAULT_CALENDAR)
+          calendars.find(calendar => calendar.title === DEFAULT_CALENDAR);
 
         if (mainCalendar) {
           const mainCalendarEvents = await Calendar.getEventsAsync(
@@ -35,7 +35,7 @@ export const useInitEvents: Init = providerActions => {
             mainCalendarEventsFromUs,
           );
         } else {
-          console.log("no calendar found!")
+          console.log('no calendar found!');
         }
       }
     })();

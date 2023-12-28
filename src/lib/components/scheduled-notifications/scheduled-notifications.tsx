@@ -68,7 +68,7 @@ export const ScheduledNotifications: FC<ScheduledNotificationsProps> = ({
         style={{
           flexDirection: 'row',
           borderWidth: 3,
-          ...globalStyles.borderRadius10,
+          ...globalStyles.br10,
           borderColor: theme.colors.grey5,
         }}
       >

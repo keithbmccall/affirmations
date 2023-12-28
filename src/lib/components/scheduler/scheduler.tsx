@@ -7,7 +7,7 @@ import { fiveMinutesFromNow, january2030, rightNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
 import { schedulerValidator } from './scheduler-validator';
-import { useStyles } from './styles';
+import { getPlaceHolderStyle, useStyles } from './styles';
 
 interface SchedulerProps {
   containerStyle?: ViewStyle;
@@ -109,6 +109,7 @@ export const Scheduler: FC<SchedulerProps> = ({
             }}
             placeholder="Title"
             ref={titleInput}
+            style={getPlaceHolderStyle(title)}
             value={title}
           />
 
@@ -123,6 +124,7 @@ export const Scheduler: FC<SchedulerProps> = ({
             }}
             placeholder="Message"
             ref={messageInput}
+            style={getPlaceHolderStyle(message)}
             value={message}
           />
         </View>

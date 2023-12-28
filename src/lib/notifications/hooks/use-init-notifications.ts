@@ -1,4 +1,4 @@
-import { Init } from '@platform';
+import { HistoryNotification, Init } from '@platform';
 import { StorageDevice, loadData, saveData } from '@storage';
 import * as Notifications from 'expo-notifications';
 import { Subscription } from 'expo-notifications';
@@ -11,15 +11,15 @@ const useInitHistory: Init = (providerActions, providerState) => {
   const { historyNotifications } = providerState.app;
 
   useEffect(() => {
-    loadData(StorageDevice.HISTORY_NOTIFICATIONS).then(
-      _historyNotifications => {
+    void loadData(StorageDevice.HISTORY_NOTIFICATIONS).then(
+      (_historyNotifications: HistoryNotification[]) => {
         if (_historyNotifications) {
           providerActions.onAddHistoryNotifications(_historyNotifications);
           setIsHistoryInited(true);
         }
       },
     );
-  }, []);
+  }, [providerActions]);
 
   useEffect(() => {
     if (isHistoryInited && historyNotifications.length) {
@@ -33,7 +33,7 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
   const responseListener = useRef<Subscription>();
 
   useEffect(() => {
-    notificationsRegistration()
+    void notificationsRegistration()
       .then(token => {
         if (token) {
           providerActions.onSetNotificationToken(token);
@@ -76,7 +76,7 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
         Notifications.removeNotificationSubscription(responseListener.current);
       }
     };
-  }, []);
+  }, [providerActions]);
 
   useInitHistory(providerActions, providerState);
 };

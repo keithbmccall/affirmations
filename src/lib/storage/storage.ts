@@ -1,33 +1,32 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { catchError } from '@utils';
 
-type SaveData = (
-  key: string,
-  value: string | Record<string, any>,
-  onError?: () => void,
-) => void;
-export const saveData: SaveData = async (key, value, onError) => {
+type SaveData = (key: string, value: string | Record<string, any>) => void;
+export const saveData: SaveData = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
   } catch (e: unknown) {
-    console.log('Data failed to save!!!', { key, value });
-    onError?.();
+    catchError(
+      e,
+      `Data failed to save!!! - key: ${key} - value: ${value}`,
+      'saveData',
+    );
   }
 };
 
 type LoadData = (key: string) => Promise<any>;
 export const loadData: LoadData = async (key: string) => {
   // AsyncStorage.clear()
-  return AsyncStorage.getItem(key)
-    .then(value => {
-      if (value) {
-        return JSON.parse(value);
-      }
-      return false;
-    })
-    .catch(e => {
-      console.log('Data failed to load!!!');
-      return e;
-    });
+  try {
+    const value = await AsyncStorage.getItem(key);
+    if (value) {
+      return JSON.parse(value);
+    }
+    return false;
+  } catch (e: unknown) {
+    catchError(e, `Data failed to load!!! - key: ${key}`, 'loadData');
+    return e;
+  }
 };
 
 export enum StorageDevice {

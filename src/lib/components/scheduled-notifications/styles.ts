@@ -4,6 +4,7 @@ import { globalStyles, spacingValues } from '@theme';
 export const useStyles = makeStyles((theme, props: any) => ({
   notificationCategoryOption: {
     padding: spacingValues.standard,
+    ...globalStyles.mildText,
   },
   notificationCategoryOptionContainer: {
     width: '50%',

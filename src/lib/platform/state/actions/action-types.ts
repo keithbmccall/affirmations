@@ -1,13 +1,11 @@
-import { Calendar } from 'expo-calendar';
 import { ExpoPushToken } from 'expo-notifications';
 import {
+  CalendarEvents,
   HistoryNotification,
   Modal,
   NotificationIdentifier,
   NotificationWithData,
 } from '../../types';
-import {StateType} from "../reducers";
-import {CalendarEvents} from "../../types/calendar";
 
 type ActionType<Name extends string, Payload = unknown> = {
   type: Name;
