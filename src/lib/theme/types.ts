@@ -1,3 +1,4 @@
 import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
-export type StyleType = Record<string, ViewStyle | ImageStyle | TextStyle>;
+export type ElementStyle = ViewStyle | ImageStyle | TextStyle
+export type StyleType = Record<string, ElementStyle>;

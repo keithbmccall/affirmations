@@ -10,7 +10,7 @@ import { VIEW_MODE } from '../components/scheduled-notifications/notification-ca
 import { useModalContainer } from './use-modal-container';
 
 export const NotificationModal = () => {
-  const { clearActiveModal, withData, activeModal } = useModalContainer();
+  const { clearActiveModal, withData } = useModalContainer();
   const { content, identifier, viewMode } =
     withData[ModalTypes.NOTIFICATION_MODAL] ?? {};
   const { cancelPushNotification } = useNotifications();
@@ -33,7 +33,6 @@ export const NotificationModal = () => {
         style: { marginLeft: 4 },
         name: Icons.TRASH,
         onPress: () => {
-          console.log('pressed');
           Toast.show(
             'Hold the trash icon to delete this notification',
             Toast.SHORT,
@@ -56,7 +55,7 @@ export const NotificationModal = () => {
     <BottomSheet
       containerStyle={{ ...globalStyles.justifyCenter }}
       headerProps={headerProps}
-      isOpen={activeModal === ModalTypes.NOTIFICATION_MODAL}
+      isOpen
       onClose={onClose}
       title="Notification details"
     >

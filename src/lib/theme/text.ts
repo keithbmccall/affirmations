@@ -1,6 +1,7 @@
 import { StyleType } from './types';
 
 export const textStyles: StyleType = {
+  // size
   bigText: {
     fontSize: 40,
   },
@@ -15,5 +16,9 @@ export const textStyles: StyleType = {
   },
   mildText: {
     fontSize: 15,
+  },
+  // weight
+  bold: {
+    fontWeight: 'bold',
   },
 };

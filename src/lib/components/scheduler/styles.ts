@@ -1,8 +1,9 @@
 import { makeStyles } from '@rneui/themed';
 import { globalStyles, spacingValues } from '@theme';
+import { ElementStyle } from '../../theme/types';
 
-export const getPlaceHolderStyle = (value: string) =>
-  value ? undefined : globalStyles.mildText;
+export const getPlaceholderStyle = (value: string, extraStyle?: ElementStyle) =>
+  value ? extraStyle : { ...globalStyles.mildText, ...extraStyle };
 
 export const useStyles = makeStyles((theme, props: any) => ({
   errorStyle: {
