@@ -2,6 +2,7 @@ import {
   HistoryNotification,
   NotificationIdentifier,
   NotificationWithData,
+  Quotes,
 } from '@platform';
 import { noop } from '@utils';
 import { Calendar, Event } from 'expo-calendar';
@@ -21,6 +22,9 @@ export interface StateContextActions {
   //
   onSetMainCalendar: (calendar: Calendar, events: Event[]) => void;
   //
+  onSetFetchQuotes: (quotes: Quotes) => void;
+  onSetSentQuoteCount: () => void;
+  //
   onSetModal: (payload: Modal) => void;
 }
 
@@ -31,6 +35,8 @@ export const initialStateContextActions: StateContextActions = {
   onRemoveHistoryNotification: noop,
   onAddHistoryNotifications: noop,
   onSetMainCalendar: noop,
+  onSetFetchQuotes: noop,
+  onSetSentQuoteCount: noop,
   onSetModal: noop,
 };
 export const setNotificationToken =
@@ -94,6 +100,25 @@ export const setMainCalendar =
       payload: { calendar, events },
     });
   };
+
+export const setFetchQuotes =
+  (dispatch: Dispatch<Action>): StateContextActions['onSetFetchQuotes'] =>
+  quotes => {
+    return dispatch({
+      type: 'SET_FETCH_QUOTES',
+      payload: quotes,
+    });
+  };
+
+export const setSentQuoteCount =
+  (dispatch: Dispatch<Action>): StateContextActions['onSetSentQuoteCount'] =>
+  () => {
+    return dispatch({
+      type: 'SET_SENT_QUOTE_COUNT',
+      payload: undefined,
+    });
+  };
+
 export const setModal =
   (dispatch: Dispatch<Action>): StateContextActions['onSetModal'] =>
   payload => {

@@ -8,16 +8,19 @@ import {
 } from 'react';
 import { useInitEvents } from '../../notifications/hooks/use-init-events';
 import { useInitNotifications } from '../../notifications/hooks/use-init-notifications';
+import { useInitQuotes } from '../../notifications/hooks/use-init-quotes';
 import {
   Action,
   initialStateContextActions,
   removeHistoryNotification,
   setCurrentlyScheduledNotifications,
+  setFetchQuotes,
   setHistoryNotification,
   setHistoryNotifications,
   setMainCalendar,
   setModal,
   setNotificationToken,
+  setSentQuoteCount,
   StateContextActions,
 } from './actions';
 import { initialState, stateReducer, StateType } from './reducers';
@@ -50,6 +53,9 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       //
       onSetMainCalendar: setMainCalendar(dispatch),
       //
+      onSetFetchQuotes: setFetchQuotes(dispatch),
+      onSetSentQuoteCount: setSentQuoteCount(dispatch),
+      //
       onSetModal: setModal(dispatch),
     }),
     [],
@@ -57,6 +63,7 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
   useInitNotifications(providerActions, state);
   useInitEvents(providerActions, state);
+  useInitQuotes(providerActions, state);
 
   return (
     <StateContext.Provider

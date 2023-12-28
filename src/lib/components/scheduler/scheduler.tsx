@@ -6,8 +6,9 @@ import { globalStyles } from '@theme';
 import { fiveMinutesFromNow, january2030, rightNow, useInputRef } from '@utils';
 import { FC, useState } from 'react';
 import { Keyboard, View, ViewStyle } from 'react-native';
+import { useQuotes } from '../../quotes';
 import { schedulerValidator } from './scheduler-validator';
-import { getPlaceHolderStyle, useStyles } from './styles';
+import { getPlaceholderStyle, useStyles } from './styles';
 
 interface SchedulerProps {
   containerStyle?: ViewStyle;
@@ -40,12 +41,13 @@ export const Scheduler: FC<SchedulerProps> = ({
   const styles = useStyles(theme);
   const titleInput = useInputRef('');
   const messageInput = useInputRef('');
+  const { tellQuote } = useQuotes();
 
   const onSubmit = async () => {
     console.log(
       `Committed with title of ${title} and message of ${message} and time of ${time}`,
     );
-
+    console.log('quote:', tellQuote().q);
     if (
       schedulerValidator({
         title,
@@ -109,7 +111,7 @@ export const Scheduler: FC<SchedulerProps> = ({
             }}
             placeholder="Title"
             ref={titleInput}
-            style={getPlaceHolderStyle(title)}
+            style={getPlaceholderStyle(title, globalStyles.bold)}
             value={title}
           />
 
@@ -124,7 +126,7 @@ export const Scheduler: FC<SchedulerProps> = ({
             }}
             placeholder="Message"
             ref={messageInput}
-            style={getPlaceHolderStyle(message)}
+            style={getPlaceholderStyle(message)}
             value={message}
           />
         </View>

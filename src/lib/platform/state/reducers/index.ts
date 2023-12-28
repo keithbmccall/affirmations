@@ -4,6 +4,7 @@ import {
   HistoryNotification,
   Modal,
   NotificationWithData,
+  QuotesObject,
 } from '../../types';
 import { Action } from '../actions';
 
@@ -13,6 +14,7 @@ export interface StateType {
     currentlyScheduledNotifications: NotificationWithData[];
     historyNotifications: HistoryNotification[];
     calendarEvents: CalendarEvents;
+    quotes: QuotesObject;
     modal: Modal;
   };
 }
@@ -29,6 +31,7 @@ export const initialState: StateType = {
       calendar: null,
       events: [],
     },
+    quotes: { list: [], sentQuoteCount: 0 },
     modal: {
       openModal: null,
       withData: {},
@@ -95,6 +98,28 @@ export const stateReducer = (
         app: {
           ...state.app,
           calendarEvents: action.payload,
+        },
+      };
+    case 'SET_FETCH_QUOTES':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          quotes: {
+            list: action.payload,
+            sentQuoteCount: 0,
+          },
+        },
+      };
+    case 'SET_SENT_QUOTE_COUNT':
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          quotes: {
+            ...state.app.quotes,
+            sentQuoteCount: state.app.quotes.sentQuoteCount + 1,
+          },
         },
       };
     case 'SET_MODAL':
