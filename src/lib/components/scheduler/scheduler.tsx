@@ -81,7 +81,9 @@ export const Scheduler: FC<SchedulerProps> = ({
         await editPushNotification(identifier, time, title, message);
         return;
       }
-      await schedulePushNotification(time, title, message);
+      await schedulePushNotification(time, title, message, {
+        isQuote: viewMode === SCHEDULER_TYPE_VIEW_MODE.SUGGESTED,
+      });
       if (shouldClearOnSchedule) {
         setTitle('');
         setMessage('');

@@ -6,6 +6,7 @@ type NotificationData = {
     time: number;
     rawDate: string;
     calendarEventId: string | undefined;
+    isQuote: boolean;
   };
 };
 
@@ -19,6 +20,7 @@ export type NotificationContent = Omit<
   NotificationWithData['content'],
   'sound' | 'subtitle'
 >;
+export type NotificationContentData = NotificationContent['data'];
 
 export type NotificationIdentifier = NotificationWithData['identifier'];
 

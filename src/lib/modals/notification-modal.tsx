@@ -14,7 +14,8 @@ export const NotificationModal = () => {
   const { content, identifier, viewMode } =
     withData[ModalTypes.NOTIFICATION_MODAL] ?? {};
   const { cancelPushNotification } = useNotifications();
-  const isScheduledView = viewMode === NOTIFICATION_CATEGORY_VIEW_MODE.SCHEDULED;
+  const isScheduledView =
+    viewMode === NOTIFICATION_CATEGORY_VIEW_MODE.SCHEDULED;
 
   const dateObject = new Date(content?.data?.time ?? '');
   const hours = dateObject.getHours();
@@ -81,22 +82,50 @@ export const NotificationModal = () => {
               </Text>
             </Text>
             <Text style={{ fontSize: 30 }}>{content.data.date} </Text>
-            <Text
-              style={{
-                paddingTop: 30,
-                fontSize: 50,
-              }}
-            >
-              {content.title}
-            </Text>
-            <Text
-              style={{
-                paddingTop: 10,
-                fontSize: 20,
-              }}
-            >
-              {content.body}
-            </Text>
+            {content.data.isQuote ? (
+              <>
+                <Text
+                  style={{
+                    paddingTop: 30,
+                    fontSize: 20,
+                    textAlign: 'center',
+                  }}
+                >
+                  {`"${content.body}"`}
+                </Text>
+                <Text
+                  style={{
+                    paddingTop: 10,
+                    fontSize: 30,
+                    width: '100%',
+                    textAlign: 'right',
+                    paddingRight: 10,
+                  }}
+                >
+                  {`- ${content.title}`}
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text
+                  style={{
+                    paddingTop: 30,
+                    fontSize: 50,
+                  }}
+                >
+                  {content.title}
+                </Text>
+                <Text
+                  style={{
+                    paddingTop: 10,
+                    fontSize: 20,
+                    textAlign: 'center',
+                  }}
+                >
+                  {content.body}
+                </Text>
+              </>
+            )}
           </>
         ))}
     </BottomSheet>

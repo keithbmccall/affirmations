@@ -1,5 +1,6 @@
 import { useCalendarEvents } from '@calendar-events';
 import {
+  NotificationContentData,
   NotificationIdentifier,
   useActions,
   useAppState,
@@ -36,7 +37,12 @@ export const useNotifications = () => {
   );
 
   const schedulePushNotification = useCallback(
-    async (date: Date, title: string, message: string, refresh = true) => {
+    async (
+      date: Date,
+      title: string,
+      message: string,
+      { refresh = true, isQuote = false } = {},
+    ) => {
       if (notificationToken) {
         const time = date.getTime();
         const rawDate = date.toString();
@@ -54,9 +60,10 @@ export const useNotifications = () => {
             startDate: date,
             notes: body,
           });
-          const data = {
+          const data: NotificationContentData = {
             ...timeData,
             calendarEventId: calendarEventId ? calendarEventId : undefined,
+            isQuote: isQuote ?? false,
           };
           const identifier = await Notifications.scheduleNotificationAsync({
             content: {
@@ -133,7 +140,7 @@ export const useNotifications = () => {
       title: string,
       message: string,
     ) => {
-      await schedulePushNotification(date, title, message, false);
+      await schedulePushNotification(date, title, message, { refresh: false });
       await cancelPushNotification(identifier, undefined, false);
       await refreshCurrentlyScheduledNotifications();
     },

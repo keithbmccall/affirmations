@@ -1,13 +1,21 @@
-import { NotificationContent } from '@platform';
+import { NotificationContent, NotificationContentData } from '@platform';
 import { Text } from '@rneui/themed';
 import { FC } from 'react';
 import { View } from 'react-native';
+import {
+  GenericNotificationContent,
+  QuoteNotificationContent,
+} from './notification-card-content-items';
 import { useStyles } from './styles';
 
-type NotificationCardProps = NotificationContent;
+type NotificationCardProps = {
+  body: NotificationContent['body'];
+  data: NotificationContentData;
+  title: NotificationContent['title'];
+};
 export const NotificationCard: FC<NotificationCardProps> = ({
   body,
-  data: { time, date },
+  data: { time, date, isQuote },
   title,
 }) => {
   const styles = useStyles();
@@ -34,22 +42,11 @@ export const NotificationCard: FC<NotificationCardProps> = ({
         <Text style={styles.dateText}>{date}</Text>
       </View>
       <View style={styles.descriptionContainer}>
-        <Text
-          numberOfLines={1}
-          style={{
-            fontSize: 30,
-          }}
-        >
-          {title}
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={{
-            fontSize: 10,
-          }}
-        >
-          {body}
-        </Text>
+        {isQuote ? (
+          <QuoteNotificationContent body={body} author={title} />
+        ) : (
+          <GenericNotificationContent body={body} title={title} />
+        )}
       </View>
     </View>
   );
