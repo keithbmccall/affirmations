@@ -6,12 +6,17 @@ export enum Icons {
   CLOSE = 'close',
   TRASH = 'delete',
 }
-export const Icon: FC<IconProps> = ({ onPress, name = Icons.CLOSE }) => {
+export const Icon: FC<IconProps> = ({
+  color,
+  name = Icons.CLOSE,
+  onPress,
+  size = 30,
+}) => {
   return onPress ? (
     <TouchableOpacity onPress={onPress}>
-      <Icon name={name} size={30} />
+      <Icon name={name} size={size} color={color} />
     </TouchableOpacity>
   ) : (
-    <Icon name={name} size={30} />
+    <Icon name={name} size={size} color={color} />
   );
 };

@@ -1,4 +1,5 @@
-import { Icon, IconProps, Text, useTheme } from '@rneui/themed';
+import { IconProps, Text, useTheme } from '@rneui/themed';
+import { Icon } from '@shared-components';
 import { FC } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
@@ -46,7 +47,7 @@ export const BottomSheetHeader: FC<BottomSheetHeaderProps> = ({
         {title}
       </Text>
       <TouchableOpacity onPress={onClose}>
-        <Icon name="close" size={30} />
+        <Icon name="close" />
       </TouchableOpacity>
     </View>
   );
