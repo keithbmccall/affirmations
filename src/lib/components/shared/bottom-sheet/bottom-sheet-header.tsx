@@ -1,7 +1,7 @@
 import { IconProps, Text, useTheme } from '@rneui/themed';
-import { Icon } from '@shared-components';
 import { FC } from 'react';
 import { TouchableOpacity, View } from 'react-native';
+import { Icon } from '../icon';
 
 export interface BottomSheetHeaderProps {
   leadingIconProps?: IconProps;
