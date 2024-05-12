@@ -428,6 +428,15 @@ PODS:
   - react-native-simple-toast (3.1.0):
     - React-Core
     - Toast (~> 4)
+  - react-native-skia (1.2.3):
+    - RCT-Folly (= 2021.07.22.00)
+    - React
+    - React-callinvoker
+    - React-Core
+  - react-native-worklets-core (1.3.2):
+    - React
+    - React-callinvoker
+    - React-Core
   - React-NativeModulesApple (0.72.6):
     - hermes-engine
     - React-callinvoker
@@ -544,11 +553,27 @@ PODS:
     - React-Core
   - RNGestureHandler (2.12.1):
     - React-Core
+  - RNReanimated (3.11.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+    - ReactCommon/turbomodule/core
   - RNScreens (3.22.1):
     - React-Core
     - React-RCTImage
   - SocketRocket (0.6.1)
   - Toast (4.0.0)
+  - VisionCamera (4.0.3):
+    - VisionCamera/Core (= 4.0.3)
+    - VisionCamera/FrameProcessors (= 4.0.3)
+    - VisionCamera/React (= 4.0.3)
+  - VisionCamera/Core (4.0.3)
+  - VisionCamera/FrameProcessors (4.0.3):
+    - React
+    - React-callinvoker
+    - react-native-worklets-core
+  - VisionCamera/React (4.0.3):
+    - React-Core
+    - VisionCamera/FrameProcessors
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -599,6 +624,8 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-simple-toast (from `../node_modules/react-native-simple-toast`)
+  - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
+  - react-native-worklets-core (from `../node_modules/react-native-worklets-core`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -619,7 +646,9 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -723,6 +752,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-simple-toast:
     :path: "../node_modules/react-native-simple-toast"
+  react-native-skia:
+    :path: "../node_modules/@shopify/react-native-skia"
+  react-native-worklets-core:
+    :path: "../node_modules/react-native-worklets-core"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -763,8 +796,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNReanimated:
+    :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  VisionCamera:
+    :path: "../node_modules/react-native-vision-camera"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -818,6 +855,8 @@ SPEC CHECKSUMS:
   React-logger: cebf22b6cf43434e471dc561e5911b40ac01d289
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-simple-toast: 1059cc3b076a2abe14900d609c096d7682bf6e1e
+  react-native-skia: d368ae81d61c0253df36106ea76324b5a5519ddc
+  react-native-worklets-core: ff4a4076ad86469e61ec8e39da2cb13c55da2385
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2
   React-perflogger: e3596db7e753f51766bceadc061936ef1472edc3
   React-RCTActionSheet: 17ab132c748b4471012abbcdcf5befe860660485
@@ -838,9 +877,11 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 618d03a5f52fbccb3d7010076bc54712844c18ef
   RNDateTimePicker: fc2e4f2795877d45e84d85659bebe627eba5c931
   RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
+  RNReanimated: 9d4971e437f38c11fd2c43344ac9d40c330058b1
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+  VisionCamera: b633f90960feab2669b7a1c51f8a201dd0a5bfc3
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
 
 PODFILE CHECKSUM: a1720a7de56723dea524aeac26b276250b183aaa

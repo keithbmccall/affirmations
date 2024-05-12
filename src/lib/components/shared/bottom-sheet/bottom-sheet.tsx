@@ -30,6 +30,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
 }) => {
   const { theme } = useTheme();
   const { bottom: safeAreaBottom } = useSafeAreaInsets();
+  console.log("bs i n view")
   return (
     <Modal
       avoidKeyboard={avoidKeyboard}
