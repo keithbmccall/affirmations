@@ -56,7 +56,7 @@ export const NotificationModal = () => {
     <BottomSheet
       containerStyle={{ ...globalStyles.justifyCenter }}
       headerProps={headerProps}
-      isOpen
+
       onClose={onClose}
       title="Notification details"
     >

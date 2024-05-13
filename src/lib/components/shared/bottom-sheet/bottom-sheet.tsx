@@ -1,7 +1,11 @@
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import { useTheme } from '@rneui/themed';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, ViewProps, ViewStyle } from 'react-native';
-import Modal, { ModalProps } from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   BottomSheetHeader,
@@ -9,7 +13,7 @@ import {
 } from './bottom-sheet-header';
 
 export interface BottomSheetProps {
-  avoidKeyboard?: ModalProps['avoidKeyboard'];
+  // avoidKeyboard?: ModalProps['avoidKeyboard'];
   children: ReactNode;
   containerStyle?: ViewStyle;
   headerProps?: Partial<BottomSheetHeaderProps>;
@@ -28,38 +32,52 @@ export const BottomSheet: FC<BottomSheetProps> = ({
   onLayout,
   title,
 }) => {
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { theme } = useTheme();
   const { bottom: safeAreaBottom } = useSafeAreaInsets();
-  console.log("bs i n view")
+  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  useEffect(() => {
+    console.log('bs i n view');
+    setTimeout(()=>{
+
+        console.log('called!');
+        bottomSheetModalRef.current?.present();
+    },5000)
+
+    return () => {
+      console.log('bottomsheet has unmounted');
+    };
+  }, []);
+
   return (
-    <Modal
-      avoidKeyboard={avoidKeyboard}
-      isVisible={isOpen}
-      onBackdropPress={onClose}
-      onSwipeComplete={onClose}
-      swipeDirection="down"
-      style={{
-        justifyContent: 'flex-end',
-        marginHorizontal: 0,
-        marginBottom: 0,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: theme.colors.background,
-          borderTopRightRadius: 20,
-          borderTopLeftRadius: 20,
-          borderColor: theme.colors.white,
-          borderWidth: 2,
-          borderBottomWidth: 0,
-          paddingBottom: safeAreaBottom,
-        }}
+    <BottomSheetModalProvider>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
       >
-        <BottomSheetHeader {...headerProps} onClose={onClose} title={title} />
-        <View style={containerStyle} onLayout={onLayout}>
-          {children}
-        </View>
-      </View>
-    </Modal>
+        <BottomSheetView
+          style={{
+            backgroundColor: theme.colors.background,
+            borderTopRightRadius: 20,
+            borderTopLeftRadius: 20,
+            borderColor: theme.colors.white,
+            borderWidth: 2,
+            borderBottomWidth: 0,
+            paddingBottom: safeAreaBottom,
+          }}
+        >
+          <BottomSheetHeader {...headerProps} onClose={onClose} title={title} />
+          <View style={containerStyle} onLayout={onLayout}>
+            {children}
+          </View>
+        </BottomSheetView>
+      </BottomSheetModal>
+    </BottomSheetModalProvider>
   );
 };
