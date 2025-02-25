@@ -1,0 +1,13 @@
+diff --git a/node_modules/expo-constants/ios/EXConstants.podspec b/node_modules/expo-constants/ios/EXConstants.podspec
+index f3d2c45..0221021 100644
+--- a/node_modules/expo-constants/ios/EXConstants.podspec
++++ b/node_modules/expo-constants/ios/EXConstants.podspec
+@@ -38,8 +38,6 @@ Pod::Spec.new do |s|
+     :name => 'Generate app.config for prebuilt Constants.manifest',
+     :script => 'bash -l -c "$PODS_TARGET_SRCROOT/../scripts/get-app-config-ios.sh"',
+     :execution_position => :before_compile,
+-    # always run the script without warning
+-    :always_out_of_date => "1"
+   }
+ 
+   # Generate EXConstants.bundle without existing resources
