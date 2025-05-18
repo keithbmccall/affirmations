@@ -2,32 +2,17 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
     "paths": {
-      "@shared-components": ["./src/lib/components/shared"],
-      "@scheduled-notifications": [
-        "./src/lib/components/scheduled-notifications"
-      ],
-      "@scheduler": ["./src/lib/components/scheduler"],
-      "@global-types": ["./src/lib/types.ts"],
-      "@notifications": ["./src/lib/notifications"],
-      "@calendar-events": ["./src/lib/calendar-events"],
-      "@quotes": ["./src/lib/quotes"],
-      "@platform": ["./src/lib/platform"],
-      "@storage": ["./src/lib/storage"],
-      "@utils": ["./src/lib/utils"],
-      "@theme": ["./src/lib/theme"],
-      "@data": ["./src/data"],
-      "@modals": ["./src/lib/modals"]
+      // "@/*": ["./*"],
+      "@platform": ["./lib/platform"],
+      "@components": ["./lib/components"],
+      "@utils": ["./lib/utils"],
+      "@screen-containers/*": ["./lib/screen-containers/*"],
+      "@styles": ["./lib/styles"],
+      "@routes": ["./lib/routes"],
+      "@notifications": ["./lib/notifications"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "./node_modules",
-    "./node_modules/*",
-    "./node_modules/@types/node/index.d.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": [".expo-defaults/old/**/*"]
 }
