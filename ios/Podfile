@@ -75,6 +75,21 @@ target 'ScheduledAffirmations' do
         end
       end
     end
+
+    # Fix for fmt library
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        target.build_configurations.each do |config|
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FMT_USE_CPP17=1'
+        end
+      end
+      
+      # Set minimum deployment target for all pods
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      end
+    end
   end
 
   post_integrate do |installer|
