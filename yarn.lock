@@ -1372,23 +1372,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/fingerprint@npm:0.12.4":
-  version: 0.12.4
-  resolution: "@expo/fingerprint@npm:0.12.4"
+"@expo/fingerprint@npm:0.13.0":
+  version: 0.13.0
+  resolution: "@expo/fingerprint@npm:0.13.0"
   dependencies:
     "@expo/spawn-async": ^1.7.2
     arg: ^5.0.2
     chalk: ^4.1.2
     debug: ^4.3.4
     find-up: ^5.0.0
-    getenv: ^1.0.0
+    getenv: ^2.0.0
+    ignore: ^5.3.1
     minimatch: ^9.0.0
     p-limit: ^3.1.0
     resolve-from: ^5.0.0
     semver: ^7.6.0
   bin:
     fingerprint: bin/cli.js
-  checksum: 45a3393ef4cdb370790ee2afc0dc51bb0f7c47229fe2a98483879facd172cc3b977f6345f8f776935e8d676969144aa901e208d4e454d9da73a4ab438526141b
+  checksum: d177169ae114764b9993b9c452af2ed442a4518580c609ffd1a1e1b7c17f90d8592d5d8d1e894e8e282272791c82a3b0c0341f7d23f2e63e25ad83078d54ee33
   languageName: node
   linkType: hard
 
@@ -1867,6 +1868,13 @@ __metadata:
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
   checksum: 6ad6a00fc4f2f2cfc6bff76fb1d88b8ee20bc0601e18ebb01b6d4be583733a860239a521a7fbca73b612e66705078809483549d2b18f370eb346c5155c8e4a0f
+  languageName: node
+  linkType: hard
+
+"@pkgr/core@npm:^0.2.4":
+  version: 0.2.7
+  resolution: "@pkgr/core@npm:0.2.7"
+  checksum: b16959878940f3d3016b79a4b2c23fd518aaec6b47295baa3154fbcf6574fee644c51023bb69069fa3ea9cdcaca40432818f54695f11acc0ae326cf56676e4d1
   languageName: node
   linkType: hard
 
@@ -2703,19 +2711,23 @@ __metadata:
     "@types/react": ~19.0.10
     eslint: ^9.25.0
     eslint-config-expo: ~9.2.0
-    expo: ~53.0.10
+    eslint-config-prettier: ^10.1.5
+    eslint-plugin-prettier: ^5.4.1
+    expo: 53.0.11
     expo-blur: ~14.1.5
     expo-constants: ~17.1.6
     expo-font: ~13.3.1
     expo-haptics: ~14.1.4
-    expo-image: ~2.2.0
+    expo-image: ~2.3.0
     expo-linking: ~7.1.5
-    expo-router: ~5.0.7
+    expo-router: ~5.1.0
     expo-splash-screen: ~0.30.9
     expo-status-bar: ~2.2.3
     expo-symbols: ~0.4.5
     expo-system-ui: ~5.0.8
     expo-web-browser: ~14.1.6
+    prettier: ^3.5.3
+    prettier-plugin-organize-imports: ^4.1.0
     react: 19.0.0
     react-dom: 19.0.0
     react-native: 0.79.3
@@ -4233,6 +4245,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-config-prettier@npm:^10.1.5":
+  version: 10.1.5
+  resolution: "eslint-config-prettier@npm:10.1.5"
+  peerDependencies:
+    eslint: ">=7.0.0"
+  bin:
+    eslint-config-prettier: bin/cli.js
+  checksum: 6d8eb41c716fc2b073bfd9daede0c87c4c2b29055f15c94618eec00a19c5499024ddb89902d6793b5ac9102075e4739d7cc2d4d58c7e7ed4cc2dcf79e3fbcacc
+  languageName: node
+  linkType: hard
+
 "eslint-import-resolver-node@npm:^0.3.9":
   version: 0.3.9
   resolution: "eslint-import-resolver-node@npm:0.3.9"
@@ -4319,6 +4342,26 @@ __metadata:
   peerDependencies:
     eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9
   checksum: b1d2ac268b3582ff1af2a72a2c476eae4d250c100f2e335b6e102036e4a35efa530b80ec578dfc36761fabb34a635b9bf5ab071abe9d4404a4bb054fdf22d415
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-prettier@npm:^5.4.1":
+  version: 5.4.1
+  resolution: "eslint-plugin-prettier@npm:5.4.1"
+  dependencies:
+    prettier-linter-helpers: ^1.0.0
+    synckit: ^0.11.7
+  peerDependencies:
+    "@types/eslint": ">=8.0.0"
+    eslint: ">=8.0.0"
+    eslint-config-prettier: ">= 7.0.0 <10.0.0 || >=10.1.0"
+    prettier: ">=3.0.0"
+  peerDependenciesMeta:
+    "@types/eslint":
+      optional: true
+    eslint-config-prettier:
+      optional: true
+  checksum: ddbfc60e478dd78602b1f1594db539bfc686161eba4531e4c59580c9cf5746919878beabfe31b559d783ad3ed753af158bfa16bd35bd05382c7d2d86c894c81b
   languageName: node
   linkType: hard
 
@@ -4576,9 +4619,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-image@npm:~2.2.0":
-  version: 2.2.0
-  resolution: "expo-image@npm:2.2.0"
+"expo-image@npm:~2.3.0":
+  version: 2.3.0
+  resolution: "expo-image@npm:2.3.0"
   peerDependencies:
     expo: "*"
     react: "*"
@@ -4587,7 +4630,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-web:
       optional: true
-  checksum: 72c33b5ddc71f92fa055d66915cae23b65c0b46046267e1cc84e7966e05ddd0c3313ad3d89a23e431155a98b3033665729200a6ee1cfd6635232d99d161b900f
+  checksum: 14d6585175b56bb0536c7023addc57c69cde0b8446a0a9568ce02c132ccc21f78ab9f075aa36de569af1d486c984df25a3f44d0379b9a05ebd2231cdcfd856f6
   languageName: node
   linkType: hard
 
@@ -4614,9 +4657,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-modules-autolinking@npm:2.1.10":
-  version: 2.1.10
-  resolution: "expo-modules-autolinking@npm:2.1.10"
+"expo-modules-autolinking@npm:2.1.11":
+  version: 2.1.11
+  resolution: "expo-modules-autolinking@npm:2.1.11"
   dependencies:
     "@expo/spawn-async": ^1.7.2
     chalk: ^4.1.0
@@ -4627,7 +4670,7 @@ __metadata:
     resolve-from: ^5.0.0
   bin:
     expo-modules-autolinking: bin/expo-modules-autolinking.js
-  checksum: c482595f5237ed32813d7f6c31e9f3f9b1edfe00aebf0ff282ccf2da1284868bd6f06fc2837a8f33d90a88e3d7f105ef0c9c075622b0b3319e6b5748f52ec81d
+  checksum: 636cb7364855807db5cca5be6094bc1b23783703717b048720e04c00a1fded0e2559f2f6ce5be0c4918649171b02893533a3b91cbda5b118ad978eebb640e66b
   languageName: node
   linkType: hard
 
@@ -4640,9 +4683,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-router@npm:~5.0.7":
-  version: 5.0.7
-  resolution: "expo-router@npm:5.0.7"
+"expo-router@npm:~5.1.0":
+  version: 5.1.0
+  resolution: "expo-router@npm:5.1.0"
   dependencies:
     "@expo/metro-runtime": 5.0.4
     "@expo/server": ^0.6.2
@@ -4673,7 +4716,7 @@ __metadata:
       optional: true
     react-native-reanimated:
       optional: true
-  checksum: cedd65030eb3357ea9e71df568ccca32f54a7825d44bf616d3b35734f13207d3606b78185dc0ea798b49c847eeb6d162704212d3c2b71308961358292e21749d
+  checksum: 3a8849b77846fc1ecfc873dc393424b98c865e71429f5c0a894dfebc61d95f49a800f98b300bdaf2cdbef5adb5329c774aaa3210d9650bc4d689dcb12b78d24f
   languageName: node
   linkType: hard
 
@@ -4740,15 +4783,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:~53.0.10":
-  version: 53.0.10
-  resolution: "expo@npm:53.0.10"
+"expo@npm:53.0.11":
+  version: 53.0.11
+  resolution: "expo@npm:53.0.11"
   dependencies:
     "@babel/runtime": ^7.20.0
     "@expo/cli": 0.24.14
     "@expo/config": ~11.0.10
     "@expo/config-plugins": ~10.0.2
-    "@expo/fingerprint": 0.12.4
+    "@expo/fingerprint": 0.13.0
     "@expo/metro-config": 0.20.14
     "@expo/vector-icons": ^14.0.0
     babel-preset-expo: ~13.2.0
@@ -4757,7 +4800,7 @@ __metadata:
     expo-file-system: ~18.1.10
     expo-font: ~13.3.1
     expo-keep-awake: ~14.1.4
-    expo-modules-autolinking: 2.1.10
+    expo-modules-autolinking: 2.1.11
     expo-modules-core: 2.4.0
     react-native-edge-to-edge: 1.6.0
     whatwg-url-without-unicode: 8.0.0-3
@@ -4778,7 +4821,7 @@ __metadata:
     expo: bin/cli
     expo-modules-autolinking: bin/autolinking
     fingerprint: bin/fingerprint
-  checksum: 37754df2ad0936d55a602f4295a304684eb10cad4e7c332aa40666aa97e04335821ababc73720c45e0b0c2c192969c0f337d7c3cf615156e6def08b1e58613a9
+  checksum: 43a4a5aca799c8ffd679dad5754c9b7021ebf8756a5a764bbf83fa4d7169f0551ee034012bb76744baa69e293a736a5689d748fb3b298570727e7c534b19152e
   languageName: node
   linkType: hard
 
@@ -4793,6 +4836,13 @@ __metadata:
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
   checksum: e21a9d8d84f53493b6aa15efc9cfd53dd5b714a1f23f67fb5dc8f574af80df889b3bce25dc081887c6d25457cce704e636395333abad896ccdec03abaf1f3f9d
+  languageName: node
+  linkType: hard
+
+"fast-diff@npm:^1.1.2":
+  version: 1.3.0
+  resolution: "fast-diff@npm:1.3.0"
+  checksum: d22d371b994fdc8cce9ff510d7b8dc4da70ac327bcba20df607dd5b9cae9f908f4d1028f5fe467650f058d1e7270235ae0b8230809a262b4df587a3b3aa216c3
   languageName: node
   linkType: hard
 
@@ -5429,7 +5479,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ignore@npm:^5.2.0":
+"ignore@npm:^5.2.0, ignore@npm:^5.3.1":
   version: 5.3.2
   resolution: "ignore@npm:5.3.2"
   checksum: 2acfd32a573260ea522ea0bfeff880af426d68f6831f973129e2ba7363f422923cf53aab62f8369cbf4667c7b25b6f8a3761b34ecdb284ea18e87a5262a865be
@@ -7440,6 +7490,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier-linter-helpers@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "prettier-linter-helpers@npm:1.0.0"
+  dependencies:
+    fast-diff: ^1.1.2
+  checksum: 00ce8011cf6430158d27f9c92cfea0a7699405633f7f1d4a45f07e21bf78e99895911cbcdc3853db3a824201a7c745bd49bfea8abd5fb9883e765a90f74f8392
+  languageName: node
+  linkType: hard
+
+"prettier-plugin-organize-imports@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "prettier-plugin-organize-imports@npm:4.1.0"
+  peerDependencies:
+    prettier: ">=2.0"
+    typescript: ">=2.9"
+    vue-tsc: ^2.1.0
+  peerDependenciesMeta:
+    vue-tsc:
+      optional: true
+  checksum: 43c917959170fa3e30e41f9b3bd314a31462ae34e5568b4dba6b1c8b8da758adf900fdf4999333ab2b60b3d1af541f9521396a5e19df03ab5400a50edc9a75f6
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.5.3":
+  version: 3.5.3
+  resolution: "prettier@npm:3.5.3"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 61e97bb8e71a95d8f9c71f1fd5229c9aaa9d1e184dedb12399f76aa802fb6fdc8954ecac9df25a7f82ee7311cf8ddbd06baf5507388fc98e5b44036cc6a88a1b
+  languageName: node
+  linkType: hard
+
 "pretty-bytes@npm:^5.6.0":
   version: 5.6.0
   resolution: "pretty-bytes@npm:5.6.0"
@@ -8828,6 +8910,15 @@ __metadata:
   version: 1.0.0
   resolution: "supports-preserve-symlinks-flag@npm:1.0.0"
   checksum: 53b1e247e68e05db7b3808b99b892bd36fb096e6fba213a06da7fab22045e97597db425c724f2bbd6c99a3c295e1e73f3e4de78592289f38431049e1277ca0ae
+  languageName: node
+  linkType: hard
+
+"synckit@npm:^0.11.7":
+  version: 0.11.8
+  resolution: "synckit@npm:0.11.8"
+  dependencies:
+    "@pkgr/core": ^0.2.4
+  checksum: dd7193736e0b5eb209192e280649b98b539537bf23bef20c8a2b24cd12ccde47bcf4e77773ff9cb66c35960d2cb41e28c05e0b19124488abbfb6423258b56275
   languageName: node
   linkType: hard
 
