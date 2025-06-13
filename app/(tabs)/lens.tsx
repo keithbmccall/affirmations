@@ -1,10 +1,13 @@
-import { StyleSheet } from 'react-native';
-
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { StyleSheet } from 'react-native';
+import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 
 export default function LensScreen() {
+  const device = useCameraDevice('back');
+  const { hasPermission } = useCameraPermission();
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -17,8 +20,15 @@ export default function LensScreen() {
         />
       }
     >
-      <ThemedText type="title">Lens</ThemedText>
-      <ThemedText type="default">Add camera here</ThemedText>
+      {device ? (
+        <>
+          <Camera style={StyleSheet.absoluteFill} device={device} isActive={true} />)
+          <ThemedText type="title">Lens</ThemedText>
+          <ThemedText type="default">Add camera here</ThemedText>
+        </>
+      ) : (
+        <ThemedText type="title">No camera</ThemedText>
+      )}
     </ParallaxScrollView>
   );
 }
