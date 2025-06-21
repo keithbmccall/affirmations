@@ -1,9 +1,9 @@
-import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { HapticTab } from '@/.expo-defaults/components/HapticTab';
+import TabBarBackground from '@/.expo-defaults/components/ui/TabBarBackground';
+import { Colors } from '@/.expo-defaults/constants/Colors';
 import { IconSymbol } from '@/lib/components/shared/icon-symbol/icon-symbol';
 import { Routes } from '@/lib/routes';
+import { useColorScheme } from '@/lib/styles/hooks/useColorScheme';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';

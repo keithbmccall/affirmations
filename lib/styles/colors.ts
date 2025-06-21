@@ -1,8 +1,10 @@
+import { ColorValue as RNColorValue } from 'react-native';
 /**
  * Common color palette for consistent theming throughout the app
  * All colors are in hex format for easy use
  */
-export const colors = {
+type Colors = Record<string, Record<string, RNColorValue>>;
+export const colors: Colors = {
   // Primary colors
   primary: {
     50: '#eff6ff', // Very light blue

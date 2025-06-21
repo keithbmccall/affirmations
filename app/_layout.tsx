@@ -1,5 +1,5 @@
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { StateContextProvider } from '@/lib/platform';
+import { useColorScheme } from '@/lib/styles/hooks/useColorScheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useLocalSearchParams, usePathname, useRouter } from 'expo-router';

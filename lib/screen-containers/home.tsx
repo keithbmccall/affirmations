@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { IconSymbol, ThemedText, ThemedView } from '../components/shared';
-import { common, spacing } from '../styles';
+import { colors, common, spacing } from '../styles';
 import Settings from './settings';
 import { ScreenContainerProps } from './types';
 
@@ -16,10 +16,10 @@ const Home = ({ statusBarProps }: HomeProps) => {
       <ThemedText type="subtitle">Table of Contents</ThemedText>
       <View style={styles.linksContainer}>
         <Link href={{ pathname: '/(tabs)/lens-screen' }}>
-          <IconSymbol size={50} color="black" name="camera.fill" />
+          <IconSymbol size={50} color={colors.secondary['900']} name="camera.fill" />
         </Link>
         <Link href={{ pathname: '/(tabs)/affirmations-screen' }}>
-          <IconSymbol size={50} color="black" name="note.text" />
+          <IconSymbol size={50} color={colors.secondary['900']} name="note.text" />
         </Link>
       </View>
     </ThemedView>
