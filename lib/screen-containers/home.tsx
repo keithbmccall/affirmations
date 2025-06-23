@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { IconSymbol, ThemedText, ThemedView } from '../components/shared';
-import { colors, common, spacing } from '../styles';
+import { colors, globalStyles, spacing } from '../styles';
 import Settings from './settings';
 import { ScreenContainerProps } from './types';
 
@@ -28,16 +28,16 @@ const Home = ({ statusBarProps }: HomeProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    ...common.flexColumn,
-    ...common.flex1,
+    ...globalStyles.flexColumn,
+    ...globalStyles.flex1,
     gap: spacing.gap['3xl'],
     paddingHorizontal: spacing.screenPadding,
     paddingVertical: spacing.screenPadding,
   },
   linksContainer: {
     marginVertical: spacing['10xl'],
-    ...common.flexRow,
-    ...common.justifyAround,
+    ...globalStyles.flexRow,
+    ...globalStyles.justifyAround,
   },
 });
 

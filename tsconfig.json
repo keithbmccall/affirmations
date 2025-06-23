@@ -7,7 +7,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": [
-    ".expo-defaults/old/**/*"
-  ]
+  "exclude": [".expo-defaults/old/**/*"]
 }

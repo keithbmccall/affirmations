@@ -1,6 +1,6 @@
 import { ThemedSafeAreaView } from '@/lib/components/shared';
 import Affirmations from '@/lib/screen-containers/affirmations';
-import { common } from '@/lib/styles';
+import { globalStyles } from '@/lib/styles';
 import { StyleSheet } from 'react-native';
 
 export default function AffirmationsScreen() {
@@ -13,6 +13,6 @@ export default function AffirmationsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    ...common.flex1,
+    ...globalStyles.flex1,
   },
 });

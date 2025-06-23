@@ -3,6 +3,7 @@
  * These values follow a 4px base unit system for consistency
  */
 export const spacing = {
+  zip: 0,
   // Micro spacing (0-8px)
   xs: 4,
   sm: 8,

@@ -20,6 +20,6 @@ type InputRefPlugType = RefObject<Input> & {
 };
 
 export const useInputRef: (defaultValue: string) => InputRefPlugType = (
-  defaultValue: string,
+  defaultValue: string
   // @ts-ignore
 ) => useRef<Input>(defaultValue) as InputRefPlugType;

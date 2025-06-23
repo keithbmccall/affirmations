@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react-native';
 import { ThemedInput, ThemedText, ThemedView } from '../components/shared';
 import { useSettings } from '../platform/hooks';
-import { common, spacing } from '../styles';
+import { globalStyles, spacing } from '../styles';
 import { ScreenContainerProps } from './types';
 
 interface SettingsProps extends ScreenContainerProps {}
@@ -31,12 +31,14 @@ const Settings = ({ statusBarProps }: SettingsProps) => {
 
 const styles = StyleSheet.create({
   container: {
+    ...globalStyles.flexColumn,
     gap: spacing.gap['2xl'],
+    paddingVertical: spacing.screenPadding,
   },
   links: {
     marginVertical: spacing['10xl'],
-    ...common.flexRow,
-    ...common.justifyAround,
+    ...globalStyles.flexRow,
+    ...globalStyles.justifyAround,
   },
 });
 

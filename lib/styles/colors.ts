@@ -67,11 +67,6 @@ export const colors: Colors = {
     900: '#111827', // Almost black
   },
 
-  // Whites and blacks
-  white: '#ffffff', // Pure white
-  black: '#000000', // Pure black
-  transparent: 'transparent',
-
   // Common UI colors
   ui: {
     background: '#ffffff', // White background
@@ -151,6 +146,7 @@ export const colors: Colors = {
 
   // Human-readable color names
   human: {
+    transparent: 'transparent',
     // Reds
     fireEngineRed: '#ff0000',
     crimson: '#dc143c',
