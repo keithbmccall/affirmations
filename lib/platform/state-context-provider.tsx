@@ -1,23 +1,29 @@
-import {
-  createContext,
-  Dispatch,
-  FC,
-  PropsWithChildren,
-  useContext,
-  useMemo,
-  useReducer,
-} from 'react';
+import { NotificationChannel } from 'expo-notifications';
+import { createContext, FC, PropsWithChildren, useContext, useMemo, useReducer } from 'react';
+import { useInitNotifications } from '../notifications';
 import { noop } from '../utils';
-import { Action } from './actions';
+import {
+  Action,
+  AffirmationsActionsFunctions,
+  setName,
+  setNotificationChannels,
+  setNotificationToken,
+  SettingsActionsFunctions,
+} from './actions';
 
-interface StateType {
+export interface StateType {
   settings: {
     user: {
       name: string;
     };
   };
   lens: {};
-  affirmations: {};
+  affirmations: {
+    notifications: {
+      token: string;
+      channels: NotificationChannel[];
+    };
+  };
 }
 const initialState: StateType = {
   settings: {
@@ -26,17 +32,26 @@ const initialState: StateType = {
     },
   },
   lens: {},
-  affirmations: {},
+  affirmations: {
+    notifications: {
+      token: '',
+      channels: [],
+    },
+  },
 };
 
-interface StateContextActions {
-  settings: {
-    onSetName: (name: string) => void;
-  };
-}
+export type StateContextActions = {
+  settings: SettingsActionsFunctions;
+  affirmations: AffirmationsActionsFunctions;
+};
+
 const initialActions: StateContextActions = {
   settings: {
     onSetName: noop,
+  },
+  affirmations: {
+    onSetNotificationToken: noop,
+    onSetNotificationChannels: noop,
   },
 };
 
@@ -51,19 +66,12 @@ const StateContext = createContext<StateContextType>({
 
 export const useStateContext = () => useContext(StateContext);
 
-export const setName =
-  (dispatch: Dispatch<Action>): StateContextActions['settings']['onSetName'] =>
-  name => {
-    return dispatch({
-      type: 'SET_NAME',
-      payload: name,
-    });
-  };
 export const stateReducer = (state = initialState, action: Action): StateType => {
   console.log({
     action,
   });
   switch (action.type) {
+    // settings
     case 'SET_NAME':
       return {
         ...state,
@@ -71,6 +79,29 @@ export const stateReducer = (state = initialState, action: Action): StateType =>
           ...state.settings,
           user: {
             name: action.payload,
+          },
+        },
+      };
+    // affirmations
+    case 'SET_NOTIFICATION_TOKEN':
+      return {
+        ...state,
+        affirmations: {
+          ...state.affirmations,
+          notifications: {
+            ...state.affirmations.notifications,
+            token: action.payload,
+          },
+        },
+      };
+    case 'SET_NOTIFICATION_CHANNELS':
+      return {
+        ...state,
+        affirmations: {
+          ...state.affirmations,
+          notifications: {
+            ...state.affirmations.notifications,
+            channels: action.payload,
           },
         },
       };
@@ -89,9 +120,15 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       settings: {
         onSetName: setName(dispatch),
       },
+      affirmations: {
+        onSetNotificationToken: setNotificationToken(dispatch),
+        onSetNotificationChannels: setNotificationChannels(dispatch),
+      },
     }),
     []
   );
+
+  useInitNotifications(providerActions, state);
 
   return (
     <StateContext.Provider

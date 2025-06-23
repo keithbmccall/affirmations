@@ -5,6 +5,15 @@ export const useSettings = () => {
 
   return {
     ...actions.settings,
-    settings,
+    ...settings,
+  };
+};
+
+export const useNotifications = () => {
+  const { affirmations, actions } = useStateContext();
+
+  return {
+    ...actions.affirmations,
+    ...affirmations,
   };
 };

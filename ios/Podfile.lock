@@ -1,7 +1,11 @@
 PODS:
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
+  - EXApplication (6.1.4):
+    - ExpoModulesCore
   - EXConstants (17.1.6):
+    - ExpoModulesCore
+  - EXNotifications (0.31.3):
     - ExpoModulesCore
   - Expo (53.0.12):
     - DoubleConversion
@@ -33,6 +37,8 @@ PODS:
   - ExpoAsset (11.1.5):
     - ExpoModulesCore
   - ExpoBlur (14.1.5):
+    - ExpoModulesCore
+  - ExpoDevice (7.1.4):
     - ExpoModulesCore
   - ExpoFileSystem (18.1.10):
     - ExpoModulesCore
@@ -2131,10 +2137,13 @@ PODS:
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
+  - EXNotifications (from `../node_modules/expo-notifications/ios`)
   - Expo (from `../node_modules/expo`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
+  - ExpoDevice (from `../node_modules/expo-device/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
@@ -2242,14 +2251,20 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  EXApplication:
+    :path: "../node_modules/expo-application/ios"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
+  EXNotifications:
+    :path: "../node_modules/expo-notifications/ios"
   Expo:
     :path: "../node_modules/expo"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
   ExpoBlur:
     :path: "../node_modules/expo-blur/ios"
+  ExpoDevice:
+    :path: "../node_modules/expo-device/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -2431,10 +2446,13 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
+  EXApplication: 63b87ca5204304007fac6b1be432f8afa3731c17
   EXConstants: 9f310f44bfedba09087042756802040e464323c0
+  EXNotifications: 1afe5275cf399920480fc5a9008676749a767d19
   Expo: 96f7935e5af791080d758fbfda1f7c10e827e588
   ExpoAsset: 3bc9adb7dbbf27ae82c18ca97eb988a3ae7e73b1
   ExpoBlur: 3c8885b9bf9eef4309041ec87adec48b5f1986a9
+  ExpoDevice: 7082f03af1c588333ef1417d5aa8287081d94b24
   ExpoFileSystem: c36eb8155eb2381c83dda7dc210e3eec332368b6
   ExpoFont: abbb91a911eb961652c2b0a22eef801860425ed6
   ExpoHaptics: 0ff6e0d83cd891178a306e548da1450249d54500
@@ -2447,15 +2465,15 @@ SPEC CHECKSUMS:
   ExpoSymbols: c5612a90fb9179cdaebcd19bea9d8c69e5d3b859
   ExpoSystemUI: 29fb31c0e06eea3f5d88299d5c290101fc69f61f
   ExpoWebBrowser: 06fb5f767f53ad53944b068cdd207984cb998712
-  fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
+  fast_float: 23278fd30b349f976d2014f4aec9e2d7bc1c3806
   FBLazyVector: 15c28682af535aa55b9b31e64deff54b7ed7d453
-  fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
-  glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
-  hermes-engine: 94ed01537bdeccaab1adbf94b040d115d6fa1a7f
+  fmt: b85d977e8fe789fd71c77123f9f4920d88c4d170
+  glog: 682871fb30f4a65f657bf357581110656ea90b08
+  hermes-engine: a0af41f3e4a17310c637d2d4a9d1441d63f6d25c
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
+  RCT-Folly: 031db300533e2dfa954cdc5a859b792d5c14ed7b
   RCTDeprecation: 0418ac97b9f53b2e37f473da1663ef3061e46beb
   RCTRequired: b9fde7f981b11aa898f03a70d3d4d36b80f1b16d
   RCTTypeSafety: 397515ea9a8122b62a7a310adf30205f0a5e3bfc

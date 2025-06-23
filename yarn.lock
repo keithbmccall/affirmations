@@ -1655,6 +1655,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ide/backoff@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@ide/backoff@npm:1.0.0"
+  checksum: 05860fd05952c83e7bc2f23e5f25b9301a60d99254ee4a8d63f5907da0f908af9db718c9027dd2cdaec8203fa05e9dd6afaca767e7e69cefd0a0eef33d9a17ea
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -2783,11 +2790,13 @@ __metadata:
     eslint-plugin-prettier: ^5.4.1
     expo: 53.0.12
     expo-blur: ~14.1.5
-    expo-constants: ~17.1.6
+    expo-constants: ^17.1.6
+    expo-device: ^7.1.4
     expo-font: ~13.3.1
     expo-haptics: ~14.1.4
     expo-image: ~2.3.0
     expo-linking: ~7.1.5
+    expo-notifications: ^0.31.3
     expo-router: ~5.1.0
     expo-splash-screen: ~0.30.9
     expo-status-bar: ~2.2.3
@@ -3090,6 +3099,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"assert@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "assert@npm:2.1.0"
+  dependencies:
+    call-bind: ^1.0.2
+    is-nan: ^1.3.2
+    object-is: ^1.1.5
+    object.assign: ^4.1.4
+    util: ^0.12.5
+  checksum: 1ed1cabba9abe55f4109b3f7292b4e4f3cf2953aad8dc148c0b3c3bd676675c31b1abb32ef563b7d5a19d1715bf90d1e5f09fad2a4ee655199468902da80f7c2
+  languageName: node
+  linkType: hard
+
 "async-function@npm:^1.0.0":
   version: 1.0.0
   resolution: "async-function@npm:1.0.0"
@@ -3287,6 +3309,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"badgin@npm:^1.1.5":
+  version: 1.2.3
+  resolution: "badgin@npm:1.2.3"
+  checksum: 8c53fb0c35ec0bbf25a84be42e56e1291c958138182cdf91693ade955d7f52f36fd282ed00f31b741024aec6bdb10080bbe20a73138aac14a096838aaac76d95
+  languageName: node
+  linkType: hard
+
 "balanced-match@npm:^1.0.0":
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
@@ -3449,7 +3478,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"call-bind@npm:^1.0.7, call-bind@npm:^1.0.8":
+"call-bind@npm:^1.0.0, call-bind@npm:^1.0.2, call-bind@npm:^1.0.7, call-bind@npm:^1.0.8":
   version: 1.0.8
   resolution: "call-bind@npm:1.0.8"
   dependencies:
@@ -4620,6 +4649,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-application@npm:~6.1.4":
+  version: 6.1.4
+  resolution: "expo-application@npm:6.1.4"
+  peerDependencies:
+    expo: "*"
+  checksum: e0410a6309209089737ef5a57ad80adefe19398de53c1f04ebf1bcc2ef42d583b5115a15a1135c515822e5d04a068e248353aa4c8187e5c8d73de768c9628724
+  languageName: node
+  linkType: hard
+
 "expo-asset@npm:~11.1.5":
   version: 11.1.5
   resolution: "expo-asset@npm:11.1.5"
@@ -4645,7 +4683,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-constants@npm:~17.1.5, expo-constants@npm:~17.1.6":
+"expo-constants@npm:^17.1.6, expo-constants@npm:~17.1.5, expo-constants@npm:~17.1.6":
   version: 17.1.6
   resolution: "expo-constants@npm:17.1.6"
   dependencies:
@@ -4655,6 +4693,17 @@ __metadata:
     expo: "*"
     react-native: "*"
   checksum: 8586157be83de7010fa70e5a6c4eddaf0cd2a7cd88c531b59aef72d92d76627167413e5c5a81b15f179a74cdc6e558756e49d3c549349ff7f9459c9dd2e32240
+  languageName: node
+  linkType: hard
+
+"expo-device@npm:^7.1.4":
+  version: 7.1.4
+  resolution: "expo-device@npm:7.1.4"
+  dependencies:
+    ua-parser-js: ^0.7.33
+  peerDependencies:
+    expo: "*"
+  checksum: 64e207e343fb26604eab5c08a89c1cbc1d4d8af7f14305d1542abdf81ba9ea71d5d9648cbb7cf1f24aef81f42fa0f5918159ed2c376d734568309efc611bb8b0
   languageName: node
   linkType: hard
 
@@ -4750,6 +4799,25 @@ __metadata:
   dependencies:
     invariant: ^2.2.4
   checksum: aebdf2e9eb39b4025967af923504af25e24d88ef175d930cbedcd829f79c8ce628d083bf00455e72a4c677310ccdb89859ff3e86ab0c63e2664279cb024868ed
+  languageName: node
+  linkType: hard
+
+"expo-notifications@npm:^0.31.3":
+  version: 0.31.3
+  resolution: "expo-notifications@npm:0.31.3"
+  dependencies:
+    "@expo/image-utils": ^0.7.4
+    "@ide/backoff": ^1.0.0
+    abort-controller: ^3.0.0
+    assert: ^2.0.0
+    badgin: ^1.1.5
+    expo-application: ~6.1.4
+    expo-constants: ~17.1.6
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 33410d2c99123adc16194b3cae52dbdda83b90773980b35c1fb076f301e486d8ab97e2986fb09f69aaae3959a1fe6969d6f74cc5ed900d8dc32f5cf840fd428a
   languageName: node
   linkType: hard
 
@@ -5611,7 +5679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inherits@npm:2, inherits@npm:2.0.4, inherits@npm:~2.0.3":
+"inherits@npm:2, inherits@npm:2.0.4, inherits@npm:^2.0.3, inherits@npm:~2.0.3":
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 4a48a733847879d6cf6691860a6b1e3f0f4754176e4d71494c41f3475553768b10f84b5ce1d40fbd0e34e6bfbb864ee35858ad4dd2cf31e02fc4a154b724d7f1
@@ -5661,6 +5729,16 @@ __metadata:
     jsbn: 1.1.0
     sprintf-js: ^1.1.3
   checksum: aa15f12cfd0ef5e38349744e3654bae649a34c3b10c77a674a167e99925d1549486c5b14730eebce9fea26f6db9d5e42097b00aa4f9f612e68c79121c71652dc
+  languageName: node
+  linkType: hard
+
+"is-arguments@npm:^1.0.4":
+  version: 1.2.0
+  resolution: "is-arguments@npm:1.2.0"
+  dependencies:
+    call-bound: ^1.0.2
+    has-tostringtag: ^1.0.2
+  checksum: aae9307fedfe2e5be14aebd0f48a9eeedf6b8c8f5a0b66257b965146d1e94abdc3f08e3dce3b1d908e1fa23c70039a88810ee1d753905758b9b6eebbab0bafeb
   languageName: node
   linkType: hard
 
@@ -5806,7 +5884,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-generator-function@npm:^1.0.10":
+"is-generator-function@npm:^1.0.10, is-generator-function@npm:^1.0.7":
   version: 1.1.0
   resolution: "is-generator-function@npm:1.1.0"
   dependencies:
@@ -5831,6 +5909,16 @@ __metadata:
   version: 2.0.3
   resolution: "is-map@npm:2.0.3"
   checksum: e6ce5f6380f32b141b3153e6ba9074892bbbbd655e92e7ba5ff195239777e767a976dcd4e22f864accaf30e53ebf961ab1995424aef91af68788f0591b7396cc
+  languageName: node
+  linkType: hard
+
+"is-nan@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "is-nan@npm:1.3.2"
+  dependencies:
+    call-bind: ^1.0.0
+    define-properties: ^1.1.3
+  checksum: 5dfadcef6ad12d3029d43643d9800adbba21cf3ce2ec849f734b0e14ee8da4070d82b15fdb35138716d02587c6578225b9a22779cab34888a139cc43e4e3610a
   languageName: node
   linkType: hard
 
@@ -5907,7 +5995,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-typed-array@npm:^1.1.13, is-typed-array@npm:^1.1.14, is-typed-array@npm:^1.1.15":
+"is-typed-array@npm:^1.1.13, is-typed-array@npm:^1.1.14, is-typed-array@npm:^1.1.15, is-typed-array@npm:^1.1.3":
   version: 1.1.15
   resolution: "is-typed-array@npm:1.1.15"
   dependencies:
@@ -7171,6 +7259,16 @@ __metadata:
   version: 1.13.4
   resolution: "object-inspect@npm:1.13.4"
   checksum: 582810c6a8d2ef988ea0a39e69e115a138dad8f42dd445383b394877e5816eb4268489f316a6f74ee9c4e0a984b3eab1028e3e79d62b1ed67c726661d55c7a8b
+  languageName: node
+  linkType: hard
+
+"object-is@npm:^1.1.5":
+  version: 1.1.6
+  resolution: "object-is@npm:1.1.6"
+  dependencies:
+    call-bind: ^1.0.7
+    define-properties: ^1.2.1
+  checksum: 3ea22759967e6f2380a2cbbd0f737b42dc9ddb2dfefdb159a1b927fea57335e1b058b564bfa94417db8ad58cddab33621a035de6f5e5ad56d89f2dd03e66c6a1
   languageName: node
   linkType: hard
 
@@ -9290,6 +9388,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ua-parser-js@npm:^0.7.33":
+  version: 0.7.40
+  resolution: "ua-parser-js@npm:0.7.40"
+  bin:
+    ua-parser-js: script/cli.js
+  checksum: c8f69573c336cbf0f4341e7fe93a8d7082acf39dba4e135b704f06ad240f585d4b38fb44fd3cad92c97a015128e9fe2e653b39c3b6c0919f8a8af3be02d79cc2
+  languageName: node
+  linkType: hard
+
 "ua-parser-js@npm:^1.0.35":
   version: 1.0.40
   resolution: "ua-parser-js@npm:1.0.40"
@@ -9499,6 +9606,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"util@npm:^0.12.5":
+  version: 0.12.5
+  resolution: "util@npm:0.12.5"
+  dependencies:
+    inherits: ^2.0.3
+    is-arguments: ^1.0.4
+    is-generator-function: ^1.0.7
+    is-typed-array: ^1.1.3
+    which-typed-array: ^1.1.2
+  checksum: 705e51f0de5b446f4edec10739752ac25856541e0254ea1e7e45e5b9f9b0cb105bc4bd415736a6210edc68245a7f903bf085ffb08dd7deb8a0e847f60538a38a
+  languageName: node
+  linkType: hard
+
 "utils-merge@npm:1.0.1":
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
@@ -9649,7 +9769,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"which-typed-array@npm:^1.1.16, which-typed-array@npm:^1.1.19":
+"which-typed-array@npm:^1.1.16, which-typed-array@npm:^1.1.19, which-typed-array@npm:^1.1.2":
   version: 1.1.19
   resolution: "which-typed-array@npm:1.1.19"
   dependencies:

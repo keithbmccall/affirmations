@@ -3,7 +3,14 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"]
+      // "@/*": ["./*"],
+      "@platform": ["./lib/platform"],
+      "@components": ["./lib/components"],
+      "@utils": ["./lib/utils"],
+      "@screen-containers": ["./lib/screen-containers"],
+      "@styles": ["./lib/styles"],
+      "@routes": ["./lib/routes"],
+      "@notifications": ["./lib/notifications"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],

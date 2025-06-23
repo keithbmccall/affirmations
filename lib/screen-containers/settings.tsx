@@ -1,13 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react-native';
 import { ThemedInput, ThemedText, ThemedView } from '../components/shared';
-import { useSettings } from '../platform/hooks';
+import { useSettings } from '../platform';
 import { globalStyles, spacing } from '../styles';
 import { ScreenContainerProps } from './types';
 
 interface SettingsProps extends ScreenContainerProps {}
 const Settings = ({ statusBarProps }: SettingsProps) => {
-  const { settings, onSetName } = useSettings();
+  const { user, onSetName } = useSettings();
 
   const updateName = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
     onSetName(event.nativeEvent.text);
@@ -19,7 +19,7 @@ const Settings = ({ statusBarProps }: SettingsProps) => {
       <ThemedText type="subtitle">Settings</ThemedText>
 
       <ThemedInput
-        value={settings.user.name}
+        value={user.name}
         onBlur={updateName}
         placeholder="What's ya name"
         submitBehavior="blurAndSubmit"
