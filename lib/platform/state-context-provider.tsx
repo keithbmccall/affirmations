@@ -10,6 +10,7 @@ import {
   setNotificationToken,
   SettingsActionsFunctions,
 } from './actions';
+import { affirmationsReducer, settingsReducer } from './reducers';
 
 export interface StateType {
   settings: {
@@ -66,51 +67,14 @@ const StateContext = createContext<StateContextType>({
 
 export const useStateContext = () => useContext(StateContext);
 
-export const stateReducer = (state = initialState, action: Action): StateType => {
-  console.log({
-    action,
-  });
-  switch (action.type) {
-    // settings
-    case 'SET_NAME':
-      return {
-        ...state,
-        settings: {
-          ...state.settings,
-          user: {
-            name: action.payload,
-          },
-        },
-      };
-    // affirmations
-    case 'SET_NOTIFICATION_TOKEN':
-      return {
-        ...state,
-        affirmations: {
-          ...state.affirmations,
-          notifications: {
-            ...state.affirmations.notifications,
-            token: action.payload,
-          },
-        },
-      };
-    case 'SET_NOTIFICATION_CHANNELS':
-      return {
-        ...state,
-        affirmations: {
-          ...state.affirmations,
-          notifications: {
-            ...state.affirmations.notifications,
-            channels: action.payload,
-          },
-        },
-      };
-    default:
-      return state;
-  }
+const rootReducer = (state: StateType, action: Action): StateType => {
+  return {
+    ...state,
+    settings: settingsReducer(state.settings, action),
+    affirmations: affirmationsReducer(state.affirmations, action),
+    lens: state.lens, // unchanged
+  };
 };
-
-const rootReducer = (state: StateType, action: Action): StateType => stateReducer(state, action);
 
 export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [state, dispatch] = useReducer(rootReducer, initialState);
