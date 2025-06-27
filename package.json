@@ -39,8 +39,8 @@
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.8",
     "expo-web-browser": "~14.1.6",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-native": "0.79.4",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
@@ -49,7 +49,8 @@
     "react-native-vision-camera": "^4.6.4",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "react-native-worklets-core": "^1.5.0"
+    "react-native-worklets-core": "^1.5.0",
+    "react-test-renderer": "^19.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -67,7 +68,6 @@
     "typescript": "~5.8.3"
   },
   "private": true,
-  "packageManager": "yarn@3.4.1+sha512.a333bf9c2557d71f5ba87dd1446cde24bb9c35301ec29dd2baba577b3f9d1ab61348b66a1324de9088c40a996c5b9203794da8bf14cab9fae6a6eccc00cb8078",
   "jest": {
     "preset": "jest-expo",
     "roots": [
@@ -89,5 +89,6 @@
       "/android/",
       "/ios/"
     ]
-  }
+  },
+  "packageManager": "yarn@3.4.1+sha512.a333bf9c2557d71f5ba87dd1446cde24bb9c35301ec29dd2baba577b3f9d1ab61348b66a1324de9088c40a996c5b9203794da8bf14cab9fae6a6eccc00cb8078"
 }
