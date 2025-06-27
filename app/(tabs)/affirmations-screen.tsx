@@ -1,6 +1,6 @@
-import { ThemedSafeAreaView } from '@/lib/components/shared';
-import Affirmations from '@/lib/screen-containers/affirmations';
-import { globalStyles } from '@/lib/styles';
+import { ThemedSafeAreaView } from '@components';
+import Affirmations from '@screen-containers/affirmations';
+import { globalStyles } from '@styles';
 import { StyleSheet } from 'react-native';
 
 export default function AffirmationsScreen() {

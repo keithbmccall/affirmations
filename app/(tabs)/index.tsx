@@ -1,6 +1,6 @@
-import { ThemedSafeAreaView } from '@/lib/components/shared';
-import Home from '@/lib/screen-containers/home';
-import { globalStyles } from '@/lib/styles';
+import { ThemedSafeAreaView } from '@components';
+import Home from '@screen-containers/home';
+import { globalStyles } from '@styles';
 import { StyleSheet } from 'react-native';
 
 // will serve as settings page as well for the time being

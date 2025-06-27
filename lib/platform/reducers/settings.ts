@@ -1,4 +1,4 @@
-import { Action } from '@/lib/platform/actions';
+import { Action } from '@platform';
 
 export function settingsReducer(state: any, action: Action) {
   switch (action.type) {

@@ -1,6 +1,6 @@
-import { StateContextProvider } from '@/lib/platform';
-import { useColorScheme } from '@/lib/styles/hooks/useColorScheme';
+import { StateContextProvider } from '@platform';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useColorScheme } from '@styles';
 import { useFonts } from 'expo-font';
 import { Stack, useLocalSearchParams, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

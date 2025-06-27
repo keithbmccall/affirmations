@@ -15,7 +15,8 @@
     "nuke:start": "yarn nuke && yarn recharge && yarn ios",
     "recharge": "yarn;npx expo install;npx expo prebuild",
     "test:all": "jest --watchAll",
-    "test": "jest"
+    "test": "jest",
+    "preinstall": "corepack enable"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

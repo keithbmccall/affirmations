@@ -3,6 +3,26 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+function getProjectId(): string | null {
+  // Try multiple sources for the project ID
+  const sources = [
+    Constants?.expoConfig?.extra?.eas?.projectId,
+    Constants?.easConfig?.projectId,
+    Constants?.expoConfig?.extra?.projectId,
+    // Fallback to the known project ID if all else fails
+    'b6f11482-5e3a-4128-bc25-1c2468552783',
+  ];
+
+  for (const source of sources) {
+    if (source) {
+      console.log('Found projectId from source:', source);
+      return source;
+    }
+  }
+
+  return null;
+}
+
 export async function registerForPushNotificationsAsync() {
   let token;
 
@@ -30,8 +50,14 @@ export async function registerForPushNotificationsAsync() {
     // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
     // EAS projectId is used here.
     try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+      console.log('Constants.expoConfig:', Constants.expoConfig);
+      console.log('Constants.easConfig:', Constants.easConfig);
+      console.log('Constants.expoConfig?.extra:', Constants.expoConfig?.extra);
+      console.log('Constants.expoConfig?.extra?.eas:', Constants.expoConfig?.extra?.eas);
+
+      const projectId = getProjectId();
+      console.log('Found projectId:', projectId);
+
       if (!projectId) {
         throw new Error('Project ID not found');
       }
@@ -42,6 +68,7 @@ export async function registerForPushNotificationsAsync() {
       ).data;
       console.log(token);
     } catch (e) {
+      console.error('Error getting push token:', e);
       token = `${e}`;
     }
   } else {

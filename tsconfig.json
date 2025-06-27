@@ -3,11 +3,11 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"],
+      // "@/*": ["./*"],
       "@platform": ["./lib/platform"],
       "@components": ["./lib/components"],
       "@utils": ["./lib/utils"],
-      "@screen-containers": ["./lib/screen-containers"],
+      "@screen-containers/*": ["./lib/screen-containers/*"],
       "@styles": ["./lib/styles"],
       "@routes": ["./lib/routes"],
       "@notifications": ["./lib/notifications"]

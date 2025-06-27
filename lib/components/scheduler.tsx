@@ -1,7 +1,8 @@
 import { useNotificationsScheduler } from '@notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { getCurrentlyScheduledNotifications } from '../notifications/get-currently-scheduled-notifications';
 import { colors, globalStyles, spacing } from '../styles';
 import { fiveMinutesFromNow, twoYearsFromNow } from '../utils';
 import { ThemedInput, ThemedText, ThemedView } from './shared';
@@ -17,6 +18,21 @@ export function Scheduler() {
   const [title, setTitle] = useState<FormField<string>>({ value: '', error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: '', error: '' });
   const [refreshing, setRefreshing] = useState(false);
+  const [scheduledNotifications, setScheduledNotifications] = useState<any[]>([]);
+
+  // Load currently scheduled notifications
+  useEffect(() => {
+    loadScheduledNotifications();
+  }, []);
+
+  const loadScheduledNotifications = async () => {
+    try {
+      const notifications = await getCurrentlyScheduledNotifications();
+      setScheduledNotifications(notifications);
+    } catch (error) {
+      console.error('Failed to load scheduled notifications:', error);
+    }
+  };
 
   const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     if (selectedDate) {
@@ -153,8 +169,8 @@ export function Scheduler() {
             {message.error ? (
               <ThemedText
                 style={styles.errorText}
-                darkColor={colors.semantic.error}
-                lightColor={colors.semantic.error}
+                darkColor={colors.semantic.error as string}
+                lightColor={colors.semantic.error as string}
               >
                 {message.error}
               </ThemedText>
@@ -224,7 +240,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitButtonDisabled: {
-    backgroundColor: colors.gray[400],
+    backgroundColor: colors.gray[500],
   },
   submitButtonText: {
     color: colors.human.white,

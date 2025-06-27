@@ -16,10 +16,10 @@ const Home = ({ statusBarProps }: HomeProps) => {
       <ThemedText type="subtitle">Table of Contents</ThemedText>
       <View style={styles.linksContainer}>
         <Link href={{ pathname: '/(tabs)/lens-screen' }}>
-          <IconSymbol size={50} color={colors.secondary['900']} name="camera.fill" />
+          <IconSymbol size={50} color={colors.primary['500']} name="camera.fill" />
         </Link>
         <Link href={{ pathname: '/(tabs)/affirmations-screen' }}>
-          <IconSymbol size={50} color={colors.secondary['900']} name="note.text" />
+          <IconSymbol size={50} color={colors.primary['500']} name="note.text" />
         </Link>
       </View>
     </ThemedView>

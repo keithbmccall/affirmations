@@ -2,6 +2,7 @@ import { useAffirmations } from '@platform';
 import { catchError } from '@utils';
 import * as Notifications from 'expo-notifications';
 import { useCallback } from 'react';
+import { getCurrentlyScheduledNotifications } from './get-currently-scheduled-notifications';
 import { NotificationSounds } from './notification-sounds';
 
 type SchedulePushNotification = (details: {
@@ -43,6 +44,10 @@ export const useNotificationsScheduler = () => {
             channelId: 'calendar',
             date,
           },
+        });
+        const currentlyScheduledNotifications = await getCurrentlyScheduledNotifications();
+        console.log({
+          currentlyScheduledNotifications,
         });
         return identifier;
       } catch (e: unknown) {

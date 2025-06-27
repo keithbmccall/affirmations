@@ -1,8 +1,7 @@
-import ParallaxScrollView from '@/.expo-defaults/components/ParallaxScrollView';
-import { IconSymbol } from '@/lib/components/shared/icon-symbol/icon-symbol';
-import { ThemedText } from '@/lib/components/shared/themed-text';
+import { IconSymbol, ThemedText } from '@components';
 import { StyleSheet } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import ParallaxScrollView from '../../.expo-defaults/components/ParallaxScrollView';
 
 export default function LensScreen() {
   const device = useCameraDevice('back');
