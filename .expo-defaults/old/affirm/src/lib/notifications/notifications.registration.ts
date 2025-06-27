@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 
 export const notificationsRegistration = async () => {
   let token;
+  console.log("token!")
   if (Device.isDevice) {
     const { status: existingStatus } =
       await Notifications.getPermissionsAsync();

@@ -82,7 +82,7 @@ export const useNotifications = () => {
             identifier,
             content: {
               title,
-              body,
+              body:message,
               data,
             },
           });

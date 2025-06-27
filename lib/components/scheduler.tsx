@@ -1,6 +1,7 @@
+import { useNotificationsScheduler } from '@notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Alert, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, globalStyles, spacing } from '../styles';
 import { fiveMinutesFromNow, twoYearsFromNow } from '../utils';
 import { ThemedInput, ThemedText, ThemedView } from './shared';
@@ -11,9 +12,11 @@ interface FormField<T> {
 }
 
 export function Scheduler() {
+  const { schedulePushNotification } = useNotificationsScheduler();
   const [date, setDate] = useState<FormField<Date>>({ value: fiveMinutesFromNow, error: '' });
   const [title, setTitle] = useState<FormField<string>>({ value: '', error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: '', error: '' });
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     if (selectedDate) {
@@ -64,21 +67,20 @@ export function Scheduler() {
     return isValid;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
 
-    // Console log the form values as requested
-    console.log('Scheduler Form Data:', {
-      date: date.value.toISOString(),
+    const notificationIdentifier = await schedulePushNotification({
       title: title.value,
-      message: message.value,
+      body: message.value,
+      date: date.value,
     });
 
     Alert.alert(
       'Message Scheduled',
-      `Your message "${title.value}" has been scheduled for ${date.value.toLocaleString()}`,
+      `Your message "${title.value}" has been scheduled for ${date.value.toLocaleString()}. Identifier: ${notificationIdentifier}`,
       [{ text: 'OK' }]
     );
 
@@ -91,8 +93,17 @@ export function Scheduler() {
   const isFormValid =
     title.value.trim() !== '' && message.value.trim() !== '' && date.value > new Date();
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setDate({ value: fiveMinutesFromNow, error: '' });
+    setTimeout(() => setRefreshing(false), 500); // Simulate async refresh
+  }, []);
+
   return (
-    <ThemedView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    >
       <ThemedView style={styles.form}>
         <ThemedView style={styles.fieldContainer}>
           <ThemedText type="subtitle" style={styles.label}>
@@ -118,6 +129,7 @@ export function Scheduler() {
               Title
             </ThemedText>
             <ThemedInput
+              keyboardType="twitter"
               placeholder="Enter message title"
               value={title.value}
               onChangeText={handleTitleChange}
@@ -139,7 +151,13 @@ export function Scheduler() {
               style={[styles.input, message.error && styles.inputError]}
             />
             {message.error ? (
-              <ThemedText style={styles.errorText}>{message.error}</ThemedText>
+              <ThemedText
+                style={styles.errorText}
+                darkColor={colors.semantic.error}
+                lightColor={colors.semantic.error}
+              >
+                {message.error}
+              </ThemedText>
             ) : null}
           </ThemedView>
         </ThemedView>
@@ -154,7 +172,7 @@ export function Scheduler() {
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
-    </ThemedView>
+    </ScrollView>
   );
 }
 
@@ -177,7 +195,6 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: spacing.sm,
-    color: colors.text.primary,
   },
   input: {
     borderColor: colors.ui.border,
@@ -185,7 +202,6 @@ const styles = StyleSheet.create({
     borderRadius: spacing.borderRadius.md,
     padding: spacing.md,
     fontSize: spacing.lg,
-    backgroundColor: colors.ui.surface,
   },
   inputError: {
     borderColor: colors.semantic.error,

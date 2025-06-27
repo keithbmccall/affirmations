@@ -1,4 +1,4 @@
-import { Init, useNotifications } from '@platform';
+import { Init, useAffirmations } from '@platform';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
@@ -39,7 +39,7 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
     onSetNotificationToken,
     onSetNotificationChannels,
     notifications: { token, channels },
-  } = useNotifications();
+  } = useAffirmations();
 
   const [notification, setNotification] = useState<Notification | undefined>(undefined);
   console.log({
