@@ -6,6 +6,8 @@
       // "@/*": ["./*"],
       "@platform": ["./lib/platform"],
       "@components": ["./lib/components"],
+      "@components/notifications": ["./lib/components/notifications"],
+      "@components/shared": ["./lib/components/shared"],
       "@utils": ["./lib/utils"],
       "@screen-containers/*": ["./lib/screen-containers/*"],
       "@styles": ["./lib/styles"],

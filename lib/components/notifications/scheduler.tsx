@@ -1,18 +1,20 @@
+import { ScheduleHistory } from '@components/notifications';
 import { useNotificationsScheduler } from '@notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, globalStyles, spacing } from '../styles';
-import { fiveMinutesFromNow, twoYearsFromNow } from '../utils';
-import { ThemedInput, ThemedText, ThemedView } from './shared';
+import { colors, globalStyles, spacing } from '../../styles';
+import { fiveMinutesFromNow, twoYearsFromNow } from '../../utils';
+import { ThemedInput, ThemedText, ThemedView } from '../shared';
 
 interface FormField<T> {
   value: T;
   error: string;
 }
 
-export function Scheduler() {
-  const { schedulePushNotification } = useNotificationsScheduler();
+export const Scheduler = () => {
+  const { schedulePushNotification, refreshCurrentlyScheduledNotifications } =
+    useNotificationsScheduler();
   const [date, setDate] = useState<FormField<Date>>({ value: fiveMinutesFromNow, error: '' });
   const [title, setTitle] = useState<FormField<string>>({ value: '', error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: '', error: '' });
@@ -96,6 +98,7 @@ export function Scheduler() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setDate({ value: fiveMinutesFromNow, error: '' });
+    await refreshCurrentlyScheduledNotifications();
     setTimeout(() => setRefreshing(false), 500); // Simulate async refresh
   }, []);
 
@@ -172,9 +175,10 @@ export function Scheduler() {
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
+      <ScheduleHistory />
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

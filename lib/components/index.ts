@@ -1,2 +1,2 @@
-export * from './scheduler';
+export * from './notifications/scheduler';
 export * from './shared';

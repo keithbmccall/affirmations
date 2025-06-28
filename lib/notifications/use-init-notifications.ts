@@ -1,7 +1,8 @@
-import { Init, useAffirmations } from '@platform';
 import * as Notifications from 'expo-notifications';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { Init } from '../platform/types';
+import { getAllScheduledNotifications } from './notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
 // const useInitHistory: Init = (providerActions, providerState) => {
@@ -35,44 +36,34 @@ Notifications.setNotificationHandler({
 });
 export const useInitNotifications: Init = (providerActions, providerState) => {
   console.log({ providerActions, providerState });
-  const {
-    onSetNotificationToken,
-    onSetNotificationChannels,
-    notifications: { token, channels },
-  } = useAffirmations();
 
-  const [notification, setNotification] = useState<Notification | undefined>(undefined);
-  console.log({
-    token,
-    channels,
-    notification,
-  });
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => {
       if (token) {
         console.log(token);
-        onSetNotificationToken(token);
+        providerActions.affirmations.onSetNotificationToken(token);
       }
     });
 
     console.log('auth', Notifications.IosAuthorizationStatus);
-    Notifications.getAllScheduledNotificationsAsync().then(notifications => {
+    getAllScheduledNotifications().then(notifications => {
       console.log('currently Scheduled Notifications:', { notifications });
+      providerActions.affirmations.onSetCurrentlyScheduledNotifications(notifications);
     });
 
     if (Platform.OS === 'android') {
       Notifications.getNotificationChannelsAsync().then(channels => {
         if (channels) {
-          onSetNotificationChannels(channels);
+          providerActions.affirmations.onSetNotificationChannels(channels);
         }
       });
     }
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
+      console.log('addNotificationReceivedListener: ', notification);
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
+      console.log('addNotificationResponseReceivedListener: ', response);
     });
 
     return () => {

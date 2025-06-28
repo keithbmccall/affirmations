@@ -1,6 +1,6 @@
+import { Scheduler } from '@components/notifications';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
-import { Scheduler } from '../components/scheduler';
 import { ThemedText, ThemedView } from '../components/shared';
 import { colors, globalStyles, spacing } from '../styles';
 import { ScreenContainerProps } from './types';

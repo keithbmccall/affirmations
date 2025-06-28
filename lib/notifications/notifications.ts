@@ -3,7 +3,7 @@ import { NotificationSounds } from './notification-sounds';
 import { NotificationData, NotificationWithData } from './types';
 
 export const getAllScheduledNotifications = async () =>
-  (await Notifications.getAllScheduledNotificationsAsync()) as unknown as NotificationWithData;
+  (await Notifications.getAllScheduledNotificationsAsync()) as NotificationWithData[];
 
 type ScheduleNotification = (
   input: {

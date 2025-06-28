@@ -12,6 +12,19 @@ type SchedulePushNotification = (details: {
 export const useNotificationsScheduler = () => {
   const { onSetCurrentlyScheduledNotifications } = useAffirmations();
 
+  const refreshCurrentlyScheduledNotifications = useCallback(async () => {
+    try {
+      const currentlyScheduledNotifications = await getAllScheduledNotifications();
+      console.log({
+        currentlyScheduledNotifications,
+      });
+      onSetCurrentlyScheduledNotifications(currentlyScheduledNotifications);
+    } catch (e: unknown) {
+      const errorMessage = `Failed to refresh currently scheduled notifications`;
+      catchError(e, errorMessage, 'refreshCurrentlyScheduledNotifications');
+    }
+  }, []);
+
   const schedulePushNotification: SchedulePushNotification = useCallback(
     async ({ date, title, body }) => {
       try {
@@ -36,11 +49,7 @@ export const useNotificationsScheduler = () => {
           data,
           date,
         });
-        const currentlyScheduledNotifications = await getAllScheduledNotifications();
-        console.log({
-          currentlyScheduledNotifications,
-        });
-        onSetCurrentlyScheduledNotifications(currentlyScheduledNotifications);
+        refreshCurrentlyScheduledNotifications();
         return identifier;
       } catch (e: unknown) {
         const errorMessage = `Failed to schedule notification with title of: ${title} and message of: ${body}!!!`;
@@ -84,5 +93,6 @@ export const useNotificationsScheduler = () => {
 
   return {
     schedulePushNotification,
+    refreshCurrentlyScheduledNotifications,
   };
 };

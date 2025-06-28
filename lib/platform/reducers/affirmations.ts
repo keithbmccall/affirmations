@@ -18,6 +18,14 @@ export function affirmationsReducer(state: any, action: Action) {
           channels: action.payload,
         },
       };
+    case 'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS':
+      return {
+        ...state,
+        notifications: {
+          ...state.notifications,
+          currentlyScheduledNotifications: action.payload,
+        },
+      };
     default:
       return state;
   }
