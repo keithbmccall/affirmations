@@ -1,9 +1,7 @@
 import { useAffirmations } from '@platform';
 import { catchError } from '@utils';
-import * as Notifications from 'expo-notifications';
 import { useCallback } from 'react';
-import { getCurrentlyScheduledNotifications } from './get-currently-scheduled-notifications';
-import { NotificationSounds } from './notification-sounds';
+import { getAllScheduledNotifications, scheduleNotification } from './notifications';
 
 type SchedulePushNotification = (details: {
   title: string;
@@ -12,52 +10,45 @@ type SchedulePushNotification = (details: {
 }) => Promise<string>;
 
 export const useNotificationsScheduler = () => {
-  const {
-    notifications: { token: notificationToken },
-  } = useAffirmations();
+  const { onSetCurrentlyScheduledNotifications } = useAffirmations();
 
   const schedulePushNotification: SchedulePushNotification = useCallback(
     async ({ date, title, body }) => {
-      // if (notificationToken) {
-      const time = date.getTime();
-      const rawDate = date.toString();
-      const stringDate = date.toDateString();
-
-      const timeData = {
-        time,
-        rawDate,
-        date: stringDate,
-      };
-
       try {
+        const time = date.getTime();
+        const rawDate = date.toString();
+        const stringDate = date.toDateString();
+        const dateNow = new Date();
+        const timeNow = dateNow.getTime();
+        const timeNowRaw = dateNow.toString();
+        const timeNowString = dateNow.toDateString();
         const data = {
-          ...timeData,
+          scheduledDate: { time: timeNow, rawDate: timeNowRaw, date: timeNowString },
+          triggerDate: {
+            time,
+            rawDate,
+            date: stringDate,
+          },
         };
-        const identifier = await Notifications.scheduleNotificationAsync({
-          content: {
-            title,
-            sound: NotificationSounds.DEFAULT,
-            body,
-            data,
-          },
-          trigger: {
-            channelId: 'calendar',
-            date,
-          },
+        const identifier = await scheduleNotification({
+          title,
+          body,
+          data,
+          date,
         });
-        const currentlyScheduledNotifications = await getCurrentlyScheduledNotifications();
+        const currentlyScheduledNotifications = await getAllScheduledNotifications();
         console.log({
           currentlyScheduledNotifications,
         });
+        onSetCurrentlyScheduledNotifications(currentlyScheduledNotifications);
         return identifier;
       } catch (e: unknown) {
         const errorMessage = `Failed to schedule notification with title of: ${title} and message of: ${body}!!!`;
         catchError(e, errorMessage, 'schedulePushNotification');
         return errorMessage;
       }
-      // }
     },
-    [notificationToken]
+    []
   );
 
   // const cancelPushNotification = useCallback(

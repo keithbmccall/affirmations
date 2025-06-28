@@ -1,8 +1,7 @@
 import { useNotificationsScheduler } from '@notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { getCurrentlyScheduledNotifications } from '../notifications/get-currently-scheduled-notifications';
 import { colors, globalStyles, spacing } from '../styles';
 import { fiveMinutesFromNow, twoYearsFromNow } from '../utils';
 import { ThemedInput, ThemedText, ThemedView } from './shared';
@@ -18,21 +17,6 @@ export function Scheduler() {
   const [title, setTitle] = useState<FormField<string>>({ value: '', error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: '', error: '' });
   const [refreshing, setRefreshing] = useState(false);
-  const [scheduledNotifications, setScheduledNotifications] = useState<any[]>([]);
-
-  // Load currently scheduled notifications
-  useEffect(() => {
-    loadScheduledNotifications();
-  }, []);
-
-  const loadScheduledNotifications = async () => {
-    try {
-      const notifications = await getCurrentlyScheduledNotifications();
-      setScheduledNotifications(notifications);
-    } catch (error) {
-      console.error('Failed to load scheduled notifications:', error);
-    }
-  };
 
   const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     if (selectedDate) {
@@ -109,7 +93,7 @@ export function Scheduler() {
   const isFormValid =
     title.value.trim() !== '' && message.value.trim() !== '' && date.value > new Date();
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setDate({ value: fiveMinutesFromNow, error: '' });
     setTimeout(() => setRefreshing(false), 500); // Simulate async refresh

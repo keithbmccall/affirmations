@@ -1,12 +1,33 @@
-import { NotificationRequest } from 'expo-notifications';
+import { NotificationRequest as BaseNotificationRequest } from 'expo-notifications';
+/**
+ * NotificationRequest fields:
+ * @property {string} identifier - Unique identifier for the notification
+ * @property {NotificationTriggerInput} trigger - When the notification should be triggered
+ * @property {Object} content - Notification content
+ * @property {string} [content.title] - Notification title
+ * @property {string} [content.body] - Notification message
+ * @property {any} [content.data] - Custom data
+ * @property {string} [content.sound] - Sound to play
+ * @property {number} [content.badge] - Badge count
+ * @property {string} [content.categoryIdentifier] - Category for grouping
+ * @property {string} [content.subtitle] - Subtitle text
+ * @property {NotificationPriority} [content.priority] - Priority level
+ * @property {boolean} [content.sticky] - Whether notification is sticky
+ * @property {boolean} [content.autoDismiss] - Auto-dismiss behavior
+ * @property {NotificationAttachment[]} [content.attachments] - Array of media attachments
+ */
+export type NotificationRequest = BaseNotificationRequest;
 
-type NotificationData = {
+export type NotificationDateObject = {
+  time: number;
+  rawDate: string;
+  date: string;
+};
+
+export type NotificationData = {
   data: {
-    date: string;
-    time: number;
-    rawDate: string;
-    calendarEventId: string | undefined;
-    isQuote: boolean;
+    scheduledDate: NotificationDateObject;
+    triggerDate: NotificationDateObject;
   };
 };
 

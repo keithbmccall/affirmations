@@ -2,7 +2,6 @@ import { Init, useAffirmations } from '@platform';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import { getCurrentlyScheduledNotifications } from './get-currently-scheduled-notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
 // const useInitHistory: Init = (providerActions, providerState) => {
@@ -56,8 +55,9 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
       }
     });
 
-    getCurrentlyScheduledNotifications().then(notifications => {
-      console.log('where', { notifications });
+    console.log('auth', Notifications.IosAuthorizationStatus);
+    Notifications.getAllScheduledNotificationsAsync().then(notifications => {
+      console.log('currently Scheduled Notifications:', { notifications });
     });
 
     if (Platform.OS === 'android') {
