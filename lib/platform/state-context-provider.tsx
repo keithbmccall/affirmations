@@ -1,8 +1,7 @@
+import { NotificationWithData, useInitNotifications } from '@features/notifications';
+import { noop } from '@utils';
 import { NotificationChannel } from 'expo-notifications';
 import { createContext, FC, PropsWithChildren, useContext, useMemo, useReducer } from 'react';
-import { useInitNotifications } from '../notifications';
-import { NotificationWithData } from '../notifications/types';
-import { noop } from '../utils';
 import {
   Action,
   AffirmationsActionsFunctions,

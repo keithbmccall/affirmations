@@ -1,5 +1,5 @@
 import { ScheduleHistory } from '@components/notifications';
-import { useNotificationsScheduler } from '@notifications';
+import { useNotificationsScheduler } from '@features/notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';

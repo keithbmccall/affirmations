@@ -1,6 +1,6 @@
+import { NotificationWithData } from '@features/notifications';
 import { NotificationChannel } from 'expo-notifications';
 import { Dispatch } from 'react';
-import { NotificationWithData } from '../../notifications/types';
 import { ActionType } from './types';
 
 export type AffirmationsActions =

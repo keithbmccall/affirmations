@@ -12,7 +12,7 @@
       "@screen-containers/*": ["./lib/screen-containers/*"],
       "@styles": ["./lib/styles"],
       "@routes": ["./lib/routes"],
-      "@notifications": ["./lib/notifications"]
+      "@features/notifications": ["./lib/features/notifications"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
