@@ -46,7 +46,7 @@ PODS:
     - ExpoModulesCore
   - ExpoHaptics (14.1.4):
     - ExpoModulesCore
-  - ExpoHead (5.1.0):
+  - ExpoHead (5.1.1):
     - ExpoModulesCore
   - ExpoImage (2.3.0):
     - ExpoModulesCore
@@ -88,7 +88,7 @@ PODS:
     - ExpoModulesCore
   - ExpoSymbols (0.4.5):
     - ExpoModulesCore
-  - ExpoSystemUI (5.0.8):
+  - ExpoSystemUI (5.0.9):
     - ExpoModulesCore
   - ExpoWebBrowser (14.1.6):
     - ExpoModulesCore
@@ -96,9 +96,9 @@ PODS:
   - FBLazyVector (0.79.4)
   - fmt (11.0.2)
   - glog (0.3.5)
-  - hermes-engine (0.79.3):
-    - hermes-engine/Pre-built (= 0.79.3)
-  - hermes-engine/Pre-built (0.79.3)
+  - hermes-engine (0.79.4):
+    - hermes-engine/Pre-built (= 0.79.4)
+  - hermes-engine/Pre-built (0.79.4)
   - libavif/core (0.11.1)
   - libavif/libdav1d (0.11.1):
     - libavif/core
@@ -2120,16 +2120,16 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
-  - VisionCamera (4.6.4):
-    - VisionCamera/Core (= 4.6.4)
-    - VisionCamera/FrameProcessors (= 4.6.4)
-    - VisionCamera/React (= 4.6.4)
-  - VisionCamera/Core (4.6.4)
-  - VisionCamera/FrameProcessors (4.6.4):
+  - VisionCamera (4.7.0):
+    - VisionCamera/Core (= 4.7.0)
+    - VisionCamera/FrameProcessors (= 4.7.0)
+    - VisionCamera/React (= 4.7.0)
+  - VisionCamera/Core (4.7.0)
+  - VisionCamera/FrameProcessors (4.7.0):
     - React
     - React-callinvoker
     - react-native-worklets-core
-  - VisionCamera/React (4.6.4):
+  - VisionCamera/React (4.7.0):
     - React-Core
     - VisionCamera/FrameProcessors
   - Yoga (0.0.0)
@@ -2456,24 +2456,24 @@ SPEC CHECKSUMS:
   ExpoFileSystem: c36eb8155eb2381c83dda7dc210e3eec332368b6
   ExpoFont: abbb91a911eb961652c2b0a22eef801860425ed6
   ExpoHaptics: 0ff6e0d83cd891178a306e548da1450249d54500
-  ExpoHead: 1e65b47330de2164c628da2bddf73d57cac123bf
+  ExpoHead: 5fa9071821209796843730542d666f625fa36f87
   ExpoImage: 6aa234344f378d78c0d50dc6c4d946546b8742bf
   ExpoKeepAwake: bf0811570c8da182bfb879169437d4de298376e7
   ExpoLinking: b85ff4eafeae6fc638c6cace60007ae521af0ef4
   ExpoModulesCore: d431ffe83c8673d02cb38425594a5f5480fd3061
   ExpoSplashScreen: 03ef991c0f9575a10269e08083cb4bd10e0989bc
   ExpoSymbols: c5612a90fb9179cdaebcd19bea9d8c69e5d3b859
-  ExpoSystemUI: 29fb31c0e06eea3f5d88299d5c290101fc69f61f
+  ExpoSystemUI: 8f2979df9afed5bfaa7d69465a07a9f602c1f3a7
   ExpoWebBrowser: 06fb5f767f53ad53944b068cdd207984cb998712
-  fast_float: 23278fd30b349f976d2014f4aec9e2d7bc1c3806
+  fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 15c28682af535aa55b9b31e64deff54b7ed7d453
-  fmt: b85d977e8fe789fd71c77123f9f4920d88c4d170
-  glog: 682871fb30f4a65f657bf357581110656ea90b08
-  hermes-engine: a0af41f3e4a17310c637d2d4a9d1441d63f6d25c
+  fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
+  glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
+  hermes-engine: 8b5a5eb386b990287d072fd7b6f6ebd9544dd251
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  RCT-Folly: 031db300533e2dfa954cdc5a859b792d5c14ed7b
+  RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 0418ac97b9f53b2e37f473da1663ef3061e46beb
   RCTRequired: b9fde7f981b11aa898f03a70d3d4d36b80f1b16d
   RCTTypeSafety: 397515ea9a8122b62a7a310adf30205f0a5e3bfc
@@ -2547,7 +2547,7 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  VisionCamera: 52b101a7fa0a70ff455163c5a121d8dfe9871ab7
+  VisionCamera: 1470a7fa013e22de7481640a4d9c597ad6f13919
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 
 PODFILE CHECKSUM: a49bbf16af3f06028b9057f46d208b406a9a7338
