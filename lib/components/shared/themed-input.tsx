@@ -15,7 +15,6 @@ export function ThemedInput({
   value = '',
   ...rest
 }: ThemedInputProps) {
-  console.log({ darkColor });
   const textColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 

@@ -1,38 +1,47 @@
-import { useNotificationsScheduler } from '@notifications';
+import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
+import { NotificationIdentifier, useNotificationsScheduler } from '@features/notifications';
+import { useGeneral } from '@platform';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { getCurrentlyScheduledNotifications } from '../notifications/get-currently-scheduled-notifications';
-import { colors, globalStyles, spacing } from '../styles';
-import { fiveMinutesFromNow, twoYearsFromNow } from '../utils';
-import { ThemedInput, ThemedText, ThemedView } from './shared';
+import { colors, globalStyles, spacing } from '@styles';
+import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 interface FormField<T> {
   value: T;
   error: string;
 }
 
-export function Scheduler() {
-  const { schedulePushNotification } = useNotificationsScheduler();
-  const [date, setDate] = useState<FormField<Date>>({ value: fiveMinutesFromNow, error: '' });
-  const [title, setTitle] = useState<FormField<string>>({ value: '', error: '' });
-  const [message, setMessage] = useState<FormField<string>>({ value: '', error: '' });
-  const [refreshing, setRefreshing] = useState(false);
-  const [scheduledNotifications, setScheduledNotifications] = useState<any[]>([]);
-
-  // Load currently scheduled notifications
-  useEffect(() => {
-    loadScheduledNotifications();
-  }, []);
-
-  const loadScheduledNotifications = async () => {
-    try {
-      const notifications = await getCurrentlyScheduledNotifications();
-      setScheduledNotifications(notifications);
-    } catch (error) {
-      console.error('Failed to load scheduled notifications:', error);
-    }
+interface SchedulerProps {
+  initialDate?: Date;
+  initialTitle?: string;
+  initialBody?: string;
+  bodyLines?: number;
+  enableRefreshControl?: boolean;
+  submitProps?: {
+    submitText: string;
+    onSubmit: (values: { title: string; body: string; date: Date }) => void;
   };
+  notificationId?: NotificationIdentifier;
+}
+
+export const Scheduler = ({
+  initialDate = fiveMinutesFromNow,
+  initialTitle = '',
+  initialBody = '',
+  bodyLines = 4,
+  enableRefreshControl = true,
+  submitProps,
+  notificationId,
+}: SchedulerProps) => {
+  const router = useRouter();
+  const { schedulePushNotification, refreshPendingNotifications, cancelPushNotification } =
+    useNotificationsScheduler();
+  const { isLoading, onSetLoading } = useGeneral();
+  const [date, setDate] = useState<FormField<Date>>({ value: initialDate, error: '' });
+  const [title, setTitle] = useState<FormField<string>>({ value: initialTitle, error: '' });
+  const [message, setMessage] = useState<FormField<string>>({ value: initialBody, error: '' });
 
   const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     if (selectedDate) {
@@ -69,13 +78,13 @@ export function Scheduler() {
       setMessage({ ...message, error: 'Message is required' });
       isValid = false;
     }
-    if (messageValue.length < 8) {
-      setMessage({ ...message, error: 'Message needs to be at least 8 characters' });
+    if (messageValue.length < 5) {
+      setMessage({ ...message, error: 'Message needs to be at least 5 characters' });
       isValid = false;
     }
 
     // Validate date (ensure it's in the future)
-    if (date.value <= new Date()) {
+    if (date.value < new Date()) {
       setDate({ ...date, error: 'Date must be in the future' });
       isValid = false;
     }
@@ -88,41 +97,60 @@ export function Scheduler() {
       return;
     }
 
-    const notificationIdentifier = await schedulePushNotification({
+    const values = {
       title: title.value,
       body: message.value,
       date: date.value,
-    });
+    };
+    if (submitProps?.onSubmit) {
+      submitProps.onSubmit(values);
+    } else {
+      const notificationIdentifier = await schedulePushNotification(values);
 
-    Alert.alert(
-      'Message Scheduled',
-      `Your message "${title.value}" has been scheduled for ${date.value.toLocaleString()}. Identifier: ${notificationIdentifier}`,
-      [{ text: 'OK' }]
-    );
+      Alert.alert(
+        'Message Scheduled',
+        `Your message "${title.value}" has been scheduled for ${date.value.toLocaleString()}. Identifier: ${notificationIdentifier}`,
+        [{ text: 'OK' }]
+      );
+    }
 
     // Clear the form
     setDate({ value: fiveMinutesFromNow, error: '' });
     setTitle({ value: '', error: '' });
     setMessage({ value: '', error: '' });
+
+    if (notificationId) {
+      router.back();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (notificationId) await cancelPushNotification(notificationId);
+    router.back();
   };
 
   const isFormValid =
     title.value.trim() !== '' && message.value.trim() !== '' && date.value > new Date();
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
+  const onRefresh = useCallback(async () => {
+    onSetLoading(true);
     setDate({ value: fiveMinutesFromNow, error: '' });
-    setTimeout(() => setRefreshing(false), 500); // Simulate async refresh
-  }, []);
+    await refreshPendingNotifications();
+    setTimeout(() => onSetLoading(false), 500); // Simulate async refresh
+  }, [onSetLoading, refreshPendingNotifications]);
 
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        enableRefreshControl ? (
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+        ) : undefined
+      }
     >
       <ThemedView style={styles.form}>
         <ThemedView style={styles.fieldContainer}>
-          <ThemedText type="subtitle" style={styles.label}>
+          <ThemedText type="subtitle" style={styles.label} accessibilityRole="header">
             Date & Time
           </ThemedText>
 
@@ -134,14 +162,14 @@ export function Scheduler() {
               onChange={handleDateChange}
               minimumDate={fiveMinutesFromNow}
               maximumDate={twoYearsFromNow}
+              testID="date-time-picker"
             />
           </ThemedView>
           {date.error ? <ThemedText style={styles.errorText}>{date.error}</ThemedText> : null}
         </ThemedView>
-
         <ThemedView>
           <ThemedView style={styles.fieldContainer}>
-            <ThemedText type="subtitle" style={styles.label}>
+            <ThemedText type="subtitle" style={styles.label} accessibilityRole="header">
               Title
             </ThemedText>
             <ThemedInput
@@ -150,12 +178,13 @@ export function Scheduler() {
               value={title.value}
               onChangeText={handleTitleChange}
               style={[styles.input, title.error && styles.inputError]}
+              testID="title-input"
             />
             {title.error ? <ThemedText style={styles.errorText}>{title.error}</ThemedText> : null}
           </ThemedView>
 
           <ThemedView style={styles.fieldContainer}>
-            <ThemedText type="subtitle" style={styles.label}>
+            <ThemedText type="subtitle" style={styles.label} accessibilityRole="header">
               Message
             </ThemedText>
             <ThemedInput
@@ -163,8 +192,9 @@ export function Scheduler() {
               value={message.value}
               onChangeText={handleMessageChange}
               multiline
-              numberOfLines={4}
+              numberOfLines={bodyLines}
               style={[styles.input, message.error && styles.inputError]}
+              testID="message-input"
             />
             {message.error ? (
               <ThemedText
@@ -177,20 +207,32 @@ export function Scheduler() {
             ) : null}
           </ThemedView>
         </ThemedView>
-
-        <TouchableOpacity
+        <ThemedButton
           style={[styles.submitButton, !isFormValid && styles.submitButtonDisabled]}
           onPress={handleSubmit}
           disabled={!isFormValid}
         >
           <ThemedText style={styles.submitButtonText} type="defaultSemiBold">
-            Schedule Message
+            {submitProps?.submitText || 'Schedule message'}
           </ThemedText>
-        </TouchableOpacity>
+        </ThemedButton>
+        {notificationId && (
+          <ThemedButton
+            style={[
+              styles.submitButton,
+              { backgroundColor: colors.semantic.error, marginTop: spacing['2xl'] },
+            ]}
+            onPress={handleDelete}
+          >
+            <ThemedText style={styles.submitButtonText} type="defaultSemiBold">
+              Delete Message
+            </ThemedText>
+          </ThemedButton>
+        )}
       </ThemedView>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -229,15 +271,15 @@ const styles = StyleSheet.create({
     bottom: -spacing['2xl'],
   },
   datePicker: {
-    height: spacing['10xl'],
+    height: spacing['9xl'],
     ...globalStyles.center,
   },
   submitButton: {
     backgroundColor: colors.primary[500],
-    borderRadius: spacing.borderRadius.md,
+    borderRadius: spacing.borderRadius.xl,
     padding: spacing.lg,
     ...globalStyles.alignCenter,
-    marginTop: spacing.xl,
+    marginTop: spacing.md,
   },
   submitButtonDisabled: {
     backgroundColor: colors.gray[500],

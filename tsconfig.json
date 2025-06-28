@@ -3,14 +3,19 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      // "@/*": ["./*"],
-      "@platform": ["./lib/platform"],
       "@components": ["./lib/components"],
-      "@utils": ["./lib/utils"],
-      "@screen-containers/*": ["./lib/screen-containers/*"],
-      "@styles": ["./lib/styles"],
+      "@components/notifications": ["./lib/components/notifications"],
+      "@components/lens": ["./lib/components/lens"],
+      "@components/shared": ["./lib/components/shared"],
+      "@features/notifications": ["./lib/features/notifications"],
+      "@features/lens": ["./lib/features/lens"],
+      "@platform": ["./lib/platform"],
       "@routes": ["./lib/routes"],
-      "@notifications": ["./lib/notifications"]
+      "@screen-containers/*": ["./lib/screen-containers/*"],
+      "@storage": ["./lib/storage"],
+      "@styles": ["./lib/styles"],
+      "@utils": ["./lib/utils"],
+      "@testing": ["./lib/testing"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],

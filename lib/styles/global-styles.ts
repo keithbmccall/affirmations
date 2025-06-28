@@ -172,6 +172,10 @@ export const globalStyles = {
     alignItems: 'center' as const,
     justifyContent: 'space-between' as const,
   },
+  debug: {
+    borderWidth: 1,
+    borderColor: 'red',
+  },
 } as const;
 
 export type CommonStyleKey = keyof typeof globalStyles;

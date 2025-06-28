@@ -36,4 +36,7 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
+//
+.history/
+coverage
+.jest-cache
