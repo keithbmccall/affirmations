@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { NotificationSounds } from './notification-sounds';
-import { NotificationData, NotificationWithData } from './types';
+import { NotificationData, NotificationIdentifier, NotificationWithData } from './types';
 
 export const getAllScheduledNotifications = async () =>
   (await Notifications.getAllScheduledNotificationsAsync()) as NotificationWithData[];
@@ -25,3 +25,6 @@ export const scheduleNotification: ScheduleNotification = async ({ title, body, 
       date,
     },
   });
+
+type CancelScheduledNotification = (identifier: NotificationIdentifier) => void;
+export const cancelScheduledNotification: CancelScheduledNotification = identifier => {};

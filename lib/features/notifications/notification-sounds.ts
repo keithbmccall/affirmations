@@ -1,3 +1,3 @@
-export enum NotificationSounds {
-  DEFAULT = 'default',
-}
+export const NotificationSounds = {
+  DEFAULT: 'default',
+} as const;

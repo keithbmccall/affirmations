@@ -76,7 +76,7 @@ const rootReducer = (state: StateType, action: Action): StateType => {
     ...state,
     settings: settingsReducer(state.settings, action),
     affirmations: affirmationsReducer(state.affirmations, action),
-    lens: state.lens, // unchanged
+    lens: state.lens,
   };
 };
 

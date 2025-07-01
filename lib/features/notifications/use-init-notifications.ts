@@ -26,6 +26,7 @@ import { registerForPushNotificationsAsync } from './notifications.registration'
 //     }
 //   }, [historyNotifications, isHistoryInited]);
 // };
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
