@@ -1,4 +1,3 @@
-import { ScheduleHistory } from '@components/notifications';
 import { useNotificationsScheduler } from '@features/notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import React, { useCallback, useState } from 'react';
@@ -55,8 +54,8 @@ export const Scheduler = () => {
       setMessage({ ...message, error: 'Message is required' });
       isValid = false;
     }
-    if (messageValue.length < 8) {
-      setMessage({ ...message, error: 'Message needs to be at least 8 characters' });
+    if (messageValue.length < 5) {
+      setMessage({ ...message, error: 'Message needs to be at least 5 characters' });
       isValid = false;
     }
 
@@ -175,7 +174,6 @@ export const Scheduler = () => {
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
-      <ScheduleHistory />
     </ScrollView>
   );
 };

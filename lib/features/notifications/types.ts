@@ -42,8 +42,7 @@ export type NotificationContentData = NotificationContent['data'];
 
 export type NotificationIdentifier = NotificationWithData['identifier'];
 
-export type Notification = {
+export type HistoryNotification = {
   identifier: NotificationIdentifier;
   content: NotificationContent;
 };
-export type HistoryNotification = Notification;

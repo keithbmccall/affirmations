@@ -26,6 +26,22 @@ export function affirmationsReducer(state: any, action: Action) {
           currentlyScheduledNotifications: action.payload,
         },
       };
+    case 'ADD_HISTORY_NOTIFICATION':
+      return {
+        ...state,
+        notifications: {
+          ...state.notifications,
+          historyNotifications: [...state.notifications.historyNotifications, action.payload],
+        },
+      };
+    case 'SET_HISTORY_NOTIFICATIONS':
+      return {
+        ...state,
+        notifications: {
+          ...state.notifications,
+          historyNotifications: action.payload,
+        },
+      };
     default:
       return state;
   }

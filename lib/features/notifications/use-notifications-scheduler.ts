@@ -10,7 +10,7 @@ type SchedulePushNotification = (details: {
 }) => Promise<string>;
 
 export const useNotificationsScheduler = () => {
-  const { onSetCurrentlyScheduledNotifications } = useAffirmations();
+  const { onSetCurrentlyScheduledNotifications, onAddHistoryNotification } = useAffirmations();
 
   const refreshCurrentlyScheduledNotifications = useCallback(async () => {
     try {
@@ -49,6 +49,12 @@ export const useNotificationsScheduler = () => {
           data,
           date,
         });
+
+        onAddHistoryNotification({
+          identifier,
+          content: { title, body, data, categoryIdentifier: 'affirmation' },
+        });
+
         refreshCurrentlyScheduledNotifications();
         return identifier;
       } catch (e: unknown) {

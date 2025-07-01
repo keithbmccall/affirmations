@@ -4,8 +4,10 @@ import { NotificationChannel } from 'expo-notifications';
 import { createContext, FC, PropsWithChildren, useContext, useMemo, useReducer } from 'react';
 import {
   Action,
+  addHistoryNotification,
   AffirmationsActionsFunctions,
   setCurrentlyScheduledNotifications,
+  setHistoryNotifications,
   setName,
   setNotificationChannels,
   setNotificationToken,
@@ -25,6 +27,7 @@ export interface StateType {
       token: string;
       channels: NotificationChannel[];
       currentlyScheduledNotifications: NotificationWithData[];
+      historyNotifications: NotificationWithData[];
     };
   };
 }
@@ -40,6 +43,7 @@ const initialState: StateType = {
       token: '',
       channels: [],
       currentlyScheduledNotifications: [],
+      historyNotifications: [],
     },
   },
 };
@@ -57,6 +61,8 @@ const initialActions: StateContextActions = {
     onSetNotificationToken: noop,
     onSetNotificationChannels: noop,
     onSetCurrentlyScheduledNotifications: noop,
+    onAddHistoryNotification: noop,
+    onSetHistoryNotifications: noop,
   },
 };
 
@@ -92,6 +98,8 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
         onSetNotificationToken: setNotificationToken(dispatch),
         onSetNotificationChannels: setNotificationChannels(dispatch),
         onSetCurrentlyScheduledNotifications: setCurrentlyScheduledNotifications(dispatch),
+        onAddHistoryNotification: addHistoryNotification(dispatch),
+        onSetHistoryNotifications: setHistoryNotifications(dispatch),
       },
     }),
     []

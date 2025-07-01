@@ -19,6 +19,7 @@ export const scheduleNotification: ScheduleNotification = async ({ title, body, 
       sound: NotificationSounds.DEFAULT,
       body,
       data,
+      categoryIdentifier: 'affirmation',
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,

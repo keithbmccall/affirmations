@@ -1,31 +1,33 @@
+import { HistoryNotification } from '@features/notifications';
+import { loadData, saveData, StorageDevice } from '@storage';
 import * as Notifications from 'expo-notifications';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { Init } from '../../platform/types';
 import { getAllScheduledNotifications } from './notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
-// const useInitHistory: Init = (providerActions, providerState) => {
-//   const [isHistoryInited, setIsHistoryInited] = useState(false);
-//   const { historyNotifications } = providerState.app;
+const useInitHistory: Init = (providerActions, providerState) => {
+  const historyRef = useRef(false);
+  const { historyNotifications } = providerState.affirmations.notifications;
 
-//   useEffect(() => {
-//     void loadData(StorageDevice.HISTORY_NOTIFICATIONS).then(
-//       (_historyNotifications: HistoryNotification[]) => {
-//         if (_historyNotifications) {
-//           providerActions.onAddHistoryNotifications(_historyNotifications);
-//           setIsHistoryInited(true);
-//         }
-//       },
-//     );
-//   }, [providerActions]);
+  useEffect(() => {
+    void loadData(StorageDevice.HISTORY_NOTIFICATIONS).then(
+      (_historyNotifications: HistoryNotification[]) => {
+        if (_historyNotifications) {
+          providerActions.affirmations.onSetHistoryNotifications(_historyNotifications);
+          historyRef.current = true;
+        }
+      }
+    );
+  }, [providerActions]);
 
-//   useEffect(() => {
-//     if (isHistoryInited && historyNotifications.length) {
-//       saveData(StorageDevice.HISTORY_NOTIFICATIONS, historyNotifications);
-//     }
-//   }, [historyNotifications, isHistoryInited]);
-// };
+  useEffect(() => {
+    if (historyRef.current && historyNotifications.length) {
+      saveData(StorageDevice.HISTORY_NOTIFICATIONS, historyNotifications);
+    }
+  }, [historyNotifications]);
+};
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -72,5 +74,6 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
       responseListener.remove();
     };
   }, []);
-  // useInitHistory(providerActions, providerState);
+
+  useInitHistory(providerActions, providerState);
 };

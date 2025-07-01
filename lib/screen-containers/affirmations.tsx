@@ -1,7 +1,7 @@
-import { Scheduler } from '@components/notifications';
+import { ScheduleHistory, Scheduler } from '@components/notifications';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
-import { ThemedText, ThemedView } from '../components/shared';
+import { Dimensions, StyleSheet } from 'react-native';
+import { ThemedView } from '../components/shared';
 import { colors, globalStyles, spacing } from '../styles';
 import { ScreenContainerProps } from './types';
 
@@ -11,10 +11,10 @@ const Affirmations = ({ statusBarProps }: AffirmationsProps) => {
   return (
     <ThemedView style={styles.container}>
       <StatusBar {...statusBarProps} />
-      <ThemedText type="subtitle" style={styles.subtitle}>
-        Schedule affirmations
-      </ThemedText>
-      <Scheduler />
+      <ThemedView style={styles.scheduler}>
+        <Scheduler />
+      </ThemedView>
+      <ScheduleHistory />
     </ThemedView>
   );
 };
@@ -24,8 +24,10 @@ const styles = StyleSheet.create({
     ...globalStyles.flexColumn,
     ...globalStyles.flex1,
     gap: spacing.gap['2xl'],
-    paddingHorizontal: spacing.screenPadding,
-    paddingVertical: spacing.screenPadding,
+    padding: spacing.screenPadding,
+  },
+  scheduler: {
+    height: Dimensions.get('window').height * 0.55,
   },
   subtitle: {
     textAlign: 'center',
