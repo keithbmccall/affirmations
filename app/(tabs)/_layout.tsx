@@ -25,6 +25,7 @@ export default function TabLayout() {
           },
           default: {},
         }),
+        // tabBarStyle: { display: 'none' },
       }}
     >
       <Tabs.Screen

@@ -1,14 +1,14 @@
 import { HistoryNotification } from '@features/notifications';
 import { loadData, saveData, StorageDevice } from '@storage';
 import * as Notifications from 'expo-notifications';
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { Init } from '../../platform/types';
 import { getAllScheduledNotifications } from './notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
 const useInitHistory: Init = (providerActions, providerState) => {
-  const historyRef = useRef(false);
+  const [isHistoryInited, setIsHistoryInited] = useState(false);
   const { historyNotifications } = providerState.affirmations.notifications;
 
   useEffect(() => {
@@ -16,14 +16,14 @@ const useInitHistory: Init = (providerActions, providerState) => {
       (_historyNotifications: HistoryNotification[]) => {
         if (_historyNotifications) {
           providerActions.affirmations.onSetHistoryNotifications(_historyNotifications);
-          historyRef.current = true;
         }
+        setIsHistoryInited(true);
       }
     );
   }, [providerActions]);
 
   useEffect(() => {
-    if (historyRef.current && historyNotifications.length) {
+    if (isHistoryInited && historyNotifications.length) {
       saveData(StorageDevice.HISTORY_NOTIFICATIONS, historyNotifications);
     }
   }, [historyNotifications]);

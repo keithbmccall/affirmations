@@ -14,20 +14,24 @@ const Affirmations = ({ statusBarProps }: AffirmationsProps) => {
       <ThemedView style={styles.scheduler}>
         <Scheduler />
       </ThemedView>
-      <ScheduleHistory />
+      <ThemedView style={styles.scheduleHistory}>
+        <ScheduleHistory />
+      </ThemedView>
     </ThemedView>
   );
 };
-
+const heightDimension = Dimensions.get('window').height;
 const styles = StyleSheet.create({
   container: {
     ...globalStyles.flexColumn,
     ...globalStyles.flex1,
-    gap: spacing.gap['2xl'],
     padding: spacing.screenPadding,
   },
   scheduler: {
-    height: Dimensions.get('window').height * 0.55,
+    height: heightDimension * 0.53,
+  },
+  scheduleHistory: {
+    height: heightDimension * 0.37,
   },
   subtitle: {
     textAlign: 'center',

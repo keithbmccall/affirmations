@@ -215,15 +215,15 @@ const styles = StyleSheet.create({
     bottom: -spacing['2xl'],
   },
   datePicker: {
-    height: spacing['10xl'],
+    height: spacing['9xl'],
     ...globalStyles.center,
   },
   submitButton: {
     backgroundColor: colors.primary[500],
-    borderRadius: spacing.borderRadius.md,
+    borderRadius: spacing.borderRadius.xl,
     padding: spacing.lg,
     ...globalStyles.alignCenter,
-    marginTop: spacing.xl,
+    marginTop: spacing.md,
   },
   submitButtonDisabled: {
     backgroundColor: colors.gray[500],

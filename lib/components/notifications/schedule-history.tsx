@@ -1,48 +1,91 @@
 import { ThemedText, ThemedView } from '@components/shared';
 import { useAffirmations } from '@platform';
-import { globalStyles, spacing } from '@styles';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { colors, globalStyles, spacing } from '@styles';
 import { getHumanReadableDate } from '@utils';
-import { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+
+const PAGE = {
+  CURRENTLY_SCHEDULED: 'CURRENTLY_SCHEDULED',
+  HISTORY: 'HISTORY',
+} as const;
+type PageType = (typeof PAGE)[keyof typeof PAGE];
 
 export const ScheduleHistory = () => {
-  const {
-    notifications: { currentlyScheduledNotifications },
-  } = useAffirmations();
-  //
+  const [page, setPage] = useState<PageType>(PAGE.CURRENTLY_SCHEDULED);
 
-  const scheduledNotificationsByDate = useMemo(() => {
-    return currentlyScheduledNotifications.slice().sort((a, b) => {
+  const bottomTabHeight = useBottomTabBarHeight();
+  const {
+    notifications: { currentlyScheduledNotifications, historyNotifications },
+  } = useAffirmations();
+
+  const isCurrentlyScheduledPage = page === PAGE.CURRENTLY_SCHEDULED;
+  const isHistoryPage = page === PAGE.HISTORY;
+
+  const notificationsByDate = useMemo(() => {
+    const notifications = isCurrentlyScheduledPage
+      ? currentlyScheduledNotifications
+      : historyNotifications;
+    return notifications.slice().sort((a, b) => {
       return a.content.data.triggerDate.time - b.content.data.triggerDate.time;
     });
-  }, [currentlyScheduledNotifications]);
+  }, [currentlyScheduledNotifications, historyNotifications, page]);
 
   return (
     <ThemedView>
-      {scheduledNotificationsByDate.map(notification => {
-        const { content, identifier } = notification;
-        const { month, day, time } = getHumanReadableDate(new Date(content.data.triggerDate.time));
+      <ThemedView
+        style={{
+          ...globalStyles.flexRow,
+          ...globalStyles.justifyAround,
+          paddingVertical: spacing.xl,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setPage(PAGE.CURRENTLY_SCHEDULED)}
+          style={[
+            styles.pill,
+            isCurrentlyScheduledPage && { backgroundColor: colors.primary[500] },
+          ]}
+        >
+          <ThemedText type="defaultSemiBold">Pending</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setPage(PAGE.HISTORY)}
+          style={[styles.pill, isHistoryPage && { backgroundColor: colors.primary[500] }]}
+        >
+          <ThemedText type="defaultSemiBold">History</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
 
-        return (
-          <ThemedView key={identifier} style={styles.row}>
-            <ThemedView style={styles.dateColumn}>
-              <ThemedText
-                type="subtitle"
-                style={styles.dateText}
-              >{`${month.slice(0, 3).toUpperCase()} ${day}`}</ThemedText>
-              <ThemedText type="defaultSemiBold" style={styles.timeText}>
-                {time}
-              </ThemedText>
+      <ScrollView contentContainerStyle={{ paddingBottom: bottomTabHeight * 2 }}>
+        {notificationsByDate.map(notification => {
+          const { content, identifier } = notification;
+          const { month, day, time } = getHumanReadableDate(
+            new Date(content.data.triggerDate.time)
+          );
+
+          return (
+            <ThemedView key={identifier} style={styles.row}>
+              <ThemedView style={styles.dateColumn}>
+                <ThemedText
+                  type="subtitle"
+                  style={styles.dateText}
+                >{`${month.slice(0, 3).toUpperCase()} ${day}`}</ThemedText>
+                <ThemedText type="defaultSemiBold" style={styles.timeText}>
+                  {time}
+                </ThemedText>
+              </ThemedView>
+              <ThemedView style={styles.contentColumn}>
+                <ThemedText type="subtitle" style={styles.titleText}>
+                  {content.title}
+                </ThemedText>
+                <ThemedText numberOfLines={1}>{content.body}</ThemedText>
+              </ThemedView>
             </ThemedView>
-            <ThemedView style={styles.contentColumn}>
-              <ThemedText type="subtitle" style={styles.titleText}>
-                {content.title}
-              </ThemedText>
-              <ThemedText numberOfLines={1}>{content.body}</ThemedText>
-            </ThemedView>
-          </ThemedView>
-        );
-      })}
+          );
+        })}
+      </ScrollView>
     </ThemedView>
   );
 };
@@ -69,5 +112,13 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: spacing['2xl'],
+  },
+  pill: {
+    borderWidth: 1,
+    borderColor: colors.primary[500],
+    borderRadius: spacing.borderRadius.xl,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing['4xl'],
+    ...globalStyles.alignCenter,
   },
 });
