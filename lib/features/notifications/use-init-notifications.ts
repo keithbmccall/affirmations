@@ -51,7 +51,7 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
     console.log('auth', Notifications.IosAuthorizationStatus);
     getAllScheduledNotifications().then(notifications => {
       console.log('currently Scheduled Notifications:', { notifications });
-      providerActions.affirmations.onSetCurrentlyScheduledNotifications(notifications);
+      providerActions.affirmations.onSetPendingNotifications(notifications);
     });
 
     if (Platform.OS === 'android') {

@@ -7,30 +7,28 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
 const PAGE = {
-  CURRENTLY_SCHEDULED: 'CURRENTLY_SCHEDULED',
+  PENDING: 'PENDING',
   HISTORY: 'HISTORY',
 } as const;
 type PageType = (typeof PAGE)[keyof typeof PAGE];
 
 export const ScheduleHistory = () => {
-  const [page, setPage] = useState<PageType>(PAGE.CURRENTLY_SCHEDULED);
+  const [page, setPage] = useState<PageType>(PAGE.PENDING);
 
   const bottomTabHeight = useBottomTabBarHeight();
   const {
-    notifications: { currentlyScheduledNotifications, historyNotifications },
+    notifications: { pendingNotifications, historyNotifications },
   } = useAffirmations();
 
-  const isCurrentlyScheduledPage = page === PAGE.CURRENTLY_SCHEDULED;
+  const isCurrentlyScheduledPage = page === PAGE.PENDING;
   const isHistoryPage = page === PAGE.HISTORY;
 
   const notificationsByDate = useMemo(() => {
-    const notifications = isCurrentlyScheduledPage
-      ? currentlyScheduledNotifications
-      : historyNotifications;
+    const notifications = isCurrentlyScheduledPage ? pendingNotifications : historyNotifications;
     return notifications.slice().sort((a, b) => {
       return a.content.data.triggerDate.time - b.content.data.triggerDate.time;
     });
-  }, [currentlyScheduledNotifications, historyNotifications, page]);
+  }, [pendingNotifications, historyNotifications, page]);
 
   return (
     <ThemedView>
@@ -42,7 +40,7 @@ export const ScheduleHistory = () => {
         }}
       >
         <TouchableOpacity
-          onPress={() => setPage(PAGE.CURRENTLY_SCHEDULED)}
+          onPress={() => setPage(PAGE.PENDING)}
           style={[
             styles.pill,
             isCurrentlyScheduledPage && { backgroundColor: colors.primary[500] },

@@ -6,7 +6,7 @@ import { ActionType } from './types';
 export type AffirmationsActions =
   | ActionType<'SET_NOTIFICATION_TOKEN', string>
   | ActionType<'SET_NOTIFICATION_CHANNELS', NotificationChannel[]>
-  | ActionType<'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS', NotificationWithData[]>
+  | ActionType<'SET_PENDING_NOTIFICATIONS', NotificationWithData[]>
   //
   | ActionType<'ADD_HISTORY_NOTIFICATION', HistoryNotification>
   | ActionType<'SET_HISTORY_NOTIFICATIONS', HistoryNotification[]>;
@@ -14,7 +14,7 @@ export type AffirmationsActions =
 export type AffirmationsActionsFunctions = {
   onSetNotificationToken: (token: string) => void;
   onSetNotificationChannels: (channels: NotificationChannel[]) => void;
-  onSetCurrentlyScheduledNotifications: (notifications: NotificationWithData[]) => void;
+  onSetPendingNotifications: (notifications: NotificationWithData[]) => void;
   //
   onAddHistoryNotification: (notification: HistoryNotification) => void;
   onSetHistoryNotifications: (notifications: HistoryNotification[]) => void;
@@ -42,13 +42,13 @@ export const setNotificationChannels =
     });
   };
 
-export const setCurrentlyScheduledNotifications =
+export const setPendingNotifications =
   (
     dispatch: Dispatch<AffirmationsActions>
-  ): AffirmationsActionsFunctions['onSetCurrentlyScheduledNotifications'] =>
+  ): AffirmationsActionsFunctions['onSetPendingNotifications'] =>
   notifications => {
     return dispatch({
-      type: 'SET_CURRENTLY_SCHEDULED_NOTIFICATIONS',
+      type: 'SET_PENDING_NOTIFICATIONS',
       payload: notifications,
     });
   };

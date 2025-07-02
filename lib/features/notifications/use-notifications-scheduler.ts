@@ -10,20 +10,20 @@ type SchedulePushNotification = (details: {
 }) => Promise<string>;
 
 export const useNotificationsScheduler = () => {
-  const { onSetCurrentlyScheduledNotifications, onAddHistoryNotification } = useAffirmations();
+  const { onSetPendingNotifications, onAddHistoryNotification } = useAffirmations();
 
-  const refreshCurrentlyScheduledNotifications = useCallback(async () => {
+  const refreshPendingNotifications = useCallback(async () => {
     try {
-      const currentlyScheduledNotifications = await getAllScheduledNotifications();
+      const pendingNotifications = await getAllScheduledNotifications();
       console.log({
-        currentlyScheduledNotifications,
+        pendingNotifications,
       });
-      onSetCurrentlyScheduledNotifications(currentlyScheduledNotifications);
+      onSetPendingNotifications(pendingNotifications);
     } catch (e: unknown) {
-      const errorMessage = `Failed to refresh currently scheduled notifications`;
-      catchError(e, errorMessage, 'refreshCurrentlyScheduledNotifications');
+      const errorMessage = `Failed to refresh pending notifications`;
+      catchError(e, errorMessage, 'refreshPendingNotifications');
     }
-  }, []);
+  }, [onSetPendingNotifications]);
 
   const schedulePushNotification: SchedulePushNotification = useCallback(
     async ({ date, title, body }) => {
@@ -55,7 +55,7 @@ export const useNotificationsScheduler = () => {
           content: { title, body, data, categoryIdentifier: 'affirmation' },
         });
 
-        refreshCurrentlyScheduledNotifications();
+        refreshPendingNotifications();
         return identifier;
       } catch (e: unknown) {
         const errorMessage = `Failed to schedule notification with title of: ${title} and message of: ${body}!!!`;
@@ -63,7 +63,7 @@ export const useNotificationsScheduler = () => {
         return errorMessage;
       }
     },
-    []
+    [refreshPendingNotifications, onAddHistoryNotification]
   );
 
   // const cancelPushNotification = useCallback(
@@ -75,7 +75,7 @@ export const useNotificationsScheduler = () => {
   //         deleteCalendarEvent(calendarEventId);
   //       }
   //       if (refresh) {
-  //         await refreshCurrentlyScheduledNotifications();
+  //         await refreshPendingNotifications();
   //       }
   //     } catch (e: unknown) {
   //       catchError(
@@ -85,20 +85,20 @@ export const useNotificationsScheduler = () => {
   //       );
   //     }
   //   },
-  //   [onRemoveHistoryNotification, deleteCalendarEvent, refreshCurrentlyScheduledNotifications]
+  //   [onRemoveHistoryNotification, deleteCalendarEvent, refreshPendingNotifications]
   // );
 
   // const editPushNotification = useCallback(
   //   async (identifier: NotificationIdentifier, date: Date, title: string, message: string) => {
   //     await schedulePushNotification(date, title, message, { refresh: false });
   //     await cancelPushNotification(identifier, undefined, false);
-  //     await refreshCurrentlyScheduledNotifications();
+  //     await refreshPendingNotifications();
   //   },
-  //   [schedulePushNotification, cancelPushNotification, refreshCurrentlyScheduledNotifications]
+  //   [schedulePushNotification, cancelPushNotification, refreshPendingNotifications]
   // );
 
   return {
     schedulePushNotification,
-    refreshCurrentlyScheduledNotifications,
+    refreshPendingNotifications,
   };
 };

@@ -1,7 +1,7 @@
 import { ScheduleHistory, Scheduler } from '@components/notifications';
 import { StatusBar } from 'expo-status-bar';
 import { Dimensions, StyleSheet } from 'react-native';
-import { ThemedView } from '../components/shared';
+import { Divider, ThemedView } from '../components/shared';
 import { colors, globalStyles, spacing } from '../styles';
 import { ScreenContainerProps } from './types';
 
@@ -14,6 +14,7 @@ const Affirmations = ({ statusBarProps }: AffirmationsProps) => {
       <ThemedView style={styles.scheduler}>
         <Scheduler />
       </ThemedView>
+      <Divider color={colors.ui.border} />
       <ThemedView style={styles.scheduleHistory}>
         <ScheduleHistory />
       </ThemedView>

@@ -6,11 +6,11 @@ import {
   Action,
   addHistoryNotification,
   AffirmationsActionsFunctions,
-  setCurrentlyScheduledNotifications,
   setHistoryNotifications,
   setName,
   setNotificationChannels,
   setNotificationToken,
+  setPendingNotifications,
   SettingsActionsFunctions,
 } from './actions';
 import { affirmationsReducer, settingsReducer } from './reducers';
@@ -26,7 +26,7 @@ export interface StateType {
     notifications: {
       token: string;
       channels: NotificationChannel[];
-      currentlyScheduledNotifications: NotificationWithData[];
+      pendingNotifications: NotificationWithData[];
       historyNotifications: NotificationWithData[];
     };
   };
@@ -42,7 +42,7 @@ const initialState: StateType = {
     notifications: {
       token: '',
       channels: [],
-      currentlyScheduledNotifications: [],
+      pendingNotifications: [],
       historyNotifications: [],
     },
   },
@@ -60,7 +60,7 @@ const initialActions: StateContextActions = {
   affirmations: {
     onSetNotificationToken: noop,
     onSetNotificationChannels: noop,
-    onSetCurrentlyScheduledNotifications: noop,
+    onSetPendingNotifications: noop,
     onAddHistoryNotification: noop,
     onSetHistoryNotifications: noop,
   },
@@ -97,7 +97,7 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       affirmations: {
         onSetNotificationToken: setNotificationToken(dispatch),
         onSetNotificationChannels: setNotificationChannels(dispatch),
-        onSetCurrentlyScheduledNotifications: setCurrentlyScheduledNotifications(dispatch),
+        onSetPendingNotifications: setPendingNotifications(dispatch),
         onAddHistoryNotification: addHistoryNotification(dispatch),
         onSetHistoryNotifications: setHistoryNotifications(dispatch),
       },

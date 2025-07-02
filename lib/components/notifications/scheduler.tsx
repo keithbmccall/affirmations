@@ -12,8 +12,7 @@ interface FormField<T> {
 }
 
 export const Scheduler = () => {
-  const { schedulePushNotification, refreshCurrentlyScheduledNotifications } =
-    useNotificationsScheduler();
+  const { schedulePushNotification, refreshPendingNotifications } = useNotificationsScheduler();
   const [date, setDate] = useState<FormField<Date>>({ value: fiveMinutesFromNow, error: '' });
   const [title, setTitle] = useState<FormField<string>>({ value: '', error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: '', error: '' });
@@ -97,7 +96,7 @@ export const Scheduler = () => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setDate({ value: fiveMinutesFromNow, error: '' });
-    await refreshCurrentlyScheduledNotifications();
+    await refreshPendingNotifications();
     setTimeout(() => setRefreshing(false), 500); // Simulate async refresh
   }, []);
 
