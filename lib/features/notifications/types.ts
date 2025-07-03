@@ -46,3 +46,8 @@ export type HistoryNotification = {
   identifier: NotificationIdentifier;
   content: NotificationContent;
 };
+
+export type NotificationDetailsParams = {
+  notificationId: NotificationIdentifier;
+  page: 'PENDING' | 'HISTORY';
+};

@@ -1,6 +1,7 @@
 import { Action } from '@platform';
+import { StateType } from '../state';
 
-export function affirmationsReducer(state: any, action: Action) {
+export function affirmationsReducer(state: StateType['affirmations'], action: Action) {
   switch (action.type) {
     case 'SET_NOTIFICATION_TOKEN':
       return {
@@ -40,6 +41,16 @@ export function affirmationsReducer(state: any, action: Action) {
         notifications: {
           ...state.notifications,
           historyNotifications: action.payload,
+        },
+      };
+    case 'REMOVE_HISTORY_NOTIFICATION':
+      return {
+        ...state,
+        notifications: {
+          ...state.notifications,
+          historyNotifications: state.notifications.historyNotifications.filter(
+            notification => notification.identifier !== action.payload
+          ),
         },
       };
     default:

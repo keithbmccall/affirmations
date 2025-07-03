@@ -1,16 +1,16 @@
+import { NotificationIdentifier } from '@features/notifications';
 import { useAffirmations } from '@platform';
 import { catchError } from '@utils';
 import { useCallback } from 'react';
-import { getAllScheduledNotifications, scheduleNotification } from './notifications';
-
-type SchedulePushNotification = (details: {
-  title: string;
-  body: string;
-  date: Date;
-}) => Promise<string>;
+import {
+  cancelScheduledNotification,
+  getAllScheduledNotifications,
+  scheduleNotification,
+} from './notifications';
 
 export const useNotificationsScheduler = () => {
-  const { onSetPendingNotifications, onAddHistoryNotification } = useAffirmations();
+  const { onSetPendingNotifications, onAddHistoryNotification, onRemoveHistoryNotification } =
+    useAffirmations();
 
   const refreshPendingNotifications = useCallback(async () => {
     try {
@@ -20,11 +20,15 @@ export const useNotificationsScheduler = () => {
       });
       onSetPendingNotifications(pendingNotifications);
     } catch (e: unknown) {
-      const errorMessage = `Failed to refresh pending notifications`;
-      catchError(e, errorMessage, 'refreshPendingNotifications');
+      catchError(e, `Failed to refresh pending notifications`, 'refreshPendingNotifications');
     }
   }, [onSetPendingNotifications]);
 
+  type SchedulePushNotification = (details: {
+    title: string;
+    body: string;
+    date: Date;
+  }) => Promise<string>;
   const schedulePushNotification: SchedulePushNotification = useCallback(
     async ({ date, title, body }) => {
       try {
@@ -66,39 +70,50 @@ export const useNotificationsScheduler = () => {
     [refreshPendingNotifications, onAddHistoryNotification]
   );
 
-  // const cancelPushNotification = useCallback(
-  //   async (identifier: string, calendarEventId?: string, refresh = true) => {
-  //     try {
-  //       await Notifications.cancelScheduledNotificationAsync(identifier);
-  //       onRemoveHistoryNotification(identifier);
-  //       if (calendarEventId) {
-  //         deleteCalendarEvent(calendarEventId);
-  //       }
-  //       if (refresh) {
-  //         await refreshPendingNotifications();
-  //       }
-  //     } catch (e: unknown) {
-  //       catchError(
-  //         e,
-  //         `Failed to cancel notification with identifier: ${identifier}!!!`,
-  //         'cancelPushNotification'
-  //       );
-  //     }
-  //   },
-  //   [onRemoveHistoryNotification, deleteCalendarEvent, refreshPendingNotifications]
-  // );
+  const cancelPushNotification = useCallback(
+    async (identifier: string) => {
+      try {
+        await cancelScheduledNotification(identifier);
+        onRemoveHistoryNotification(identifier);
 
-  // const editPushNotification = useCallback(
-  //   async (identifier: NotificationIdentifier, date: Date, title: string, message: string) => {
-  //     await schedulePushNotification(date, title, message, { refresh: false });
-  //     await cancelPushNotification(identifier, undefined, false);
-  //     await refreshPendingNotifications();
-  //   },
-  //   [schedulePushNotification, cancelPushNotification, refreshPendingNotifications]
-  // );
+        await refreshPendingNotifications();
+      } catch (e: unknown) {
+        catchError(
+          e,
+          `Failed to cancel notification with identifier: ${identifier}!!!`,
+          'cancelPushNotification'
+        );
+      }
+    },
+    [refreshPendingNotifications]
+  );
+
+  type EditPushNotification = (details: {
+    identifier: NotificationIdentifier;
+    title: string;
+    body: string;
+    date: Date;
+  }) => Promise<string>;
+  const editPushNotification: EditPushNotification = useCallback(
+    async ({ identifier, date, title, body }) => {
+      try {
+        const id = await schedulePushNotification({ date, title, body });
+        await cancelPushNotification(identifier);
+        await refreshPendingNotifications();
+        return id;
+      } catch (e: unknown) {
+        const errorMessage = `Failed to edit notification with identifier: ${identifier}!!!`;
+        catchError(e, errorMessage, 'editPushNotification');
+        return errorMessage;
+      }
+    },
+    [schedulePushNotification, cancelPushNotification, refreshPendingNotifications]
+  );
 
   return {
+    cancelPushNotification,
     schedulePushNotification,
     refreshPendingNotifications,
+    editPushNotification,
   };
 };

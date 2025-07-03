@@ -1,11 +1,11 @@
-import { NotificationWithData, useInitNotifications } from '@features/notifications';
+import { useInitNotifications } from '@features/notifications';
 import { noop } from '@utils';
-import { NotificationChannel } from 'expo-notifications';
 import { createContext, FC, PropsWithChildren, useContext, useMemo, useReducer } from 'react';
 import {
   Action,
   addHistoryNotification,
   AffirmationsActionsFunctions,
+  removeHistoryNotification,
   setHistoryNotifications,
   setName,
   setNotificationChannels,
@@ -14,39 +14,7 @@ import {
   SettingsActionsFunctions,
 } from './actions';
 import { affirmationsReducer, settingsReducer } from './reducers';
-
-export interface StateType {
-  settings: {
-    user: {
-      name: string;
-    };
-  };
-  lens: {};
-  affirmations: {
-    notifications: {
-      token: string;
-      channels: NotificationChannel[];
-      pendingNotifications: NotificationWithData[];
-      historyNotifications: NotificationWithData[];
-    };
-  };
-}
-const initialState: StateType = {
-  settings: {
-    user: {
-      name: '',
-    },
-  },
-  lens: {},
-  affirmations: {
-    notifications: {
-      token: '',
-      channels: [],
-      pendingNotifications: [],
-      historyNotifications: [],
-    },
-  },
-};
+import { initialState, StateType } from './state';
 
 export type StateContextActions = {
   settings: SettingsActionsFunctions;
@@ -63,6 +31,7 @@ const initialActions: StateContextActions = {
     onSetPendingNotifications: noop,
     onAddHistoryNotification: noop,
     onSetHistoryNotifications: noop,
+    onRemoveHistoryNotification: noop,
   },
 };
 
@@ -98,8 +67,10 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
         onSetNotificationToken: setNotificationToken(dispatch),
         onSetNotificationChannels: setNotificationChannels(dispatch),
         onSetPendingNotifications: setPendingNotifications(dispatch),
+        //
         onAddHistoryNotification: addHistoryNotification(dispatch),
         onSetHistoryNotifications: setHistoryNotifications(dispatch),
+        onRemoveHistoryNotification: removeHistoryNotification(dispatch),
       },
     }),
     []

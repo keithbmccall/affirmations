@@ -27,5 +27,7 @@ export const scheduleNotification: ScheduleNotification = async ({ title, body, 
     },
   });
 
-type CancelScheduledNotification = (identifier: NotificationIdentifier) => void;
-export const cancelScheduledNotification: CancelScheduledNotification = identifier => {};
+type CancelScheduledNotification = (identifier: NotificationIdentifier) => Promise<void>;
+export const cancelScheduledNotification: CancelScheduledNotification = async identifier => {
+  await Notifications.cancelScheduledNotificationAsync(identifier);
+};

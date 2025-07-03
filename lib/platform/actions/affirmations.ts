@@ -1,4 +1,8 @@
-import { HistoryNotification, NotificationWithData } from '@features/notifications';
+import {
+  HistoryNotification,
+  NotificationIdentifier,
+  NotificationWithData,
+} from '@features/notifications';
 import { NotificationChannel } from 'expo-notifications';
 import { Dispatch } from 'react';
 import { ActionType } from './types';
@@ -9,7 +13,8 @@ export type AffirmationsActions =
   | ActionType<'SET_PENDING_NOTIFICATIONS', NotificationWithData[]>
   //
   | ActionType<'ADD_HISTORY_NOTIFICATION', HistoryNotification>
-  | ActionType<'SET_HISTORY_NOTIFICATIONS', HistoryNotification[]>;
+  | ActionType<'SET_HISTORY_NOTIFICATIONS', HistoryNotification[]>
+  | ActionType<'REMOVE_HISTORY_NOTIFICATION', NotificationIdentifier>;
 
 export type AffirmationsActionsFunctions = {
   onSetNotificationToken: (token: string) => void;
@@ -18,6 +23,7 @@ export type AffirmationsActionsFunctions = {
   //
   onAddHistoryNotification: (notification: HistoryNotification) => void;
   onSetHistoryNotifications: (notifications: HistoryNotification[]) => void;
+  onRemoveHistoryNotification: (identifier: NotificationIdentifier) => void;
 };
 
 export const setNotificationToken =
@@ -72,5 +78,16 @@ export const setHistoryNotifications =
     return dispatch({
       type: 'SET_HISTORY_NOTIFICATIONS',
       payload: notifications,
+    });
+  };
+
+export const removeHistoryNotification =
+  (
+    dispatch: Dispatch<AffirmationsActions>
+  ): AffirmationsActionsFunctions['onRemoveHistoryNotification'] =>
+  identifier => {
+    return dispatch({
+      type: 'REMOVE_HISTORY_NOTIFICATION',
+      payload: identifier,
     });
   };
