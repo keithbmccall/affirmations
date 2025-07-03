@@ -6,6 +6,7 @@ export default function ModalLayout() {
       screenOptions={{
         presentation: 'modal',
         headerShown: false,
+        // animation: 'slide_from_bottom',
       }}
     >
       <Stack.Screen name="notification-details-modal" />

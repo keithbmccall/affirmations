@@ -75,7 +75,6 @@ export const useNotificationsScheduler = () => {
       try {
         await cancelScheduledNotification(identifier);
         onRemoveHistoryNotification(identifier);
-
         await refreshPendingNotifications();
       } catch (e: unknown) {
         catchError(

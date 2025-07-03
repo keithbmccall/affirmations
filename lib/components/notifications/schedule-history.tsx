@@ -1,5 +1,10 @@
 import { ThemedText, ThemedView } from '@components/shared';
-import { HistoryNotification, NotificationWithData } from '@features/notifications';
+import {
+  HistoryNotification,
+  NotificationWithData,
+  SCHEDULE_HISTORY_PAGES,
+  ScheduleHistoryPages,
+} from '@features/notifications';
 import { useAffirmations } from '@platform';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { colors, globalStyles, spacing } from '@styles';
@@ -8,23 +13,17 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
-const PAGE = {
-  PENDING: 'PENDING',
-  HISTORY: 'HISTORY',
-} as const;
-type PageType = (typeof PAGE)[keyof typeof PAGE];
-
 // TODO: swipe to delete logic
 export const ScheduleHistory = () => {
-  const [page, setPage] = useState<PageType>(PAGE.PENDING);
+  const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
 
   const bottomTabHeight = useBottomTabBarHeight();
   const {
     notifications: { pendingNotifications, historyNotifications },
   } = useAffirmations();
 
-  const isPendingPage = page === PAGE.PENDING;
-  const isHistoryPage = page === PAGE.HISTORY;
+  const isPendingPage = page === SCHEDULE_HISTORY_PAGES.PENDING;
+  const isHistoryPage = page === SCHEDULE_HISTORY_PAGES.HISTORY;
 
   const notificationsByDate = useMemo(() => {
     const notifications = isPendingPage ? pendingNotifications : historyNotifications;
@@ -36,7 +35,7 @@ export const ScheduleHistory = () => {
   const handleNotificationPress = (notification: NotificationWithData | HistoryNotification) => {
     // Navigate to the modal with just the notification identifier
     router.push({
-      pathname: '/modal/notification-details-modal',
+      pathname: '/(modals)/notification-details-modal',
       params: {
         notificationId: notification.identifier,
         page,
@@ -48,13 +47,13 @@ export const ScheduleHistory = () => {
     <ThemedView>
       <ThemedView style={styles.pillContainer}>
         <TouchableOpacity
-          onPress={() => setPage(PAGE.PENDING)}
+          onPress={() => setPage(SCHEDULE_HISTORY_PAGES.PENDING)}
           style={[styles.pill, isPendingPage && { backgroundColor: colors.primary[500] }]}
         >
           <ThemedText type="defaultSemiBold">Pending</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => setPage(PAGE.HISTORY)}
+          onPress={() => setPage(SCHEDULE_HISTORY_PAGES.HISTORY)}
           style={[styles.pill, isHistoryPage && { backgroundColor: colors.primary[500] }]}
         >
           <ThemedText type="defaultSemiBold">History</ThemedText>

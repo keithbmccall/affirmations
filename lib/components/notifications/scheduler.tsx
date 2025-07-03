@@ -11,11 +11,30 @@ interface FormField<T> {
   error: string;
 }
 
-export const Scheduler = () => {
+interface SchedulerProps {
+  initialDate?: Date;
+  initialTitle?: string;
+  initialBody?: string;
+  bodyLines?: number;
+  enableRefreshControl?: boolean;
+  submitProps?: {
+    submitText: string;
+    onSubmit: (values: { title: string; body: string; date: Date }) => void;
+  };
+}
+
+export const Scheduler = ({
+  initialDate = fiveMinutesFromNow,
+  initialTitle = '',
+  initialBody = '',
+  bodyLines = 4,
+  enableRefreshControl = true,
+  submitProps,
+}: SchedulerProps) => {
   const { schedulePushNotification, refreshPendingNotifications } = useNotificationsScheduler();
-  const [date, setDate] = useState<FormField<Date>>({ value: fiveMinutesFromNow, error: '' });
-  const [title, setTitle] = useState<FormField<string>>({ value: '', error: '' });
-  const [message, setMessage] = useState<FormField<string>>({ value: '', error: '' });
+  const [date, setDate] = useState<FormField<Date>>({ value: initialDate, error: '' });
+  const [title, setTitle] = useState<FormField<string>>({ value: initialTitle, error: '' });
+  const [message, setMessage] = useState<FormField<string>>({ value: initialBody, error: '' });
   const [refreshing, setRefreshing] = useState(false);
 
   const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -72,17 +91,22 @@ export const Scheduler = () => {
       return;
     }
 
-    const notificationIdentifier = await schedulePushNotification({
+    const values = {
       title: title.value,
       body: message.value,
       date: date.value,
-    });
+    };
+    if (submitProps?.onSubmit) {
+      submitProps.onSubmit(values);
+    } else {
+      const notificationIdentifier = await schedulePushNotification(values);
 
-    Alert.alert(
-      'Message Scheduled',
-      `Your message "${title.value}" has been scheduled for ${date.value.toLocaleString()}. Identifier: ${notificationIdentifier}`,
-      [{ text: 'OK' }]
-    );
+      Alert.alert(
+        'Message Scheduled',
+        `Your message "${title.value}" has been scheduled for ${date.value.toLocaleString()}. Identifier: ${notificationIdentifier}`,
+        [{ text: 'OK' }]
+      );
+    }
 
     // Clear the form
     setDate({ value: fiveMinutesFromNow, error: '' });
@@ -103,7 +127,11 @@ export const Scheduler = () => {
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        enableRefreshControl ? (
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        ) : undefined
+      }
     >
       <ThemedView style={styles.form}>
         <ThemedView style={styles.fieldContainer}>
@@ -148,7 +176,7 @@ export const Scheduler = () => {
               value={message.value}
               onChangeText={handleMessageChange}
               multiline
-              numberOfLines={4}
+              numberOfLines={bodyLines}
               style={[styles.input, message.error && styles.inputError]}
             />
             {message.error ? (
@@ -169,7 +197,7 @@ export const Scheduler = () => {
           disabled={!isFormValid}
         >
           <ThemedText style={styles.submitButtonText} type="defaultSemiBold">
-            Schedule Message
+            {submitProps?.submitText || 'Schedule message'}
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>

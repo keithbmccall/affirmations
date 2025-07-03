@@ -47,7 +47,14 @@ export type HistoryNotification = {
   content: NotificationContent;
 };
 
+export const SCHEDULE_HISTORY_PAGES = {
+  PENDING: 'PENDING',
+  HISTORY: 'HISTORY',
+} as const;
+export type ScheduleHistoryPages =
+  (typeof SCHEDULE_HISTORY_PAGES)[keyof typeof SCHEDULE_HISTORY_PAGES];
+
 export type NotificationDetailsParams = {
   notificationId: NotificationIdentifier;
-  page: 'PENDING' | 'HISTORY';
+  page: ScheduleHistoryPages;
 };
