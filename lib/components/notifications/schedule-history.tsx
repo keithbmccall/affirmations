@@ -1,4 +1,4 @@
-import { ThemedText, ThemedView } from '@components/shared';
+import { ThemedButton, ThemedText, ThemedView } from '@components/shared';
 import {
   HistoryNotification,
   NotificationWithData,
@@ -11,7 +11,7 @@ import { colors, globalStyles, spacing } from '@styles';
 import { getHumanReadableDate } from '@utils';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 // TODO: swipe to delete logic
 export const ScheduleHistory = () => {
@@ -46,18 +46,18 @@ export const ScheduleHistory = () => {
   return (
     <ThemedView>
       <ThemedView style={styles.pillContainer}>
-        <TouchableOpacity
+        <ThemedButton
           onPress={() => setPage(SCHEDULE_HISTORY_PAGES.PENDING)}
           style={[styles.pill, isPendingPage && { backgroundColor: colors.primary[500] }]}
         >
           <ThemedText type="defaultSemiBold">Pending</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </ThemedButton>
+        <ThemedButton
           onPress={() => setPage(SCHEDULE_HISTORY_PAGES.HISTORY)}
           style={[styles.pill, isHistoryPage && { backgroundColor: colors.primary[500] }]}
         >
           <ThemedText type="defaultSemiBold">History</ThemedText>
-        </TouchableOpacity>
+        </ThemedButton>
       </ThemedView>
 
       <ScrollView contentContainerStyle={{ paddingBottom: bottomTabHeight * 2 }}>
@@ -68,10 +68,7 @@ export const ScheduleHistory = () => {
           );
 
           return (
-            <TouchableOpacity
-              key={identifier}
-              onPress={() => handleNotificationPress(notification)}
-            >
+            <ThemedButton key={identifier} onPress={() => handleNotificationPress(notification)}>
               <ThemedView style={styles.row}>
                 <ThemedView style={styles.dateColumn}>
                   <ThemedText
@@ -89,7 +86,7 @@ export const ScheduleHistory = () => {
                   <ThemedText numberOfLines={1}>{content.body}</ThemedText>
                 </ThemedView>
               </ThemedView>
-            </TouchableOpacity>
+            </ThemedButton>
           );
         })}
       </ScrollView>

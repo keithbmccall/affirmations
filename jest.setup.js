@@ -19,6 +19,17 @@ jest.mock('expo-notifications', () => ({
   cancelScheduledNotificationAsync: jest.fn(),
   getAllScheduledNotificationsAsync: jest.fn(),
   setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(() => {
+    return {
+      remove: jest.fn(),
+    };
+  }),
+  addNotificationResponseReceivedListener: jest.fn(() => {
+    return {
+      remove: jest.fn(),
+    };
+  }),
+  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'test-token' })),
 }));
 
 // Mock async storage

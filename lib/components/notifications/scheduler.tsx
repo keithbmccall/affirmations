@@ -1,10 +1,10 @@
+import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
 import { useNotificationsScheduler } from '@features/notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { colors, globalStyles, spacing } from '@styles';
+import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
 import React, { useCallback, useState } from 'react';
-import { Alert, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, globalStyles, spacing } from '../../styles';
-import { fiveMinutesFromNow, twoYearsFromNow } from '../../utils';
-import { ThemedInput, ThemedText, ThemedView } from '../shared';
+import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 interface FormField<T> {
   value: T;
@@ -135,7 +135,7 @@ export const Scheduler = ({
     >
       <ThemedView style={styles.form}>
         <ThemedView style={styles.fieldContainer}>
-          <ThemedText type="subtitle" style={styles.label}>
+          <ThemedText type="subtitle" style={styles.label} accessibilityRole="header">
             Date & Time
           </ThemedText>
 
@@ -147,6 +147,7 @@ export const Scheduler = ({
               onChange={handleDateChange}
               minimumDate={fiveMinutesFromNow}
               maximumDate={twoYearsFromNow}
+              testID="date-time-picker"
             />
           </ThemedView>
           {date.error ? <ThemedText style={styles.errorText}>{date.error}</ThemedText> : null}
@@ -154,7 +155,7 @@ export const Scheduler = ({
 
         <ThemedView>
           <ThemedView style={styles.fieldContainer}>
-            <ThemedText type="subtitle" style={styles.label}>
+            <ThemedText type="subtitle" style={styles.label} accessibilityRole="header">
               Title
             </ThemedText>
             <ThemedInput
@@ -163,12 +164,13 @@ export const Scheduler = ({
               value={title.value}
               onChangeText={handleTitleChange}
               style={[styles.input, title.error && styles.inputError]}
+              testID="title-input"
             />
             {title.error ? <ThemedText style={styles.errorText}>{title.error}</ThemedText> : null}
           </ThemedView>
 
           <ThemedView style={styles.fieldContainer}>
-            <ThemedText type="subtitle" style={styles.label}>
+            <ThemedText type="subtitle" style={styles.label} accessibilityRole="header">
               Message
             </ThemedText>
             <ThemedInput
@@ -178,6 +180,7 @@ export const Scheduler = ({
               multiline
               numberOfLines={bodyLines}
               style={[styles.input, message.error && styles.inputError]}
+              testID="message-input"
             />
             {message.error ? (
               <ThemedText
@@ -191,7 +194,7 @@ export const Scheduler = ({
           </ThemedView>
         </ThemedView>
 
-        <TouchableOpacity
+        <ThemedButton
           style={[styles.submitButton, !isFormValid && styles.submitButtonDisabled]}
           onPress={handleSubmit}
           disabled={!isFormValid}
@@ -199,7 +202,7 @@ export const Scheduler = ({
           <ThemedText style={styles.submitButtonText} type="defaultSemiBold">
             {submitProps?.submitText || 'Schedule message'}
           </ThemedText>
-        </TouchableOpacity>
+        </ThemedButton>
       </ThemedView>
     </ScrollView>
   );
