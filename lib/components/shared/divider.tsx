@@ -1,17 +1,11 @@
-import { ThemedView } from '@components/shared';
+import { ThemedView, ThemedViewProps } from '@components/shared';
 import { colors } from '@styles';
-import { ColorValue, StyleSheet } from 'react-native';
+import { ColorValue } from 'react-native';
 
-interface DividerProps {
-  color: ColorValue;
+interface DividerProps extends Omit<ThemedViewProps, 'style'> {
+  color?: ColorValue;
+  width?: number;
 }
-export const Divider = ({ color }: DividerProps) => {
-  return <ThemedView style={[styles.divider, color && { borderColor: color }]} />;
+export const Divider = ({ color = colors.human.white, width = 1, ...props }: DividerProps) => {
+  return <ThemedView style={{ borderColor: color, borderBottomWidth: width }} {...props} />;
 };
-
-const styles = StyleSheet.create({
-  divider: {
-    borderBottomWidth: 1,
-    borderColor: colors.human.white,
-  },
-});

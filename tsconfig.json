@@ -12,7 +12,8 @@
       "@screen-containers/*": ["./lib/screen-containers/*"],
       "@storage": ["./lib/storage"],
       "@styles": ["./lib/styles"],
-      "@utils": ["./lib/utils"]
+      "@utils": ["./lib/utils"],
+      "@testing": ["./lib/testing"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],

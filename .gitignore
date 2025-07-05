@@ -38,3 +38,5 @@ yarn-error.*
 
 //
 .history/
+coverage
+.jest-cache
