@@ -10,7 +10,7 @@ export {
 
 // Render utilities
 export {
-  renderPresets,
+  renderRouterWithContext,
   renderWithContext,
   type RenderWithContextConfig,
 } from './render-with-context';

@@ -1,4 +1,4 @@
-import { Scheduler, ThemedView } from '@components';
+import { Scheduler, ThemedText, ThemedView } from '@components';
 import {
   HistoryNotification,
   NotificationIdentifier,
@@ -7,7 +7,6 @@ import {
   useNotificationsScheduler,
 } from '@features/notifications';
 import { useAffirmations } from '@platform';
-import { getHumanReadableDate } from '@utils';
 import { useMemo } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -52,15 +51,13 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
     });
   };
 
-  const { month, day, time } = getHumanReadableDate(
-    new Date(notification.content.data.triggerDate.time)
-  );
-  const scheduledDate = getHumanReadableDate(
-    new Date(notification.content.data.scheduledDate.time)
-  );
-
   return (
     <ThemedView style={styles.container}>
+      <ThemedView>
+        <ThemedText accessibilityRole="header" testID="notification-details-title">
+          {initialTitle}
+        </ThemedText>
+      </ThemedView>
       <Scheduler
         initialBody={initialBody}
         initialTitle={initialTitle}

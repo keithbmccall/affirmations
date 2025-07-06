@@ -1,6 +1,6 @@
 import { Scheduler } from '@components/notifications';
 import { renderWithContext, setupDateTimePickerMock, simulateDatePickerPress } from '@testing';
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import { fireEvent, waitFor } from 'expo-router/testing-library';
 import React from 'react';
 
 // Use the shared DateTimePicker mock utility

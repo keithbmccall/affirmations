@@ -1,6 +1,11 @@
 import { StateContextProvider } from '@platform';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { render, RenderOptions } from '@testing-library/react-native';
+import {
+  MockContextConfig,
+  render,
+  RenderOptions,
+  renderRouter,
+} from 'expo-router/testing-library';
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -18,19 +23,7 @@ export interface RenderWithContextConfig {
   wrapper?: React.ComponentType<{ children: React.ReactNode }>;
 }
 
-/**
- * Renders a component with common context providers for testing
- *
- * @param component - The React component to render
- * @param config - Configuration options for context providers
- * @param renderOptions - Additional options to pass to @testing-library/react-native render
- * @returns The rendered component with testing utilities
- */
-export const renderWithContext = (
-  component: React.ReactElement,
-  config: RenderWithContextConfig = {},
-  renderOptions?: RenderOptions
-) => {
+const createTestWrapper = (config: RenderWithContextConfig) => {
   const {
     theme = DarkTheme,
     includeGestureHandler = true,
@@ -39,8 +32,7 @@ export const renderWithContext = (
     wrapper: AdditionalWrapper,
   } = config;
 
-  // Build the wrapper component with the requested providers
-  const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+  return ({ children }: { children: React.ReactNode }) => {
     let wrappedChildren = children;
 
     // Add ThemeProvider if requested
@@ -65,46 +57,34 @@ export const renderWithContext = (
 
     return <>{wrappedChildren}</>;
   };
+};
 
+/**
+ * Renders a component with common context providers for testing
+ *
+ * @param component - The React component to render
+ * @param config - Configuration options for context providers
+ * @param renderOptions - Additional options to pass to the render function
+ * @returns The rendered component with testing utilities
+ */
+export const renderWithContext = (
+  component: React.ReactElement,
+  config: RenderWithContextConfig = {},
+  renderOptions?: RenderOptions
+) => {
   return render(component, {
-    wrapper: TestWrapper,
+    wrapper: createTestWrapper(config),
     ...renderOptions,
   });
 };
 
-/**
- * Preset configurations for common testing scenarios
- */
-export const renderPresets = {
-  /** Full context with all providers (default) */
-  full: (component: React.ReactElement, renderOptions?: RenderOptions) =>
-    renderWithContext(component, {}, renderOptions),
-
-  /** Light theme variant */
-  light: (component: React.ReactElement, renderOptions?: RenderOptions) =>
-    renderWithContext(component, { theme: DefaultTheme }, renderOptions),
-
-  /** Dark theme variant */
-  dark: (component: React.ReactElement, renderOptions?: RenderOptions) =>
-    renderWithContext(component, { theme: DarkTheme }, renderOptions),
-
-  /** Without gesture handler (for components that don't need it) */
-  noGestures: (component: React.ReactElement, renderOptions?: RenderOptions) =>
-    renderWithContext(component, { includeGestureHandler: false }, renderOptions),
-
-  /** Without state provider (for pure UI components) */
-  noState: (component: React.ReactElement, renderOptions?: RenderOptions) =>
-    renderWithContext(component, { includeStateProvider: false }, renderOptions),
-
-  /** Minimal context (no providers) */
-  minimal: (component: React.ReactElement, renderOptions?: RenderOptions) =>
-    renderWithContext(
-      component,
-      {
-        includeGestureHandler: false,
-        includeStateProvider: false,
-        includeThemeProvider: false,
-      },
-      renderOptions
-    ),
+export const renderRouterWithContext = (
+  context: MockContextConfig,
+  config: RenderWithContextConfig = {},
+  renderOptions?: RenderOptions
+) => {
+  return renderRouter(context, {
+    wrapper: createTestWrapper(config),
+    ...renderOptions,
+  });
 };

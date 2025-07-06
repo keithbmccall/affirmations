@@ -1,5 +1,7 @@
 /* global jest */
 /* eslint-env jest */
+import { beforeAll } from '@jest/globals';
+import { router } from 'expo-router';
 // Jest setup file for React Native/Expo testing
 import 'react-native-gesture-handler/jestSetup';
 
@@ -36,3 +38,17 @@ jest.mock('expo-notifications', () => ({
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
+
+beforeAll(() => {
+  const originalPush = router.push.bind(router);
+  router.push = to => {
+    if (typeof to === 'object') {
+      const { pathname, params } = to;
+      const search = new URLSearchParams(
+        Object.entries(params).reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {})
+      ).toString();
+      return originalPush(`${pathname}?${search}`);
+    }
+    return originalPush(to);
+  };
+});

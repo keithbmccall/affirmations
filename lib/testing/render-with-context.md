@@ -98,32 +98,6 @@ const { getByTestId } = renderWithContext(
 );
 ```
 
-## Render Presets
-
-For common scenarios, use the provided presets:
-
-```typescript
-import { renderPresets } from '@testing';
-
-// Full context with all providers (same as renderWithContext default)
-const { getByTestId } = renderPresets.full(<MyComponent />);
-
-// Light theme
-const { getByTestId } = renderPresets.light(<MyComponent />);
-
-// Dark theme
-const { getByTestId } = renderPresets.dark(<MyComponent />);
-
-// Without gesture handler
-const { getByTestId } = renderPresets.noGestures(<MyComponent />);
-
-// Without state provider (pure UI components)
-const { getByTestId } = renderPresets.noState(<MyComponent />);
-
-// Minimal context (no providers)
-const { getByTestId } = renderPresets.minimal(<MyComponent />);
-```
-
 ## Migration Guide
 
 ### Before (Old Way)
