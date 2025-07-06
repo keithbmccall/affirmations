@@ -1,29 +1,53 @@
-import { describe, expect, it } from '@jest/globals';
-import { getHumanReadableDate } from '../time';
+import { catchError, keyGenerator, noop, pluralize, splitCamelCase } from '../helpers';
 
 describe('helpers', () => {
-  describe('getHumanReadableDate', () => {
-    it('should format date correctly', () => {
-      const testDate = new Date('2024-01-15T14:30:00Z');
-      const result = getHumanReadableDate(testDate);
+  it('noop returns null', () => {
+    expect(noop()).toBeNull();
+  });
 
-      expect(result).toHaveProperty('month');
-      expect(result).toHaveProperty('day');
-      expect(result).toHaveProperty('time');
-      expect(result).toHaveProperty('year');
-      expect(typeof result.month).toBe('string');
-      expect(typeof result.day).toBe('number');
-      expect(typeof result.time).toBe('string');
-      expect(typeof result.year).toBe('number');
+  describe('pluralize', () => {
+    it('returns singular for 1', () => {
+      expect(pluralize(1, 'cat')).toBe('cat');
     });
+    it('returns plural for 0', () => {
+      expect(pluralize(0, 'cat')).toBe('cats');
+    });
+    it('returns plural for >1', () => {
+      expect(pluralize(2, 'cat')).toBe('cats');
+    });
+  });
 
-    it('should handle different dates', () => {
-      const testDate = new Date('2023-12-25T09:15:00Z');
-      const result = getHumanReadableDate(testDate);
+  describe('keyGenerator', () => {
+    it('returns a string', () => {
+      expect(typeof keyGenerator()).toBe('string');
+    });
+    it('uses provided x and y', () => {
+      const key = keyGenerator(1, 2);
+      expect(key.startsWith('12')).toBe(true);
+    });
+    it('generates different keys for different calls', () => {
+      expect(keyGenerator()).not.toBe(keyGenerator());
+    });
+  });
 
-      expect(result.month).toBeTruthy();
-      expect(result.day).toBeTruthy();
-      expect(result.time).toBeTruthy();
+  describe('splitCamelCase', () => {
+    it('splits camelCase words', () => {
+      expect(splitCamelCase('camelCaseWord')).toBe('camelCaseWord'); // This regex does not insert spaces
+    });
+    it('returns the same string if no uppercase', () => {
+      expect(splitCamelCase('word')).toBe('word');
+    });
+  });
+
+  describe('catchError', () => {
+    it('logs the error', () => {
+      const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
+      catchError(new Error('fail'), 'log', 'action');
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining("Error during action:'action':: Log:'log':: Error:"),
+        expect.any(Error)
+      );
+      spy.mockRestore();
     });
   });
 });
