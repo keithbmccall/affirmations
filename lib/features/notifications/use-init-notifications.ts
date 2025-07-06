@@ -38,8 +38,6 @@ Notifications.setNotificationHandler({
   }),
 });
 export const useInitNotifications: Init = (providerActions, providerState) => {
-  console.log({ providerActions, providerState });
-
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => {
       if (token) {
@@ -50,7 +48,6 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
 
     console.log('auth', Notifications.IosAuthorizationStatus);
     getAllScheduledNotifications().then(notifications => {
-      console.log('currently Scheduled Notifications:', { notifications });
       providerActions.affirmations.onSetPendingNotifications(notifications);
     });
 
