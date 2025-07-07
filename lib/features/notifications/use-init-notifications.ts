@@ -7,7 +7,7 @@ import { Init } from '../../platform/types';
 import { getAllScheduledNotifications } from './notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
-const useInitHistory: Init = (providerActions, providerState) => {
+const useInitHistoryNotifications: Init = (providerActions, providerState) => {
   const [isHistoryInited, setIsHistoryInited] = useState(false);
   const { historyNotifications } = providerState.affirmations.notifications;
 
@@ -71,5 +71,5 @@ export const useInitNotifications: Init = (providerActions, providerState) => {
     };
   }, []);
 
-  useInitHistory(providerActions, providerState);
+  useInitHistoryNotifications(providerActions, providerState);
 };

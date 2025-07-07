@@ -1,7 +1,6 @@
 import { ThemedButton, ThemedText, ThemedView } from '@components/shared';
 import {
-  HistoryNotification,
-  NotificationWithData,
+  NotificationIdentifier,
   SCHEDULE_HISTORY_PAGES,
   ScheduleHistoryPages,
 } from '@features/notifications';
@@ -9,15 +8,14 @@ import { useAffirmations } from '@platform';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes';
 import { colors, globalStyles, spacing } from '@styles';
-import { getHumanReadableDate } from '@utils';
-import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
+import { NotificationRow } from './notification-row';
 
 // TODO: swipe to delete logic
 export const ScheduleHistory = () => {
   const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
-  const router = useRouter();
 
   const bottomTabHeight = useBottomTabBarHeight();
   const {
@@ -34,16 +32,15 @@ export const ScheduleHistory = () => {
     });
   }, [pendingNotifications, historyNotifications, page]);
 
-  const handleNotificationPress = (notification: NotificationWithData | HistoryNotification) => {
-    // Navigate to the modal using Routes
-    router.push({
-      pathname: Routes.modals.notificationDetails.routePathname,
-      params: {
-        notificationId: notification.identifier,
-        page,
-      },
-    });
-  };
+  const handleNotificationPress = useCallback(
+    (identifier: NotificationIdentifier) => {
+      router.push({
+        pathname: Routes.modals.notificationDetails.routePathname,
+        params: { notificationId: identifier, page },
+      });
+    },
+    [page]
+  );
 
   return (
     <ThemedView>
@@ -62,36 +59,14 @@ export const ScheduleHistory = () => {
         </ThemedButton>
       </ThemedView>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: bottomTabHeight * 2 }}>
-        {notificationsByDate.map(notification => {
-          const { content, identifier } = notification;
-          const { month, day, time } = getHumanReadableDate(
-            new Date(content.data.triggerDate.time)
-          );
-
-          return (
-            <ThemedButton key={identifier} onPress={() => handleNotificationPress(notification)}>
-              <ThemedView style={styles.row}>
-                <ThemedView style={styles.dateColumn}>
-                  <ThemedText
-                    type="subtitle"
-                    style={styles.dateText}
-                  >{`${month.slice(0, 3).toUpperCase()} ${day}`}</ThemedText>
-                  <ThemedText type="defaultSemiBold" style={styles.timeText}>
-                    {time}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedView style={styles.contentColumn}>
-                  <ThemedText type="subtitle" style={styles.titleText}>
-                    {content.title}
-                  </ThemedText>
-                  <ThemedText numberOfLines={1}>{content.body}</ThemedText>
-                </ThemedView>
-              </ThemedView>
-            </ThemedButton>
-          );
-        })}
-      </ScrollView>
+      <FlatList
+        data={notificationsByDate}
+        renderItem={({ item }) => (
+          <NotificationRow notification={item} onPress={handleNotificationPress} />
+        )}
+        keyExtractor={item => item.identifier}
+        contentContainerStyle={{ paddingBottom: bottomTabHeight * 2 }}
+      />
     </ThemedView>
   );
 };
@@ -101,28 +76,6 @@ const styles = StyleSheet.create({
     ...globalStyles.flexRow,
     ...globalStyles.justifyAround,
     paddingVertical: spacing.xl,
-  },
-  row: {
-    ...globalStyles.flexRow,
-    paddingVertical: spacing.sm,
-  },
-  dateColumn: {
-    width: '30%',
-  },
-  dateText: {
-    fontSize: spacing['2xl'],
-    ...globalStyles.textCenter,
-  },
-  timeText: {
-    ...globalStyles.textCenter,
-  },
-  contentColumn: {
-    ...globalStyles.alignCenter,
-    ...globalStyles.justifyCenter,
-    width: '70%',
-  },
-  titleText: {
-    fontSize: spacing['2xl'],
   },
   pill: {
     borderWidth: 1,

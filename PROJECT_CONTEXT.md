@@ -322,7 +322,62 @@ const onRefresh = useCallback(async () => {
 
 ### 🎯 **Component Design Patterns**
 
-#### **1. Flexible Props with Defaults**
+#### **1. No Component-in-Component Rule**
+
+**❌ BAD - Defining components inside other components:**
+
+```typescript
+// DON'T: Component defined inside another component
+export const MyComponent = () => {
+  // This creates a new component on every render - performance issue!
+  const InnerComponent = ({ data }) => (
+    <View>
+      <Text>{data.title}</Text>
+    </View>
+  );
+
+  return (
+    <ScrollView>
+      {items.map(item => (
+        <InnerComponent key={item.id} data={item} />
+      ))}
+    </ScrollView>
+  );
+};
+```
+
+**✅ GOOD - Extract components to separate definitions:**
+
+```typescript
+// Define components outside of other components
+interface ItemRowProps {
+  data: ItemData;
+}
+
+const ItemRow = ({ data }: ItemRowProps) => (
+  <View>
+    <Text>{data.title}</Text>
+  </View>
+);
+
+export const MyComponent = () => {
+  return (
+    <ScrollView>
+      {items.map(item => (
+        <ItemRow key={item.id} data={item} />
+      ))}
+    </ScrollView>
+  );
+};
+```
+
+**Options for extraction:**
+
+- **Same file**: Define above the parent component
+- **Separate file**: Create dedicated component file (preferred for reusability)
+- **Render functions**: Only for very simple JSX (not recommended for complex components)
+
+#### **2. Flexible Props with Defaults**
 
 ```typescript
 // Optional configuration with sensible defaults
@@ -345,7 +400,7 @@ export const Scheduler = ({
 }: SchedulerProps) => {
 ```
 
-#### **2. Conditional Logic Patterns**
+#### **3. Conditional Logic Patterns**
 
 ```typescript
 // Boolean flags for readability
