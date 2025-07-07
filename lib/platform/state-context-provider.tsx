@@ -5,6 +5,7 @@ import {
   Action,
   addHistoryNotification,
   AffirmationsActionsFunctions,
+  LensActionsFunctions,
   removeHistoryNotification,
   setHistoryNotifications,
   setName,
@@ -13,12 +14,13 @@ import {
   setPendingNotifications,
   SettingsActionsFunctions,
 } from './actions';
-import { affirmationsReducer, settingsReducer } from './reducers';
+import { affirmationsReducer, lensReducer, settingsReducer } from './reducers';
 import { initialState, StateType } from './state';
 
 export type StateContextActions = {
   settings: SettingsActionsFunctions;
   affirmations: AffirmationsActionsFunctions;
+  lens: LensActionsFunctions;
 };
 
 const initialActions: StateContextActions = {
@@ -33,6 +35,7 @@ const initialActions: StateContextActions = {
     onSetHistoryNotifications: noop,
     onRemoveHistoryNotification: noop,
   },
+  lens: {},
 };
 
 export type StateContextType = StateType & {
@@ -51,7 +54,7 @@ const rootReducer = (state: StateType, action: Action): StateType => {
     ...state,
     settings: settingsReducer(state.settings, action),
     affirmations: affirmationsReducer(state.affirmations, action),
-    lens: state.lens,
+    lens: lensReducer(state.lens, action),
   };
 };
 
@@ -72,6 +75,7 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
         onSetHistoryNotifications: setHistoryNotifications(dispatch),
         onRemoveHistoryNotification: removeHistoryNotification(dispatch),
       },
+      lens: {},
     }),
     []
   );

@@ -1,6 +1,7 @@
-import { Action } from '@platform';
+import { Action } from '../actions';
+import { StateType } from '../state';
 
-export function settingsReducer(state: any, action: Action) {
+export function settingsReducer(state: StateType['settings'], action: Action) {
   switch (action.type) {
     case 'SET_NAME':
       return {

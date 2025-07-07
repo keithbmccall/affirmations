@@ -1,4 +1,4 @@
-import { Action } from '@platform';
+import { Action } from '../actions';
 import { StateType } from '../state';
 
 export function affirmationsReducer(state: StateType['affirmations'], action: Action) {

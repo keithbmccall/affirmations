@@ -17,3 +17,12 @@ export const useAffirmations = () => {
     ...affirmations,
   };
 };
+
+export const useLens = () => {
+  const { lens, actions } = useStateContext();
+
+  return {
+    ...actions.lens,
+    ...lens,
+  };
+};

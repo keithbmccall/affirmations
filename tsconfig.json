@@ -5,8 +5,10 @@
     "paths": {
       "@components": ["./lib/components"],
       "@components/notifications": ["./lib/components/notifications"],
+      "@components/lens": ["./lib/components/lens"],
       "@components/shared": ["./lib/components/shared"],
       "@features/notifications": ["./lib/features/notifications"],
+      "@features/lens": ["./lib/features/lens"],
       "@platform": ["./lib/platform"],
       "@routes": ["./lib/routes"],
       "@screen-containers/*": ["./lib/screen-containers/*"],
