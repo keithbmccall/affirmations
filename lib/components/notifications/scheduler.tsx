@@ -1,8 +1,9 @@
 import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
-import { useNotificationsScheduler } from '@features/notifications';
+import { NotificationIdentifier, useNotificationsScheduler } from '@features/notifications';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors, globalStyles, spacing } from '@styles';
 import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
@@ -21,6 +22,7 @@ interface SchedulerProps {
     submitText: string;
     onSubmit: (values: { title: string; body: string; date: Date }) => void;
   };
+  notificationId: NotificationIdentifier;
 }
 
 export const Scheduler = ({
@@ -30,8 +32,11 @@ export const Scheduler = ({
   bodyLines = 4,
   enableRefreshControl = true,
   submitProps,
+  notificationId,
 }: SchedulerProps) => {
-  const { schedulePushNotification, refreshPendingNotifications } = useNotificationsScheduler();
+  const router = useRouter();
+  const { schedulePushNotification, refreshPendingNotifications, cancelPushNotification } =
+    useNotificationsScheduler();
   const [date, setDate] = useState<FormField<Date>>({ value: initialDate, error: '' });
   const [title, setTitle] = useState<FormField<string>>({ value: initialTitle, error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: initialBody, error: '' });
@@ -112,6 +117,15 @@ export const Scheduler = ({
     setDate({ value: fiveMinutesFromNow, error: '' });
     setTitle({ value: '', error: '' });
     setMessage({ value: '', error: '' });
+
+    if (notificationId) {
+      router.back();
+    }
+  };
+
+  const handleDelete = async () => {
+    await cancelPushNotification(notificationId);
+    router.back();
   };
 
   const isFormValid =
@@ -152,7 +166,6 @@ export const Scheduler = ({
           </ThemedView>
           {date.error ? <ThemedText style={styles.errorText}>{date.error}</ThemedText> : null}
         </ThemedView>
-
         <ThemedView>
           <ThemedView style={styles.fieldContainer}>
             <ThemedText type="subtitle" style={styles.label} accessibilityRole="header">
@@ -193,7 +206,6 @@ export const Scheduler = ({
             ) : null}
           </ThemedView>
         </ThemedView>
-
         <ThemedButton
           style={[styles.submitButton, !isFormValid && styles.submitButtonDisabled]}
           onPress={handleSubmit}
@@ -203,6 +215,19 @@ export const Scheduler = ({
             {submitProps?.submitText || 'Schedule message'}
           </ThemedText>
         </ThemedButton>
+        {notificationId && (
+          <ThemedButton
+            style={[
+              styles.submitButton,
+              { backgroundColor: colors.semantic.error, marginTop: spacing['2xl'] },
+            ]}
+            onPress={handleDelete}
+          >
+            <ThemedText style={styles.submitButtonText} type="defaultSemiBold">
+              Delete Message
+            </ThemedText>
+          </ThemedButton>
+        )}
       </ThemedView>
     </ScrollView>
   );

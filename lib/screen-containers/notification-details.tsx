@@ -7,6 +7,7 @@ import {
   useNotificationsScheduler,
 } from '@features/notifications';
 import { useAffirmations } from '@platform';
+import { globalStyles, spacing } from '@styles';
 import { useMemo } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -53,17 +54,18 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView>
-        <ThemedText accessibilityRole="header" testID="notification-details-title">
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText accessibilityRole="header" testID="notification-details-title" type="subtitle">
           {initialTitle}
         </ThemedText>
       </ThemedView>
       <Scheduler
-        initialBody={initialBody}
-        initialTitle={initialTitle}
-        initialDate={initialDate}
         bodyLines={6}
         enableRefreshControl={false}
+        initialBody={initialBody}
+        initialDate={initialDate}
+        initialTitle={initialTitle}
+        notificationId={notificationId}
         submitProps={{ submitText: 'Edit Message', onSubmit: handleSubmit }}
       />
     </ThemedView>
@@ -74,6 +76,10 @@ const { height: screenHeight } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    ...globalStyles.flex1,
+  },
+  titleContainer: {
+    ...globalStyles.center,
+    paddingVertical: spacing['2xl'],
   },
 });

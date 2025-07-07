@@ -1,3 +1,4 @@
+import { Routes } from '@routes';
 import { Stack } from 'expo-router';
 
 export default function ModalLayout() {
@@ -9,7 +10,7 @@ export default function ModalLayout() {
         // animation: 'slide_from_bottom',
       }}
     >
-      <Stack.Screen name="notification-details-modal" />
+      <Stack.Screen name={Routes.modals.notificationDetails.name} />
     </Stack>
   );
 }

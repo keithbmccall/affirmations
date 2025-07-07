@@ -7,15 +7,17 @@ import {
 } from '@features/notifications';
 import { useAffirmations } from '@platform';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { Routes } from '@routes';
 import { colors, globalStyles, spacing } from '@styles';
 import { getHumanReadableDate } from '@utils';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 
 // TODO: swipe to delete logic
 export const ScheduleHistory = () => {
   const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
+  const router = useRouter();
 
   const bottomTabHeight = useBottomTabBarHeight();
   const {
@@ -33,9 +35,9 @@ export const ScheduleHistory = () => {
   }, [pendingNotifications, historyNotifications, page]);
 
   const handleNotificationPress = (notification: NotificationWithData | HistoryNotification) => {
-    // Navigate to the modal with just the notification identifier
+    // Navigate to the modal using Routes
     router.push({
-      pathname: '/(modals)/notification-details-modal',
+      pathname: Routes.modals.notificationDetails.routePathname,
       params: {
         notificationId: notification.identifier,
         page,

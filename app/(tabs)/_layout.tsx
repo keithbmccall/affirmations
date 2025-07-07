@@ -29,25 +29,29 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name={Routes.home.name}
+        name={Routes.tabs.home.name}
         options={{
-          title: Routes.home.title,
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name={Routes.home.icon} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name={Routes.lens.name}
-        options={{
-          title: Routes.lens.title,
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name={Routes.lens.icon} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name={Routes.affirmations.name}
-        options={{
-          title: Routes.affirmations.title,
+          title: Routes.tabs.home.title,
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name={Routes.affirmations.icon} color={color} />
+            <IconSymbol size={28} name={Routes.tabs.home.icon} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name={Routes.tabs.lens.name}
+        options={{
+          title: Routes.tabs.lens.title,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name={Routes.tabs.lens.icon} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name={Routes.tabs.affirmations.name}
+        options={{
+          title: Routes.tabs.affirmations.title,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name={Routes.tabs.affirmations.icon} color={color} />
           ),
         }}
       />

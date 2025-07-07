@@ -28,7 +28,3 @@ export const loadData: LoadData = async (key: string) => {
 export const StorageDevice = {
   HISTORY_NOTIFICATIONS: 'HISTORY_NOTIFICATIONS',
 } as const;
-
-export const StorageDeviceConfig = {
-  [StorageDevice.HISTORY_NOTIFICATIONS]: {},
-};
