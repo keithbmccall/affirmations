@@ -322,7 +322,9 @@ const onRefresh = useCallback(async () => {
 
 ### 🎯 **Component Design Patterns**
 
-#### **1. No Component-in-Component Rule**
+#### **1. 🚫 NEVER Define Components Inside Other Components**
+
+**CRITICAL RULE: Never define a component inside another component. This creates performance issues and violates React best practices.**
 
 **❌ BAD - Defining components inside other components:**
 
@@ -345,6 +347,13 @@ export const MyComponent = () => {
   );
 };
 ```
+
+**Why this is bad:**
+
+- **Performance**: Creates a new component function on every render
+- **Memory**: Prevents React from optimizing re-renders
+- **Debugging**: Makes component tree harder to debug
+- **Testing**: Complicates unit testing and mocking
 
 **✅ GOOD - Extract components to separate definitions:**
 
@@ -371,11 +380,55 @@ export const MyComponent = () => {
 };
 ```
 
+**Why this is good:**
+
+- **Performance**: Component is defined once and reused
+- **Optimization**: React can properly optimize re-renders
+- **Maintainability**: Easier to read, test, and debug
+- **Reusability**: Component can be easily extracted to separate file
+
 **Options for extraction:**
 
-- **Same file**: Define above the parent component
+- **Same file**: Define above the parent component (for closely related components)
 - **Separate file**: Create dedicated component file (preferred for reusability)
 - **Render functions**: Only for very simple JSX (not recommended for complex components)
+
+**Enforcement:**
+
+- **Always** define components outside of other components
+- **Always** use proper TypeScript interfaces for props
+- **Prefer** separate files for reusable components
+- **Never** use the "Component-in-Component" anti-pattern
+- **Never** define components inside render functions or other components
+
+**Common Anti-Pattern Examples to Avoid:**
+
+```typescript
+// ❌ DON'T: Component defined inside render function
+export const MyComponent = () => {
+  const renderItem = ({ item }) => {
+    const ItemComponent = () => <Text>{item.title}</Text>; // BAD!
+    return <ItemComponent />;
+  };
+
+  return <FlatList renderItem={renderItem} />;
+};
+
+// ❌ DON'T: Component defined inside another component
+export const ParentComponent = () => {
+  const ChildComponent = () => <View><Text>Child</Text></View>; // BAD!
+
+  return <ChildComponent />;
+};
+
+// ❌ DON'T: Component defined inside useEffect or other hooks
+export const MyComponent = () => {
+  useEffect(() => {
+    const DynamicComponent = () => <Text>Dynamic</Text>; // BAD!
+    // ...
+  }, []);
+};
+```
 
 #### **2. Flexible Props with Defaults**
 
