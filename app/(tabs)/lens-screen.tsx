@@ -1,12 +1,9 @@
-import { IconSymbol, ThemedText } from '@components';
+import { IconSymbol } from '@components';
+import Lens from '@screen-containers/lens';
 import { StyleSheet } from 'react-native';
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import ParallaxScrollView from '../../.expo-defaults/components/ParallaxScrollView';
 
 export default function LensScreen() {
-  const device = useCameraDevice('back');
-  const { hasPermission } = useCameraPermission();
-
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -14,15 +11,7 @@ export default function LensScreen() {
         <IconSymbol size={310} color="#808080" name="camera.fill" style={styles.headerImage} />
       }
     >
-      {device ? (
-        <>
-          <Camera style={StyleSheet.absoluteFill} device={device} isActive={true} />)
-          <ThemedText type="title">Lens</ThemedText>
-          <ThemedText type="default">Add camera here</ThemedText>
-        </>
-      ) : (
-        <ThemedText type="title">No camera</ThemedText>
-      )}
+      <Lens />
     </ParallaxScrollView>
   );
 }

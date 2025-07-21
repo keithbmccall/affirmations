@@ -1,5 +1,6 @@
 import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
 import { NotificationIdentifier, useNotificationsScheduler } from '@features/notifications';
+import { useGeneral } from '@platform';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors, globalStyles, spacing } from '@styles';
 import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
@@ -22,7 +23,7 @@ interface SchedulerProps {
     submitText: string;
     onSubmit: (values: { title: string; body: string; date: Date }) => void;
   };
-  notificationId: NotificationIdentifier;
+  notificationId?: NotificationIdentifier;
 }
 
 export const Scheduler = ({
@@ -37,10 +38,10 @@ export const Scheduler = ({
   const router = useRouter();
   const { schedulePushNotification, refreshPendingNotifications, cancelPushNotification } =
     useNotificationsScheduler();
+  const { isLoading, onSetLoading } = useGeneral();
   const [date, setDate] = useState<FormField<Date>>({ value: initialDate, error: '' });
   const [title, setTitle] = useState<FormField<string>>({ value: initialTitle, error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: initialBody, error: '' });
-  const [refreshing, setRefreshing] = useState(false);
 
   const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     if (selectedDate) {
@@ -83,7 +84,7 @@ export const Scheduler = ({
     }
 
     // Validate date (ensure it's in the future)
-    if (date.value <= new Date()) {
+    if (date.value < new Date()) {
       setDate({ ...date, error: 'Date must be in the future' });
       isValid = false;
     }
@@ -124,7 +125,7 @@ export const Scheduler = ({
   };
 
   const handleDelete = async () => {
-    await cancelPushNotification(notificationId);
+    if (notificationId) await cancelPushNotification(notificationId);
     router.back();
   };
 
@@ -132,18 +133,18 @@ export const Scheduler = ({
     title.value.trim() !== '' && message.value.trim() !== '' && date.value > new Date();
 
   const onRefresh = useCallback(async () => {
-    setRefreshing(true);
+    onSetLoading(true);
     setDate({ value: fiveMinutesFromNow, error: '' });
     await refreshPendingNotifications();
-    setTimeout(() => setRefreshing(false), 500); // Simulate async refresh
-  }, []);
+    setTimeout(() => onSetLoading(false), 500); // Simulate async refresh
+  }, [onSetLoading, refreshPendingNotifications]);
 
   return (
     <ScrollView
       style={styles.container}
       refreshControl={
         enableRefreshControl ? (
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
         ) : undefined
       }
     >

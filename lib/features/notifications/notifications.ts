@@ -2,7 +2,8 @@ import * as Notifications from 'expo-notifications';
 import { NotificationSounds } from './notification-sounds';
 import { NotificationData, NotificationIdentifier, NotificationWithData } from './types';
 
-export const getAllScheduledNotifications = async () =>
+type GetAllScheduledNotifications = () => Promise<NotificationWithData[]>;
+export const getAllScheduledNotifications: GetAllScheduledNotifications = async () =>
   (await Notifications.getAllScheduledNotificationsAsync()) as NotificationWithData[];
 
 type ScheduleNotification = (

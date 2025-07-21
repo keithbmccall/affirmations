@@ -34,6 +34,7 @@ export const ScheduleHistory = () => {
 
   const handleNotificationPress = useCallback(
     (identifier: NotificationIdentifier) => {
+      console.log('identifier', identifier);
       router.push({
         pathname: Routes.modals.notificationDetails.routePathname,
         params: { notificationId: identifier, page },
@@ -41,6 +42,8 @@ export const ScheduleHistory = () => {
     },
     [page]
   );
+
+  console.log({ historyNotifications, pendingNotifications });
 
   return (
     <ThemedView>

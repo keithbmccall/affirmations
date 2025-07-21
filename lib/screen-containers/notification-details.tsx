@@ -7,27 +7,62 @@ import {
   useNotificationsScheduler,
 } from '@features/notifications';
 import { useAffirmations } from '@platform';
-import { globalStyles, spacing } from '@styles';
+import { colors, globalStyles, spacing } from '@styles';
+import { getHumanReadableDate } from '@utils';
 import { useMemo } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native';
 import { ScreenContainerProps } from './types';
+
+interface NotificationDetailsDisplayProps {
+  body: string;
+  date: Date;
+}
+
+export const NotificationDetailsDisplay = ({ body, date }: NotificationDetailsDisplayProps) => {
+  const { month, day, time } = getHumanReadableDate(date);
+
+  return (
+    <ThemedView style={styles.detailsContainer}>
+      <ThemedView style={styles.fieldContainer}>
+        <ThemedText type="subtitle" style={styles.label}>
+          Message
+        </ThemedText>
+        <ThemedView style={styles.messageContainer}>
+          <ThemedText style={styles.messageText}>{body}</ThemedText>
+        </ThemedView>
+      </ThemedView>
+      <ThemedView style={styles.fieldContainer}>
+        <ThemedText type="subtitle" style={styles.label}>
+          Scheduled Date & Time
+        </ThemedText>
+        <ThemedView style={styles.dateContainer}>
+          <ThemedText style={styles.dateText}>{`${month} ${day}, ${time}`}</ThemedText>
+        </ThemedView>
+      </ThemedView>
+      <ThemedView style={styles.statusContainer}>
+        <ThemedText type="defaultSemiBold" style={styles.statusText}>
+          ✓ Notification Delivered
+        </ThemedText>
+      </ThemedView>
+    </ThemedView>
+  );
+};
 
 interface NotificationDetailsProps extends ScreenContainerProps {
   notificationId: NotificationIdentifier;
   page: 'PENDING' | 'HISTORY';
 }
+
 // TODO: Delete + Edit logic
 export const NotificationDetails = ({ notificationId, page }: NotificationDetailsProps) => {
-  const { bottom } = useSafeAreaInsets();
   const {
     notifications: { pendingNotifications, historyNotifications },
   } = useAffirmations();
-  const { editPushNotification, cancelPushNotification } = useNotificationsScheduler();
+  const { editPushNotification } = useNotificationsScheduler();
 
+  const isFromHistoryPage = page === SCHEDULE_HISTORY_PAGES.HISTORY;
   const notification = useMemo(() => {
-    const notifications =
-      page === SCHEDULE_HISTORY_PAGES.PENDING ? pendingNotifications : historyNotifications;
+    const notifications = isFromHistoryPage ? historyNotifications : pendingNotifications;
     return notifications.find(notification => notification.identifier === notificationId) as
       | NotificationWithData
       | HistoryNotification;
@@ -40,10 +75,6 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
   const initialDate = new Date(notification.content.data.triggerDate.time);
   const initialTitle = title ?? '';
   const initialBody = body ?? '';
-
-  const handleDelete = () => {
-    cancelPushNotification(identifier);
-  };
 
   const handleSubmit = (values: { title: string; body: string; date: Date }) => {
     editPushNotification({
@@ -59,20 +90,22 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
           {initialTitle}
         </ThemedText>
       </ThemedView>
-      <Scheduler
-        bodyLines={6}
-        enableRefreshControl={false}
-        initialBody={initialBody}
-        initialDate={initialDate}
-        initialTitle={initialTitle}
-        notificationId={notificationId}
-        submitProps={{ submitText: 'Edit Message', onSubmit: handleSubmit }}
-      />
+      {isFromHistoryPage ? (
+        <NotificationDetailsDisplay body={initialBody} date={initialDate} />
+      ) : (
+        <Scheduler
+          bodyLines={6}
+          enableRefreshControl={false}
+          initialBody={initialBody}
+          initialDate={initialDate}
+          initialTitle={initialTitle}
+          notificationId={notificationId}
+          submitProps={{ submitText: 'Edit Message', onSubmit: handleSubmit }}
+        />
+      )}
     </ThemedView>
   );
 };
-
-const { height: screenHeight } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -81,5 +114,47 @@ const styles = StyleSheet.create({
   titleContainer: {
     ...globalStyles.center,
     paddingVertical: spacing['2xl'],
+  },
+  detailsContainer: {
+    padding: spacing.screenPadding,
+  },
+  fieldContainer: {
+    marginBottom: spacing['3xl'],
+  },
+  label: {
+    marginBottom: spacing.sm,
+    color: colors.text.secondary,
+  },
+  messageContainer: {
+    borderRadius: spacing.borderRadius.md,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.ui.border,
+  },
+  messageText: {
+    fontSize: spacing.lg,
+    lineHeight: spacing['2xl'],
+  },
+  dateContainer: {
+    borderRadius: spacing.borderRadius.md,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.ui.border,
+    ...globalStyles.alignCenter,
+  },
+  dateText: {
+    fontSize: spacing.lg,
+    fontWeight: '600',
+  },
+  statusContainer: {
+    backgroundColor: colors.accent.green,
+    borderRadius: spacing.borderRadius.md,
+    padding: spacing.lg,
+    ...globalStyles.alignCenter,
+    marginTop: spacing.xl,
+  },
+  statusText: {
+    color: colors.human.white,
+    fontSize: spacing.lg,
   },
 });

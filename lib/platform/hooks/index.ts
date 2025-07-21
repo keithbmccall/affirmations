@@ -26,3 +26,12 @@ export const useLens = () => {
     ...lens,
   };
 };
+
+export const useGeneral = () => {
+  const { general, actions } = useStateContext();
+
+  return {
+    ...actions.general,
+    ...general,
+  };
+};

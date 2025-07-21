@@ -1,3 +1,4 @@
-export { affirmationsReducer } from './affirmations';
-export { lensReducer } from './lens';
-export { settingsReducer } from './settings';
+export * from './affirmations';
+export * from './general';
+export * from './lens';
+export * from './settings';

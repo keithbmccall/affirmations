@@ -5,22 +5,25 @@ import {
   Action,
   addHistoryNotification,
   AffirmationsActionsFunctions,
+  GeneralActionsFunctions,
   LensActionsFunctions,
   removeHistoryNotification,
   setHistoryNotifications,
+  setLoading,
   setName,
   setNotificationChannels,
   setNotificationToken,
   setPendingNotifications,
   SettingsActionsFunctions,
 } from './actions';
-import { affirmationsReducer, lensReducer, settingsReducer } from './reducers';
+import { affirmationsReducer, generalReducer, lensReducer, settingsReducer } from './reducers';
 import { initialState, StateType } from './state';
 
 export type StateContextActions = {
   settings: SettingsActionsFunctions;
   affirmations: AffirmationsActionsFunctions;
   lens: LensActionsFunctions;
+  general: GeneralActionsFunctions;
 };
 
 const initialActions: StateContextActions = {
@@ -36,6 +39,9 @@ const initialActions: StateContextActions = {
     onRemoveHistoryNotification: noop,
   },
   lens: {},
+  general: {
+    onSetLoading: noop,
+  },
 };
 
 export type StateContextType = StateType & {
@@ -55,6 +61,7 @@ const rootReducer = (state: StateType, action: Action): StateType => {
     settings: settingsReducer(state.settings, action),
     affirmations: affirmationsReducer(state.affirmations, action),
     lens: lensReducer(state.lens, action),
+    general: generalReducer(state.general, action),
   };
 };
 
@@ -76,12 +83,15 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
         onRemoveHistoryNotification: removeHistoryNotification(dispatch),
       },
       lens: {},
+      general: {
+        onSetLoading: setLoading(dispatch),
+      },
     }),
     []
   );
 
   useInitNotifications(providerActions, state);
-
+  console.log('state', state);
   return (
     <StateContext.Provider
       value={{
