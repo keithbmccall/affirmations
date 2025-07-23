@@ -1,18 +1,29 @@
-import { TouchableOpacity, type TouchableOpacityProps } from 'react-native';
+import { Pressable, type PressableProps } from 'react-native';
 
 import { useThemeColor } from '@styles';
 
-export type ThemedButtonProps = TouchableOpacityProps & {
+export type ThemedButtonProps = PressableProps & {
   lightColor?: string;
   darkColor?: string;
+  showPressFeedback?: boolean;
 };
 
-export function ThemedButton({ style, lightColor, darkColor, ...otherProps }: ThemedButtonProps) {
+export function ThemedButton({
+  style,
+  lightColor,
+  darkColor,
+  showPressFeedback = true,
+  ...otherProps
+}: ThemedButtonProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return (
-    <TouchableOpacity
-      style={[{ backgroundColor }, style]}
+    <Pressable
+      style={state => [
+        { backgroundColor },
+        typeof style === 'function' ? style(state) : style,
+        showPressFeedback && state.pressed && { opacity: 0.7 },
+      ]}
       accessibilityRole="button"
       {...otherProps}
     />

@@ -3,6 +3,7 @@ import {
   NotificationIdentifier,
   SCHEDULE_HISTORY_PAGES,
   ScheduleHistoryPages,
+  useNotificationsScheduler,
 } from '@features/notifications';
 import { useAffirmations } from '@platform';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -11,9 +12,8 @@ import { colors, globalStyles, spacing } from '@styles';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { NotificationRow } from './notification-row';
+import { NotificationRow } from './notification-row/notification-row';
 
-// TODO: swipe to delete logic
 export const ScheduleHistory = () => {
   const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
 
@@ -21,6 +21,8 @@ export const ScheduleHistory = () => {
   const {
     notifications: { pendingNotifications, historyNotifications },
   } = useAffirmations();
+
+  const { cancelPushNotification } = useNotificationsScheduler();
 
   const isPendingPage = page === SCHEDULE_HISTORY_PAGES.PENDING;
   const isHistoryPage = page === SCHEDULE_HISTORY_PAGES.HISTORY;
@@ -41,6 +43,18 @@ export const ScheduleHistory = () => {
       });
     },
     [page]
+  );
+
+  const handleNotificationDelete = useCallback(
+    async (identifier: NotificationIdentifier) => {
+      console.log('Deleting notification:', identifier);
+      try {
+        await cancelPushNotification(identifier);
+      } catch (error) {
+        console.error('Failed to delete notification:', error);
+      }
+    },
+    [cancelPushNotification]
   );
 
   console.log({ historyNotifications, pendingNotifications });
@@ -65,7 +79,11 @@ export const ScheduleHistory = () => {
       <FlatList
         data={notificationsByDate}
         renderItem={({ item }) => (
-          <NotificationRow notification={item} onPress={handleNotificationPress} />
+          <NotificationRow
+            notification={item}
+            onPress={handleNotificationPress}
+            onDelete={handleNotificationDelete}
+          />
         )}
         keyExtractor={item => item.identifier}
         contentContainerStyle={{ paddingBottom: bottomTabHeight * 2 }}
