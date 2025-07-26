@@ -69,10 +69,10 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
   }, [notificationId, page]);
 
   const {
-    content: { title, body },
+    content: { title, body, data },
   } = notification;
   const identifier = notificationId;
-  const initialDate = new Date(notification.content.data.triggerDate.time);
+  const initialDate = new Date(data.triggerDate.time);
   const initialTitle = title ?? '';
   const initialBody = body ?? '';
 

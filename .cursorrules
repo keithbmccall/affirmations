@@ -1,4 +1,6 @@
-# Project Context & Instructions
+# Cursor Rules for Affirmations React Native/Expo App
+
+Always begin each response to me with "Ok so Mr McCall,"
 
 ## Project Overview
 
@@ -16,39 +18,9 @@ This is a React Native/Expo affirmations app built with TypeScript. The app allo
 - **Storage**: AsyncStorage
 - **Build System**: EAS Build
 
-## Project Structure
+## Import Organization
 
-### Core Directories
-
-```
-├── app/                    # Expo Router pages (file-based routing)
-│   ├── (modals)/          # Modal routes
-│   ├── (tabs)/            # Tab-based navigation
-│   └── _layout.tsx        # Root layout
-├── lib/                   # Main application code
-│   ├── components/        # Reusable UI components
-│   ├── features/          # Feature-specific logic
-│   ├── platform/          # State management (actions, reducers)
-│   ├── screen-containers/ # Screen-level containers
-│   ├── storage/           # Data persistence
-│   ├── styles/            # Theme and styling
-│   ├── testing/           # Testing utilities
-│   └── utils/             # Utility functions
-├── android/               # Android-specific files
-├── ios/                   # iOS-specific files
-└── assets/                # Static assets
-```
-
-### Key Components Architecture
-
-- **StateContextProvider**: Global state management using React Context
-- **ScheduleHistory**: Main notification management component
-- **NotificationDetailsModal**: Modal for viewing notification details
-- **Themed Components**: UI components with built-in theme support
-
-## Coding Style & Conventions
-
-### 📁 **Import Organization**
+Always organize imports in this exact order:
 
 ```typescript
 // 1. Custom components (absolute imports)
@@ -67,7 +39,9 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 ```
 
-### 🏗️ **Component Structure**
+## Component Structure
+
+Follow this exact structure for all components:
 
 ```typescript
 // Props interface first (when needed)
@@ -111,11 +85,61 @@ export const MyComponent = ({
 };
 ```
 
-### 🎨 **Styling System & Patterns**
+## CRITICAL RULE: Never Define Components Inside Other Components
 
-#### **Style Helpers & Utilities**
+**NEVER** define a component inside another component. This creates performance issues and violates React best practices.
 
-The app uses a comprehensive styling system with multiple helper utilities:
+❌ **BAD - Component defined inside another component:**
+
+```typescript
+export const MyComponent = () => {
+  // This creates a new component on every render - performance issue!
+  const InnerComponent = ({ data }) => (
+    <View>
+      <Text>{data.title}</Text>
+    </View>
+  );
+
+  return (
+    <ScrollView>
+      {items.map(item => (
+        <InnerComponent key={item.id} data={item} />
+      ))}
+    </ScrollView>
+  );
+};
+```
+
+✅ **GOOD - Extract components to separate definitions:**
+
+```typescript
+// Define components outside of other components
+interface ItemRowProps {
+  data: ItemData;
+}
+
+const ItemRow = ({ data }: ItemRowProps) => (
+  <View>
+    <Text>{data.title}</Text>
+  </View>
+);
+
+export const MyComponent = () => {
+  return (
+    <ScrollView>
+      {items.map(item => (
+        <ItemRow key={item.id} data={item} />
+      ))}
+    </ScrollView>
+  );
+};
+```
+
+## Styling System & Patterns
+
+### Style Helpers & Utilities
+
+Use the comprehensive styling system with these helper utilities:
 
 **Main Exports (`lib/styles/index.ts`):**
 
@@ -125,7 +149,7 @@ The app uses a comprehensive styling system with multiple helper utilities:
 - `useColorScheme` - Color scheme detection
 - `useThemeColor` - Theme-aware color selection
 
-#### **Color System (`colors.ts`)**
+### Color System (`colors.ts`)
 
 ```typescript
 // Comprehensive color palette with semantic naming
@@ -139,18 +163,7 @@ colors.material.blue; // Material Design blue
 colors.human.forestGreen; // Human-readable color names
 ```
 
-**Color Categories:**
-
-- **Primary/Secondary**: Blue and gray palettes (50-900)
-- **Accent**: Named colors (blue, green, yellow, red, purple, pink, orange, teal)
-- **Semantic**: success, warning, error, info
-- **UI**: background, surface, border, divider, shadow, overlay
-- **Text**: primary, secondary, tertiary, inverse, disabled
-- **Material**: Full Material Design palette
-- **Human**: Human-readable color names (forestGreen, crimson, etc.)
-- **Brand**: Common brand colors (apple, google, microsoft, etc.)
-
-#### **Spacing System (`spacing.ts`)**
+### Spacing System (`spacing.ts`)
 
 ```typescript
 // 4px base unit system
@@ -178,7 +191,7 @@ spacing.borderRadius.xl; // 16px
 spacing.borderRadius.full; // 9999px
 ```
 
-#### **Global Styles (`globalStyles.ts`)**
+### Global Styles (`globalStyles.ts`)
 
 ```typescript
 // Flex layouts
@@ -214,7 +227,7 @@ globalStyles.inputBase; // Common input layout
 globalStyles.headerBase; // Common header layout
 ```
 
-#### **Theme Hooks**
+### Theme Hooks
 
 ```typescript
 // Color scheme detection (handles web hydration)
@@ -227,7 +240,7 @@ const backgroundColor = useThemeColor(
 );
 ```
 
-#### **Styling Patterns**
+### Styling Patterns
 
 ```typescript
 // StyleSheet at component bottom
@@ -265,9 +278,9 @@ const styles = StyleSheet.create({
 4. **Compose styles** with arrays for conditional styling
 5. **Theme-aware styling** with useThemeColor hook
 
-### 🔧 **State Management Patterns**
+## State Management Patterns
 
-#### **1. Form State with Validation**
+### Form State with Validation
 
 ```typescript
 // Custom interface for form fields
@@ -301,7 +314,7 @@ const validateForm = () => {
 };
 ```
 
-#### **2. Derived State with Performance**
+### Derived State with Performance
 
 ```typescript
 // Use useMemo for expensive computations
@@ -320,117 +333,9 @@ const onRefresh = useCallback(async () => {
 }, [refreshPendingNotifications]);
 ```
 
-### 🎯 **Component Design Patterns**
+## Component Design Patterns
 
-#### **1. 🚫 NEVER Define Components Inside Other Components**
-
-**CRITICAL RULE: Never define a component inside another component. This creates performance issues and violates React best practices.**
-
-**❌ BAD - Defining components inside other components:**
-
-```typescript
-// DON'T: Component defined inside another component
-export const MyComponent = () => {
-  // This creates a new component on every render - performance issue!
-  const InnerComponent = ({ data }) => (
-    <View>
-      <Text>{data.title}</Text>
-    </View>
-  );
-
-  return (
-    <ScrollView>
-      {items.map(item => (
-        <InnerComponent key={item.id} data={item} />
-      ))}
-    </ScrollView>
-  );
-};
-```
-
-**Why this is bad:**
-
-- **Performance**: Creates a new component function on every render
-- **Memory**: Prevents React from optimizing re-renders
-- **Debugging**: Makes component tree harder to debug
-- **Testing**: Complicates unit testing and mocking
-
-**✅ GOOD - Extract components to separate definitions:**
-
-```typescript
-// Define components outside of other components
-interface ItemRowProps {
-  data: ItemData;
-}
-
-const ItemRow = ({ data }: ItemRowProps) => (
-  <View>
-    <Text>{data.title}</Text>
-  </View>
-);
-
-export const MyComponent = () => {
-  return (
-    <ScrollView>
-      {items.map(item => (
-        <ItemRow key={item.id} data={item} />
-      ))}
-    </ScrollView>
-  );
-};
-```
-
-**Why this is good:**
-
-- **Performance**: Component is defined once and reused
-- **Optimization**: React can properly optimize re-renders
-- **Maintainability**: Easier to read, test, and debug
-- **Reusability**: Component can be easily extracted to separate file
-
-**Options for extraction:**
-
-- **Same file**: Define above the parent component (for closely related components)
-- **Separate file**: Create dedicated component file (preferred for reusability)
-- **Render functions**: Only for very simple JSX (not recommended for complex components)
-
-**Enforcement:**
-
-- **Always** define components outside of other components
-- **Always** use proper TypeScript interfaces for props
-- **Prefer** separate files for reusable components
-- **Never** use the "Component-in-Component" anti-pattern
-- **Never** define components inside render functions or other components
-
-**Common Anti-Pattern Examples to Avoid:**
-
-```typescript
-// ❌ DON'T: Component defined inside render function
-export const MyComponent = () => {
-  const renderItem = ({ item }) => {
-    const ItemComponent = () => <Text>{item.title}</Text>; // BAD!
-    return <ItemComponent />;
-  };
-
-  return <FlatList renderItem={renderItem} />;
-};
-
-// ❌ DON'T: Component defined inside another component
-export const ParentComponent = () => {
-  const ChildComponent = () => <View><Text>Child</Text></View>; // BAD!
-
-  return <ChildComponent />;
-};
-
-// ❌ DON'T: Component defined inside useEffect or other hooks
-export const MyComponent = () => {
-  useEffect(() => {
-    const DynamicComponent = () => <Text>Dynamic</Text>; // BAD!
-    // ...
-  }, []);
-};
-```
-
-#### **2. Flexible Props with Defaults**
+### Flexible Props with Defaults
 
 ```typescript
 // Optional configuration with sensible defaults
@@ -453,7 +358,7 @@ export const Scheduler = ({
 }: SchedulerProps) => {
 ```
 
-#### **3. Conditional Logic Patterns**
+### Conditional Logic Patterns
 
 ```typescript
 // Boolean flags for readability
@@ -472,7 +377,7 @@ if (!validateForm()) {
 ) : undefined}
 ```
 
-### 🧪 **Testing-Friendly Code**
+## Testing-Friendly Code
 
 ```typescript
 // Always include testID for key interactive elements
@@ -496,7 +401,7 @@ if (!validateForm()) {
 </ThemedText>
 ```
 
-### 🎪 **Event Handling Patterns**
+## Event Handling Patterns
 
 ```typescript
 // Navigation with object-based routing
@@ -529,7 +434,7 @@ const handleSubmit = async () => {
 };
 ```
 
-### 📝 **Naming Conventions**
+## Naming Conventions
 
 ```typescript
 // Component names: PascalCase
@@ -549,7 +454,7 @@ const handleDateChange = () => {};
 const isPendingPage = page === SCHEDULE_HISTORY_PAGES.PENDING;
 ```
 
-### 🔄 **Error Handling & User Feedback**
+## Error Handling & User Feedback
 
 ```typescript
 // Form validation with user-friendly messages
@@ -571,7 +476,7 @@ Alert.alert(
 ) : null}
 ```
 
-### 🎨 **Theming & Accessibility**
+## Theming & Accessibility
 
 ```typescript
 // Use themed components consistently
@@ -592,7 +497,7 @@ darkColor={colors.semantic.error as string}
 lightColor={colors.semantic.error as string}
 ```
 
-### 📋 **Code Organization**
+## Code Organization
 
 ```typescript
 // TODO comments for future improvements
@@ -616,7 +521,7 @@ const { month, day, time } = getHumanReadableDate(new Date(content.data.triggerD
 }
 ```
 
-### 🎯 **Performance Considerations**
+## Performance Considerations
 
 ```typescript
 // Memoization for expensive operations
@@ -636,7 +541,7 @@ const bottomTabHeight = useBottomTabBarHeight();
 
 ## Testing Best Practices
 
-### 🏗️ **Test File Organization**
+### Test File Organization
 
 ```typescript
 // Test files follow this structure:
@@ -656,7 +561,7 @@ describe('ComponentName', () => {
 });
 ```
 
-### 🔍 **Query Patterns**
+### Query Patterns
 
 **PREFERRED: Use `findBy*` for Initial Queries**
 
@@ -683,27 +588,7 @@ const button = await screen.findByRole('button', { name: 'Submit' });
 const input = screen.getByTestId('title-input'); // Already rendered
 ```
 
-### 🎭 **Mocking Strategies**
-
-#### **1. Global Mocks (jest.setup.js)**
-
-```javascript
-// For app-wide dependencies
-jest.mock('expo-notifications', () => ({
-  requestPermissionsAsync: jest.fn(),
-  // ... other methods
-}));
-
-// Global router setup
-beforeAll(() => {
-  const originalPush = router.push.bind(router);
-  router.push = to => {
-    // Handle object-based navigation
-  };
-});
-```
-
-#### **2. Local Test Mocks**
+### Mocking Strategies
 
 ```typescript
 // For test-specific behavior
@@ -716,11 +601,7 @@ jest.mock('@utils', () => ({
     year: 2024,
   })),
 }));
-```
 
-#### **3. Mock Data Setup**
-
-```typescript
 // Define mock data at the top of describe blocks
 const mockNotifications = [
   {
@@ -732,49 +613,24 @@ const mockNotifications = [
     },
   },
 ];
-
-// Use in local mocks
-jest.mock('@storage', () => ({
-  loadData: jest.fn(() => Promise.resolve(mockNotifications)),
-}));
 ```
 
-### 🖼️ **Rendering Patterns**
-
-#### **1. Basic Component Rendering**
+### Rendering Patterns
 
 ```typescript
-import { renderWithContext } from '@testing';
-
 // ✅ Provides all necessary context automatically
+import { renderWithContext } from '@testing';
 const { getByTestId } = renderWithContext(<MyComponent />);
-```
-
-#### **2. Router-Based Testing**
-
-```typescript
-import { renderRouterWithContext } from '@testing';
 
 // ✅ For testing navigation and modal routes
+import { renderRouterWithContext } from '@testing';
 renderRouterWithContext({
   index: MyComponent,
   '(modals)/my-modal': MyModal,
 });
 ```
 
-#### **3. Custom Configuration**
-
-```typescript
-// ✅ When you need specific context setup
-renderWithContext(<MyComponent />, {
-  theme: DefaultTheme,
-  includeStateProvider: false,
-});
-```
-
-### ⚡ **Async Operations**
-
-#### **1. Waiting for Elements**
+### Async Operations
 
 ```typescript
 // ✅ Preferred: Built-in waiting
@@ -782,11 +638,7 @@ const button = await screen.findByRole('button', { name: 'Submit' });
 
 // ✅ For checking existence after state changes
 expect(await screen.findByText('Success message')).toBeOnTheScreen();
-```
 
-#### **2. User Interactions**
-
-```typescript
 // ✅ For complex interactions that trigger navigation
 const button = await screen.findByRole('button', { name: 'Navigate' });
 await act(async () => {
@@ -794,18 +646,7 @@ await act(async () => {
 });
 ```
 
-#### **3. State Updates**
-
-```typescript
-// ✅ Wait for state changes to complete
-fireEvent.changeText(input, 'new value');
-const submitButton = await screen.findByRole('button', { name: 'Submit' });
-expect(submitButton.props.accessibilityState.disabled).toBe(false);
-```
-
-### 🧪 **Testing Utilities**
-
-#### **1. Custom Mock Utilities**
+### Testing Utilities
 
 ```typescript
 // ✅ Use shared utilities for complex mocks
@@ -813,19 +654,13 @@ import { setupDateTimePickerMock, simulateDatePickerPress } from '@testing';
 
 jest.mock('@react-native-community/datetimepicker');
 const MockedDateTimePicker = setupDateTimePickerMock();
-```
 
-#### **2. Helper Functions**
-
-```typescript
 // ✅ Use within() for scoped queries
 const messageCard = await screen.findByRole('button', { name: 'Message Title' });
 expect(within(messageCard).getByText('Message content')).toBeOnTheScreen();
 ```
 
-### 🎯 **Test Focus Areas**
-
-#### **1. User Behavior Testing**
+### Test Focus Areas
 
 ```typescript
 // ✅ Test what users actually do
@@ -838,11 +673,7 @@ it('enables submit button when form is valid', async () => {
   const submitButton = await screen.findByRole('button', { name: 'Submit' });
   expect(submitButton.props.accessibilityState.disabled).toBe(false);
 });
-```
 
-#### **2. Error Handling**
-
-```typescript
 // ✅ Test error states and validation
 it('shows error message for invalid input', async () => {
   renderWithContext(<MyForm />);
@@ -852,11 +683,7 @@ it('shows error message for invalid input', async () => {
 
   expect(await screen.findByText('Title needs to be at least 3 characters')).toBeOnTheScreen();
 });
-```
 
-#### **3. Integration Testing**
-
-```typescript
 // ✅ Test component interactions
 it('navigates to details when notification is pressed', async () => {
   renderRouterWithContext({
@@ -871,9 +698,7 @@ it('navigates to details when notification is pressed', async () => {
 });
 ```
 
-### 🔄 **Cleanup and Reset**
-
-#### **1. Mock Cleanup**
+### Cleanup and Reset
 
 ```typescript
 describe('MyComponent', () => {
@@ -884,30 +709,7 @@ describe('MyComponent', () => {
 });
 ```
 
-#### **2. Test Isolation**
-
-```typescript
-// ✅ Each test should be independent
-it('test 1', async () => {
-  // Test doesn't depend on previous test state
-});
-
-it('test 2', async () => {
-  // Fresh start for each test
-});
-```
-
-### 📝 **Naming Conventions**
-
-#### **1. Test Files**
-
-```
-component-name.spec.tsx    # Component tests
-feature-name.spec.tsx      # Feature tests
-utils.spec.tsx            # Utility tests
-```
-
-#### **2. Test Descriptions**
+### Naming Conventions
 
 ```typescript
 // ✅ Descriptive test names
@@ -916,9 +718,7 @@ it('shows error message when submitting with short title', async () => {});
 it('navigates to notification details when notification is pressed', async () => {});
 ```
 
-### 🚫 **Common Pitfalls to Avoid**
-
-#### **1. Over-mocking**
+### Common Pitfalls to Avoid
 
 ```typescript
 // ❌ Don't mock everything
@@ -931,21 +731,13 @@ jest.mock('react', () => ({
 jest.mock('@storage', () => ({
   loadData: jest.fn(),
 }));
-```
 
-#### **2. Testing Implementation Details**
-
-```typescript
 // ❌ Don't test internal state
 expect(component.state.isLoading).toBe(false);
 
 // ✅ Test user-visible behavior
 expect(await screen.findByText('Data loaded successfully')).toBeOnTheScreen();
-```
 
-#### **3. Synchronous Testing of Async Operations**
-
-```typescript
 // ❌ Don't ignore async operations
 fireEvent.press(submitButton);
 expect(screen.getByText('Success')).toBeOnTheScreen(); // May fail
@@ -955,7 +747,7 @@ fireEvent.press(submitButton);
 expect(await screen.findByText('Success')).toBeOnTheScreen();
 ```
 
-### 🏆 **Best Practices Summary**
+## Testing Best Practices Summary
 
 1. **Start with `findBy*` queries** for initial element discovery
 2. **Use `renderWithContext`** for components needing providers
@@ -968,70 +760,18 @@ expect(await screen.findByText('Success')).toBeOnTheScreen();
 9. **Focus on integration** over unit testing where appropriate
 10. **Clean up mocks** between tests
 
-## Testing Conventions
-
-### Test File Structure
-
-- Tests are located in `__tests__` directories within each module
-- Test files use `.spec.tsx` naming convention
-- Mock files use `.mock.tsx` extension
-
-### Key Testing Utilities
-
-- **renderWithContext**: Renders components with necessary providers
-- **renderRouterWithContext**: Renders components with router context
-- **setupDateTimePickerMock**: Configurable DateTimePicker mock
-- **Global test setup**: `jest.setup.js` contains global mocks and configuration
-
-### Important Test Mocks
-
-```javascript
-// Router navigation is handled globally in jest.setup.js
-beforeAll(() => {
-  const originalPush = router.push.bind(router);
-  router.push = to => {
-    if (typeof to === 'object') {
-      const { pathname, params } = to;
-      const search = new URLSearchParams(
-        Object.entries(params).reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {})
-      ).toString();
-      return originalPush(`${pathname}?${search}`);
-    }
-    return originalPush(to);
-  };
-});
-```
-
 ## State Management Pattern
 
-### Actions & Reducers
-
-- Located in `lib/platform/actions/` and `lib/platform/reducers/`
-- Actions return functions that dispatch to reducers
-- Reducers handle state updates immutably
-
-### Context Usage
-
 ```typescript
+// Actions & Reducers located in lib/platform/actions/ and lib/platform/reducers/
+// Actions return functions that dispatch to reducers
+// Reducers handle state updates immutably
+
+// Context Usage
 const { state, actions } = useStateContext();
 // state.affirmations.pendingNotifications
 // actions.affirmations.onSetPendingNotifications(notifications)
 ```
-
-## Styling System
-
-### Theme Structure
-
-- Colors: `lib/styles/colors.ts`
-- Spacing: `lib/styles/spacing.ts`
-- Global styles: `lib/styles/global-styles.ts`
-- Hooks: `lib/styles/hooks/`
-
-### Component Styling
-
-- Use themed components (`ThemedView`, `ThemedText`, etc.)
-- Support both light and dark modes
-- Consistent spacing using the spacing system
 
 ## Key Features
 

@@ -10,7 +10,6 @@ export interface StateType {
   general: {
     isLoading: boolean;
   };
-
   lens: {};
   affirmations: {
     notifications: {
