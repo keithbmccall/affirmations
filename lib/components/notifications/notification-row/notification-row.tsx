@@ -70,12 +70,8 @@ export const NotificationRow = ({ notification, onPress, onDelete }: Notificatio
   );
 
   const handleDelete = () => {
-    console.log('Delete notification with identifier:', identifier);
-    // TODO: Add "are you sure..." confirmation question
-    // if (onDelete) {
-    //   onDelete(identifier);
-    // }
-    // Close the swipe with smooth animation
+    onDelete?.(identifier);
+
     translateX.value = withSpring(0, NOTIFICATION_ROW_CONFIG.spring, () => {
       runOnJS(setIsSwipeOpen)(false);
     });
@@ -96,6 +92,8 @@ export const NotificationRow = ({ notification, onPress, onDelete }: Notificatio
   };
 
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-10, 10]) // Only activate after 10px horizontal movement
+    .failOffsetY([-20, 20]) // Fail if vertical movement exceeds 20px
     .onBegin(() => {
       'worklet';
       isGestureActive.value = true;
@@ -103,7 +101,7 @@ export const NotificationRow = ({ notification, onPress, onDelete }: Notificatio
     })
     .onUpdate(event => {
       'worklet';
-
+      console.log(event);
       // Calculate new position from gesture start + current translation
       translateX.value = Math.max(
         Math.min(gestureStartX.value + event.translationX, NOTIFICATION_ROW_CONFIG.rightEdge),

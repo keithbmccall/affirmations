@@ -36,7 +36,7 @@ export const ScheduleHistory = () => {
 
   const handleNotificationPress = useCallback(
     (identifier: NotificationIdentifier) => {
-      console.log('identifier', identifier);
+      // console.log('identifier', identifier);
       router.push({
         pathname: Routes.modals.notificationDetails.routePathname,
         params: { notificationId: identifier, page },
@@ -47,17 +47,18 @@ export const ScheduleHistory = () => {
 
   const handleNotificationDelete = useCallback(
     async (identifier: NotificationIdentifier) => {
-      console.log('Deleting notification:', identifier);
+      // console.log('Deleting notification:', identifier);
+
       try {
         await cancelPushNotification(identifier);
       } catch (error) {
         console.error('Failed to delete notification:', error);
       }
     },
-    [cancelPushNotification]
+    [cancelPushNotification, isPendingPage]
   );
 
-  console.log({ historyNotifications, pendingNotifications });
+  // console.log({ historyNotifications, pendingNotifications });
 
   return (
     <ThemedView>

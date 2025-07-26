@@ -15,9 +15,7 @@ export const useNotificationsScheduler = () => {
   const refreshPendingNotifications = useCallback(async () => {
     try {
       const pendingNotifications = await getAllScheduledNotifications();
-      console.log({
-        pendingNotifications,
-      });
+      console.log('refreshing pending notifications', pendingNotifications);
       onSetPendingNotifications(pendingNotifications);
     } catch (e: unknown) {
       catchError(e, `Failed to refresh pending notifications`, 'refreshPendingNotifications');
@@ -70,8 +68,9 @@ export const useNotificationsScheduler = () => {
     [refreshPendingNotifications, onAddHistoryNotification]
   );
 
-  const cancelPushNotification = useCallback(
-    async (identifier: string) => {
+  type CancelPushNotification = (identifier: string) => Promise<void>;
+  const cancelPushNotification: CancelPushNotification = useCallback(
+    async identifier => {
       try {
         await cancelScheduledNotification(identifier);
         onRemoveHistoryNotification(identifier);
