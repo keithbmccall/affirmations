@@ -33,3 +33,12 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# tripz
+.idea
+.idea/*
+.husky
+.husky/*
+keychain
+keychain/*
+.yarn
