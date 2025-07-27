@@ -13,7 +13,8 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "nuke": "rm -rf node_modules .jest-cache coverage && npm i",
     "nuke:start": "npm run nuke && npm run recharge && npm run ios",
-    "recharge": "npm i;npx expo install;npx expo prebuild",
+    "podpod": "cd ios && pod install && cd ..",
+    "recharge": "npm i;npx expo install;npm run podpod;npx expo prebuild",
     "test:all": "jest --watchAll",
     "test": "jest",
     "preinstall": "corepack enable"
@@ -32,7 +33,9 @@
     "expo-font": "13.3.1",
     "expo-haptics": "14.1.4",
     "expo-image": "2.3.0",
+    "expo-image-picker": "16.1.4",
     "expo-linking": "7.1.5",
+    "expo-media-library": "17.1.7",
     "expo-notifications": "0.31.3",
     "expo-router": "5.1.1",
     "expo-splash-screen": "0.30.9",
@@ -50,8 +53,7 @@
     "react-native-vision-camera": "4.7.0",
     "react-native-web": "0.20.0",
     "react-native-webview": "13.13.5",
-    "react-native-worklets-core": "1.5.0",
-    "expo-image-picker": "~16.1.4"
+    "react-native-worklets-core": "1.5.0"
   },
   "devDependencies": {
     "@babel/core": "7.27.7",
