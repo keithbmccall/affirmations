@@ -1,6 +1,6 @@
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { colors, globalStyles, spacing } from '@styles';
-import { createAssetAsync, usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
+import { createAssetAsync } from 'expo-media-library';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -10,8 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
   useCameraDevice,
-  useCameraPermission,
-  useMicrophonePermission,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
 import {
@@ -23,20 +21,14 @@ import {
 } from './camera-options';
 import { useCameraFocus } from './use-camera-focus';
 import { useCameraRoll } from './use-camera-roll';
+import { useLensPermissions } from './use-lens-permissions';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
 
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
-  // Camera setup
-  const { hasPermission: cameraPermission, requestPermission: requestCameraPermission } =
-    useCameraPermission();
-  const [mediaLibraryPermissionStatus, requestMediaLibraryPermission] =
-    useMediaLibraryPermissions();
-  const mediaLibraryPermission = Boolean(mediaLibraryPermissionStatus?.granted);
-  const { hasPermission: microphonePermission, requestPermission: requestMicrophonePermission } =
-    useMicrophonePermission();
+  const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
 
   // State management
@@ -111,41 +103,6 @@ export const Camera = ({}: CameraProps) => {
   const handleBackPress = useCallback(() => {
     router.back();
   }, []);
-
-  // Request permissions on mount
-  useEffect(() => {
-    const requestPermissions = async () => {
-      try {
-        // Request camera permission if not granted
-        if (!cameraPermission) {
-          await requestCameraPermission();
-        }
-
-        // Request microphone permission if not granted
-        if (!microphonePermission) {
-          await requestMicrophonePermission();
-        }
-
-        if (!mediaLibraryPermission) {
-          await requestMediaLibraryPermission();
-        }
-      } catch (error) {
-        console.error('Permission request failed:', error);
-        Alert.alert(
-          'Permissions Required',
-          'Camera and microphone and media library permissions are required to use this feature.',
-          [{ text: 'OK' }]
-        );
-      }
-    };
-
-    requestPermissions();
-  }, [
-    cameraPermission,
-    microphonePermission,
-    requestCameraPermission,
-    requestMicrophonePermission,
-  ]);
 
   // Fetch recent photo when permissions are granted
   useEffect(() => {
