@@ -1,17 +1,24 @@
 import { Camera } from '@components/lens';
+import { globalStyles } from '@styles';
 import { StatusBar } from 'expo-status-bar';
+import { StyleSheet } from 'react-native';
 import { ThemedView } from '../components/shared';
 import { ScreenContainerProps } from './types';
 
 interface LensProps extends ScreenContainerProps {}
-
 const Lens = ({ statusBarProps }: LensProps) => {
   return (
-    <ThemedView style={{ flex: 1 }}>
+    <ThemedView style={styles.container}>
       <StatusBar {...statusBarProps} />
-      <Camera statusBarProps={statusBarProps} />
+      <Camera />
     </ThemedView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    ...globalStyles.flex1,
+  },
+});
 
 export default Lens;

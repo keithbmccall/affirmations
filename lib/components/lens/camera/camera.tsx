@@ -1,15 +1,13 @@
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync, usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
-import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import Animated, { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
-  Point,
   useCameraDevice,
   useCameraPermission,
   useMicrophonePermission,
@@ -22,15 +20,13 @@ import {
   CameraMode,
   flashModeOptions,
 } from './camera-options';
-
-interface CameraProps {
-  statusBarProps?: any;
-}
+import { useCameraFocus } from './use-camera-focus';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
 
-export const Camera = ({ statusBarProps }: CameraProps) => {
+interface CameraProps {}
+export const Camera = ({}: CameraProps) => {
   // Camera setup
   const { hasPermission: cameraPermission, requestPermission: requestCameraPermission } =
     useCameraPermission();
@@ -47,7 +43,6 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
   const [showGrid, setShowGrid] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [zoom, setZoom] = useState(1);
-  const [showFocusIndicator, setShowFocusIndicator] = useState(false);
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
@@ -144,19 +139,16 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
   }, []);
 
-  const focusCamera = useCallback((point: Point) => {
-    camera.current?.focus(point);
-  }, []);
+  const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
     console.log({ x, y });
-    runOnJS(focusCamera)({ x, y });
+    runOnJS(handleTap)(x, y);
   });
 
   if (!device || !hasAllPermissions) {
     return (
       <ThemedView style={styles.container}>
-        <StatusBar {...statusBarProps} />
         <ThemedText type="title" style={styles.errorText}>
           {!device ? 'No camera available' : 'Camera permission required'}
         </ThemedText>
@@ -166,12 +158,10 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
 
   return (
     <ThemedView style={styles.container}>
-      <StatusBar {...statusBarProps} />
-
       {/* Camera view */}
       <ThemedView style={styles.cameraContainer}>
         <GestureDetector gesture={gesture}>
-          <>
+          <View style={{ ...globalStyles.flex1 }}>
             <VisionCamera
               ref={camera}
               style={StyleSheet.absoluteFill}
@@ -195,21 +185,11 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
                 </ThemedView>
               </>
             )}
-          </>
+          </View>
         </GestureDetector>
 
         {/* ===== FOCUS INDICATOR SECTION ===== */}
-        {showFocusIndicator && (
-          <ThemedView
-            style={[
-              styles.focusIndicator,
-              {
-                left: `${focus.x * 100}%`,
-                top: `${focus.y * 100}%`,
-              },
-            ]}
-          />
-        )}
+        <Animated.View style={[styles.focusIndicator, focusIndicatorAnimatedStyle]} />
 
         {/* ===== ZOOM INDICATOR SECTION ===== */}
         <ThemedView style={styles.zoomIndicator}>
@@ -381,14 +361,17 @@ const styles = StyleSheet.create({
   },
   focusIndicator: {
     position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 80,
+    height: 80,
+    borderRadius: 8,
     borderWidth: 2,
-    borderColor: 'yellow',
+    borderColor: colors.human.white,
     backgroundColor: 'transparent',
     zIndex: 6,
-    transform: [{ translateX: -30 }, { translateY: -30 }],
+    shadowColor: colors.human.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
   },
   zoomIndicator: {
     position: 'absolute',
