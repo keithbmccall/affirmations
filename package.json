@@ -11,7 +11,7 @@
     "lint": "expo lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "nuke": "rm -rf node_modules .jest-cache coverage && npm i",
+    "nuke": "rm -rf node_modules .jest-cache coverage && watchman watch-del '/Users/keithmccall/WebstormProjects/affirmations' ; watchman watch-project '/Users/keithmccall/WebstormProjects/affirmations' && npm i",
     "nuke:start": "npm run nuke && npm run recharge && npm run ios",
     "podpod": "cd ios && pod install && cd ..",
     "recharge": "npm i;npx expo install;npm run podpod;npx expo prebuild",
