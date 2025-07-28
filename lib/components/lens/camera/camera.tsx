@@ -4,9 +4,12 @@ import { createAssetAsync, usePermissions as useMediaLibraryPermissions } from '
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
+  Point,
   useCameraDevice,
   useCameraPermission,
   useMicrophonePermission,
@@ -34,9 +37,7 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
   const [mediaLibraryPermissionStatus, requestMediaLibraryPermission] =
     useMediaLibraryPermissions();
   const insets = useSafeAreaInsets();
-  console.log({
-    insets,
-  });
+
   // State management
   const [cameraMode, setCameraMode] = useState<CameraMode>(CAMERA_MODE.PHOTO);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
@@ -46,7 +47,6 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
   const [showGrid, setShowGrid] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [zoom, setZoom] = useState(1);
-  const [focus, setFocus] = useState({ x: 0.5, y: 0.5 });
   const [showFocusIndicator, setShowFocusIndicator] = useState(false);
 
   const device = useCameraDevice(cameraPosition, {
@@ -144,24 +144,14 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
   }, []);
 
-  const handleZoomChange = useCallback((newZoom: number) => {
-    setZoom(Math.max(0.5, Math.min(5, newZoom)));
+  const focusCamera = useCallback((point: Point) => {
+    camera.current?.focus(point);
   }, []);
 
-  const handleCameraPress = useCallback((event: any) => {
-    const { locationX, locationY } = event.nativeEvent;
-    // Focus logic can be implemented here
-    setFocus({
-      x: locationX / 100,
-      y: locationY / 100,
-    });
-    setShowFocusIndicator(true);
-
-    // Hide focus indicator after 2 seconds
-    setTimeout(() => {
-      setShowFocusIndicator(false);
-    }, 2000);
-  }, []);
+  const gesture = Gesture.Tap().onEnd(({ x, y }) => {
+    console.log({ x, y });
+    runOnJS(focusCamera)({ x, y });
+  });
 
   if (!device || !hasAllPermissions) {
     return (
@@ -180,37 +170,33 @@ export const Camera = ({ statusBarProps }: CameraProps) => {
 
       {/* Camera view */}
       <ThemedView style={styles.cameraContainer}>
-        <VisionCamera
-          ref={camera}
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={hasAllPermissions}
-          photo={true}
-          video={true}
-          audio={true}
-          zoom={zoom}
-        />
-
-        {/* Touchable overlay for focus */}
-        <TouchableOpacity
-          style={StyleSheet.absoluteFill}
-          onPress={handleCameraPress}
-          activeOpacity={1}
-        />
-
-        {/* ===== GRID OVERLAY SECTION ===== */}
-        {showGrid && (
+        <GestureDetector gesture={gesture}>
           <>
-            <ThemedView style={styles.gridOverlayColumn}>
-              <Divider />
-              <Divider />
-            </ThemedView>
-            <ThemedView style={styles.gridOverlayRow}>
-              <Divider vertical />
-              <Divider vertical />
-            </ThemedView>
+            <VisionCamera
+              ref={camera}
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={hasAllPermissions}
+              photo={true}
+              video={true}
+              audio={true}
+              zoom={zoom}
+            />
+            {/* ===== GRID OVERLAY SECTION ===== */}
+            {showGrid && (
+              <>
+                <ThemedView style={styles.gridOverlayColumn}>
+                  <Divider />
+                  <Divider />
+                </ThemedView>
+                <ThemedView style={styles.gridOverlayRow}>
+                  <Divider vertical />
+                  <Divider vertical />
+                </ThemedView>
+              </>
+            )}
           </>
-        )}
+        </GestureDetector>
 
         {/* ===== FOCUS INDICATOR SECTION ===== */}
         {showFocusIndicator && (
@@ -382,23 +368,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   gridOverlayColumn: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 5,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.human.transparent,
     ...globalStyles.flexColumn,
     ...globalStyles.justifyEvenly,
   },
   gridOverlayRow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 5,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.human.transparent,
     ...globalStyles.flexRow,
     ...globalStyles.justifyEvenly,
