@@ -1,6 +1,7 @@
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync, usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -139,6 +140,10 @@ export const Camera = ({}: CameraProps) => {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
   }, []);
 
+  const handleBackPress = useCallback(() => {
+    router.back();
+  }, []);
+
   const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
@@ -191,10 +196,13 @@ export const Camera = ({}: CameraProps) => {
         {/* ===== FOCUS INDICATOR SECTION ===== */}
         <Animated.View style={[styles.focusIndicator, focusIndicatorAnimatedStyle]} />
 
-        {/* ===== ZOOM INDICATOR SECTION ===== */}
-        <ThemedView style={styles.zoomIndicator}>
-          <ThemedText style={styles.zoomText}>{zoom.toFixed(1)}x</ThemedText>
-        </ThemedView>
+        {/* ===== BACK BUTTON SECTION ===== */}
+        <TouchableOpacity
+          style={[styles.backButton, { top: insets.top }]}
+          onPress={handleBackPress}
+        >
+          <ThemedText style={styles.backButtonIcon}>←</ThemedText>
+        </TouchableOpacity>
       </ThemedView>
 
       {/* ===== TOP CONTROLS SECTION ===== */}
@@ -261,7 +269,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   topControls: {
-    position: 'absolute',
+    ...globalStyles.absolute,
     right: 0,
     ...globalStyles.flex1,
     gap: spacing.lg,
@@ -281,25 +289,6 @@ const styles = StyleSheet.create({
     color: colors.human.white,
     fontSize: 20,
   },
-  modeSelector: {
-    position: 'absolute',
-    top: spacing.screenPadding + 60,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  modeButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginHorizontal: spacing.xs,
-    borderRadius: spacing.borderRadius.md,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modeButtonActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
   modeButtonText: {
     color: 'white',
     fontSize: 12,
@@ -308,7 +297,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   bottomControls: {
-    position: 'absolute',
+    ...globalStyles.absolute,
     bottom: spacing.screenPadding,
     left: 0,
     right: 0,
@@ -360,7 +349,7 @@ const styles = StyleSheet.create({
     ...globalStyles.justifyEvenly,
   },
   focusIndicator: {
-    position: 'absolute',
+    ...globalStyles.absolute,
     width: 80,
     height: 80,
     borderRadius: 8,
@@ -373,19 +362,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 4,
   },
-  zoomIndicator: {
-    position: 'absolute',
-    top: spacing.screenPadding + 120,
-    left: spacing.screenPadding,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.borderRadius.md,
+  backButton: {
+    ...globalStyles.absolute,
+    left: 0,
+    marginHorizontal: spacing['2xl'],
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.human.semiTransparent,
+    ...globalStyles.justifyCenter,
+    ...globalStyles.alignCenter,
     zIndex: 10,
+    paddingTop: 5,
   },
-  zoomText: {
-    color: 'white',
-    fontSize: 14,
+  backButtonIcon: {
+    color: colors.human.white,
+    fontSize: 24,
     fontWeight: 'bold',
   },
 });
