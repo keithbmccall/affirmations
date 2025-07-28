@@ -1,11 +1,6 @@
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { colors, globalStyles, spacing } from '@styles';
-import * as ImagePicker from 'expo-image-picker';
-import {
-  createAssetAsync,
-  getAssetsAsync,
-  usePermissions as useMediaLibraryPermissions,
-} from 'expo-media-library';
+import { createAssetAsync, usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -27,6 +22,7 @@ import {
   flashModeOptions,
 } from './camera-options';
 import { useCameraFocus } from './use-camera-focus';
+import { useCameraRoll } from './use-camera-roll';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -38,6 +34,7 @@ export const Camera = ({}: CameraProps) => {
     useCameraPermission();
   const [mediaLibraryPermissionStatus, requestMediaLibraryPermission] =
     useMediaLibraryPermissions();
+  const mediaLibraryPermission = Boolean(mediaLibraryPermissionStatus?.granted);
   const { hasPermission: microphonePermission, requestPermission: requestMicrophonePermission } =
     useMicrophonePermission();
   const insets = useSafeAreaInsets();
@@ -49,7 +46,6 @@ export const Camera = ({}: CameraProps) => {
   const [flashMode, setFlashMode] = useState<number>(0);
   const [isRecording, setIsRecording] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
-  const [recentPhoto, setRecentPhoto] = useState<string | null>(null);
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
@@ -59,89 +55,12 @@ export const Camera = ({}: CameraProps) => {
 
   const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
-  // Fetch most recent photo from library
-  const fetchRecentPhoto = useCallback(async () => {
-    try {
-      if (mediaLibraryPermissionStatus?.granted) {
-        const result = await getAssetsAsync({
-          first: 1,
-          mediaType: 'photo',
-          sortBy: ['creationTime'],
-        });
-
-        if (result.assets.length > 0) {
-          setRecentPhoto(result.assets[0].uri);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching recent photo:', error);
-    }
-  }, [mediaLibraryPermissionStatus?.granted]);
-
-  // Open camera roll/photo library
-  const handleCameraRollPress = useCallback(async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'images',
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        // Handle selected image - you can add your logic here
-        Alert.alert('Image Selected', `Selected: ${result.assets[0].uri}`);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to open camera roll');
-    }
-  }, []);
-
-  // Request permissions on mount
-  useEffect(() => {
-    const requestPermissions = async () => {
-      try {
-        // Request camera permission if not granted
-        if (!cameraPermission) {
-          await requestCameraPermission();
-        }
-
-        // Request microphone permission if not granted
-        if (!microphonePermission) {
-          await requestMicrophonePermission();
-        }
-
-        if (!mediaLibraryPermissionStatus?.granted) {
-          await requestMediaLibraryPermission();
-        }
-      } catch (error) {
-        console.error('Permission request failed:', error);
-        Alert.alert(
-          'Permissions Required',
-          'Camera and microphone and media library permissions are required to use this feature.',
-          [{ text: 'OK' }]
-        );
-      }
-    };
-
-    requestPermissions();
-  }, [
-    cameraPermission,
-    microphonePermission,
-    requestCameraPermission,
-    requestMicrophonePermission,
-  ]);
-
-  // Fetch recent photo when permissions are granted
-  useEffect(() => {
-    if (mediaLibraryPermissionStatus?.granted) {
-      fetchRecentPhoto();
-    }
-  }, [mediaLibraryPermissionStatus?.granted, fetchRecentPhoto]);
-
+  const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
+  const { animatedPhotoStyle, handleCameraRollPress, fetchRecentPhoto, recentPhoto } =
+    useCameraRoll(hasAllPermissions);
   // Derived state
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
-  const hasAllPermissions = cameraPermission && microphonePermission;
 
   // Camera controls
   const handleCapture = useCallback(async () => {
@@ -173,7 +92,7 @@ export const Camera = ({}: CameraProps) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
     }
-  }, [camera, isVideoMode, isRecording, flashMode]);
+  }, [camera, isVideoMode, isRecording, flashMode, fetchRecentPhoto]);
 
   const handleFlashToggle = useCallback(() => {
     setFlashMode(prev => (prev + 1) % flashModeOptionsLength);
@@ -192,6 +111,48 @@ export const Camera = ({}: CameraProps) => {
   const handleBackPress = useCallback(() => {
     router.back();
   }, []);
+
+  // Request permissions on mount
+  useEffect(() => {
+    const requestPermissions = async () => {
+      try {
+        // Request camera permission if not granted
+        if (!cameraPermission) {
+          await requestCameraPermission();
+        }
+
+        // Request microphone permission if not granted
+        if (!microphonePermission) {
+          await requestMicrophonePermission();
+        }
+
+        if (!mediaLibraryPermission) {
+          await requestMediaLibraryPermission();
+        }
+      } catch (error) {
+        console.error('Permission request failed:', error);
+        Alert.alert(
+          'Permissions Required',
+          'Camera and microphone and media library permissions are required to use this feature.',
+          [{ text: 'OK' }]
+        );
+      }
+    };
+
+    requestPermissions();
+  }, [
+    cameraPermission,
+    microphonePermission,
+    requestCameraPermission,
+    requestMicrophonePermission,
+  ]);
+
+  // Fetch recent photo when permissions are granted
+  useEffect(() => {
+    if (mediaLibraryPermission) {
+      fetchRecentPhoto();
+    }
+  }, [mediaLibraryPermission, fetchRecentPhoto]);
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
     console.log({ x, y });
@@ -294,7 +255,12 @@ export const Camera = ({}: CameraProps) => {
         {/* Camera Roll Button */}
         <TouchableOpacity style={styles.cameraRollButton} onPress={handleCameraRollPress}>
           {recentPhoto ? (
-            <Image source={{ uri: recentPhoto }} style={styles.cameraRollPreview} />
+            <Animated.View
+              key={recentPhoto} // Force new component instance
+              style={[styles.cameraRollPreviewContainer, animatedPhotoStyle]}
+            >
+              <Image source={{ uri: recentPhoto }} style={styles.cameraRollPreview} />
+            </Animated.View>
           ) : (
             <ThemedText style={styles.cameraRollIcon}>📷</ThemedText>
           )}
@@ -456,6 +422,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.human.white,
     overflow: 'hidden',
+  },
+  cameraRollPreviewContainer: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 6,
   },
   cameraRollPreview: {
     width: '100%',
