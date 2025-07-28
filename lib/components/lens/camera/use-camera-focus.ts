@@ -13,7 +13,6 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => {
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Focus animation shared values
   const focusX = useSharedValue(0);
   const focusY = useSharedValue(0);
   const focusScale = useSharedValue(0);
@@ -25,7 +24,6 @@ export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => 
 
   const handleFocusTap = useCallback(
     (x: number, y: number) => {
-      // Clear any existing focus timeout
       if (focusTimeoutRef.current) {
         clearTimeout(focusTimeoutRef.current);
         focusTimeoutRef.current = null;
@@ -61,14 +59,12 @@ export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => 
     [focusCamera, focusX, focusY, focusScale, focusOpacity]
   );
   // Animated style for focus indicator
-  const focusIndicatorAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      left: `${focusX.value * 100}%`,
-      top: `${focusY.value * 100}%`,
-      opacity: focusOpacity.value,
-      transform: [{ translateX: -40 }, { translateY: -40 }, { scale: focusScale.value }],
-    };
-  });
+  const focusIndicatorAnimatedStyle = useAnimatedStyle(() => ({
+    left: `${focusX.value * 100}%`,
+    top: `${focusY.value * 100}%`,
+    opacity: focusOpacity.value,
+    transform: [{ translateX: -40 }, { translateY: -40 }, { scale: focusScale.value }],
+  }));
 
   return { handleFocusTap, focusIndicatorAnimatedStyle };
 };

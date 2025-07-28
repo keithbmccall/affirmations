@@ -1,9 +1,14 @@
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { colors, globalStyles, spacing } from '@styles';
-import { createAssetAsync, usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
+import * as ImagePicker from 'expo-image-picker';
+import {
+  createAssetAsync,
+  getAssetsAsync,
+  usePermissions as useMediaLibraryPermissions,
+} from 'expo-media-library';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -33,25 +38,63 @@ export const Camera = ({}: CameraProps) => {
     useCameraPermission();
   const [mediaLibraryPermissionStatus, requestMediaLibraryPermission] =
     useMediaLibraryPermissions();
+  const { hasPermission: microphonePermission, requestPermission: requestMicrophonePermission } =
+    useMicrophonePermission();
   const insets = useSafeAreaInsets();
 
   // State management
+  const [cameraDevice, setCameraDevice] = useState<number>(0);
   const [cameraMode, setCameraMode] = useState<CameraMode>(CAMERA_MODE.PHOTO);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
   const [flashMode, setFlashMode] = useState<number>(0);
-  const [cameraDevice, setCameraDevice] = useState<number>(0);
-
-  const [showGrid, setShowGrid] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [zoom, setZoom] = useState(1);
+  const [showGrid, setShowGrid] = useState(false);
+  const [recentPhoto, setRecentPhoto] = useState<string | null>(null);
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
   });
 
-  const { hasPermission: microphonePermission, requestPermission: requestMicrophonePermission } =
-    useMicrophonePermission();
   const camera = useRef<VisionCamera>(null);
+
+  const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
+
+  // Fetch most recent photo from library
+  const fetchRecentPhoto = useCallback(async () => {
+    try {
+      if (mediaLibraryPermissionStatus?.granted) {
+        const result = await getAssetsAsync({
+          first: 1,
+          mediaType: 'photo',
+          sortBy: ['creationTime'],
+        });
+
+        if (result.assets.length > 0) {
+          setRecentPhoto(result.assets[0].uri);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching recent photo:', error);
+    }
+  }, [mediaLibraryPermissionStatus?.granted]);
+
+  // Open camera roll/photo library
+  const handleCameraRollPress = useCallback(async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: 'images',
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        // Handle selected image - you can add your logic here
+        Alert.alert('Image Selected', `Selected: ${result.assets[0].uri}`);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to open camera roll');
+    }
+  }, []);
 
   // Request permissions on mount
   useEffect(() => {
@@ -88,6 +131,13 @@ export const Camera = ({}: CameraProps) => {
     requestMicrophonePermission,
   ]);
 
+  // Fetch recent photo when permissions are granted
+  useEffect(() => {
+    if (mediaLibraryPermissionStatus?.granted) {
+      fetchRecentPhoto();
+    }
+  }, [mediaLibraryPermissionStatus?.granted, fetchRecentPhoto]);
+
   // Derived state
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
@@ -117,9 +167,8 @@ export const Camera = ({}: CameraProps) => {
         const photo = await camera.current.takePhoto({
           flash: flashModeOptions[flashMode].value,
         });
-        const asset = await createAssetAsync(photo.path);
-        console.log('asset', asset);
-        Alert.alert('Photo taken', `Photo saved to: ${photo.path}`);
+        await createAssetAsync(photo.path);
+        fetchRecentPhoto();
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
@@ -143,8 +192,6 @@ export const Camera = ({}: CameraProps) => {
   const handleBackPress = useCallback(() => {
     router.back();
   }, []);
-
-  const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
     console.log({ x, y });
@@ -175,7 +222,6 @@ export const Camera = ({}: CameraProps) => {
               photo={true}
               video={true}
               audio={true}
-              zoom={zoom}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
             {showGrid && (
@@ -219,9 +265,11 @@ export const Camera = ({}: CameraProps) => {
           <ThemedText style={styles.topButtonIcon}>🔄</ThemedText>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.topButton} onPress={handleCameraDeviceToggle}>
-          <ThemedText style={styles.topButtonIcon}>💿</ThemedText>
-        </TouchableOpacity>
+        {cameraDeviceOptionsLength > 1 && (
+          <TouchableOpacity style={styles.topButton} onPress={handleCameraDeviceToggle}>
+            <ThemedText style={styles.topButtonIcon}>💿</ThemedText>
+          </TouchableOpacity>
+        )}
       </ThemedView>
 
       {/* ===== MODE SELECTOR SECTION ===== */}
@@ -243,12 +291,24 @@ export const Camera = ({}: CameraProps) => {
 
       {/* ===== BOTTOM CONTROLS SECTION ===== */}
       <ThemedView style={[styles.bottomControls, { bottom: insets.bottom + 40 }]}>
+        {/* Camera Roll Button */}
+        <TouchableOpacity style={styles.cameraRollButton} onPress={handleCameraRollPress}>
+          {recentPhoto ? (
+            <Image source={{ uri: recentPhoto }} style={styles.cameraRollPreview} />
+          ) : (
+            <ThemedText style={styles.cameraRollIcon}>📷</ThemedText>
+          )}
+        </TouchableOpacity>
+
+        {/* Capture Button */}
         <TouchableOpacity
           style={[styles.captureButton, isRecording && styles.captureButtonRecording]}
           onPress={handleCapture}
         >
           <ThemedView style={styles.captureButtonInner} />
         </TouchableOpacity>
+
+        <ThemedView style={styles.bottomStub} />
       </ThemedView>
     </ThemedView>
   );
@@ -302,9 +362,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     ...globalStyles.flexRow,
-    ...globalStyles.justifyCenter,
+    ...globalStyles.justifyBetween,
     paddingHorizontal: spacing.screenPadding,
     zIndex: 10,
+    backgroundColor: colors.human.transparent,
+  },
+  bottomStub: {
+    width: 80,
+    height: 80,
     backgroundColor: colors.human.transparent,
   },
   sideButton: {
@@ -327,6 +392,7 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: colors.human.white,
   },
+
   captureButtonRecording: {
     backgroundColor: 'red',
   },
@@ -379,5 +445,25 @@ const styles = StyleSheet.create({
     color: colors.human.white,
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  cameraRollButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: colors.human.semiTransparent,
+    ...globalStyles.center,
+    borderWidth: 2,
+    borderColor: colors.human.white,
+    overflow: 'hidden',
+  },
+  cameraRollPreview: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 6,
+  },
+  cameraRollIcon: {
+    color: colors.human.white,
+    fontSize: 24,
   },
 });

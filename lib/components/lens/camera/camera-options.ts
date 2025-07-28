@@ -23,9 +23,9 @@ export const CAMERA_DEVICE = {
   TRIPLE: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
   DUAL_WIDE: ['ultra-wide-angle-camera', 'wide-angle-camera'],
   DUAL: ['wide-angle-camera', 'telephoto-camera'],
-  WIDE_ANGLE: ['wide-angle-camera'],
-  ULTRA_WIDE_ANGLE: ['ultra-wide-angle-camera'],
-  TELEPHOTO: ['telephoto-camera'],
+  // WIDE_ANGLE: ['wide-angle-camera'],
+  // ULTRA_WIDE_ANGLE: ['ultra-wide-angle-camera'],
+  // TELEPHOTO: ['telephoto-camera'],
 } as const;
 export const cameraDeviceOptions = Object.keys(CAMERA_DEVICE).map(key => ({
   label: key,
