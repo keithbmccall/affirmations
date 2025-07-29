@@ -35,11 +35,6 @@ const styles = StyleSheet.create({
     gap: spacing.gap['2xl'],
     paddingVertical: spacing.screenPadding,
   },
-  links: {
-    marginVertical: spacing['10xl'],
-    ...globalStyles.flexRow,
-    ...globalStyles.justifyAround,
-  },
 });
 
 export default Settings;
