@@ -48,4 +48,4 @@ export const CAMERA_POSITION = {
 export type CameraMode = (typeof CAMERA_MODE)[keyof typeof CAMERA_MODE];
 export type FlashMode = (typeof FLASH_MODE)[keyof typeof FLASH_MODE];
 export type TimerMode = (typeof TIMER_MODE)[keyof typeof TIMER_MODE];
-export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITION];
+export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITION]; 

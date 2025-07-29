@@ -1,4 +1,14 @@
 import { Divider, ThemedText, ThemedView } from '@components/shared';
+import {
+  CAMERA_MODE,
+  CAMERA_POSITION,
+  cameraDeviceOptions,
+  type CameraMode,
+  flashModeOptions,
+  useCameraFocus,
+  useCameraRoll,
+  useLensPermissions,
+} from '@features/lens';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router } from 'expo-router';
@@ -12,16 +22,6 @@ import {
   useCameraDevice,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import {
-  CAMERA_MODE,
-  CAMERA_POSITION,
-  cameraDeviceOptions,
-  CameraMode,
-  flashModeOptions,
-} from './camera-options';
-import { useCameraFocus } from './use-camera-focus';
-import { useCameraRoll } from './use-camera-roll';
-import { useLensPermissions } from './use-lens-permissions';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
