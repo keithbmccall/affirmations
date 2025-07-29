@@ -1,8 +1,8 @@
-import { useCallback, useRef } from 'react';
 import { Dimensions } from 'react-native';
 import {
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withSequence,
   withSpring,
   withTiming,
@@ -12,7 +12,6 @@ import { Point, Camera as VisionCamera } from 'react-native-vision-camera';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => {
-  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const focusX = useSharedValue(0);
   const focusY = useSharedValue(0);
   const focusScale = useSharedValue(0);
@@ -22,42 +21,31 @@ export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => 
     camera.current?.focus(point);
   };
 
-  const handleFocusTap = useCallback(
-    (x: number, y: number) => {
-      if (focusTimeoutRef.current) {
-        clearTimeout(focusTimeoutRef.current);
-        focusTimeoutRef.current = null;
-      }
+  const handleFocusTap = (x: number, y: number) => {
+    // Convert screen coordinates to relative coordinates (0-1)
+    const relativeX = x / screenWidth;
+    const relativeY = y / screenHeight;
 
-      // Convert screen coordinates to relative coordinates (0-1)
-      const relativeX = x / screenWidth;
-      const relativeY = y / screenHeight;
+    // Update focus position
+    focusX.value = relativeX;
+    focusY.value = relativeY;
 
-      // Update focus position
-      focusX.value = relativeX;
-      focusY.value = relativeY;
+    // Entry animation: scale from 0 to 1.2 then settle to 1, then exit after delay
+    focusScale.value = withSequence(
+      withSpring(1.2, { damping: 15, stiffness: 300 }),
+      withSpring(1, { damping: 15, stiffness: 300 }),
+      withDelay(1000, withTiming(0.8, { duration: 300 }))
+    );
 
-      // Entry animation: scale from 0 to 1.2 then settle to 1
-      focusScale.value = withSequence(
-        withSpring(1.2, { damping: 15, stiffness: 300 }),
-        withSpring(1, { damping: 15, stiffness: 300 })
-      );
+    // Opacity animation: fade in quickly, then fade out after delay
+    focusOpacity.value = withSequence(
+      withTiming(1, { duration: 200 }),
+      withDelay(1000, withTiming(0, { duration: 300 }))
+    );
 
-      // Opacity animation: fade in quickly
-      focusOpacity.value = withTiming(1, { duration: 200 });
-
-      // Focus the camera
-      focusCamera({ x, y });
-
-      // Exit animation after 2 seconds - store timeout ref to clear if needed
-      focusTimeoutRef.current = setTimeout(() => {
-        focusScale.value = withTiming(0.8, { duration: 300 });
-        focusOpacity.value = withTiming(0, { duration: 300 });
-        focusTimeoutRef.current = null;
-      }, 1000);
-    },
-    [focusCamera, focusX, focusY, focusScale, focusOpacity]
-  );
+    // Focus the camera
+    focusCamera({ x, y });
+  };
   // Animated style for focus indicator
   const focusIndicatorAnimatedStyle = useAnimatedStyle(() => ({
     left: `${focusX.value * 100}%`,

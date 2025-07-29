@@ -2,7 +2,7 @@ import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS } from 'react-native-reanimated';
@@ -55,7 +55,7 @@ export const Camera = ({}: CameraProps) => {
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
 
   // Camera controls
-  const handleCapture = useCallback(async () => {
+  const handleCapture = async () => {
     if (!camera.current) return;
 
     try {
@@ -84,32 +84,32 @@ export const Camera = ({}: CameraProps) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
     }
-  }, [camera, isVideoMode, isRecording, flashMode, fetchRecentPhoto]);
+  };
 
-  const handleFlashToggle = useCallback(() => {
+  const handleFlashToggle = () => {
     setFlashMode(prev => (prev + 1) % flashModeOptionsLength);
-  }, []);
+  };
 
-  const handleSwitchCameraToggle = useCallback(() => {
+  const handleSwitchCameraToggle = () => {
     setCameraPosition(prev =>
       prev === CAMERA_POSITION.BACK ? CAMERA_POSITION.FRONT : CAMERA_POSITION.BACK
     );
-  }, []);
+  };
 
-  const handleCameraDeviceToggle = useCallback(() => {
+  const handleCameraDeviceToggle = () => {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
-  }, []);
+  };
 
-  const handleBackPress = useCallback(() => {
+  const handleBackPress = () => {
     router.back();
-  }, []);
+  };
 
   // Fetch recent photo when permissions are granted
   useEffect(() => {
     if (mediaLibraryPermission) {
       fetchRecentPhoto();
     }
-  }, [mediaLibraryPermission, fetchRecentPhoto]);
+  }, [mediaLibraryPermission]);
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
     console.log({ x, y });
@@ -272,20 +272,12 @@ const styles = StyleSheet.create({
     color: colors.human.white,
     fontSize: 20,
   },
-  modeButtonText: {
-    color: 'white',
-    fontSize: 12,
-  },
-  modeButtonTextActive: {
-    fontWeight: 'bold',
-  },
   bottomControls: {
     ...globalStyles.absolute,
     bottom: spacing.screenPadding,
     left: 0,
     right: 0,
-    ...globalStyles.flexRow,
-    ...globalStyles.justifyBetween,
+    ...globalStyles.rowBetween,
     paddingHorizontal: spacing.screenPadding,
     zIndex: 10,
     backgroundColor: colors.human.transparent,
@@ -294,17 +286,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     backgroundColor: colors.human.transparent,
-  },
-  sideButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    ...globalStyles.center,
-  },
-  sideButtonIcon: {
-    color: 'white',
-    fontSize: 20,
   },
   captureButton: {
     width: 80,
@@ -315,7 +296,6 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: colors.human.white,
   },
-
   captureButtonRecording: {
     backgroundColor: 'red',
   },
@@ -326,13 +306,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   gridOverlayColumn: {
-    ...StyleSheet.absoluteFillObject,
+    ...globalStyles.absoluteFill,
     backgroundColor: colors.human.transparent,
     ...globalStyles.flexColumn,
     ...globalStyles.justifyEvenly,
   },
   gridOverlayRow: {
-    ...StyleSheet.absoluteFillObject,
+    ...globalStyles.absoluteFill,
     backgroundColor: colors.human.transparent,
     ...globalStyles.flexRow,
     ...globalStyles.justifyEvenly,
@@ -378,7 +358,7 @@ const styles = StyleSheet.create({
     ...globalStyles.center,
     borderWidth: 2,
     borderColor: colors.human.white,
-    overflow: 'hidden',
+    ...globalStyles.overflowHidden,
   },
   cameraRollPreviewContainer: {
     width: '100%',

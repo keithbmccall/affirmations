@@ -1,6 +1,6 @@
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { getAssetsAsync } from 'expo-media-library';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
@@ -16,7 +16,7 @@ export const useCameraRoll = (hasAllPermissions: boolean) => {
     transform: [{ scale: photoScale.value }],
   }));
   // Open camera roll/photo library
-  const handleCameraRollPress = useCallback(async () => {
+  const handleCameraRollPress = async () => {
     try {
       const result = await launchImageLibraryAsync({
         mediaTypes: 'images',
@@ -31,10 +31,10 @@ export const useCameraRoll = (hasAllPermissions: boolean) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to open camera roll');
     }
-  }, []);
+  };
 
   // Fetch most recent photo from library
-  const fetchRecentPhoto = useCallback(async () => {
+  const fetchRecentPhoto = async () => {
     try {
       if (hasAllPermissions) {
         const result = await getAssetsAsync({
@@ -66,7 +66,7 @@ export const useCameraRoll = (hasAllPermissions: boolean) => {
     } catch (error) {
       console.error('Error fetching recent photo:', error);
     }
-  }, [hasAllPermissions, recentPhoto, photoOpacity, photoScale]);
+  };
   return {
     animatedPhotoStyle,
     handleCameraRollPress,
