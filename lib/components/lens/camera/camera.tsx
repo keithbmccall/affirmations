@@ -241,7 +241,7 @@ export const Camera = ({}: CameraProps) => {
 const styles = StyleSheet.create({
   container: {
     ...globalStyles.flex1,
-    backgroundColor: 'black',
+    backgroundColor: colors.human.black,
   },
   cameraContainer: {
     ...globalStyles.flex1,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     ...globalStyles.center,
-    color: 'white',
+    color: colors.human.white,
   },
   topControls: {
     ...globalStyles.absolute,
@@ -297,13 +297,13 @@ const styles = StyleSheet.create({
     borderColor: colors.human.white,
   },
   captureButtonRecording: {
-    backgroundColor: 'red',
+    backgroundColor: colors.semantic.error,
   },
   captureButtonInner: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'white',
+    backgroundColor: colors.human.white,
   },
   gridOverlayColumn: {
     ...globalStyles.absoluteFill,
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     borderColor: colors.human.white,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.human.transparent,
     zIndex: 6,
     shadowColor: colors.human.black,
     shadowOffset: { width: 0, height: 2 },
