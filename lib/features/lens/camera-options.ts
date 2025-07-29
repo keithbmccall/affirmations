@@ -10,13 +10,25 @@ export const CAMERA_MODE = {
 
 // Flash modes
 export const FLASH_MODE = {
-  OFF: 'off',
-  ON: 'on',
-  AUTO: 'auto',
+  OFF: ['off', 'bolt.slash.fill'],
+  ON: ['on', 'bolt.fill'],
+  AUTO: ['auto', 'bolt.badge.automatic'],
 } as const;
 export const flashModeOptions = Object.keys(FLASH_MODE).map(key => ({
   label: key,
-  value: FLASH_MODE[key as keyof typeof FLASH_MODE],
+  icon: FLASH_MODE[key as keyof typeof FLASH_MODE][1],
+  value: FLASH_MODE[key as keyof typeof FLASH_MODE][0],
+}));
+
+// Grid modes
+export const GRID_MODE = {
+  OFF: ['off', 'squareshape.split.2x2.dotted.inside'],
+  ON: ['on', 'squareshape.split.2x2'],
+} as const;
+export const gridModeOptions = Object.keys(GRID_MODE).map(key => ({
+  label: key,
+  icon: GRID_MODE[key as keyof typeof GRID_MODE][1],
+  value: GRID_MODE[key as keyof typeof GRID_MODE][0],
 }));
 
 export const CAMERA_DEVICE = {
@@ -47,5 +59,6 @@ export const CAMERA_POSITION = {
 // Type aliases
 export type CameraMode = (typeof CAMERA_MODE)[keyof typeof CAMERA_MODE];
 export type FlashMode = (typeof FLASH_MODE)[keyof typeof FLASH_MODE];
+export type GridMode = (typeof GRID_MODE)[keyof typeof GRID_MODE];
 export type TimerMode = (typeof TIMER_MODE)[keyof typeof TIMER_MODE];
-export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITION]; 
+export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITION];

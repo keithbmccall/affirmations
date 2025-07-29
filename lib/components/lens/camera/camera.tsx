@@ -1,10 +1,11 @@
-import { Divider, ThemedText, ThemedView } from '@components/shared';
+import { Divider, IconSymbol, ThemedText, ThemedView } from '@components/shared';
 import {
   CAMERA_MODE,
   CAMERA_POSITION,
   cameraDeviceOptions,
   type CameraMode,
   flashModeOptions,
+  gridModeOptions,
   useCameraFocus,
   useCameraRoll,
   useLensPermissions,
@@ -25,7 +26,7 @@ import {
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
-
+const controlSymbolSize = 30;
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
@@ -36,8 +37,8 @@ export const Camera = ({}: CameraProps) => {
   const [cameraMode, setCameraMode] = useState<CameraMode>(CAMERA_MODE.PHOTO);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
   const [flashMode, setFlashMode] = useState<number>(0);
+  const [gridMode, setGridMode] = useState<number>(0);
   const [isRecording, setIsRecording] = useState(false);
-  const [showGrid, setShowGrid] = useState(false);
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
@@ -53,6 +54,7 @@ export const Camera = ({}: CameraProps) => {
   // Derived state
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
+  const showGrid = gridModeOptions[gridMode].value === 'on';
 
   // Camera controls
   const handleCapture = async () => {
@@ -88,6 +90,10 @@ export const Camera = ({}: CameraProps) => {
 
   const handleFlashToggle = () => {
     setFlashMode(prev => (prev + 1) % flashModeOptionsLength);
+  };
+
+  const handleGridToggle = () => {
+    setGridMode(prev => (prev + 1) % gridModeOptions.length);
   };
 
   const handleSwitchCameraToggle = () => {
@@ -171,16 +177,28 @@ export const Camera = ({}: CameraProps) => {
 
       {/* ===== TOP CONTROLS SECTION ===== */}
       <ThemedView style={[styles.topControls, { top: insets.top + 60 }]}>
-        <TouchableOpacity style={styles.topButton} onPress={() => setShowGrid(!showGrid)}>
-          <ThemedText style={styles.topButtonIcon}>{showGrid ? '⊞' : '⊟'}</ThemedText>
+        <TouchableOpacity style={styles.topButton} onPress={handleGridToggle}>
+          <IconSymbol
+            size={controlSymbolSize}
+            color={colors.human.white}
+            name={gridModeOptions[gridMode].icon}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.topButton} onPress={handleFlashToggle}>
-          <ThemedText style={styles.topButtonIcon}>{flashModeOptions[flashMode].label}</ThemedText>
+          <IconSymbol
+            size={controlSymbolSize}
+            color={colors.human.white}
+            name={flashModeOptions[flashMode].icon}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.topButton} onPress={handleSwitchCameraToggle}>
-          <ThemedText style={styles.topButtonIcon}>🔄</ThemedText>
+          <IconSymbol
+            size={controlSymbolSize}
+            color={colors.human.white}
+            name="arrow.trianglehead.2.clockwise.rotate.90.circle"
+          />
         </TouchableOpacity>
 
         {cameraDeviceOptionsLength > 1 && (
