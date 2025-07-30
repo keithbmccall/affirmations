@@ -9,27 +9,27 @@
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		545312A3DC3E0D3A4A4A7E34 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A4E220EED0FBC6B2265FC86C /* PrivacyInfo.xcprivacy */; };
+		40235303734717462ECE4FA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0368075E38CE3E92F862A0DA /* ExpoModulesProvider.swift */; };
+		A33108237442A82646175C93 /* libPods-ScheduledAffirmations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7589242EAC25824ABC9409C6 /* libPods-ScheduledAffirmations.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		C723CF89E08B419FC3054E86 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 132B9018FDB78D260F63487A /* ExpoModulesProvider.swift */; };
-		F0E7D93D4070F3980A33A4C4 /* libPods-affirmations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF2566AC01FCBD6DB8A8511 /* libPods-affirmations.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		F94B5C88B5668FB365D21B59 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1CD9270DD50618089FB49DDB /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		132B9018FDB78D260F63487A /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-affirmations/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		0368075E38CE3E92F862A0DA /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* ScheduledAffirmations.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduledAffirmations.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = affirmations/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = affirmations/Info.plist; sourceTree = "<group>"; };
-		495F124D3CF8B5BCCF368318 /* Pods-affirmations.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-affirmations.debug.xcconfig"; path = "Target Support Files/Pods-affirmations/Pods-affirmations.debug.xcconfig"; sourceTree = "<group>"; };
-		6D33E96DD5F01C40BE9E35E3 /* Pods-affirmations.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-affirmations.release.xcconfig"; path = "Target Support Files/Pods-affirmations/Pods-affirmations.release.xcconfig"; sourceTree = "<group>"; };
-		A4E220EED0FBC6B2265FC86C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = affirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = affirmations/SplashScreen.storyboard; sourceTree = "<group>"; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ScheduledAffirmations/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ScheduledAffirmations/Info.plist; sourceTree = "<group>"; };
+		1CD9270DD50618089FB49DDB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ScheduledAffirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		655945A353BB563D38DAB356 /* Pods-ScheduledAffirmations.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.debug.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.debug.xcconfig"; sourceTree = "<group>"; };
+		7589242EAC25824ABC9409C6 /* libPods-ScheduledAffirmations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScheduledAffirmations.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ScheduledAffirmations/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		E99DC1CE0E738D51409EE1E0 /* Pods-ScheduledAffirmations.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.release.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = affirmations/AppDelegate.swift; sourceTree = "<group>"; };
-		F11748442D0722820044C1D9 /* affirmations-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "affirmations-Bridging-Header.h"; path = "affirmations/affirmations-Bridging-Header.h"; sourceTree = "<group>"; };
-		FEF2566AC01FCBD6DB8A8511 /* libPods-affirmations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-affirmations.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ScheduledAffirmations/AppDelegate.swift; sourceTree = "<group>"; };
+		F11748442D0722820044C1D9 /* ScheduledAffirmations-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ScheduledAffirmations-Bridging-Header.h"; path = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,50 +37,50 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0E7D93D4070F3980A33A4C4 /* libPods-affirmations.a in Frameworks */,
+				A33108237442A82646175C93 /* libPods-ScheduledAffirmations.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13B07FAE1A68108700A75B9A /* affirmations */ = {
+		13B07FAE1A68108700A75B9A /* ScheduledAffirmations */ = {
 			isa = PBXGroup;
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
-				F11748442D0722820044C1D9 /* affirmations-Bridging-Header.h */,
+				F11748442D0722820044C1D9 /* ScheduledAffirmations-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				A4E220EED0FBC6B2265FC86C /* PrivacyInfo.xcprivacy */,
+				1CD9270DD50618089FB49DDB /* PrivacyInfo.xcprivacy */,
 			);
-			name = affirmations;
+			name = ScheduledAffirmations;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				FEF2566AC01FCBD6DB8A8511 /* libPods-affirmations.a */,
+				7589242EAC25824ABC9409C6 /* libPods-ScheduledAffirmations.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3512995B19CFCB5C9C7203CA /* ExpoModulesProviders */ = {
+		37B523641B53DB834B59E86F /* ScheduledAffirmations */ = {
 			isa = PBXGroup;
 			children = (
-				6B7003BAF1FB779E8127347A /* affirmations */,
+				0368075E38CE3E92F862A0DA /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
+			name = ScheduledAffirmations;
 			sourceTree = "<group>";
 		};
-		6B7003BAF1FB779E8127347A /* affirmations */ = {
+		433B8CE2A90F68E037E0FC24 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				132B9018FDB78D260F63487A /* ExpoModulesProvider.swift */,
+				37B523641B53DB834B59E86F /* ScheduledAffirmations */,
 			);
-			name = affirmations;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -93,12 +93,12 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* affirmations */,
+				13B07FAE1A68108700A75B9A /* ScheduledAffirmations */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				94B9D8055887CFA9D774BC51 /* Pods */,
-				3512995B19CFCB5C9C7203CA /* ExpoModulesProviders */,
+				B5784EA42109F0C87E1B488E /* Pods */,
+				433B8CE2A90F68E037E0FC24 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -113,11 +113,11 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		94B9D8055887CFA9D774BC51 /* Pods */ = {
+		B5784EA42109F0C87E1B488E /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				495F124D3CF8B5BCCF368318 /* Pods-affirmations.debug.xcconfig */,
-				6D33E96DD5F01C40BE9E35E3 /* Pods-affirmations.release.xcconfig */,
+				655945A353BB563D38DAB356 /* Pods-ScheduledAffirmations.debug.xcconfig */,
+				E99DC1CE0E738D51409EE1E0 /* Pods-ScheduledAffirmations.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -128,31 +128,31 @@
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
 			);
 			name = Supporting;
-			path = affirmations/Supporting;
+			path = ScheduledAffirmations/Supporting;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* affirmations */ = {
+		13B07F861A680F5B00A75B9A /* ScheduledAffirmations */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "affirmations" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ScheduledAffirmations" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				2A5D853F7FAC58C90D8F2486 /* [Expo] Configure project */,
+				FBCD1981B14AB0AAC11051D3 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				6C9DD393E6361B4B8AC06A40 /* [CP] Embed Pods Frameworks */,
+				CD4B25EDEBA92472EFA70BAF /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = affirmations;
-			productName = affirmations;
+			name = ScheduledAffirmations;
+			productName = ScheduledAffirmations;
 			productReference = 13B07F961A680F5B00A75B9A /* ScheduledAffirmations.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -169,7 +169,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "affirmations" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ScheduledAffirmations" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -182,7 +182,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* affirmations */,
+				13B07F861A680F5B00A75B9A /* ScheduledAffirmations */,
 			);
 		};
 /* End PBXProject section */
@@ -195,7 +195,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				545312A3DC3E0D3A4A4A7E34 /* PrivacyInfo.xcprivacy in Resources */,
+				F94B5C88B5668FB365D21B59 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,48 +232,11 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-affirmations-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-ScheduledAffirmations-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		2A5D853F7FAC58C90D8F2486 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-affirmations/expo-configure-project.sh\"\n";
-		};
-		6C9DD393E6361B4B8AC06A40 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-affirmations/Pods-affirmations-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-affirmations/Pods-affirmations-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -282,7 +245,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-affirmations/Pods-affirmations-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXApplication/ExpoApplication_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
@@ -319,8 +282,45 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-affirmations/Pods-affirmations-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		CD4B25EDEBA92472EFA70BAF /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FBCD1981B14AB0AAC11051D3 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ScheduledAffirmations/expo-configure-project.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -330,7 +330,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				C723CF89E08B419FC3054E86 /* ExpoModulesProvider.swift in Sources */,
+				40235303734717462ECE4FA7 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,11 +339,11 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 495F124D3CF8B5BCCF368318 /* Pods-affirmations.debug.xcconfig */;
+			baseConfigurationReference = 655945A353BB563D38DAB356 /* Pods-ScheduledAffirmations.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = affirmations/affirmations.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ScheduledAffirmations/ScheduledAffirmations.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UA4DD67N85;
 				ENABLE_BITCODE = NO;
@@ -351,9 +351,8 @@
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
-				INFOPLIST_FILE = affirmations/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				INFOPLIST_FILE = ScheduledAffirmations/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -367,7 +366,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.keithinretrograde.affirmations;
 				PRODUCT_NAME = ScheduledAffirmations;
-				SWIFT_OBJC_BRIDGING_HEADER = "affirmations/affirmations-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -377,16 +376,15 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6D33E96DD5F01C40BE9E35E3 /* Pods-affirmations.release.xcconfig */;
+			baseConfigurationReference = E99DC1CE0E738D51409EE1E0 /* Pods-ScheduledAffirmations.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = affirmations/affirmations.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ScheduledAffirmations/ScheduledAffirmations.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UA4DD67N85;
-				INFOPLIST_FILE = affirmations/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				INFOPLIST_FILE = ScheduledAffirmations/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -400,7 +398,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.keithinretrograde.affirmations;
 				PRODUCT_NAME = ScheduledAffirmations;
-				SWIFT_OBJC_BRIDGING_HEADER = "affirmations/affirmations-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -462,10 +460,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -520,10 +515,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -534,7 +526,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "affirmations" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ScheduledAffirmations" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -543,7 +535,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "affirmations" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ScheduledAffirmations" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
