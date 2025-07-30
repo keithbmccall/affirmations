@@ -8,6 +8,8 @@ export const ICON_MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'chevron.left': 'chevron-left',
+  'arrowshape.backward.fill': 'arrow-back',
   'camera.fill': 'camera-alt',
   'note.text': 'note',
   'person.fill': 'person',

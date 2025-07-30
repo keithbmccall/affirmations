@@ -3,7 +3,7 @@ import {
   CAMERA_MODE,
   CAMERA_POSITION,
   cameraDeviceOptions,
-  type CameraMode,
+  CameraMode,
   flashModeOptions,
   gridModeOptions,
   useCameraFocus,
@@ -21,12 +21,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
   useCameraDevice,
+  useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
 const controlSymbolSize = 30;
+
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
@@ -122,6 +124,12 @@ export const Camera = ({}: CameraProps) => {
     runOnJS(handleTap)(x, y);
   });
 
+  const frameProcessor = useFrameProcessor(frame => {
+    'worklet';
+    const label = labelImage(frame);
+    console.log(`You're looking at a ${label}.`);
+  }, []);
+
   if (!device || !hasAllPermissions) {
     return (
       <ThemedView style={styles.container}>
@@ -143,9 +151,10 @@ export const Camera = ({}: CameraProps) => {
               style={StyleSheet.absoluteFill}
               device={device}
               isActive={hasAllPermissions}
-              photo={true}
-              video={true}
-              audio={true}
+              photo
+              video
+              audio
+              frameProcessor={frameProcessor}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
             {showGrid && (
@@ -171,7 +180,7 @@ export const Camera = ({}: CameraProps) => {
           style={[styles.backButton, { top: insets.top }]}
           onPress={handleBackPress}
         >
-          <ThemedText style={styles.backButtonIcon}>←</ThemedText>
+          <IconSymbol size={controlSymbolSize} color={colors.human.white} name="chevron.left" />
         </TouchableOpacity>
       </ThemedView>
 
@@ -263,7 +272,7 @@ const styles = StyleSheet.create({
   },
   cameraContainer: {
     ...globalStyles.flex1,
-    position: 'relative',
+    ...globalStyles.relative,
   },
   errorText: {
     ...globalStyles.center,
@@ -360,12 +369,6 @@ const styles = StyleSheet.create({
     ...globalStyles.justifyCenter,
     ...globalStyles.alignCenter,
     zIndex: 10,
-    paddingTop: 5,
-  },
-  backButtonIcon: {
-    color: colors.human.white,
-    fontSize: 24,
-    fontWeight: 'bold',
   },
   cameraRollButton: {
     width: 80,

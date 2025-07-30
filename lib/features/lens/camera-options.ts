@@ -46,10 +46,15 @@ export const cameraDeviceOptions = Object.keys(CAMERA_DEVICE).map(key => ({
 
 // Timer modes
 export const TIMER_MODE = {
-  OFF: 0,
-  THREE_SECONDS: 3,
-  TEN_SECONDS: 10,
+  OFF: ['off', 'timer'],
+  THREE_SECONDS: ['3s', 'timer.3s'],
+  TEN_SECONDS: ['10s', 'timer.10s'],
 } as const;
+export const timerModeOptions = Object.keys(TIMER_MODE).map(key => ({
+  label: key,
+  icon: TIMER_MODE[key as keyof typeof TIMER_MODE][1],
+  value: TIMER_MODE[key as keyof typeof TIMER_MODE][0],
+}));
 
 export const CAMERA_POSITION = {
   FRONT: 'front',
