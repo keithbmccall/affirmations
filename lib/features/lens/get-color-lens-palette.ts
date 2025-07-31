@@ -18,5 +18,5 @@ export function getColorLensPalette(frame: Frame): ColorPalette | null {
   if (plugin == null) {
     throw new Error('Failed to load Frame Processor Plugin!');
   }
-  return plugin.call(frame) as ColorPalette | null;
+  return plugin.call(frame) as unknown as ColorPalette | null;
 }
