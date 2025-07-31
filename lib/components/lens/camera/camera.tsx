@@ -5,6 +5,7 @@ import {
   cameraDeviceOptions,
   CameraMode,
   flashModeOptions,
+  getColorLensPalette,
   gridModeOptions,
   useCameraFocus,
   useCameraRoll,
@@ -13,10 +14,17 @@ import {
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { runOnJS } from 'react-native-reanimated';
+import Reanimated, {
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
@@ -24,10 +32,17 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
+import CameraTile from './color-tile';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
 const controlSymbolSize = 30;
+
+const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
+Reanimated.addWhitelistedNativeProps({
+  isActive: true,
+});
+const frameProcessorFps = 3;
 
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
@@ -124,10 +139,77 @@ export const Camera = ({}: CameraProps) => {
     runOnJS(handleTap)(x, y);
   });
 
+  const SCREEN_WIDTH = Dimensions.get('window').width;
+  const SAFE_BOTTOM = 100;
+
+  const DEFAULT_COLOR = '#000000';
+  const MAX_FRAME_PROCESSOR_FPS = 3;
+
+  const TILE_SIZE = SCREEN_WIDTH / 4;
+  const ACTIVE_TILE_HEIGHT = TILE_SIZE * 1.3 + SAFE_BOTTOM;
+  const ACTIVE_TILE_SCALE = 0.9;
+  const ACTIVE_CONTAINER_SCALE = 0.95;
+  const ACTIVE_CONTAINER_PADDING = TILE_SIZE - TILE_SIZE * ACTIVE_TILE_SCALE;
+  const TRANSLATE_Y_ACTIVE =
+    (SCREEN_WIDTH - SCREEN_WIDTH * ACTIVE_CONTAINER_SCALE) / 2 + SAFE_BOTTOM;
+  const isHolding = useSharedValue(false);
+
+  const primaryColor = useSharedValue(DEFAULT_COLOR);
+  const secondaryColor = useSharedValue(DEFAULT_COLOR);
+  const backgroundColor = useSharedValue(DEFAULT_COLOR);
+  const detailColor = useSharedValue(DEFAULT_COLOR);
+
+  const isActiveAnimation = useDerivedValue(
+    () =>
+      withSpring(isHolding.value ? 0 : 1, {
+        mass: 1,
+        damping: 500,
+        stiffness: 800,
+        restDisplacementThreshold: 0.0001,
+      }),
+    [isHolding]
+  );
+  const palettesStyle = useAnimatedStyle(
+    () => ({
+      transform: [
+        {
+          scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_CONTAINER_SCALE]),
+        },
+        {
+          translateY: interpolate(isActiveAnimation.value, [0, 1], [0, -TRANSLATE_Y_ACTIVE]),
+        },
+      ],
+      padding: interpolate(isActiveAnimation.value, [0, 1], [0, ACTIVE_CONTAINER_PADDING]),
+      borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 25]),
+    }),
+    [isActiveAnimation]
+  );
+  const colorTileStyle = useAnimatedStyle(
+    () => ({
+      borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 15]),
+      transform: [
+        {
+          scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_TILE_SCALE]),
+        },
+      ],
+      width: TILE_SIZE,
+      height: interpolate(isActiveAnimation.value, [0, 1], [ACTIVE_TILE_HEIGHT, TILE_SIZE]),
+      paddingBottom: interpolate(isActiveAnimation.value, [0, 1], [SAFE_BOTTOM, 0]),
+    }),
+    [isActiveAnimation]
+  );
+  const colorAnimationDuration = useMemo(() => (1 / frameProcessorFps) * 1000, [frameProcessorFps]);
   const frameProcessor = useFrameProcessor(frame => {
     'worklet';
-    const label = labelImage(frame);
-    console.log(`You're looking at a ${label}.`);
+    const label = frame;
+    const list = getColorLensPalette(frame);
+
+    primaryColor.value = list?.colors[0] ?? colors.human.primary;
+    secondaryColor.value = list?.colors[1] ?? colors.human.secondary;
+    backgroundColor.value = list?.colors[2] ?? colors.human.background;
+    detailColor.value = list?.colors[3] ?? colors.human.detail;
+    // console.log({ primaryColor: primaryColor.value, secondaryColor: secondaryColor.value });
+    // Handle different return types from frame processor
   }, []);
 
   if (!device || !hasAllPermissions) {
@@ -146,7 +228,7 @@ export const Camera = ({}: CameraProps) => {
       <ThemedView style={styles.cameraContainer}>
         <GestureDetector gesture={gesture}>
           <View style={{ ...globalStyles.flex1 }}>
-            <VisionCamera
+            <ReanimatedCamera
               ref={camera}
               style={StyleSheet.absoluteFill}
               device={device}
@@ -173,7 +255,7 @@ export const Camera = ({}: CameraProps) => {
         </GestureDetector>
 
         {/* ===== FOCUS INDICATOR SECTION ===== */}
-        <Animated.View style={[styles.focusIndicator, focusIndicatorAnimatedStyle]} />
+        <Reanimated.View style={[styles.focusIndicator, focusIndicatorAnimatedStyle]} />
 
         {/* ===== BACK BUTTON SECTION ===== */}
         <TouchableOpacity
@@ -217,6 +299,23 @@ export const Camera = ({}: CameraProps) => {
         )}
       </ThemedView>
 
+      <ThemedView style={[styles.topControls, { top: insets.top + 60, left: 0, right: undefined }]}>
+        <CameraTile
+          key={`primary`}
+          name={`primary`}
+          color={primaryColor}
+          animatedStyle={colorTileStyle}
+          animationDuration={colorAnimationDuration}
+        />
+        <CameraTile
+          key={`secondary`}
+          name={`secondary`}
+          color={secondaryColor}
+          animatedStyle={colorTileStyle}
+          animationDuration={colorAnimationDuration}
+        />
+      </ThemedView>
+
       {/* ===== MODE SELECTOR SECTION ===== */}
       {/* <ThemedView style={styles.modeSelector}>
         {Object.values(CAMERA_MODE).map(mode => (
@@ -239,12 +338,12 @@ export const Camera = ({}: CameraProps) => {
         {/* Camera Roll Button */}
         <TouchableOpacity style={styles.cameraRollButton} onPress={handleCameraRollPress}>
           {recentPhoto ? (
-            <Animated.View
+            <Reanimated.View
               key={recentPhoto} // Force new component instance
               style={[styles.cameraRollPreviewContainer, animatedPhotoStyle]}
             >
               <Image source={{ uri: recentPhoto }} style={styles.cameraRollPreview} />
-            </Animated.View>
+            </Reanimated.View>
           ) : (
             <ThemedText style={styles.cameraRollIcon}>📷</ThemedText>
           )}
