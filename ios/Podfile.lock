@@ -2269,7 +2269,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - UIImageColors (~> 2.1.0)
+  - UIImageColors (= 2.1.0)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2602,6 +2602,6 @@ SPEC CHECKSUMS:
   VisionCamera: 1470a7fa013e22de7481640a4d9c597ad6f13919
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 
-PODFILE CHECKSUM: 964989a67cb822fc537a19e527bef23e0b787aab
+PODFILE CHECKSUM: fecbc046408658ffafd5f3a9c64386198c8582f3
 
 COCOAPODS: 1.16.2

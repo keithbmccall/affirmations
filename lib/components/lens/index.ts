@@ -1,2 +1,2 @@
 export * from './camera';
-export { default as CameraTile } from './camera/color-tile';
+export { default as CameraTile } from './camera/camera-tile';

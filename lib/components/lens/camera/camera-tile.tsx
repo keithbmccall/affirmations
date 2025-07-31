@@ -3,14 +3,14 @@ import React from 'react';
 import { StyleSheet, Text, ViewStyle } from 'react-native';
 import Reanimated, { useAnimatedStyle } from 'react-native-reanimated';
 
-type ColorTileProps = {
+type CameraTileProps = {
   name: string;
   color: Reanimated.SharedValue<string>;
   animationDuration: number;
   animatedStyle?: ViewStyle;
 };
 
-const ColorTile = ({ name, color, animationDuration, animatedStyle }: ColorTileProps) => {
+const CameraTile = ({ name, color, animationDuration, animatedStyle }: CameraTileProps) => {
   console.log({ color });
   const animatedColor = useAnimatedColor(color, animationDuration);
   const animatedBackgroundStyle = useAnimatedStyle(
@@ -50,4 +50,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(ColorTile);
+export default React.memo(CameraTile);

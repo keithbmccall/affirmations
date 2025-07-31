@@ -13,8 +13,8 @@ import {
 } from '@features/lens';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
-import { router } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, {
@@ -32,7 +32,7 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import CameraTile from './color-tile';
+import CameraTile from './camera-tile';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -68,6 +68,9 @@ export const Camera = ({}: CameraProps) => {
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
   const { animatedPhotoStyle, handleCameraRollPress, fetchRecentPhoto, recentPhoto } =
     useCameraRoll(hasAllPermissions);
+
+  // Camera suspension state
+  const [isCameraActive, setIsCameraActive] = useState(true);
   // Derived state
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
@@ -134,6 +137,21 @@ export const Camera = ({}: CameraProps) => {
     }
   }, [mediaLibraryPermission]);
 
+  // Camera suspension logic - suspend when screen loses focus
+  useFocusEffect(
+    useCallback(() => {
+      // Screen is focused - activate camera
+      console.log('Camera: Screen focused - activating camera');
+      setIsCameraActive(true);
+
+      return () => {
+        // Screen is unfocused - suspend camera
+        console.log('Camera: Screen unfocused - suspending camera');
+        setIsCameraActive(false);
+      };
+    }, [])
+  );
+
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
     console.log({ x, y });
     runOnJS(handleTap)(x, y);
@@ -199,18 +217,31 @@ export const Camera = ({}: CameraProps) => {
     [isActiveAnimation]
   );
   const colorAnimationDuration = useMemo(() => (1 / frameProcessorFps) * 1000, [frameProcessorFps]);
-  const frameProcessor = useFrameProcessor(frame => {
-    'worklet';
-    const label = frame;
-    const list = getColorLensPalette(frame);
+  const frameProcessor = useFrameProcessor(
+    frame => {
+      'worklet';
+      // Only process frames when camera is active
+      if (!isCameraActive) return;
 
-    primaryColor.value = list?.colors[0] ?? colors.human.primary;
-    secondaryColor.value = list?.colors[1] ?? colors.human.secondary;
-    backgroundColor.value = list?.colors[2] ?? colors.human.background;
-    detailColor.value = list?.colors[3] ?? colors.human.detail;
-    // console.log({ primaryColor: primaryColor.value, secondaryColor: secondaryColor.value });
-    // Handle different return types from frame processor
-  }, []);
+      const colorPalette = getColorLensPalette(frame);
+
+      // Handle the color palette returned from Swift frame processor
+      if (colorPalette) {
+        primaryColor.value = colorPalette.primary;
+        secondaryColor.value = colorPalette.secondary;
+        backgroundColor.value = colorPalette.background;
+        detailColor.value = colorPalette.detail;
+      } else {
+        // Fallback to default colors if frame processor fails
+        primaryColor.value = colors.human.primary as string;
+        secondaryColor.value = colors.human.secondary as string;
+        backgroundColor.value = colors.human.background as string;
+        detailColor.value = colors.human.detail as string;
+      }
+      console.log('colorPalette', colorPalette);
+    },
+    [isCameraActive]
+  );
 
   if (!device || !hasAllPermissions) {
     return (
@@ -232,11 +263,11 @@ export const Camera = ({}: CameraProps) => {
               ref={camera}
               style={StyleSheet.absoluteFill}
               device={device}
-              isActive={hasAllPermissions}
+              isActive={hasAllPermissions && isCameraActive}
               photo
               video
               audio
-              frameProcessor={frameProcessor}
+              frameProcessor={isCameraActive ? frameProcessor : undefined}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
             {showGrid && (
@@ -256,6 +287,13 @@ export const Camera = ({}: CameraProps) => {
 
         {/* ===== FOCUS INDICATOR SECTION ===== */}
         <Reanimated.View style={[styles.focusIndicator, focusIndicatorAnimatedStyle]} />
+
+        {/* ===== CAMERA SUSPENDED INDICATOR ===== */}
+        {!isCameraActive && (
+          <ThemedView style={styles.cameraSuspendedIndicator}>
+            <ThemedText style={styles.cameraSuspendedText}>Camera Suspended</ThemedText>
+          </ThemedView>
+        )}
 
         {/* ===== BACK BUTTON SECTION ===== */}
         <TouchableOpacity
@@ -493,5 +531,22 @@ const styles = StyleSheet.create({
   cameraRollIcon: {
     color: colors.human.white,
     fontSize: 24,
+  },
+  cameraSuspendedIndicator: {
+    ...globalStyles.absolute,
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -100 }, { translateY: -25 }],
+    backgroundColor: colors.human.semiTransparent,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: spacing.borderRadius.lg,
+    zIndex: 15,
+  },
+  cameraSuspendedText: {
+    color: colors.human.white,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

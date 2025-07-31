@@ -8,29 +8,29 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		252F9B8E0089430D8CF255CA /* ColorLensFrameProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 7780B94FAE7E4778AC10B8FF /* ColorLensFrameProcessor.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		40235303734717462ECE4FA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0368075E38CE3E92F862A0DA /* ExpoModulesProvider.swift */; };
-		A33108237442A82646175C93 /* libPods-ScheduledAffirmations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7589242EAC25824ABC9409C6 /* libPods-ScheduledAffirmations.a */; };
-		B92A6823863A4F009D4FE8A5 /* ColorLensFrameProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 11584F1FCD8544FD854BEB42 /* ColorLensFrameProcessor.m */; };
+		3F7B89AEB67E8D9965F3CF1D /* libPods-ScheduledAffirmations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7374082B92E31E555E144F55 /* libPods-ScheduledAffirmations.a */; };
+		69E45D5FEA3D43B5A99C0BB8 /* ColorLensFrameProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A82CA75CC8247F9B325CBBD /* ColorLensFrameProcessor.swift */; };
+		7439EB2B00005884F31D2725 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2F8641A3E6EE1B245339BE72 /* PrivacyInfo.xcprivacy */; };
+		A2A03881EE138FC2F72B4903 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F116F6413D9687BCB433D8B /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F94B5C88B5668FB365D21B59 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1CD9270DD50618089FB49DDB /* PrivacyInfo.xcprivacy */; };
-		FCA5AB16D71A4A1A8E90D695 /* ColorLensFrameProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC227FE578FD4582B6055D5D /* ColorLensFrameProcessor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0368075E38CE3E92F862A0DA /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		11584F1FCD8544FD854BEB42 /* ColorLensFrameProcessor.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = ColorLensFrameProcessor.m; path = ColorLensFrameProcessor.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* ScheduledAffirmations.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduledAffirmations.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ScheduledAffirmations/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ScheduledAffirmations/Info.plist; sourceTree = "<group>"; };
-		1CD9270DD50618089FB49DDB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ScheduledAffirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		655945A353BB563D38DAB356 /* Pods-ScheduledAffirmations.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.debug.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.debug.xcconfig"; sourceTree = "<group>"; };
-		7589242EAC25824ABC9409C6 /* libPods-ScheduledAffirmations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScheduledAffirmations.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F8641A3E6EE1B245339BE72 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ScheduledAffirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4A574B2363D3B7F0A866DBEE /* Pods-ScheduledAffirmations.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.debug.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.debug.xcconfig"; sourceTree = "<group>"; };
+		4A82CA75CC8247F9B325CBBD /* ColorLensFrameProcessor.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = ColorLensFrameProcessor.swift; sourceTree = "<group>"; };
+		5D6D9B26B46C699FE403054D /* Pods-ScheduledAffirmations.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.release.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.release.xcconfig"; sourceTree = "<group>"; };
+		6F116F6413D9687BCB433D8B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		7374082B92E31E555E144F55 /* libPods-ScheduledAffirmations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScheduledAffirmations.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7780B94FAE7E4778AC10B8FF /* ColorLensFrameProcessor.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; path = ColorLensFrameProcessor.m; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ScheduledAffirmations/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AC227FE578FD4582B6055D5D /* ColorLensFrameProcessor.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = ColorLensFrameProcessor.swift; path = ColorLensFrameProcessor.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		E99DC1CE0E738D51409EE1E0 /* Pods-ScheduledAffirmations.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.release.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ScheduledAffirmations/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* ScheduledAffirmations-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ScheduledAffirmations-Bridging-Header.h"; path = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -41,7 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A33108237442A82646175C93 /* libPods-ScheduledAffirmations.a in Frameworks */,
+				3F7B89AEB67E8D9965F3CF1D /* libPods-ScheduledAffirmations.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,7 +57,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				1CD9270DD50618089FB49DDB /* PrivacyInfo.xcprivacy */,
+				2F8641A3E6EE1B245339BE72 /* PrivacyInfo.xcprivacy */,
 			);
 			name = ScheduledAffirmations;
 			sourceTree = "<group>";
@@ -66,25 +66,26 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				7589242EAC25824ABC9409C6 /* libPods-ScheduledAffirmations.a */,
+				7374082B92E31E555E144F55 /* libPods-ScheduledAffirmations.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		37B523641B53DB834B59E86F /* ScheduledAffirmations */ = {
+		7897BAE8CE4BCC592D359E1D /* ScheduledAffirmations */ = {
 			isa = PBXGroup;
 			children = (
-				0368075E38CE3E92F862A0DA /* ExpoModulesProvider.swift */,
+				6F116F6413D9687BCB433D8B /* ExpoModulesProvider.swift */,
 			);
 			name = ScheduledAffirmations;
 			sourceTree = "<group>";
 		};
-		433B8CE2A90F68E037E0FC24 /* ExpoModulesProviders */ = {
+		816937C461A36A4B7F416E64 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				37B523641B53DB834B59E86F /* ScheduledAffirmations */,
+				4A574B2363D3B7F0A866DBEE /* Pods-ScheduledAffirmations.debug.xcconfig */,
+				5D6D9B26B46C699FE403054D /* Pods-ScheduledAffirmations.release.xcconfig */,
 			);
-			name = ExpoModulesProviders;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -101,9 +102,9 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				B5784EA42109F0C87E1B488E /* Pods */,
-				433B8CE2A90F68E037E0FC24 /* ExpoModulesProviders */,
-				F9FADBF8793247868AEECC18 /* ColorLensFrameProcessor */,
+				816937C461A36A4B7F416E64 /* Pods */,
+				AC008F5141058D127CCAE4C0 /* ExpoModulesProviders */,
+				EC613C1494DD4D63BEB0A6FD /* ColorLensFrameProcessor */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -118,13 +119,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B5784EA42109F0C87E1B488E /* Pods */ = {
+		AC008F5141058D127CCAE4C0 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				655945A353BB563D38DAB356 /* Pods-ScheduledAffirmations.debug.xcconfig */,
-				E99DC1CE0E738D51409EE1E0 /* Pods-ScheduledAffirmations.release.xcconfig */,
+				7897BAE8CE4BCC592D359E1D /* ScheduledAffirmations */,
 			);
-			path = Pods;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -136,13 +136,12 @@
 			path = ScheduledAffirmations/Supporting;
 			sourceTree = "<group>";
 		};
-		F9FADBF8793247868AEECC18 /* ColorLensFrameProcessor */ = {
+		EC613C1494DD4D63BEB0A6FD /* ColorLensFrameProcessor */ = {
 			isa = PBXGroup;
 			children = (
-				11584F1FCD8544FD854BEB42 /* ColorLensFrameProcessor.m */,
-				AC227FE578FD4582B6055D5D /* ColorLensFrameProcessor.swift */,
+				7780B94FAE7E4778AC10B8FF /* ColorLensFrameProcessor.m */,
+				4A82CA75CC8247F9B325CBBD /* ColorLensFrameProcessor.swift */,
 			);
-			name = ColorLensFrameProcessor;
 			path = ColorLensFrameProcessor;
 			sourceTree = "<group>";
 		};
@@ -154,13 +153,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ScheduledAffirmations" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				FBCD1981B14AB0AAC11051D3 /* [Expo] Configure project */,
+				A8CFE04751AB5D5C4B64CBA3 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				CD4B25EDEBA92472EFA70BAF /* [CP] Embed Pods Frameworks */,
+				2255476DE07459BA8590B9A5 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -210,7 +209,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				F94B5C88B5668FB365D21B59 /* PrivacyInfo.xcprivacy in Resources */,
+				7439EB2B00005884F31D2725 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +251,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		2255476DE07459BA8590B9A5 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -300,25 +317,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CD4B25EDEBA92472EFA70BAF /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		FBCD1981B14AB0AAC11051D3 /* [Expo] Configure project */ = {
+		A8CFE04751AB5D5C4B64CBA3 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -345,9 +344,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				40235303734717462ECE4FA7 /* ExpoModulesProvider.swift in Sources */,
-				B92A6823863A4F009D4FE8A5 /* ColorLensFrameProcessor.m in Sources */,
-				FCA5AB16D71A4A1A8E90D695 /* ColorLensFrameProcessor.swift in Sources */,
+				A2A03881EE138FC2F72B4903 /* ExpoModulesProvider.swift in Sources */,
+				252F9B8E0089430D8CF255CA /* ColorLensFrameProcessor.m in Sources */,
+				69E45D5FEA3D43B5A99C0BB8 /* ColorLensFrameProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -356,7 +355,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 655945A353BB563D38DAB356 /* Pods-ScheduledAffirmations.debug.xcconfig */;
+			baseConfigurationReference = 4A574B2363D3B7F0A866DBEE /* Pods-ScheduledAffirmations.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -382,7 +381,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.keithinretrograde.affirmations;
-				PRODUCT_NAME = "ScheduledAffirmations";
+				PRODUCT_NAME = ScheduledAffirmations;
 				SWIFT_OBJC_BRIDGING_HEADER = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -393,7 +392,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E99DC1CE0E738D51409EE1E0 /* Pods-ScheduledAffirmations.release.xcconfig */;
+			baseConfigurationReference = 5D6D9B26B46C699FE403054D /* Pods-ScheduledAffirmations.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -414,7 +413,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.keithinretrograde.affirmations;
-				PRODUCT_NAME = "ScheduledAffirmations";
+				PRODUCT_NAME = ScheduledAffirmations;
 				SWIFT_OBJC_BRIDGING_HEADER = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
