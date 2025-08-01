@@ -1,43 +1,40 @@
 import { globalStyles, spacing } from '@styles';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { SharedValue } from 'react-native-reanimated';
 import ColorSwatch from './color-swatch';
 
 interface ColorPaletteProps {
-  /** The most dominant color in the image */
-  primary: SharedValue<string>;
-  /** The second most dominant color in the image */
-  secondary: SharedValue<string>;
-  /** The third most dominant color in the image */
-  tertiary: SharedValue<string>;
-  /** The fourth most dominant color in the image */
-  quaternary: SharedValue<string>;
-  /** The fifth most dominant color in the image */
-  quinary: SharedValue<string>;
-  /** The sixth most dominant color in the image */
-  senary: SharedValue<string>;
-  /** The most frequent background color in the image */
-  background: SharedValue<string>;
-  /** A subtle accent or detail color in the image */
-  detail: SharedValue<string>;
+  palette: {
+    /** The most dominant color in the image */
+    primary: SharedValue<string>;
+    /** The second most dominant color in the image */
+    secondary: SharedValue<string>;
+    /** The third most dominant color in the image */
+    tertiary: SharedValue<string>;
+    /** The fourth most dominant color in the image */
+    quaternary: SharedValue<string>;
+    /** The fifth most dominant color in the image */
+    quinary: SharedValue<string>;
+    /** The sixth most dominant color in the image */
+    senary: SharedValue<string>;
+    /** The most frequent background color in the image */
+    background: SharedValue<string>;
+    /** A subtle accent or detail color in the image */
+    detail: SharedValue<string>;
+  };
   /** Duration for color transition animations in milliseconds */
   animationDuration: number;
+  style?: ViewStyle;
 }
 
 export const ColorPalette = ({
-  primary,
-  secondary,
-  tertiary,
-  quaternary,
-  quinary,
-  senary,
-  background,
-  detail,
+  palette: { primary, secondary, tertiary, quaternary, quinary, senary, background, detail },
   animationDuration,
+  style,
 }: ColorPaletteProps) => {
   return (
-    <View style={[styles.colorPaletteGrid]}>
+    <View style={[styles.colorPaletteGrid, style]}>
       <ColorSwatch
         key="primary"
         name="Primary"

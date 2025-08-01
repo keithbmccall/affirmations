@@ -1,24 +1,25 @@
 import { Divider, IconSymbol } from '@components/shared';
 import {
+  calculateFps,
   CAMERA_MODE,
   CAMERA_POSITION,
   cameraDeviceOptions,
   CameraMode,
-  ColorPalette as ColorPaletteType,
   flashModeOptions,
   getColorLensPalette,
   gridModeOptions,
   useCameraFocus,
   useCameraRoll,
+  useColorLensPalette,
   useLensPermissions,
 } from '@features/lens';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Reanimated, { runOnJS, useSharedValue } from 'react-native-reanimated';
+import Reanimated, { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
@@ -26,7 +27,6 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import { Worklets } from 'react-native-worklets-core';
 import { ColorPalette } from '../color-palette/color-palette';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -37,7 +37,6 @@ const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
 Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
-const frameProcessorFps = 15;
 
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
@@ -51,6 +50,7 @@ export const Camera = ({}: CameraProps) => {
   const [flashMode, setFlashMode] = useState<number>(0);
   const [gridMode, setGridMode] = useState<number>(0);
   const [isRecording, setIsRecording] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(true);
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
@@ -63,9 +63,9 @@ export const Camera = ({}: CameraProps) => {
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
   const { animatedPhotoStyle, handleCameraRollPress, fetchRecentPhoto, recentPhoto } =
     useCameraRoll(hasAllPermissions);
+  const { isColorLensEnabled, setIsColorLensEnabled, palette, applyColorPaletteWorklet } =
+    useColorLensPalette();
 
-  // Camera suspension state
-  const [isCameraActive, setIsCameraActive] = useState(true);
   // Derived state
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
@@ -121,6 +121,10 @@ export const Camera = ({}: CameraProps) => {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
   };
 
+  const handleEnableColorLensToggle = () => {
+    setIsColorLensEnabled(prev => !prev);
+  };
+
   const handleBackPress = () => {
     router.back();
   };
@@ -135,60 +139,21 @@ export const Camera = ({}: CameraProps) => {
   // Camera suspension logic - suspend when screen loses focus
   useFocusEffect(
     useCallback(() => {
-      // Screen is focused - activate camera
-      console.log('Camera: Screen focused - activating camera');
       setIsCameraActive(true);
 
       return () => {
-        // Screen is unfocused - suspend camera
-        console.log('Camera: Screen unfocused - suspending camera');
         setIsCameraActive(false);
       };
     }, [])
   );
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
-    console.log({ x, y });
     runOnJS(handleTap)(x, y);
   });
 
-  const SCREEN_WIDTH = Dimensions.get('window').width;
-  const SAFE_BOTTOM = 100;
+  const fps = calculateFps({ isColorLensEnabled, isCameraActive });
 
-  const DEFAULT_COLOR = '#000000';
-  const MAX_FRAME_PROCESSOR_FPS = 3;
-
-  const TILE_SIZE = SCREEN_WIDTH / 4;
-  const ACTIVE_TILE_HEIGHT = TILE_SIZE * 1.3 + SAFE_BOTTOM;
-  const ACTIVE_TILE_SCALE = 0.9;
-  const ACTIVE_CONTAINER_SCALE = 0.95;
-  const ACTIVE_CONTAINER_PADDING = TILE_SIZE - TILE_SIZE * ACTIVE_TILE_SCALE;
-  const TRANSLATE_Y_ACTIVE =
-    (SCREEN_WIDTH - SCREEN_WIDTH * ACTIVE_CONTAINER_SCALE) / 2 + SAFE_BOTTOM;
-  const isHolding = useSharedValue(false);
-
-  const primaryColor = useSharedValue(DEFAULT_COLOR);
-  const secondaryColor = useSharedValue(DEFAULT_COLOR);
-  const tertiaryColor = useSharedValue(DEFAULT_COLOR);
-  const quaternaryColor = useSharedValue(DEFAULT_COLOR);
-  const quinaryColor = useSharedValue(DEFAULT_COLOR);
-  const senaryColor = useSharedValue(DEFAULT_COLOR);
-  const backgroundColor = useSharedValue(DEFAULT_COLOR);
-  const detailColor = useSharedValue(DEFAULT_COLOR);
-
-  const colorAnimationDuration = useMemo(() => (1 / frameProcessorFps) * 1000, [frameProcessorFps]);
-
-  const applyColorPalette = (colorPalette: ColorPaletteType | null) => {
-    primaryColor.value = colorPalette?.primary ?? primaryColor.value;
-    secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
-    tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
-    quaternaryColor.value = colorPalette?.quaternary ?? quaternaryColor.value;
-    quinaryColor.value = colorPalette?.quinary ?? quinaryColor.value;
-    senaryColor.value = colorPalette?.senary ?? senaryColor.value;
-    backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
-    detailColor.value = colorPalette?.detail ?? detailColor.value;
-  };
-  const applyColorPaletteWorklet = Worklets.createRunOnJS(applyColorPalette);
+  const colorAnimationDuration = useMemo(() => (1 / fps) * 1000, [fps]);
 
   const frameProcessor = useFrameProcessor(
     frame => {
@@ -196,7 +161,9 @@ export const Camera = ({}: CameraProps) => {
       // Only process frames when camera is active
       if (!isCameraActive) return;
 
-      applyColorPaletteWorklet(getColorLensPalette(frame));
+      if (isColorLensEnabled) {
+        applyColorPaletteWorklet(getColorLensPalette(frame));
+      }
     },
     [isCameraActive]
   );
@@ -226,7 +193,7 @@ export const Camera = ({}: CameraProps) => {
               video
               audio
               frameProcessor={isCameraActive ? frameProcessor : undefined}
-              fps={isCameraActive ? frameProcessorFps : 0}
+              fps={fps}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
             {showGrid && (
@@ -262,7 +229,6 @@ export const Camera = ({}: CameraProps) => {
             name={gridModeOptions[gridMode].icon}
           />
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.topButton} onPress={handleFlashToggle}>
           <IconSymbol
             size={controlSymbolSize}
@@ -270,7 +236,6 @@ export const Camera = ({}: CameraProps) => {
             name={flashModeOptions[flashMode].icon}
           />
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.topButton} onPress={handleSwitchCameraToggle}>
           <IconSymbol
             size={controlSymbolSize}
@@ -278,24 +243,26 @@ export const Camera = ({}: CameraProps) => {
             name="arrow.trianglehead.2.clockwise.rotate.90.circle"
           />
         </TouchableOpacity>
-
         {cameraDeviceOptionsLength > 1 && (
           <TouchableOpacity style={styles.topButton} onPress={handleCameraDeviceToggle}>
             <Text style={styles.topButtonIcon}>💿</Text>
           </TouchableOpacity>
         )}
 
-        <ColorPalette
-          primary={primaryColor}
-          secondary={secondaryColor}
-          tertiary={tertiaryColor}
-          quaternary={quaternaryColor}
-          quinary={quinaryColor}
-          senary={senaryColor}
-          background={backgroundColor}
-          detail={detailColor}
-          animationDuration={colorAnimationDuration}
-        />
+        <TouchableOpacity style={styles.topButton} onPress={handleEnableColorLensToggle}>
+          <IconSymbol
+            size={controlSymbolSize}
+            color={colors.human.white}
+            name="swatchpalette.fill"
+          />
+        </TouchableOpacity>
+        {isColorLensEnabled && (
+          <ColorPalette
+            palette={palette}
+            animationDuration={colorAnimationDuration}
+            style={{ paddingBottom: spacing.md }}
+          />
+        )}
       </View>
 
       {/* ===== BOTTOM CONTROLS SECTION ===== */}

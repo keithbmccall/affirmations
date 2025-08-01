@@ -27,6 +27,7 @@ export const ICON_MAPPING = {
   'arrow.up': 'arrow-upward',
   'arrow.down': 'arrow-downward',
   'arrow.trianglehead.2.clockwise.rotate.90.circle': 'camera-rotate-right',
+  'swatchpalette.fill': 'palette',
   magnifyingglass: 'search',
   'envelope.fill': 'email',
   'phone.fill': 'phone',

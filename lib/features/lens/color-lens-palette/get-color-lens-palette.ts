@@ -1,7 +1,7 @@
 import { Frame, VisionCameraProxy } from 'react-native-vision-camera';
 
 // Type definition for the color palette returned by the Swift frame processor
-export interface ColorPalette {
+export interface ColorLensPaletteType {
   primary: string;
   secondary: string;
   tertiary: string;
@@ -17,10 +17,10 @@ const plugin = VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette',
   type: 'frameProcessor',
 });
 
-export function getColorLensPalette(frame: Frame): ColorPalette | null {
+export function getColorLensPalette(frame: Frame): ColorLensPaletteType | null {
   'worklet';
   if (plugin == null) {
     throw new Error('Failed to load Frame Processor Plugin!');
   }
-  return plugin.call(frame) as unknown as ColorPalette | null;
+  return plugin.call(frame) as unknown as ColorLensPaletteType | null;
 }

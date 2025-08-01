@@ -67,3 +67,22 @@ export type FlashMode = (typeof FLASH_MODE)[keyof typeof FLASH_MODE];
 export type GridMode = (typeof GRID_MODE)[keyof typeof GRID_MODE];
 export type TimerMode = (typeof TIMER_MODE)[keyof typeof TIMER_MODE];
 export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITION];
+
+const COLOR_LENS_FPS = 15;
+const DEFAULT_FPS = 30;
+
+export const calculateFps = ({
+  isColorLensEnabled,
+  isCameraActive,
+}: {
+  isColorLensEnabled: boolean;
+  isCameraActive: boolean;
+}) => {
+  if (isCameraActive) {
+    if (isColorLensEnabled) {
+      return COLOR_LENS_FPS;
+    }
+    return DEFAULT_FPS;
+  }
+  return 0;
+};
