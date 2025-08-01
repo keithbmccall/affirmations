@@ -1,4 +1,4 @@
-import { Divider, IconSymbol } from '@components/shared';
+import { IconSymbol } from '@components/shared';
 import {
   calculateFps,
   CAMERA_MODE,
@@ -28,6 +28,7 @@ import {
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
 import { ColorPalette } from '../color-palette/color-palette';
+import { Grid } from './grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -196,18 +197,7 @@ export const Camera = ({}: CameraProps) => {
               fps={fps}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
-            {showGrid && (
-              <>
-                <View style={styles.gridOverlayColumn}>
-                  <Divider />
-                  <Divider />
-                </View>
-                <View style={styles.gridOverlayRow}>
-                  <Divider vertical />
-                  <Divider vertical />
-                </View>
-              </>
-            )}
+            {showGrid && <Grid />}
           </View>
         </GestureDetector>
 
@@ -295,7 +285,6 @@ export const Camera = ({}: CameraProps) => {
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     ...globalStyles.flex1,
@@ -363,32 +352,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: colors.human.white,
   },
-  gridOverlayColumn: {
-    ...globalStyles.absoluteFill,
-    backgroundColor: colors.human.transparent,
-    ...globalStyles.flexColumn,
-    ...globalStyles.justifyEvenly,
-  },
-  gridOverlayRow: {
-    ...globalStyles.absoluteFill,
-    backgroundColor: colors.human.transparent,
-    ...globalStyles.flexRow,
-    ...globalStyles.justifyEvenly,
-  },
-  focusIndicator: {
-    ...globalStyles.absolute,
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: colors.human.white,
-    backgroundColor: colors.human.transparent,
-    zIndex: 6,
-    shadowColor: colors.human.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-  },
   backButton: {
     ...globalStyles.absolute,
     left: 0,
@@ -425,23 +388,6 @@ const styles = StyleSheet.create({
   cameraRollIcon: {
     color: colors.human.white,
     fontSize: 24,
-  },
-  cameraSuspendedIndicator: {
-    ...globalStyles.absolute,
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -100 }, { translateY: -25 }],
-    backgroundColor: colors.human.semiTransparent,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: spacing.borderRadius.lg,
-    zIndex: 15,
-  },
-  cameraSuspendedText: {
-    color: colors.human.white,
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
   },
   colorPaletteContainer: {
     paddingBottom: spacing.md,
