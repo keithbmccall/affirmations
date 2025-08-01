@@ -91,7 +91,7 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
   );
 
   useInitNotifications(providerActions, state);
-  console.log('state', state);
+
   return (
     <StateContext.Provider
       value={{
