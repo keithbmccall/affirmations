@@ -30,15 +30,47 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
   }
   
   private static func colorToHex(_ color: UIColor) -> String {
-    let components = color.cgColor.components
-    let r: CGFloat = components?[0] ?? 0.0
-    let g: CGFloat = components?[1] ?? 0.0
-    let b: CGFloat = components?[2] ?? 0.0
+    // Use getRed method to properly convert from any color space to RGB
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
     
+    // This method automatically converts from any color space to RGB
+    guard color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+      // Fallback: try to get components directly (for grayscale or other spaces)
+      guard let components = color.cgColor.components else {
+        return "#000000"
+      }
+      
+      let numberOfComponents = color.cgColor.numberOfComponents
+      
+      if numberOfComponents == 1 {
+        // Grayscale
+        let gray = components[0]
+        return String(format: "#%02lX%02lX%02lX", 
+                      lroundf(Float(gray * 255)), 
+                      lroundf(Float(gray * 255)), 
+                      lroundf(Float(gray * 255)))
+      } else if numberOfComponents >= 3 {
+        // RGB or RGBA
+        let r: CGFloat = components[0]
+        let g: CGFloat = components[1]
+        let b: CGFloat = components[2]
+        return String(format: "#%02lX%02lX%02lX", 
+                      lroundf(Float(r * 255)), 
+                      lroundf(Float(g * 255)), 
+                      lroundf(Float(b * 255)))
+      } else {
+        return "#000000"
+      }
+    }
+    
+    // getRed already returns values in 0-1 range, no need for additional clamping
     return String(format: "#%02lX%02lX%02lX", 
-                  lroundf(Float(r * 255)), 
-                  lroundf(Float(g * 255)), 
-                  lroundf(Float(b * 255)))
+                  lroundf(Float(red * 255)), 
+                  lroundf(Float(green * 255)), 
+                  lroundf(Float(blue * 255)))
   }
   
   @objc
