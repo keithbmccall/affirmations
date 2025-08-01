@@ -33,9 +33,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 3,
+    minWidth: 60,
+    minHeight: 40,
   },
   text: {
-    fontSize: 14,
+    fontSize: 10,
     fontWeight: 'bold',
     textShadowColor: 'black',
     textShadowOffset: {
@@ -44,6 +46,18 @@ const styles = StyleSheet.create({
     },
     textShadowRadius: 2,
     color: 'white',
+  },
+  colorValue: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    textShadowColor: 'black',
+    textShadowOffset: {
+      height: 0,
+      width: 0,
+    },
+    textShadowRadius: 1,
+    color: 'white',
+    marginTop: 2,
   },
   smallerText: {
     fontSize: 12,

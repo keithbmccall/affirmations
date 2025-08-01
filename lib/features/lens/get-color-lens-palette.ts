@@ -4,6 +4,10 @@ import { Frame, VisionCameraProxy } from 'react-native-vision-camera';
 export interface ColorPalette {
   primary: string;
   secondary: string;
+  tertiary: string;
+  quaternary: string;
+  quinary: string;
+  senary: string;
   background: string;
   detail: string;
 }

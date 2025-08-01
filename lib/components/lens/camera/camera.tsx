@@ -1,4 +1,4 @@
-import { Divider, IconSymbol, ThemedText, ThemedView } from '@components/shared';
+import { Divider, IconSymbol } from '@components/shared';
 import {
   CAMERA_MODE,
   CAMERA_POSITION,
@@ -16,14 +16,9 @@ import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Reanimated, {
-  runOnJS,
-  useAnimatedReaction,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
+import Reanimated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
@@ -32,6 +27,7 @@ import {
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
+import CameraTile from './camera-tile';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -41,7 +37,7 @@ const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
 Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
-const frameProcessorFps = 3;
+const frameProcessorFps = 15;
 
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
@@ -173,6 +169,10 @@ export const Camera = ({}: CameraProps) => {
 
   const primaryColor = useSharedValue(DEFAULT_COLOR);
   const secondaryColor = useSharedValue(DEFAULT_COLOR);
+  const tertiaryColor = useSharedValue(DEFAULT_COLOR);
+  const quaternaryColor = useSharedValue(DEFAULT_COLOR);
+  const quinaryColor = useSharedValue(DEFAULT_COLOR);
+  const senaryColor = useSharedValue(DEFAULT_COLOR);
   const backgroundColor = useSharedValue(DEFAULT_COLOR);
   const detailColor = useSharedValue(DEFAULT_COLOR);
 
@@ -221,17 +221,14 @@ export const Camera = ({}: CameraProps) => {
   }));
 
   const applyColorPalette = (colorPalette: ColorPalette | null) => {
-    if (colorPalette) {
-      primaryColor.value = colorPalette.primary;
-      secondaryColor.value = colorPalette.secondary;
-      backgroundColor.value = colorPalette.background;
-      detailColor.value = colorPalette.detail;
-    } else {
-      primaryColor.value = colors.human.primary as string;
-      secondaryColor.value = colors.human.secondary as string;
-      backgroundColor.value = colors.human.background as string;
-      detailColor.value = colors.human.detail as string;
-    }
+    primaryColor.value = colorPalette?.primary ?? primaryColor.value;
+    secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
+    tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
+    quaternaryColor.value = colorPalette?.quaternary ?? quaternaryColor.value;
+    quinaryColor.value = colorPalette?.quinary ?? quinaryColor.value;
+    senaryColor.value = colorPalette?.senary ?? senaryColor.value;
+    backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
+    detailColor.value = colorPalette?.detail ?? detailColor.value;
   };
   const applyColorPaletteWorklet = Worklets.createRunOnJS(applyColorPalette);
 
@@ -245,47 +242,25 @@ export const Camera = ({}: CameraProps) => {
 
       // runOnJS(applyColorPalette)(colorPalette);
       applyColorPaletteWorklet(colorPalette);
-
-      // // Handle the color palette returned from Swift frame processor
-      // if (colorPalette) {
-      //   primaryColor.value = colorPalette.primary;
-      //   secondaryColor.value = colorPalette.secondary;
-      //   backgroundColor.value = colorPalette.background;
-      //   detailColor.value = colorPalette.detail;
-      // } else {
-      //   // Fallback to default colors if frame processor fails
-      //   primaryColor.value = colors.human.primary as string;
-      //   secondaryColor.value = colors.human.secondary as string;
-      //   backgroundColor.value = colors.human.background as string;
-      //   detailColor.value = colors.human.detail as string;
-      // }
       console.log('primaryColor', primaryColor.value);
     },
     [isCameraActive]
   );
 
-  useAnimatedReaction(
-    () => primaryColor.value,
-    value => {
-      // runOnJS(console.log)('primaryColor shared value updated to', value);
-      console.log('primaryColor shared value updated to', value);
-    }
-  );
-
   if (!device || !hasAllPermissions) {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText type="title" style={styles.errorText}>
+      <View style={styles.container}>
+        <Text style={styles.errorText}>
           {!device ? 'No camera available' : 'Camera permission required'}
-        </ThemedText>
-      </ThemedView>
+        </Text>
+      </View>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       {/* Camera view */}
-      <ThemedView style={styles.cameraContainer}>
+      <View style={styles.cameraContainer}>
         <GestureDetector gesture={gesture}>
           <View style={{ ...globalStyles.flex1 }}>
             <ReanimatedCamera
@@ -296,33 +271,24 @@ export const Camera = ({}: CameraProps) => {
               photo
               video
               audio
-              frameProcessor={frameProcessor}
+              frameProcessor={isCameraActive ? frameProcessor : undefined}
+              fps={isCameraActive ? frameProcessorFps : 0}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
             {showGrid && (
               <>
-                <ThemedView style={styles.gridOverlayColumn}>
+                <View style={styles.gridOverlayColumn}>
                   <Divider />
                   <Divider />
-                </ThemedView>
-                <ThemedView style={styles.gridOverlayRow}>
+                </View>
+                <View style={styles.gridOverlayRow}>
                   <Divider vertical />
                   <Divider vertical />
-                </ThemedView>
+                </View>
               </>
             )}
           </View>
         </GestureDetector>
-
-        {/* ===== FOCUS INDICATOR SECTION ===== */}
-        <Reanimated.View style={[styles.focusIndicator, focusIndicatorAnimatedStyle]} />
-
-        {/* ===== CAMERA SUSPENDED INDICATOR ===== */}
-        {!isCameraActive && (
-          <ThemedView style={styles.cameraSuspendedIndicator}>
-            <ThemedText style={styles.cameraSuspendedText}>Camera Suspended</ThemedText>
-          </ThemedView>
-        )}
 
         {/* ===== BACK BUTTON SECTION ===== */}
         <TouchableOpacity
@@ -331,10 +297,10 @@ export const Camera = ({}: CameraProps) => {
         >
           <IconSymbol size={controlSymbolSize} color={colors.human.white} name="chevron.left" />
         </TouchableOpacity>
-      </ThemedView>
+      </View>
 
       {/* ===== TOP CONTROLS SECTION ===== */}
-      <ThemedView style={[styles.topControls, { top: insets.top + 60 }]}>
+      <View style={[styles.topControls, { top: insets.top + 60 }]}>
         <TouchableOpacity style={styles.topButton} onPress={handleGridToggle}>
           <IconSymbol
             size={controlSymbolSize}
@@ -361,69 +327,77 @@ export const Camera = ({}: CameraProps) => {
 
         {cameraDeviceOptionsLength > 1 && (
           <TouchableOpacity style={styles.topButton} onPress={handleCameraDeviceToggle}>
-            <ThemedText style={styles.topButtonIcon}>💿</ThemedText>
+            <Text style={styles.topButtonIcon}>💿</Text>
           </TouchableOpacity>
         )}
-      </ThemedView>
+      </View>
 
-      <ThemedView style={[styles.topControls, { top: insets.top + 60, left: 0, right: undefined }]}>
-        <Reanimated.View
-          style={[
-            {
-              width: 100,
-              height: 100,
-            },
-            animatedStyle,
-          ]}
-        >
-          <ThemedText>{primaryColor.value}</ThemedText>
-        </Reanimated.View>
-        {/* <CameraTile
-          key={`primary`}
-          name={`primary`}
-          color={primaryColor}
-          animatedStyle={colorTileStyle}
-          animationDuration={colorAnimationDuration}
-        />
-        <CameraTile
-          key={`secondary`}
-          name={`secondary`}
-          color={secondaryColor}
-          animatedStyle={colorTileStyle}
-          animationDuration={colorAnimationDuration}
-        /> */}
-      </ThemedView>
-
-      {/* ===== MODE SELECTOR SECTION ===== */}
-      {/* <ThemedView style={styles.modeSelector}>
-        {Object.values(CAMERA_MODE).map(mode => (
-          <TouchableOpacity
-            key={mode}
-            style={[styles.modeButton, cameraMode === mode && styles.modeButtonActive]}
-            onPress={() => setCameraMode(mode)}
-          >
-            <ThemedText
-              style={[styles.modeButtonText, cameraMode === mode && styles.modeButtonTextActive]}
-            >
-              {mode.toUpperCase()}
-            </ThemedText>
-          </TouchableOpacity>
-        ))}
-      </ThemedView> */}
+      <View style={[styles.topControls, { top: insets.top + 60, left: 0, right: undefined }]}>
+        <View style={styles.colorPaletteGrid}>
+          <CameraTile
+            key="primary"
+            name="Primary"
+            color={primaryColor}
+            animationDuration={colorAnimationDuration}
+          />
+          <CameraTile
+            key="secondary"
+            name="Secondary"
+            color={secondaryColor}
+            animationDuration={colorAnimationDuration}
+          />
+          <CameraTile
+            key="tertiary"
+            name="Tertiary"
+            color={tertiaryColor}
+            animationDuration={colorAnimationDuration}
+          />
+          <CameraTile
+            key="quaternary"
+            name="Quaternary"
+            color={quaternaryColor}
+            animationDuration={colorAnimationDuration}
+          />
+          <CameraTile
+            key="quinary"
+            name="Quinary"
+            color={quinaryColor}
+            animationDuration={colorAnimationDuration}
+          />
+          <CameraTile
+            key="senary"
+            name="Senary"
+            color={senaryColor}
+            animationDuration={colorAnimationDuration}
+          />
+          <CameraTile
+            key="background"
+            name="Background"
+            color={backgroundColor}
+            animationDuration={colorAnimationDuration}
+          />
+          <CameraTile
+            key="detail"
+            name="Detail"
+            color={detailColor}
+            animationDuration={colorAnimationDuration}
+          />
+        </View>
+      </View>
 
       {/* ===== BOTTOM CONTROLS SECTION ===== */}
-      <ThemedView style={[styles.bottomControls, { bottom: insets.bottom + 40 }]}>
+      <View style={[styles.bottomControls, { bottom: insets.bottom + 40 }]}>
         {/* Camera Roll Button */}
         <TouchableOpacity style={styles.cameraRollButton} onPress={handleCameraRollPress}>
           {recentPhoto ? (
             <Reanimated.View
-              key={recentPhoto} // Force new component instance
+              key={recentPhoto}
               style={[styles.cameraRollPreviewContainer, animatedPhotoStyle]}
             >
               <Image source={{ uri: recentPhoto }} style={styles.cameraRollPreview} />
             </Reanimated.View>
           ) : (
-            <ThemedText style={styles.cameraRollIcon}>📷</ThemedText>
+            <Text style={styles.cameraRollIcon}>📷</Text>
           )}
         </TouchableOpacity>
 
@@ -432,12 +406,12 @@ export const Camera = ({}: CameraProps) => {
           style={[styles.captureButton, isRecording && styles.captureButtonRecording]}
           onPress={handleCapture}
         >
-          <ThemedView style={styles.captureButtonInner} />
+          <View style={styles.captureButtonInner} />
         </TouchableOpacity>
 
-        <ThemedView style={styles.bottomStub} />
-      </ThemedView>
-    </ThemedView>
+        <View style={styles.bottomStub} />
+      </View>
+    </View>
   );
 };
 
@@ -588,5 +562,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  colorPaletteGrid: {
+    ...globalStyles.flexRow,
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: spacing.md,
+    backgroundColor: colors.human.semiTransparent,
+    borderRadius: 10,
+    gap: spacing.sm,
   },
 });
