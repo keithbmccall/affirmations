@@ -4,7 +4,7 @@ import {
   CAMERA_POSITION,
   cameraDeviceOptions,
   CameraMode,
-  ColorPalette,
+  ColorPalette as ColorPaletteType,
   flashModeOptions,
   getColorLensPalette,
   gridModeOptions,
@@ -18,7 +18,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Reanimated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Reanimated, { runOnJS, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
@@ -27,7 +27,7 @@ import {
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
-import CameraTile from './camera-tile';
+import { ColorPalette } from '../color-palette/color-palette';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -176,51 +176,9 @@ export const Camera = ({}: CameraProps) => {
   const backgroundColor = useSharedValue(DEFAULT_COLOR);
   const detailColor = useSharedValue(DEFAULT_COLOR);
 
-  // const isActiveAnimation = useDerivedValue(
-  //   () =>
-  //     withSpring(isHolding.value ? 0 : 1, {
-  //       mass: 1,
-  //       damping: 500,
-  //       stiffness: 800,
-  //       restDisplacementThreshold: 0.0001,
-  //     }),
-  //   [isHolding]
-  // );
-  // const palettesStyle = useAnimatedStyle(
-  //   () => ({
-  //     transform: [
-  //       {
-  //         scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_CONTAINER_SCALE]),
-  //       },
-  //       {
-  //         translateY: interpolate(isActiveAnimation.value, [0, 1], [0, -TRANSLATE_Y_ACTIVE]),
-  //       },
-  //     ],
-  //     padding: interpolate(isActiveAnimation.value, [0, 1], [0, ACTIVE_CONTAINER_PADDING]),
-  //     borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 25]),
-  //   }),
-  //   [isActiveAnimation]
-  // );
-  // const colorTileStyle = useAnimatedStyle(
-  //   () => ({
-  //     borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 15]),
-  //     transform: [
-  //       {
-  //         scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_TILE_SCALE]),
-  //       },
-  //     ],
-  //     width: TILE_SIZE,
-  //     height: interpolate(isActiveAnimation.value, [0, 1], [ACTIVE_TILE_HEIGHT, TILE_SIZE]),
-  //     paddingBottom: interpolate(isActiveAnimation.value, [0, 1], [SAFE_BOTTOM, 0]),
-  //   }),
-  //   [isActiveAnimation]
-  // );
   const colorAnimationDuration = useMemo(() => (1 / frameProcessorFps) * 1000, [frameProcessorFps]);
-  const animatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: primaryColor.value,
-  }));
 
-  const applyColorPalette = (colorPalette: ColorPalette | null) => {
+  const applyColorPalette = (colorPalette: ColorPaletteType | null) => {
     primaryColor.value = colorPalette?.primary ?? primaryColor.value;
     secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
     tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
@@ -238,11 +196,7 @@ export const Camera = ({}: CameraProps) => {
       // Only process frames when camera is active
       if (!isCameraActive) return;
 
-      const colorPalette = getColorLensPalette(frame);
-
-      // runOnJS(applyColorPalette)(colorPalette);
-      applyColorPaletteWorklet(colorPalette);
-      console.log('primaryColor', primaryColor.value);
+      applyColorPaletteWorklet(getColorLensPalette(frame));
     },
     [isCameraActive]
   );
@@ -330,59 +284,18 @@ export const Camera = ({}: CameraProps) => {
             <Text style={styles.topButtonIcon}>💿</Text>
           </TouchableOpacity>
         )}
-      </View>
 
-      <View style={[styles.topControls, { top: insets.top + 60, left: 0, right: undefined }]}>
-        <View style={styles.colorPaletteGrid}>
-          <CameraTile
-            key="primary"
-            name="Primary"
-            color={primaryColor}
-            animationDuration={colorAnimationDuration}
-          />
-          <CameraTile
-            key="secondary"
-            name="Secondary"
-            color={secondaryColor}
-            animationDuration={colorAnimationDuration}
-          />
-          <CameraTile
-            key="tertiary"
-            name="Tertiary"
-            color={tertiaryColor}
-            animationDuration={colorAnimationDuration}
-          />
-          <CameraTile
-            key="quaternary"
-            name="Quaternary"
-            color={quaternaryColor}
-            animationDuration={colorAnimationDuration}
-          />
-          <CameraTile
-            key="quinary"
-            name="Quinary"
-            color={quinaryColor}
-            animationDuration={colorAnimationDuration}
-          />
-          <CameraTile
-            key="senary"
-            name="Senary"
-            color={senaryColor}
-            animationDuration={colorAnimationDuration}
-          />
-          <CameraTile
-            key="background"
-            name="Background"
-            color={backgroundColor}
-            animationDuration={colorAnimationDuration}
-          />
-          <CameraTile
-            key="detail"
-            name="Detail"
-            color={detailColor}
-            animationDuration={colorAnimationDuration}
-          />
-        </View>
+        <ColorPalette
+          primary={primaryColor}
+          secondary={secondaryColor}
+          tertiary={tertiaryColor}
+          quaternary={quaternaryColor}
+          quinary={quinaryColor}
+          senary={senaryColor}
+          background={backgroundColor}
+          detail={detailColor}
+          animationDuration={colorAnimationDuration}
+        />
       </View>
 
       {/* ===== BOTTOM CONTROLS SECTION ===== */}
@@ -562,15 +475,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  colorPaletteGrid: {
-    ...globalStyles.flexRow,
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: spacing.md,
-    backgroundColor: colors.human.semiTransparent,
-    borderRadius: 10,
-    gap: spacing.sm,
   },
 });

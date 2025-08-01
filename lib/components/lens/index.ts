@@ -1,2 +1,3 @@
 export * from './camera';
-export { default as CameraTile } from './camera/camera-tile';
+export { ColorPalette } from './color-palette/color-palette';
+export { default as ColorSwatch } from './color-palette/color-swatch';
