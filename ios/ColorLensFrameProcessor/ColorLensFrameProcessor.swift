@@ -31,8 +31,8 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
   
   public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
     super.init(proxy: proxy, options: options)
-    // Pre-allocate result dictionary
-    resultCache.reserveCapacity(4)
+    // Pre-allocate result dictionary for 8 colors
+    resultCache.reserveCapacity(8)
   }
   
   // Ultra-fast hex conversion without String formatting
@@ -79,42 +79,77 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
     
     let width = cgImage.width
     let height = cgImage.height
-    let centerX = width / 2
-    let centerY = height / 2
     
-    // Create a 1x1 pixel context at the center
+    // Create a context to analyze the entire image
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
     
     guard let context = CGContext(data: nil,
-                                 width: 1,
-                                 height: 1,
+                                 width: width,
+                                 height: height,
                                  bitsPerComponent: 8,
-                                 bytesPerRow: 4,
+                                 bytesPerRow: width * 4,
                                  space: colorSpace,
                                  bitmapInfo: bitmapInfo) else {
       return nil
     }
     
-    // Draw the center pixel
-    context.draw(cgImage, in: CGRect(x: -centerX, y: -centerY, width: width, height: height))
+    // Draw the entire image
+    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
     
     guard let data = context.data else {
       return nil
     }
     
-    let ptr = data.bindMemory(to: UInt8.self, capacity: 4)
-    let r = Int(ptr[0])
-    let g = Int(ptr[1])
-    let b = Int(ptr[2])
+    let ptr = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
     
-    let centerColor = String(format: "#%02X%02X%02X", r, g, b)
+    // Color frequency analysis
+    var colorCounts: [String: Int] = [:]
+    let sampleStep = max(1, min(width, height) / 32) // Sample every Nth pixel for performance
+    
+    // Sample pixels across the image
+    for y in stride(from: 0, to: height, by: sampleStep) {
+      for x in stride(from: 0, to: width, by: sampleStep) {
+        let index = (y * width + x) * 4
+        let r = Int(ptr[index])
+        let g = Int(ptr[index + 1])
+        let b = Int(ptr[index + 2])
+        
+        // Quantize colors to reduce noise (group similar colors)
+        let quantizedR = (r / 16) * 16
+        let quantizedG = (g / 16) * 16
+        let quantizedB = (b / 16) * 16
+        
+        let colorKey = String(format: "#%02X%02X%02X", quantizedR, quantizedG, quantizedB)
+        colorCounts[colorKey, default: 0] += 1
+      }
+    }
+    
+    // Sort colors by frequency
+    let sortedColors = colorCounts.sorted { $0.value > $1.value }
+    
+    // Extract top 6 dominant colors
+    let dominantColors = Array(sortedColors.prefix(6)).map { $0.key }
+    
+    // Fill in missing colors with the most dominant color
+    let defaultColor = dominantColors.first ?? "#000000"
+    let colors = dominantColors + Array(repeating: defaultColor, count: max(0, 6 - dominantColors.count))
+    
+    // Background is usually the most frequent color
+    let background = dominantColors.first ?? "#000000"
+    
+    // Detail is often a muted version of the background or a subtle accent
+    let detail = dominantColors.count > 1 ? dominantColors[1] : background
     
     return [
-      "primary": centerColor,
-      "secondary": centerColor,
-      "background": centerColor,
-      "detail": centerColor
+      "primary": colors[0],
+      "secondary": colors[1],
+      "tertiary": colors[2],
+      "quaternary": colors[3],
+      "quinary": colors[4],
+      "senary": colors[5],
+      "background": background,
+      "detail": detail
     ]
   }
   
