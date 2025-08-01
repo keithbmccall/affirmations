@@ -4,6 +4,7 @@ import {
   CAMERA_POSITION,
   cameraDeviceOptions,
   CameraMode,
+  ColorPalette,
   flashModeOptions,
   getColorLensPalette,
   gridModeOptions,
@@ -18,12 +19,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, {
-  interpolate,
   runOnJS,
+  useAnimatedReaction,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
-  withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -32,7 +31,7 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import CameraTile from './camera-tile';
+import { Worklets } from 'react-native-worklets-core';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -177,46 +176,65 @@ export const Camera = ({}: CameraProps) => {
   const backgroundColor = useSharedValue(DEFAULT_COLOR);
   const detailColor = useSharedValue(DEFAULT_COLOR);
 
-  const isActiveAnimation = useDerivedValue(
-    () =>
-      withSpring(isHolding.value ? 0 : 1, {
-        mass: 1,
-        damping: 500,
-        stiffness: 800,
-        restDisplacementThreshold: 0.0001,
-      }),
-    [isHolding]
-  );
-  const palettesStyle = useAnimatedStyle(
-    () => ({
-      transform: [
-        {
-          scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_CONTAINER_SCALE]),
-        },
-        {
-          translateY: interpolate(isActiveAnimation.value, [0, 1], [0, -TRANSLATE_Y_ACTIVE]),
-        },
-      ],
-      padding: interpolate(isActiveAnimation.value, [0, 1], [0, ACTIVE_CONTAINER_PADDING]),
-      borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 25]),
-    }),
-    [isActiveAnimation]
-  );
-  const colorTileStyle = useAnimatedStyle(
-    () => ({
-      borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 15]),
-      transform: [
-        {
-          scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_TILE_SCALE]),
-        },
-      ],
-      width: TILE_SIZE,
-      height: interpolate(isActiveAnimation.value, [0, 1], [ACTIVE_TILE_HEIGHT, TILE_SIZE]),
-      paddingBottom: interpolate(isActiveAnimation.value, [0, 1], [SAFE_BOTTOM, 0]),
-    }),
-    [isActiveAnimation]
-  );
+  // const isActiveAnimation = useDerivedValue(
+  //   () =>
+  //     withSpring(isHolding.value ? 0 : 1, {
+  //       mass: 1,
+  //       damping: 500,
+  //       stiffness: 800,
+  //       restDisplacementThreshold: 0.0001,
+  //     }),
+  //   [isHolding]
+  // );
+  // const palettesStyle = useAnimatedStyle(
+  //   () => ({
+  //     transform: [
+  //       {
+  //         scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_CONTAINER_SCALE]),
+  //       },
+  //       {
+  //         translateY: interpolate(isActiveAnimation.value, [0, 1], [0, -TRANSLATE_Y_ACTIVE]),
+  //       },
+  //     ],
+  //     padding: interpolate(isActiveAnimation.value, [0, 1], [0, ACTIVE_CONTAINER_PADDING]),
+  //     borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 25]),
+  //   }),
+  //   [isActiveAnimation]
+  // );
+  // const colorTileStyle = useAnimatedStyle(
+  //   () => ({
+  //     borderRadius: interpolate(isActiveAnimation.value, [0, 1], [0, 15]),
+  //     transform: [
+  //       {
+  //         scale: interpolate(isActiveAnimation.value, [0, 1], [1, ACTIVE_TILE_SCALE]),
+  //       },
+  //     ],
+  //     width: TILE_SIZE,
+  //     height: interpolate(isActiveAnimation.value, [0, 1], [ACTIVE_TILE_HEIGHT, TILE_SIZE]),
+  //     paddingBottom: interpolate(isActiveAnimation.value, [0, 1], [SAFE_BOTTOM, 0]),
+  //   }),
+  //   [isActiveAnimation]
+  // );
   const colorAnimationDuration = useMemo(() => (1 / frameProcessorFps) * 1000, [frameProcessorFps]);
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: primaryColor.value,
+  }));
+
+  const applyColorPalette = (colorPalette: ColorPalette | null) => {
+    if (colorPalette) {
+      primaryColor.value = colorPalette.primary;
+      secondaryColor.value = colorPalette.secondary;
+      backgroundColor.value = colorPalette.background;
+      detailColor.value = colorPalette.detail;
+    } else {
+      primaryColor.value = colors.human.primary as string;
+      secondaryColor.value = colors.human.secondary as string;
+      backgroundColor.value = colors.human.background as string;
+      detailColor.value = colors.human.detail as string;
+    }
+  };
+  const applyColorPaletteWorklet = Worklets.createRunOnJS(applyColorPalette);
+
   const frameProcessor = useFrameProcessor(
     frame => {
       'worklet';
@@ -225,22 +243,33 @@ export const Camera = ({}: CameraProps) => {
 
       const colorPalette = getColorLensPalette(frame);
 
-      // Handle the color palette returned from Swift frame processor
-      if (colorPalette) {
-        primaryColor.value = colorPalette.primary;
-        secondaryColor.value = colorPalette.secondary;
-        backgroundColor.value = colorPalette.background;
-        detailColor.value = colorPalette.detail;
-      } else {
-        // Fallback to default colors if frame processor fails
-        primaryColor.value = colors.human.primary as string;
-        secondaryColor.value = colors.human.secondary as string;
-        backgroundColor.value = colors.human.background as string;
-        detailColor.value = colors.human.detail as string;
-      }
-      console.log('colorPalette', colorPalette);
+      // runOnJS(applyColorPalette)(colorPalette);
+      applyColorPaletteWorklet(colorPalette);
+
+      // // Handle the color palette returned from Swift frame processor
+      // if (colorPalette) {
+      //   primaryColor.value = colorPalette.primary;
+      //   secondaryColor.value = colorPalette.secondary;
+      //   backgroundColor.value = colorPalette.background;
+      //   detailColor.value = colorPalette.detail;
+      // } else {
+      //   // Fallback to default colors if frame processor fails
+      //   primaryColor.value = colors.human.primary as string;
+      //   secondaryColor.value = colors.human.secondary as string;
+      //   backgroundColor.value = colors.human.background as string;
+      //   detailColor.value = colors.human.detail as string;
+      // }
+      console.log('primaryColor', primaryColor.value);
     },
     [isCameraActive]
+  );
+
+  useAnimatedReaction(
+    () => primaryColor.value,
+    value => {
+      // runOnJS(console.log)('primaryColor shared value updated to', value);
+      console.log('primaryColor shared value updated to', value);
+    }
   );
 
   if (!device || !hasAllPermissions) {
@@ -267,7 +296,7 @@ export const Camera = ({}: CameraProps) => {
               photo
               video
               audio
-              frameProcessor={isCameraActive ? frameProcessor : undefined}
+              frameProcessor={frameProcessor}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
             {showGrid && (
@@ -338,7 +367,18 @@ export const Camera = ({}: CameraProps) => {
       </ThemedView>
 
       <ThemedView style={[styles.topControls, { top: insets.top + 60, left: 0, right: undefined }]}>
-        <CameraTile
+        <Reanimated.View
+          style={[
+            {
+              width: 100,
+              height: 100,
+            },
+            animatedStyle,
+          ]}
+        >
+          <ThemedText>{primaryColor.value}</ThemedText>
+        </Reanimated.View>
+        {/* <CameraTile
           key={`primary`}
           name={`primary`}
           color={primaryColor}
@@ -351,7 +391,7 @@ export const Camera = ({}: CameraProps) => {
           color={secondaryColor}
           animatedStyle={colorTileStyle}
           animationDuration={colorAnimationDuration}
-        />
+        /> */}
       </ThemedView>
 
       {/* ===== MODE SELECTOR SECTION ===== */}
