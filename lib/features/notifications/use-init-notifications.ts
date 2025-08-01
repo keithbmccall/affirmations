@@ -3,11 +3,11 @@ import { loadData, saveData, StorageDevice } from '@storage';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import { Init } from '../../platform/types';
 import { getAllScheduledNotifications } from './notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
-const useInitHistoryNotifications: Init = (providerActions, providerState) => {
+// TODO: move to platform or move to screen-containers/affirmations.tsx
+const useInitHistoryNotifications = (providerActions, providerState) => {
   const [isHistoryInited, setIsHistoryInited] = useState(false);
   const { historyNotifications } = providerState.affirmations.notifications;
 
@@ -37,7 +37,7 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   }),
 });
-export const useInitNotifications: Init = (providerActions, providerState) => {
+export const useInitNotifications = (providerActions, providerState) => {
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => {
       if (token) {

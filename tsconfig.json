@@ -14,6 +14,7 @@
       "@screen-containers/*": ["./lib/screen-containers/*"],
       "@storage": ["./lib/storage"],
       "@styles": ["./lib/styles"],
+      "@types": ["./lib/types"],
       "@utils": ["./lib/utils"],
       "@testing": ["./lib/testing"]
     }

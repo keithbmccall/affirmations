@@ -147,6 +147,7 @@ export const colors: Colors = {
   // Human-readable color names
   human: {
     transparent: 'transparent',
+    semiTransparent: 'rgba(0, 0, 0, 0.5)',
     // Reds
     fireEngineRed: '#ff0000',
     crimson: '#dc143c',

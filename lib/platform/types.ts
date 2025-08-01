@@ -1,3 +1,4 @@
-import { StateContextActions, StateType } from './state-context-provider';
+import { StateType } from './state';
+import { StateContextActions } from './state-context-provider';
 
 export type Init = (providerActions: StateContextActions, providerState: StateType) => void;

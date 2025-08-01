@@ -34,10 +34,6 @@ const styles = StyleSheet.create({
   scheduleHistory: {
     height: heightDimension * 0.37,
   },
-  subtitle: {
-    textAlign: 'center',
-    color: colors.text.secondary,
-  },
 });
 
 export default Affirmations;
