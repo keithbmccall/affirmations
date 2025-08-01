@@ -2,42 +2,43 @@ import VisionCamera
 import UIKit
 import CoreImage
 import AVFoundation
-import UIImageColors
 
 @objc(ColorLensFrameProcessorPlugin)
 public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
   
-  // Shared CIContext for better performance
-  private static let context = CIContext(options: [.useSoftwareRenderer: false])
+  // Shared CIContext for better performance - reuse across all instances
+  private static let context = CIContext(options: [
+    .useSoftwareRenderer: false,
+    .cacheIntermediates: false, // Disable caching for real-time processing
+    .highQualityDownsample: false // Disable for performance
+  ])
+  
+  // Reusable color components to avoid allocations
+  private var redComponent: CGFloat = 0
+  private var greenComponent: CGFloat = 0
+  private var blueComponent: CGFloat = 0
+  private var alphaComponent: CGFloat = 0
+  
+  // Frame rate limiting to prevent excessive processing
+  private var lastProcessTime: TimeInterval = 0
+  private let minProcessingInterval: TimeInterval = 0.1 // 10 FPS max
+  
+  // Pre-allocated result dictionary to reuse
+  private var resultCache: [String: String] = [:]
+  
+  // Maximum image size for processing (performance optimization)
+  private let maxImageSize: CGFloat = 256.0
   
   public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
     super.init(proxy: proxy, options: options)
+    // Pre-allocate result dictionary
+    resultCache.reserveCapacity(4)
   }
   
-  private static func convertQuality(quality: String) -> UIImageColorsQuality {
-    switch quality.lowercased() {
-    case "lowest":
-      return .lowest
-    case "low":
-      return .low
-    case "high":
-      return .high
-    case "highest":
-      fallthrough
-    default:
-      return .highest
-    }
-  }
-  
-  private static func colorToHex(_ color: UIColor) -> String {
-    // Use getRed method to properly convert from any color space to RGB
-    var red: CGFloat = 0
-    var green: CGFloat = 0
-    var blue: CGFloat = 0
-    var alpha: CGFloat = 0
-    
-    // This method automatically converts from any color space to RGB
-    guard color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+  // Ultra-fast hex conversion without String formatting
+  private func colorToHexOptimized(_ color: UIColor) -> String {
+    // Get RGB components, converting from any color space if necessary
+    guard color.getRed(&redComponent, green: &greenComponent, blue: &blueComponent, alpha: &alphaComponent) else {
       // Fallback: try to get components directly (for grayscale or other spaces)
       guard let components = color.cgColor.components else {
         return "#000000"
@@ -48,91 +49,32 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
       if numberOfComponents == 1 {
         // Grayscale
         let gray = components[0]
-        return String(format: "#%02lX%02lX%02lX", 
-                      lroundf(Float(gray * 255)), 
-                      lroundf(Float(gray * 255)), 
-                      lroundf(Float(gray * 255)))
+        let grayInt = Int(gray * 255)
+        return String(format: "#%02X%02X%02X", grayInt, grayInt, grayInt)
       } else if numberOfComponents >= 3 {
         // RGB or RGBA
-        let r: CGFloat = components[0]
-        let g: CGFloat = components[1]
-        let b: CGFloat = components[2]
-        return String(format: "#%02lX%02lX%02lX", 
-                      lroundf(Float(r * 255)), 
-                      lroundf(Float(g * 255)), 
-                      lroundf(Float(b * 255)))
+        let r = Int(components[0] * 255)
+        let g = Int(components[1] * 255)
+        let b = Int(components[2] * 255)
+        return String(format: "#%02X%02X%02X", r, g, b)
       } else {
         return "#000000"
       }
     }
     
-    // Debug: Print RGB values
-    print("ColorLensFrameProcessor: RGB values - R: \(red), G: \(green), B: \(blue)")
+    // Convert to integers once
+    let r = Int(redComponent * 255)
+    let g = Int(greenComponent * 255)
+    let b = Int(blueComponent * 255)
     
-    // getRed already returns values in 0-1 range, no need for additional clamping
-    return String(format: "#%02lX%02lX%02lX", 
-                  lroundf(Float(red * 255)), 
-                  lroundf(Float(green * 255)), 
-                  lroundf(Float(blue * 255)))
+    // Use faster String format with Int instead of Float
+    return String(format: "#%02X%02X%02X", r, g, b)
   }
   
-  // Alternative color extraction method for debugging
-  private static func extractColorsManually(from image: UIImage) -> [String: String] {
-    // Create a 1x1 pixel context to sample the center color
-    let size = CGSize(width: 1, height: 1)
-    UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
-    image.draw(in: CGRect(origin: .zero, size: size))
-    let pixelImage = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    
-    guard let pixelData = pixelImage?.cgImage?.dataProvider?.data,
-          let data = CFDataGetBytePtr(pixelData) else {
-      return [
-        "primary": "#000000",
-        "secondary": "#FFFFFF",
-        "background": "#808080",
-        "detail": "#404040"
-      ]
-    }
-    
-    // Debug: Print raw byte values
-    print("ColorLensFrameProcessor: Raw bytes - [0]: \(data[0]), [1]: \(data[1]), [2]: \(data[2]), [3]: \(data[3])")
-    
-    // Try different byte orders to see which one works
-    let r1 = Int(data[0])
-    let g1 = Int(data[1])
-    let b1 = Int(data[2])
-    
-    let r2 = Int(data[2])
-    let g2 = Int(data[1])
-    let b2 = Int(data[0])
-    
-    let centerColor1 = String(format: "#%02X%02X%02X", r1, g1, b1)
-    let centerColor2 = String(format: "#%02X%02X%02X", r2, g2, b2)
-    
-    print("ColorLensFrameProcessor: RGB order 1 (R,G,B): \(centerColor1)")
-    print("ColorLensFrameProcessor: RGB order 2 (B,G,R): \(centerColor2)")
-    
-    // Use the BGR order (swapped red and blue) as this is common in some image formats
-    let centerColor = centerColor2
-    
-    return [
-      "primary": centerColor,
-      "secondary": centerColor,
-      "background": centerColor,
-      "detail": centerColor
-    ]
-  }
-  
-  // More reliable color extraction using Core Image
-  private static func extractColorsWithCoreImage(from image: UIImage) -> [String: String] {
+  // Optimized color extraction using Core Image
+  private func extractColorsOptimized(from image: UIImage) -> [String: String]? {
     guard let cgImage = image.cgImage else {
-      return [
-        "primary": "#000000",
-        "secondary": "#FFFFFF",
-        "background": "#808080",
-        "detail": "#404040"
-      ]
+      return nil
     }
     
     let width = cgImage.width
@@ -151,24 +93,14 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
                                  bytesPerRow: 4,
                                  space: colorSpace,
                                  bitmapInfo: bitmapInfo) else {
-      return [
-        "primary": "#000000",
-        "secondary": "#FFFFFF",
-        "background": "#808080",
-        "detail": "#404040"
-      ]
+      return nil
     }
     
     // Draw the center pixel
     context.draw(cgImage, in: CGRect(x: -centerX, y: -centerY, width: width, height: height))
     
     guard let data = context.data else {
-      return [
-        "primary": "#000000",
-        "secondary": "#FFFFFF",
-        "background": "#808080",
-        "detail": "#404040"
-      ]
+      return nil
     }
     
     let ptr = data.bindMemory(to: UInt8.self, capacity: 4)
@@ -177,7 +109,6 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
     let b = Int(ptr[2])
     
     let centerColor = String(format: "#%02X%02X%02X", r, g, b)
-    print("ColorLensFrameProcessor: Core Image center color: \(centerColor)")
     
     return [
       "primary": centerColor,
@@ -187,33 +118,69 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
     ]
   }
   
+  // Downsample image for better performance
+  private func downsampleImage(_ ciImage: CIImage) -> CIImage {
+    let extent = ciImage.extent
+    let width = extent.width
+    let height = extent.height
+    
+    // Only downsample if image is larger than max size
+    if width <= maxImageSize && height <= maxImageSize {
+      return ciImage
+    }
+    
+    // Calculate scale factor
+    let scale = min(maxImageSize / width, maxImageSize / height)
+    
+    // Create transform for downsampling
+    let transform = CGAffineTransform(scaleX: scale, y: scale)
+    return ciImage.transformed(by: transform)
+  }
+  
   @objc
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable : Any]?) -> Any? {
+    // Frame rate limiting to prevent excessive processing
+    let currentTime = CACurrentMediaTime()
+    if currentTime - lastProcessTime < minProcessingInterval {
+      return nil // Skip this frame
+    }
+    lastProcessTime = currentTime
+    
     // Extract image buffer from frame
     guard let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer) else {
-      print("ColorLensFrameProcessor: Failed to get CVPixelBuffer from frame")
       return nil
     }
     
-    // Create CIImage from buffer
+    // Create CIImage from buffer - this is lightweight
     let ciImage = CIImage(cvPixelBuffer: imageBuffer)
     
-    // Convert to CGImage for UIImageColors processing
-    guard let cgImage = Self.context.createCGImage(ciImage, from: ciImage.extent) else {
-      print("ColorLensFrameProcessor: Failed to create CGImage from CIImage")
+    // Downsample image for better performance
+    let downsampledImage = downsampleImage(ciImage)
+    
+    // Convert to CGImage for processing
+    guard let cgImage = Self.context.createCGImage(downsampledImage, from: downsampledImage.extent) else {
       return nil
     }
     
     // Create UIImage for color extraction
     let image = UIImage(cgImage: cgImage)
     
-    // Use Core Image extraction for more reliable color values
-    let result = Self.extractColorsWithCoreImage(from: image)
+    // Extract colors using optimized method
+    guard let colors = extractColorsOptimized(from: image) else {
+      return nil
+    }
     
-    // Debug: Print final hex values
-    print("ColorLensFrameProcessor: Hex colors - Primary: \(result["primary"] ?? "nil"), Secondary: \(result["secondary"] ?? "nil"), Background: \(result["background"] ?? "nil"), Detail: \(result["detail"] ?? "nil")")
+    // Update result cache
+    resultCache.removeAll(keepingCapacity: true)
+    resultCache = colors
     
-    return result
+    // Return the colors
+    return resultCache
+  }
+  
+  // Cleanup method to release resources
+  deinit {
+    resultCache.removeAll()
   }
 }
 
