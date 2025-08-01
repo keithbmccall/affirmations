@@ -66,11 +66,125 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
       }
     }
     
+    // Debug: Print RGB values
+    print("ColorLensFrameProcessor: RGB values - R: \(red), G: \(green), B: \(blue)")
+    
     // getRed already returns values in 0-1 range, no need for additional clamping
     return String(format: "#%02lX%02lX%02lX", 
                   lroundf(Float(red * 255)), 
                   lroundf(Float(green * 255)), 
                   lroundf(Float(blue * 255)))
+  }
+  
+  // Alternative color extraction method for debugging
+  private static func extractColorsManually(from image: UIImage) -> [String: String] {
+    // Create a 1x1 pixel context to sample the center color
+    let size = CGSize(width: 1, height: 1)
+    UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+    image.draw(in: CGRect(origin: .zero, size: size))
+    let pixelImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    
+    guard let pixelData = pixelImage?.cgImage?.dataProvider?.data,
+          let data = CFDataGetBytePtr(pixelData) else {
+      return [
+        "primary": "#000000",
+        "secondary": "#FFFFFF",
+        "background": "#808080",
+        "detail": "#404040"
+      ]
+    }
+    
+    // Debug: Print raw byte values
+    print("ColorLensFrameProcessor: Raw bytes - [0]: \(data[0]), [1]: \(data[1]), [2]: \(data[2]), [3]: \(data[3])")
+    
+    // Try different byte orders to see which one works
+    let r1 = Int(data[0])
+    let g1 = Int(data[1])
+    let b1 = Int(data[2])
+    
+    let r2 = Int(data[2])
+    let g2 = Int(data[1])
+    let b2 = Int(data[0])
+    
+    let centerColor1 = String(format: "#%02X%02X%02X", r1, g1, b1)
+    let centerColor2 = String(format: "#%02X%02X%02X", r2, g2, b2)
+    
+    print("ColorLensFrameProcessor: RGB order 1 (R,G,B): \(centerColor1)")
+    print("ColorLensFrameProcessor: RGB order 2 (B,G,R): \(centerColor2)")
+    
+    // Use the BGR order (swapped red and blue) as this is common in some image formats
+    let centerColor = centerColor2
+    
+    return [
+      "primary": centerColor,
+      "secondary": centerColor,
+      "background": centerColor,
+      "detail": centerColor
+    ]
+  }
+  
+  // More reliable color extraction using Core Image
+  private static func extractColorsWithCoreImage(from image: UIImage) -> [String: String] {
+    guard let cgImage = image.cgImage else {
+      return [
+        "primary": "#000000",
+        "secondary": "#FFFFFF",
+        "background": "#808080",
+        "detail": "#404040"
+      ]
+    }
+    
+    let width = cgImage.width
+    let height = cgImage.height
+    let centerX = width / 2
+    let centerY = height / 2
+    
+    // Create a 1x1 pixel context at the center
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+    let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+    
+    guard let context = CGContext(data: nil,
+                                 width: 1,
+                                 height: 1,
+                                 bitsPerComponent: 8,
+                                 bytesPerRow: 4,
+                                 space: colorSpace,
+                                 bitmapInfo: bitmapInfo) else {
+      return [
+        "primary": "#000000",
+        "secondary": "#FFFFFF",
+        "background": "#808080",
+        "detail": "#404040"
+      ]
+    }
+    
+    // Draw the center pixel
+    context.draw(cgImage, in: CGRect(x: -centerX, y: -centerY, width: width, height: height))
+    
+    guard let data = context.data else {
+      return [
+        "primary": "#000000",
+        "secondary": "#FFFFFF",
+        "background": "#808080",
+        "detail": "#404040"
+      ]
+    }
+    
+    let ptr = data.bindMemory(to: UInt8.self, capacity: 4)
+    let r = Int(ptr[0])
+    let g = Int(ptr[1])
+    let b = Int(ptr[2])
+    
+    let centerColor = String(format: "#%02X%02X%02X", r, g, b)
+    print("ColorLensFrameProcessor: Core Image center color: \(centerColor)")
+    
+    return [
+      "primary": centerColor,
+      "secondary": centerColor,
+      "background": centerColor,
+      "detail": centerColor
+    ]
   }
   
   @objc
@@ -93,26 +207,11 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
     // Create UIImage for color extraction
     let image = UIImage(cgImage: cgImage)
     
-    // Determine quality setting from arguments
-    var quality: UIImageColorsQuality = .high // Default to high for good balance
+    // Use Core Image extraction for more reliable color values
+    let result = Self.extractColorsWithCoreImage(from: image)
     
-    if let args = arguments, let qualityString = args["quality"] as? String {
-      quality = Self.convertQuality(quality: qualityString)
-    }
-    
-    // Extract colors using UIImageColors
-    guard let colors = image.getColors(quality: quality) else {
-      print("ColorLensFrameProcessor: Failed to extract colors from image")
-      return nil
-    }
-    
-    // Convert colors to hex strings and create result dictionary
-    let result: [String: String] = [
-      "primary": Self.colorToHex(colors.primary),
-      "secondary": Self.colorToHex(colors.secondary),
-      "background": Self.colorToHex(colors.background),
-      "detail": Self.colorToHex(colors.detail)
-    ]
+    // Debug: Print final hex values
+    print("ColorLensFrameProcessor: Hex colors - Primary: \(result["primary"] ?? "nil"), Secondary: \(result["secondary"] ?? "nil"), Background: \(result["background"] ?? "nil"), Detail: \(result["detail"] ?? "nil")")
     
     return result
   }
