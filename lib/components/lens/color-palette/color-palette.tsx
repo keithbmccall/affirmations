@@ -7,21 +7,21 @@ import ColorSwatch from './color-swatch';
 interface ColorPaletteProps {
   palette: {
     /** The most dominant color in the image */
-    primary: SharedValue<string>;
+    primaryColor: SharedValue<string>;
     /** The second most dominant color in the image */
-    secondary: SharedValue<string>;
+    secondaryColor: SharedValue<string>;
     /** The third most dominant color in the image */
-    tertiary: SharedValue<string>;
+    tertiaryColor: SharedValue<string>;
     /** The fourth most dominant color in the image */
-    quaternary: SharedValue<string>;
+    quaternaryColor: SharedValue<string>;
     /** The fifth most dominant color in the image */
-    quinary: SharedValue<string>;
+    quinaryColor: SharedValue<string>;
     /** The sixth most dominant color in the image */
-    senary: SharedValue<string>;
+    senaryColor: SharedValue<string>;
     /** The most frequent background color in the image */
-    background: SharedValue<string>;
+    backgroundColor: SharedValue<string>;
     /** A subtle accent or detail color in the image */
-    detail: SharedValue<string>;
+    detailColor: SharedValue<string>;
   };
   /** Duration for color transition animations in milliseconds */
   animationDuration: number;
@@ -29,7 +29,16 @@ interface ColorPaletteProps {
 }
 
 export const ColorPalette = ({
-  palette: { primary, secondary, tertiary, quaternary, quinary, senary, background, detail },
+  palette: {
+    primaryColor,
+    secondaryColor,
+    tertiaryColor,
+    quaternaryColor,
+    quinaryColor,
+    senaryColor,
+    backgroundColor,
+    detailColor,
+  },
   animationDuration,
   style,
 }: ColorPaletteProps) => {
@@ -38,49 +47,49 @@ export const ColorPalette = ({
       <ColorSwatch
         key="primary"
         name="Primary"
-        color={primary}
+        color={primaryColor}
         animationDuration={animationDuration}
       />
       <ColorSwatch
         key="secondary"
         name="Secondary"
-        color={secondary}
+        color={secondaryColor}
         animationDuration={animationDuration}
       />
       <ColorSwatch
         key="tertiary"
         name="Tertiary"
-        color={tertiary}
+        color={tertiaryColor}
         animationDuration={animationDuration}
       />
       <ColorSwatch
         key="quaternary"
         name="Quaternary"
-        color={quaternary}
+        color={quaternaryColor}
         animationDuration={animationDuration}
       />
       <ColorSwatch
         key="quinary"
         name="Quinary"
-        color={quinary}
+        color={quinaryColor}
         animationDuration={animationDuration}
       />
       <ColorSwatch
         key="senary"
         name="Senary"
-        color={senary}
+        color={senaryColor}
         animationDuration={animationDuration}
       />
       <ColorSwatch
         key="background"
         name="Background"
-        color={background}
+        color={backgroundColor}
         animationDuration={animationDuration}
       />
       <ColorSwatch
         key="detail"
         name="Detail"
-        color={detail}
+        color={detailColor}
         animationDuration={animationDuration}
       />
     </View>

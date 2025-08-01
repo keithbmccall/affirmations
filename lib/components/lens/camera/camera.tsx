@@ -260,7 +260,7 @@ export const Camera = ({}: CameraProps) => {
           <ColorPalette
             palette={palette}
             animationDuration={colorAnimationDuration}
-            style={{ paddingBottom: spacing.md }}
+            style={styles.colorPaletteContainer}
           />
         )}
       </View>
@@ -442,5 +442,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  colorPaletteContainer: {
+    paddingBottom: spacing.md,
   },
 });
