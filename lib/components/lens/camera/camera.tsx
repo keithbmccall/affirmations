@@ -104,6 +104,10 @@ export const Camera = ({}: CameraProps) => {
     }
   };
 
+  const handleLongPress = () => {
+    console.log('long press');
+  };
+
   const handleFlashToggle = () => {
     setFlashMode(prev => (prev + 1) % flashModeOptionsLength);
   };
@@ -275,6 +279,7 @@ export const Camera = ({}: CameraProps) => {
         <TouchableOpacity
           style={[styles.captureButton, isRecording && styles.captureButtonRecording]}
           onPress={handleCapture}
+          onLongPress={handleLongPress}
         >
           <View style={styles.captureButtonInner} />
         </TouchableOpacity>
