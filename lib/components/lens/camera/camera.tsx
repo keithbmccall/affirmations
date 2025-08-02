@@ -169,7 +169,7 @@ export const Camera = ({}: CameraProps) => {
         getColorLensPaletteWorklet(frame);
       }
     },
-    [isCameraActive]
+    [isCameraActive, isColorLensEnabled]
   );
 
   if (!device || !hasAllPermissions) {
