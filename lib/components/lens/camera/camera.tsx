@@ -28,7 +28,7 @@ import {
 } from 'react-native-vision-camera';
 import { useImageLabeler } from 'react-native-vision-camera-image-labeler';
 import { ColorPalette } from '../color-palette/color-palette';
-import { Grid } from './grid';
+import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -206,7 +206,7 @@ export const Camera = ({}: CameraProps) => {
               fps={fps}
             />
             {/* ===== GRID OVERLAY SECTION ===== */}
-            {showGrid && <Grid />}
+            {showGrid && <CameraGrid />}
           </View>
         </GestureDetector>
 
