@@ -82,7 +82,8 @@ export const calculateFps = ({
     if (isColorLensEnabled) {
       return COLOR_LENS_FPS;
     }
+
     return DEFAULT_FPS;
   }
-  return 0;
+  return DEFAULT_FPS;
 };

@@ -26,6 +26,7 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
+import { useImageLabeler } from 'react-native-vision-camera-image-labeler';
 import { ColorPalette } from '../color-palette/color-palette';
 import { Grid } from './grid';
 
@@ -66,45 +67,48 @@ export const Camera = ({}: CameraProps) => {
   const { isColorLensEnabled, setIsColorLensEnabled, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
 
-  // Derived state
+  const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
+
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
   const showGrid = gridModeOptions[gridMode].value === 'on';
 
-  // Camera controls
+  const handleVideoCapture = async () => {
+    if (!camera.current) return;
+
+    try {
+      await camera.current.startRecording({
+        onRecordingFinished: async video => {
+          await createAssetAsync(video.path);
+        },
+        onRecordingError: error => {
+          Alert.alert('Recording error', error.message);
+        },
+      });
+      setIsRecording(true);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to record video');
+    }
+  };
+
   const handleCapture = async () => {
     if (!camera.current) return;
 
     try {
-      if (isVideoMode) {
-        if (isRecording) {
-          await camera.current.stopRecording();
-          setIsRecording(false);
-        } else {
-          await camera.current.startRecording({
-            onRecordingFinished: (video: any) => {
-              Alert.alert('Video saved', `Video saved to: ${video.path}`);
-            },
-            onRecordingError: (error: any) => {
-              Alert.alert('Recording error', error.message);
-            },
-          });
-          setIsRecording(true);
-        }
-      } else {
-        const photo = await camera.current.takePhoto({
-          flash: flashModeOptions[flashMode].value,
-        });
-        await createAssetAsync(photo.path);
-        fetchRecentPhoto();
-      }
+      const photo = await camera.current.takePhoto({
+        flash: flashModeOptions[flashMode].value,
+      });
+      await createAssetAsync(photo.path);
+      fetchRecentPhoto();
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
     }
   };
 
-  const handleLongPress = () => {
-    console.log('long press');
+  const handleStopRecording = async () => {
+    if (!camera.current) return;
+    await camera.current.stopRecording();
+    setIsRecording(false);
   };
 
   const handleFlashToggle = () => {
@@ -165,6 +169,8 @@ export const Camera = ({}: CameraProps) => {
       // Only process frames when camera is active
       if (!isCameraActive) return;
 
+      const data = scanImage(frame);
+      console.log(data, 'data');
       if (isColorLensEnabled) {
         getColorLensPaletteWorklet(frame);
       }
@@ -277,8 +283,8 @@ export const Camera = ({}: CameraProps) => {
         {/* Capture Button */}
         <TouchableOpacity
           style={[styles.captureButton, isRecording && styles.captureButtonRecording]}
-          onPress={handleCapture}
-          onLongPress={handleLongPress}
+          onPress={isRecording ? handleStopRecording : handleCapture}
+          onLongPress={isRecording ? handleStopRecording : handleVideoCapture}
         >
           <View style={styles.captureButtonInner} />
         </TouchableOpacity>
