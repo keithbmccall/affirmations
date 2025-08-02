@@ -11,6 +11,9 @@ export const keyGenerator = (
 
 export const splitCamelCase = (string: string) => string.replace(/([A-Z])/g, '$1');
 
+export const capitalizeFirstLetter = (string: string) =>
+  string.charAt(0).toUpperCase() + string.slice(1);
+
 export const catchError = (e: unknown, log: string, action: string) => {
   console.log(`Error during action:'${action}':: Log:'${log}':: Error:`, e);
 };

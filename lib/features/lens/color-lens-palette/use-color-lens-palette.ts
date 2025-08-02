@@ -34,19 +34,21 @@ export const useColorLensPalette = () => {
     applyColorPaletteWorklet(getColorLensPalette(frame));
   };
 
+  const palette = {
+    primaryColor,
+    secondaryColor,
+    tertiaryColor,
+    quaternaryColor,
+    quinaryColor,
+    senaryColor,
+    backgroundColor,
+    detailColor,
+  };
+
   return {
     isColorLensEnabled,
     setIsColorLensEnabled,
-    palette: {
-      primaryColor,
-      secondaryColor,
-      tertiaryColor,
-      quaternaryColor,
-      quinaryColor,
-      senaryColor,
-      backgroundColor,
-      detailColor,
-    },
+    palette,
     getColorLensPaletteWorklet,
   };
 };
