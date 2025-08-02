@@ -6,7 +6,6 @@ import {
   cameraDeviceOptions,
   CameraMode,
   flashModeOptions,
-  getColorLensPalette,
   gridModeOptions,
   useCameraFocus,
   useCameraRoll,
@@ -64,7 +63,7 @@ export const Camera = ({}: CameraProps) => {
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
   const { animatedPhotoStyle, handleCameraRollPress, fetchRecentPhoto, recentPhoto } =
     useCameraRoll(hasAllPermissions);
-  const { isColorLensEnabled, setIsColorLensEnabled, palette, applyColorPaletteWorklet } =
+  const { isColorLensEnabled, setIsColorLensEnabled, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
 
   // Derived state
@@ -167,7 +166,7 @@ export const Camera = ({}: CameraProps) => {
       if (!isCameraActive) return;
 
       if (isColorLensEnabled) {
-        applyColorPaletteWorklet(getColorLensPalette(frame));
+        getColorLensPaletteWorklet(frame);
       }
     },
     [isCameraActive]

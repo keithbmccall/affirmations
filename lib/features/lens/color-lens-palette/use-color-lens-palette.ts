@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
+import { Frame } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
-import { ColorLensPaletteType } from './get-color-lens-palette';
+import { ColorLensPaletteType, getColorLensPalette } from './get-color-lens-palette';
 
 const DEFAULT_COLOR = '#000000';
 export const useColorLensPalette = () => {
@@ -28,6 +29,11 @@ export const useColorLensPalette = () => {
   };
   const applyColorPaletteWorklet = Worklets.createRunOnJS(applyColorPalette);
 
+  const getColorLensPaletteWorklet = (frame: Frame) => {
+    'worklet';
+    applyColorPaletteWorklet(getColorLensPalette(frame));
+  };
+
   return {
     isColorLensEnabled,
     setIsColorLensEnabled,
@@ -41,6 +47,6 @@ export const useColorLensPalette = () => {
       backgroundColor,
       detailColor,
     },
-    applyColorPaletteWorklet,
+    getColorLensPaletteWorklet,
   };
 };
