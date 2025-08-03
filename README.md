@@ -1,50 +1,324 @@
-# Welcome to your Expo app 👋
+# Affirmations - React Native/Expo App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A comprehensive React Native/Expo application for scheduling and managing affirmations with notifications, featuring advanced camera functionality with real-time color palette extraction.
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+### Core Functionality
+
+- **Affirmation Scheduling**: Schedule personalized affirmations with custom titles and messages
+- **Notification Management**: View, edit, and cancel scheduled notifications
+- **History Tracking**: Maintain a complete history of sent notifications
+- **Permission Handling**: Robust camera, microphone, and media library permission management
+
+### Camera & Lens Features
+
+- **Advanced Camera Controls**: Multiple camera modes (photo, video, portrait)
+- **Real-time Color Palette**: Extract color palettes from camera frames in real-time
+- **Camera Roll Integration**: Access and display recent media
+- **Grid Overlay**: Professional photography grid for composition
+- **Flash & Device Controls**: Full camera control suite
+- **Gesture Support**: Tap-to-focus functionality
+- **Video Recording**: Capture videos with custom settings
+
+### Technical Features
+
+- **Dark/Light Theme Support**: Complete theming system with automatic scheme detection
+- **TypeScript**: Fully typed codebase for better development experience
+- **Testing**: Comprehensive Jest testing with React Native Testing Library
+- **State Management**: Global state management with React Context + useReducer
+- **File-based Routing**: Expo Router with modal and tab navigation
+- **Performance Optimized**: Frame processors and worklets for real-time processing
+
+## 🛠 Tech Stack
+
+### Core Framework
+
+- **React Native** with **Expo SDK 53**
+- **TypeScript** for type safety
+- **Expo Router** for file-based navigation
+
+### Camera & Media
+
+- **React Native Vision Camera** for advanced camera functionality
+- **Expo Media Library** for media access
+- **Expo Image Picker** for photo/video selection
+- **React Native Reanimated** for smooth animations
+
+### Notifications
+
+- **Expo Notifications** for local notification scheduling
+- **AsyncStorage** for persistent data storage
+
+### UI & Styling
+
+- **Custom Themed Components** with dark/light mode support
+- **React Native Gesture Handler** for touch interactions
+- **React Native Safe Area Context** for proper layout handling
+
+### Development Tools
+
+- **Jest** + **React Native Testing Library** for testing
+- **ESLint** + **Prettier** for code quality
+- **Expo Haptics** for tactile feedback
+
+## 📱 App Structure
+
+### Navigation
+
+- **Tab Navigation**: Home, Lens (Camera), Affirmations
+- **Modal Navigation**: Notification details modal
+- **File-based Routing**: Automatic route generation
+
+### Screens
+
+1. **Home Screen**: Settings and navigation hub
+2. **Lens Screen**: Advanced camera with color palette extraction
+3. **Affirmations Screen**: Schedule and manage notifications
+
+### State Management
+
+- **Global Context**: Centralized state with actions and reducers
+- **Feature-based Organization**: Separate contexts for different app domains
+- **Persistent Storage**: AsyncStorage integration for data persistence
+
+## 🎨 Design System
+
+### Theming
+
+- **Automatic Theme Detection**: Light/dark mode based on system settings
+- **Comprehensive Color Palette**: Semantic color naming system
+- **Consistent Spacing**: 4px base unit system
+- **Typography Scale**: Consistent text sizing and weights
+
+### Components
+
+- **Themed Components**: All components support theming
+- **Shared Components**: Reusable UI components
+- **Custom Icons**: SF Symbols integration
+- **Responsive Design**: Adapts to different screen sizes
+
+## 🔧 Development
+
+### Getting Started
+
+1. **Install Dependencies**
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. **Start Development Server**
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. **Run on Device/Simulator**
+   - Press `i` for iOS Simulator
+   - Press `a` for Android Emulator
+   - Scan QR code with Expo Go app
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Available Scripts
 
 ```bash
-npm run reset-project
+# Development
+npm start                    # Start Expo development server
+npm run ios                 # Run on iOS simulator
+npm run android             # Run on Android emulator
+npm run web                 # Run on web browser
+
+# Testing
+npm test                    # Run all tests
+npm run test:all           # Run tests in watch mode
+
+# Code Quality
+npm run lint               # Run ESLint
+npm run format             # Format code with Prettier
+npm run format:check       # Check code formatting
+
+# Project Management
+npm run reset-project      # Reset to blank project
+npm run nuke              # Clean install (remove node_modules, etc.)
+npm run recharge          # Reinstall and rebuild native code
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Project Structure
 
-## Learn more
+```
+affirmations/
+├── app/                    # Expo Router app directory
+│   ├── (tabs)/            # Tab navigation screens
+│   ├── (modals)/          # Modal screens
+│   └── _layout.tsx        # Root layout
+├── lib/                    # Application library
+│   ├── components/         # Reusable UI components
+│   ├── features/          # Feature-specific logic
+│   ├── platform/          # Global state management
+│   ├── screen-containers/ # Screen container components
+│   ├── styles/            # Theming and styling system
+│   ├── testing/           # Testing utilities
+│   └── utils/             # Utility functions
+├── assets/                # Static assets
+└── ios/android/          # Native platform code
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🧪 Testing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+The app includes comprehensive testing with:
 
-## Join the community
+- **Jest** test runner
+- **React Native Testing Library** for component testing
+- **Custom test utilities** for context and navigation testing
+- **Mock implementations** for native modules
 
-Join our community of developers creating universal apps.
+### Running Tests
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm test                    # Run all tests
+npm test -- --watch        # Run tests in watch mode
+npm test -- path/to/test   # Run specific test file
+```
+
+## 📦 Building
+
+### Development Build
+
+```bash
+npm run build
+```
+
+### Production Build
+
+```bash
+# iOS
+eas build --platform ios
+
+# Android
+eas build --platform android
+```
+
+## 🔍 Key Features Deep Dive
+
+### Camera System
+
+- **Real-time Processing**: Frame processors for live color extraction
+- **Multiple Modes**: Photo, video, and portrait modes
+- **Advanced Controls**: Flash, grid, device switching
+- **Performance Optimized**: Worklets for smooth real-time processing
+
+### Notification System
+
+- **Flexible Scheduling**: Custom dates and times
+- **Rich Content**: Titles, messages, and custom data
+- **History Management**: Complete audit trail
+- **Permission Handling**: Robust permission management
+
+### State Management
+
+- **Context-based**: React Context with useReducer
+- **Type-safe**: Full TypeScript integration
+- **Persistent**: AsyncStorage for data persistence
+- **Modular**: Feature-based organization
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## 📄 License
+
+This project is private and proprietary.
+
+## 🆘 Support
+
+For issues and questions:
+
+- Check the existing issues
+- Create a new issue with detailed information
+- Include device/OS information for bug reports
+
+---
+
+## 🤖 AI Forecast
+
+Based on the sophisticated architecture and feature set of this affirmations app, here's my analysis of the long-term vision:
+
+### 🎯 Core Vision
+
+This project appears to be evolving into a **comprehensive wellness and mindfulness platform** that combines traditional affirmation practices with cutting-edge AI and computer vision technology.
+
+### 🔮 Long-term Trajectory
+
+#### Phase 1: Foundation (Current)
+
+- ✅ Affirmation scheduling and notification system
+- ✅ Advanced camera with real-time color palette extraction
+- ✅ Robust state management and theming system
+
+#### Phase 2: AI Integration (Near-term)
+
+- **Emotion Detection**: Using the camera to analyze user facial expressions and emotional states
+- **Personalized Affirmations**: AI-generated affirmations based on detected emotions and user patterns
+- **Voice Recognition**: Speech-to-text for hands-free affirmation creation
+- **Sentiment Analysis**: Understanding user mood through text analysis
+
+#### Phase 3: Advanced Wellness Features (Medium-term)
+
+- **Biometric Integration**: Heart rate, stress levels, and sleep data correlation
+- **Environmental Analysis**: Using camera to assess lighting, environment, and mood factors
+- **Social Features**: Sharing affirmations with trusted circles while maintaining privacy
+- **Progress Tracking**: AI-powered insights into emotional patterns and growth
+
+#### Phase 4: Holistic Wellness Platform (Long-term)
+
+- **Predictive Affirmations**: AI that anticipates when users need affirmations based on patterns
+- **Multimodal AI**: Combining camera, voice, and biometric data for comprehensive wellness insights
+- **Therapeutic Integration**: Partnerships with mental health professionals and therapy apps
+- **Community Features**: Anonymous support groups and wellness challenges
+
+### 🧠 Technical Architecture Insights
+
+The current codebase reveals several strategic decisions that support this vision:
+
+1. **Real-time Processing Foundation**: The frame processor architecture for color palette extraction is a stepping stone to real-time emotion detection and environmental analysis.
+
+2. **Modular State Management**: The context-based state system with feature-based organization allows for easy integration of new AI features without architectural changes.
+
+3. **Permission-First Design**: The robust permission handling system will be crucial for accessing biometric data and advanced device features.
+
+4. **Testing Infrastructure**: The comprehensive testing setup ensures AI features can be reliably deployed and updated.
+
+### 🎨 Design Philosophy Alignment
+
+The theming system and component architecture suggest a focus on:
+
+- **Accessibility**: Ensuring AI features work for users with different abilities
+- **Privacy**: User-controlled data sharing and local processing where possible
+- **Personalization**: Adaptive interfaces that respond to user preferences and needs
+
+### 🚀 Market Positioning
+
+This project has the potential to become a **premium wellness app** that:
+
+- Differentiates itself through AI-powered personalization
+- Appeals to both casual users and serious wellness practitioners
+- Creates a new category combining traditional mindfulness with modern technology
+- Builds a sustainable business model through premium features and professional partnerships
+
+### 🔮 Predictions
+
+1. **2024-2025**: Core AI features (emotion detection, personalized affirmations)
+2. **2025-2026**: Biometric integration and advanced analytics
+3. **2026-2027**: Community features and therapeutic partnerships
+4. **2027+**: Platform expansion into broader wellness ecosystem
+
+The combination of solid technical foundations, thoughtful architecture, and the integration of cutting-edge AI capabilities positions this project for significant growth in the rapidly expanding mental wellness market.
+
+---
+
+Built with ❤️ using React Native and Expo
