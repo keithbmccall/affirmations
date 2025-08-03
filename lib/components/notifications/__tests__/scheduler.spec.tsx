@@ -1,6 +1,6 @@
 import { Scheduler } from '@components/notifications';
 import { renderWithContext, setupDateTimePickerMock, simulateDatePickerPress } from '@testing';
-import { fireEvent, waitFor } from 'expo-router/testing-library';
+import { act, fireEvent, waitFor } from 'expo-router/testing-library';
 import React from 'react';
 
 // Use the shared DateTimePicker mock utility
@@ -104,7 +104,9 @@ describe('Scheduler Component', () => {
       fireEvent.changeText(messageInput, 'Valid message content');
 
       const submitButton = await findByRole('button', { name: 'Schedule message' });
-      fireEvent.press(submitButton);
+      await act(async () => {
+        fireEvent.press(submitButton);
+      });
 
       expect(await findByText('Title needs to be at least 3 characters')).toBeOnTheScreen();
     });
@@ -120,7 +122,9 @@ describe('Scheduler Component', () => {
 
       const submitButton = await findByRole('button', { name: 'Schedule message' });
 
-      fireEvent.press(submitButton);
+      await act(async () => {
+        fireEvent.press(submitButton);
+      });
 
       expect(await findByText('Message needs to be at least 5 characters')).toBeOnTheScreen();
     });
@@ -135,7 +139,9 @@ describe('Scheduler Component', () => {
       fireEvent.changeText(messageInput, 'Bye');
 
       const submitButton = await findByRole('button', { name: 'Schedule message' });
-      fireEvent.press(submitButton);
+      await act(async () => {
+        fireEvent.press(submitButton);
+      });
 
       // Both errors should be shown
       expect(await findByText('Title needs to be at least 3 characters')).toBeOnTheScreen();
@@ -180,7 +186,9 @@ describe('Scheduler Component', () => {
       // Test successful form submission
       fireEvent.changeText(titleInput, 'Test Title');
       fireEvent.changeText(messageInput, 'Test message content');
-      fireEvent.press(submitButton);
+      await act(async () => {
+        fireEvent.press(submitButton);
+      });
 
       // Assert that schedulePushNotification was called with expected values
       expect(mockSchedulePushNotification).toHaveBeenCalledTimes(1);
@@ -224,7 +232,9 @@ describe('Scheduler Component', () => {
       expect(messageInput.props.defaultValue).toBe('Initial message content here');
 
       // Check that onSubmit function is called when form is submitted
-      fireEvent.press(submitButton);
+      await act(async () => {
+        fireEvent.press(submitButton);
+      });
       expect(customProps.submitProps.onSubmit).toHaveBeenCalledTimes(1);
       expect(customProps.submitProps.onSubmit).toHaveBeenCalledWith({
         title: 'Initial Title Value',
@@ -255,7 +265,9 @@ describe('Scheduler Component', () => {
       fireEvent.changeText(messageInput, 'Test message content');
 
       // Simulate date change using the testing utility
-      simulateDatePickerPress(dateTimePicker);
+      await act(async () => {
+        simulateDatePickerPress(dateTimePicker);
+      });
 
       // Verify form is still valid after date change
       const submitButton = await findByRole('button', { name: 'Schedule message' });
@@ -276,11 +288,15 @@ describe('Scheduler Component', () => {
       fireEvent.changeText(messageInput, 'Test message content');
 
       // Change date using the testing utility
-      simulateDatePickerPress(dateTimePicker);
+      await act(async () => {
+        simulateDatePickerPress(dateTimePicker);
+      });
 
       // Submit form
       const submitButton = await findByRole('button', { name: 'Schedule message' });
-      fireEvent.press(submitButton);
+      await act(async () => {
+        fireEvent.press(submitButton);
+      });
 
       // Verify scheduler was called with a future date
       expect(mockSchedulePushNotification).toHaveBeenCalledTimes(1);
@@ -317,7 +333,9 @@ describe('Scheduler Component', () => {
       fireEvent.changeText(messageInput, 'Test message content');
 
       const submitButton = await findByRole('button', { name: 'Schedule message' });
-      fireEvent.press(submitButton);
+      await act(async () => {
+        fireEvent.press(submitButton);
+      });
 
       // Wait for form reset
       await waitFor(() => {
