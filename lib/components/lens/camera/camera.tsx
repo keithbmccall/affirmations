@@ -1,4 +1,4 @@
-import { IconSymbol } from '@components/shared';
+import { IconSymbol, ThemedText, ThemedView } from '@components/shared';
 import {
   calculateFps,
   CAMERA_MODE,
@@ -62,8 +62,12 @@ export const Camera = ({}: CameraProps) => {
   const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
-  const { animatedPhotoStyle, handleCameraRollPress, fetchRecentPhoto, recentPhoto } =
-    useCameraRoll(hasAllPermissions);
+  const {
+    animatedPhotoStyle,
+    handleCameraRollPress,
+    fetchRecentMedia: fetchRecentMedia,
+    recentMedia: recentPhoto,
+  } = useCameraRoll(hasAllPermissions);
   const { isColorLensEnabled, setIsColorLensEnabled, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
 
@@ -80,6 +84,7 @@ export const Camera = ({}: CameraProps) => {
       await camera.current.startRecording({
         onRecordingFinished: async video => {
           await createAssetAsync(video.path);
+          fetchRecentMedia();
         },
         onRecordingError: error => {
           Alert.alert('Recording error', error.message);
@@ -99,7 +104,7 @@ export const Camera = ({}: CameraProps) => {
         flash: flashModeOptions[flashMode].value,
       });
       await createAssetAsync(photo.path);
-      fetchRecentPhoto();
+      fetchRecentMedia();
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
     }
@@ -140,7 +145,7 @@ export const Camera = ({}: CameraProps) => {
   // Fetch recent photo when permissions are granted
   useEffect(() => {
     if (mediaLibraryPermission) {
-      fetchRecentPhoto();
+      fetchRecentMedia();
     }
   }, [mediaLibraryPermission]);
 
@@ -169,8 +174,8 @@ export const Camera = ({}: CameraProps) => {
       // Only process frames when camera is active
       if (!isCameraActive) return;
 
-      const data = scanImage(frame);
-      console.log(data, 'data');
+      // const data = scanImage(frame);
+      // console.log(data, 'data');
       if (isColorLensEnabled) {
         getColorLensPaletteWorklet(frame);
       }
@@ -178,17 +183,18 @@ export const Camera = ({}: CameraProps) => {
     [isCameraActive, isColorLensEnabled]
   );
 
-  if (!device || !hasAllPermissions) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>
-          {!device ? 'No camera available' : 'Camera permission required'}
-        </Text>
-      </View>
-    );
-  }
+  const isVideoNotAllowed = isColorLensEnabled;
+  const triggerProps = isRecording
+    ? {
+        onPress: handleStopRecording,
+        onLongPress: handleStopRecording,
+      }
+    : {
+        onPress: handleCapture,
+        onLongPress: isVideoNotAllowed ? undefined : handleVideoCapture,
+      };
 
-  return (
+  return device && hasAllPermissions ? (
     <View style={styles.container}>
       {/* Camera view */}
       <View style={styles.cameraContainer}>
@@ -283,8 +289,7 @@ export const Camera = ({}: CameraProps) => {
         {/* Capture Button */}
         <TouchableOpacity
           style={[styles.captureButton, isRecording && styles.captureButtonRecording]}
-          onPress={isRecording ? handleStopRecording : handleCapture}
-          onLongPress={isRecording ? handleStopRecording : handleVideoCapture}
+          {...triggerProps}
         >
           <View style={styles.captureButtonInner} />
         </TouchableOpacity>
@@ -292,6 +297,12 @@ export const Camera = ({}: CameraProps) => {
         <View style={styles.bottomStub} />
       </View>
     </View>
+  ) : (
+    <ThemedView style={styles.container}>
+      <ThemedText style={styles.errorText}>
+        {!device ? 'No camera available' : 'Camera permission required'}
+      </ThemedText>
+    </ThemedView>
   );
 };
 
