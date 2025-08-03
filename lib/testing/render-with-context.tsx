@@ -1,4 +1,4 @@
-import { StateContextProvider } from '@platform';
+import StateContextProvider from '@platform/state-context-provider';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import {
   MockContextConfig,

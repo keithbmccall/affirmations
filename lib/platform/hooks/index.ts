@@ -1,4 +1,4 @@
-import { useStateContext } from '../state-context-provider';
+import { useStateContext } from '../context/context';
 
 export const useSettings = () => {
   const { settings, actions } = useStateContext();

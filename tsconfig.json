@@ -9,6 +9,7 @@
       "@features/notifications": ["./lib/features/notifications"],
       "@features/lens": ["./lib/features/lens"],
       "@platform": ["./lib/platform"],
+      "@platform/state-context-provider": ["./lib/platform/context/state-context-provider"],
       "@routes": ["./lib/routes"],
       "@screen-containers/*": ["./lib/screen-containers/*"],
       "@storage": ["./lib/storage"],

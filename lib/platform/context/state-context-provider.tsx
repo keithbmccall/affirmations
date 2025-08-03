@@ -1,12 +1,8 @@
 import { useInitNotifications } from '@features/notifications';
-import { noop } from '@utils';
-import { createContext, FC, PropsWithChildren, useContext, useMemo, useReducer } from 'react';
+import { FC, PropsWithChildren, useMemo, useReducer } from 'react';
 import {
   Action,
   addHistoryNotification,
-  AffirmationsActionsFunctions,
-  GeneralActionsFunctions,
-  LensActionsFunctions,
   removeHistoryNotification,
   setHistoryNotifications,
   setLoading,
@@ -14,46 +10,11 @@ import {
   setNotificationChannels,
   setNotificationToken,
   setPendingNotifications,
-  SettingsActionsFunctions,
-} from './actions';
-import { affirmationsReducer, generalReducer, lensReducer, settingsReducer } from './reducers';
-import { initialState, StateType } from './state';
-
-export type StateContextActions = {
-  settings: SettingsActionsFunctions;
-  affirmations: AffirmationsActionsFunctions;
-  lens: LensActionsFunctions;
-  general: GeneralActionsFunctions;
-};
-
-const initialActions: StateContextActions = {
-  settings: {
-    onSetName: noop,
-  },
-  affirmations: {
-    onSetNotificationToken: noop,
-    onSetNotificationChannels: noop,
-    onSetPendingNotifications: noop,
-    onAddHistoryNotification: noop,
-    onSetHistoryNotifications: noop,
-    onRemoveHistoryNotification: noop,
-  },
-  lens: {},
-  general: {
-    onSetLoading: noop,
-  },
-};
-
-export type StateContextType = StateType & {
-  actions: StateContextActions;
-};
-
-const StateContext = createContext<StateContextType>({
-  ...initialState,
-  actions: initialActions,
-});
-
-export const useStateContext = () => useContext(StateContext);
+  StateContextActions,
+} from '../actions';
+import { affirmationsReducer, generalReducer, lensReducer, settingsReducer } from '../reducers';
+import { initialState, StateType } from '../state';
+import { StateContext } from './context';
 
 const rootReducer = (state: StateType, action: Action): StateType => {
   return {
@@ -65,7 +26,7 @@ const rootReducer = (state: StateType, action: Action): StateType => {
   };
 };
 
-export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
+const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [state, dispatch] = useReducer(rootReducer, initialState);
 
   const providerActions: StateContextActions = useMemo(
@@ -103,3 +64,5 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
     </StateContext.Provider>
   );
 };
+
+export default StateContextProvider;

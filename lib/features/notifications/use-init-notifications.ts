@@ -7,7 +7,7 @@ import { getAllScheduledNotifications } from './notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
 // TODO: move to platform or move to screen-containers/affirmations.tsx
-const useInitHistoryNotifications = (providerActions, providerState) => {
+const useInitHistoryNotifications: Init = (providerActions, providerState) => {
   const [isHistoryInited, setIsHistoryInited] = useState(false);
   const { historyNotifications } = providerState.affirmations.notifications;
 
@@ -37,7 +37,7 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   }),
 });
-export const useInitNotifications = (providerActions, providerState) => {
+export const useInitNotifications: Init = (providerActions, providerState) => {
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => {
       if (token) {
