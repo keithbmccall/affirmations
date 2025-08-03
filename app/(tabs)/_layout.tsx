@@ -1,4 +1,4 @@
-import { IconSymbol } from '@components';
+import { IconSymbol } from '@components/shared';
 import { Routes } from '@routes';
 import { useColorScheme } from '@styles';
 import { Tabs } from 'expo-router';

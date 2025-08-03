@@ -1,4 +1,4 @@
-import { ThemedSafeAreaView } from '@components';
+import { ThemedSafeAreaView } from '@components/shared';
 import Home from '@screen-containers/home';
 import { globalStyles } from '@styles';
 import { StyleSheet } from 'react-native';

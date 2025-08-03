@@ -1,4 +1,5 @@
-import { Scheduler, ThemedText, ThemedView } from '@components';
+import { Scheduler } from '@components/notifications';
+import { ThemedText, ThemedView } from '@components/shared';
 import {
   HistoryNotification,
   NotificationIdentifier,

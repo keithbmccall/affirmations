@@ -119,6 +119,7 @@ describe('Scheduler Component', () => {
       fireEvent.changeText(messageInput, 'Hi');
 
       const submitButton = await findByRole('button', { name: 'Schedule message' });
+
       fireEvent.press(submitButton);
 
       expect(await findByText('Message needs to be at least 5 characters')).toBeOnTheScreen();

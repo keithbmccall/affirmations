@@ -319,8 +319,8 @@ describe('ScheduleHistory Component', () => {
       // Get all notification rows
       const notificationRows = screen.getAllByTestId(/notification-row/);
 
-      // Should have 2 history notifications
-      expect(notificationRows).toHaveLength(2);
+      // Should have 4 notification rows (2 notifications × 2 test IDs each: regular + swipeable)
+      expect(notificationRows).toHaveLength(4);
 
       // Check that both notifications are present (order may vary due to sorting)
       expect(screen.getByText('Past Affirmation')).toBeOnTheScreen();
@@ -345,20 +345,20 @@ describe('ScheduleHistory Component', () => {
       expect(await screen.findByTestId('swipeable-notification-row-pending-2')).toBeOnTheScreen();
     });
 
-    it('does not render swipeable components for history notifications', async () => {
+    it('renders swipeable components for history notifications', async () => {
       renderWithContext(<ScheduleHistory />);
 
       // Switch to history tab
       const historyButton = await screen.findByRole('button', { name: 'History' });
       fireEvent.press(historyButton);
 
-      // Should see regular notification rows, not swipeable ones for history
+      // Should see swipeable notification rows for history (since all notifications are swipeable)
+      expect(await screen.findByTestId('swipeable-notification-row-history-1')).toBeOnTheScreen();
+      expect(await screen.findByTestId('swipeable-notification-row-history-2')).toBeOnTheScreen();
+
+      // Should also see the inner notification rows
       expect(await screen.findByTestId('notification-row-history-1')).toBeOnTheScreen();
       expect(await screen.findByTestId('notification-row-history-2')).toBeOnTheScreen();
-
-      // Should NOT see swipeable versions
-      expect(screen.queryByTestId('swipeable-notification-row-history-1')).not.toBeOnTheScreen();
-      expect(screen.queryByTestId('swipeable-notification-row-history-2')).not.toBeOnTheScreen();
     });
 
     it('calls cancelPushNotification when delete button is pressed', async () => {
