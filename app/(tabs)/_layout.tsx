@@ -25,7 +25,6 @@ export default function TabLayout() {
           },
           default: {},
         }),
-        // tabBarStyle: { display: 'none' },
       }}
     >
       <Tabs.Screen
@@ -44,6 +43,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name={Routes.tabs.lens.icon} color={color} />
           ),
+          tabBarStyle: { display: 'none' },
         }}
       />
       <Tabs.Screen
