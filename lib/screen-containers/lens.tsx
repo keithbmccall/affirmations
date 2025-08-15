@@ -7,6 +7,8 @@ import { ScreenContainerProps } from './types';
 
 interface LensProps extends ScreenContainerProps {}
 const Lens = ({ statusBarProps }: LensProps) => {
+  useInitLensPalettes();
+
   return (
     <ThemedView style={styles.container}>
       <StatusBar {...statusBarProps} />

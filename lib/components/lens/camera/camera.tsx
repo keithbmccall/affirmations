@@ -7,6 +7,7 @@ import {
   CameraMode,
   flashModeOptions,
   gridModeOptions,
+  LensPalette,
   useCameraFocus,
   useCameraRoll,
   useColorLensPalette,
@@ -26,7 +27,6 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import { useImageLabeler } from 'react-native-vision-camera-image-labeler';
 import { ColorPalette } from '../color-palette/color-palette';
 import { CameraGrid } from './camera-grid';
 
@@ -59,7 +59,7 @@ export const Camera = ({}: CameraProps) => {
 
   const camera = useRef<VisionCamera>(null);
 
-  const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
+  const { handleFocusTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
   const {
@@ -71,7 +71,7 @@ export const Camera = ({}: CameraProps) => {
   const { isColorLensEnabled, setIsColorLensEnabled, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
 
-  const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
+  // const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
 
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
@@ -100,10 +100,31 @@ export const Camera = ({}: CameraProps) => {
     if (!camera.current) return;
 
     try {
+      const currentPalette = {
+        primaryColor: palette.primaryColor.value,
+        secondaryColor: palette.secondaryColor.value,
+        tertiaryColor: palette.tertiaryColor.value,
+        quaternaryColor: palette.quaternaryColor.value,
+        quinaryColor: palette.quinaryColor.value,
+        senaryColor: palette.senaryColor.value,
+        backgroundColor: palette.backgroundColor.value,
+        detailColor: palette.detailColor.value,
+      };
       const photo = await camera.current.takePhoto({
         flash: flashModeOptions[flashMode].value,
       });
-      await createAssetAsync(photo.path);
+
+      const asset = await createAssetAsync(photo.path);
+
+      // TODO: save palette
+      const lensPalette: LensPalette = {
+        id: asset.id,
+        uri: asset.uri,
+        mediaType: asset.mediaType,
+        palette: currentPalette,
+      };
+
+      console.log(asset, 'asset');
       fetchRecentMedia();
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
@@ -161,7 +182,7 @@ export const Camera = ({}: CameraProps) => {
   );
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
-    runOnJS(handleTap)(x, y);
+    runOnJS(handleFocusTap)(x, y);
   });
 
   const fps = calculateFps({ isColorLensEnabled, isCameraActive });
