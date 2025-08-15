@@ -1,4 +1,5 @@
 import { Camera } from '@components/lens';
+import { useInitLensPalettes } from '@features/lens/color-lens-palette';
 import { globalStyles } from '@styles';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
