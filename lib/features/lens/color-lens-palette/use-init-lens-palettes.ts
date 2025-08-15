@@ -19,7 +19,7 @@ export const useInitLensPalettes = () => {
 
   useEffect(() => {
     if (isLensPalettesInited && lensPalettes.length) {
-      saveData(StorageDevice.IMAGE_PALETTES, lensPalettes);
+      saveData(StorageDevice.LENS_PALETTES, lensPalettes);
     }
   }, [lensPalettes]);
 };
