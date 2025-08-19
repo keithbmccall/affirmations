@@ -2,17 +2,17 @@ import { LensPalette } from '@features/lens/lens-palette';
 import { Dispatch } from 'react';
 import { ActionType } from './types';
 
-export type LensActions = ActionType<'SET_LENS_PALETTES', LensPalette[]>;
+export type LensActions = ActionType<'ADD_LENS_PALETTE', LensPalette>;
 
 export type LensActionsFunctions = {
-  onSetLensPalettes: (palettes: LensPalette[]) => void;
+  onAddLensPalette: (palette: LensPalette) => void;
 };
 
-export const setLensPalettes =
-  (dispatch: Dispatch<LensActions>): LensActionsFunctions['onSetLensPalettes'] =>
-  lensPalettes => {
+export const addLensPalette =
+  (dispatch: Dispatch<LensActions>): LensActionsFunctions['onAddLensPalette'] =>
+  lensPalette => {
     return dispatch({
-      type: 'SET_LENS_PALETTES',
-      payload: lensPalettes,
+      type: 'ADD_LENS_PALETTE',
+      payload: lensPalette,
     });
   };

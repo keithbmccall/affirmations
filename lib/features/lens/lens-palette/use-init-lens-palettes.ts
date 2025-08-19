@@ -6,17 +6,19 @@ import { LensPalette } from './types';
 // TODO: fnish installing
 export const useInitLensPalettes = () => {
   const [isLensPalettesInited, setIsLensPalettesInited] = useState(false);
-  const { lensPalettes, onSetLensPalettes } = useLens();
+  const { lensPalettes, onAddLensPalette } = useLens();
 
   useEffect(() => {
     void loadData(StorageDevice.LENS_PALETTES).then((_lensPalettes: LensPalette[]) => {
       console.log('lensPalettes: ', _lensPalettes);
       if (_lensPalettes) {
-        onSetLensPalettes(_lensPalettes);
+        _lensPalettes.forEach(palette => {
+          onAddLensPalette(palette);
+        });
       }
       setIsLensPalettesInited(true);
     });
-  }, [onSetLensPalettes]);
+  }, [onAddLensPalette]);
 
   useEffect(() => {
     console.log('lensPalettes: ', isLensPalettesInited, lensPalettes);
