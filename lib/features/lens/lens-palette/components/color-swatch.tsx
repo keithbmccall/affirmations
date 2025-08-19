@@ -1,8 +1,9 @@
-import { useAnimatedColor } from '@features/lens';
+
 import { spacing } from '@styles';
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { useAnimatedColor } from '../use-animated-color';
 
 type ColorSwatchProps = {
   name: string;
@@ -11,7 +12,7 @@ type ColorSwatchProps = {
   animatedStyle?: ViewStyle;
 };
 
-const ColorSwatch = ({ color, animationDuration, animatedStyle }: ColorSwatchProps) => {
+export const ColorSwatch = memo(({ color, animationDuration, animatedStyle }: ColorSwatchProps) => {
   const animatedColor = useAnimatedColor(color, animationDuration);
   const animatedBackgroundStyle = useAnimatedStyle(
     () => ({
@@ -21,7 +22,7 @@ const ColorSwatch = ({ color, animationDuration, animatedStyle }: ColorSwatchPro
   );
 
   return <Reanimated.View style={[styles.tile, animatedBackgroundStyle, animatedStyle]} />;
-};
+});
 
 const styles = StyleSheet.create({
   tile: {
@@ -32,4 +33,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(ColorSwatch);
+

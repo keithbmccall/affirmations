@@ -1,4 +1,4 @@
-import { Scheduler } from '@components/notifications';
+import { Scheduler } from '../index';
 import { renderWithContext, setupDateTimePickerMock, simulateDatePickerPress } from '@testing';
 import { act, fireEvent, waitFor } from 'expo-router/testing-library';
 import React from 'react';

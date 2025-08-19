@@ -12,7 +12,7 @@ import {
   useCameraRoll,
   useColorLensPalette,
   useLensPermissions,
-} from '@features/lens';
+} from '../../index';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
@@ -27,7 +27,7 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import { ColorPalette } from '../color-palette/color-palette';
+import { ColorPalette } from '@features/lens/lens-palette';
 import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -81,8 +81,8 @@ export const Camera = ({}: CameraProps) => {
     if (!camera.current) return;
 
     try {
-      await camera.current.startRecording({
-        onRecordingFinished: async video => {
+      camera.current.startRecording({
+        onRecordingFinished: async (video) => {
           await createAssetAsync(video.path);
           fetchRecentMedia();
         },

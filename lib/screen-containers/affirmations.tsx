@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { Notifications } from '../components/notifications/notifications';
-import { ThemedView } from '../components/shared';
+import { Notifications } from '@features/notifications';
+import { ThemedView } from '@components/shared';
 import { ScreenContainerProps } from './types';
 
 interface AffirmationsProps extends ScreenContainerProps {}

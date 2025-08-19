@@ -5,11 +5,9 @@
     "paths": {
       "@app/*": ["./lib/app/*"],
       "@components/notifications": ["./lib/components/notifications"],
-      "@components/lens": ["./lib/components/lens"],
       "@components/shared": ["./lib/components/shared"],
       "@features/notifications": ["./lib/features/notifications"],
-      "@features/lens": ["./lib/features/lens"],
-      "@features/lens/color-lens-palette": ["./lib/features/lens/color-lens-palette"],
+      "@features/lens/lens-palette": ["./lib/features/lens/lens-palette"],
       "@features/lens/camera": ["./lib/features/lens/camera"],
       "@platform": ["./lib/platform"],
       "@platform/state-context-provider": ["./lib/platform/context/state-context-provider"],

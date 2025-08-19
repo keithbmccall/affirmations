@@ -1,9 +1,10 @@
-import type { useColorLensPalette } from '@features/lens';
+
 import { globalStyles, spacing } from '@styles';
 import { capitalizeFirstLetter } from '@utils';
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import ColorSwatch from './color-swatch';
+import { ColorSwatch }from './color-swatch';
+import { useColorLensPalette } from '../use-color-lens-palette';
 
 interface ColorPaletteProps {
   palette: ReturnType<typeof useColorLensPalette>['palette'];

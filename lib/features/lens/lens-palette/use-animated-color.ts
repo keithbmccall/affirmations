@@ -1,18 +1,15 @@
-import Reanimated, {
+import {
   Easing,
   interpolateColor,
+  SharedValue,
   useAnimatedReaction,
   useDerivedValue,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { DEFAULT_COLOR } from './consts';
 
-const DEFAULT_COLOR = '#000000';
-
-export function useAnimatedColor(
-  color: Reanimated.SharedValue<string>,
-  animationDuration: number
-): Readonly<Reanimated.SharedValue<string | number>> {
+export const useAnimatedColor = (color: SharedValue<string>, animationDuration: number) => {
   const animation = useSharedValue(0);
   const colorFrom = useSharedValue(DEFAULT_COLOR);
   const colorTo = useSharedValue(color.value);
@@ -34,4 +31,4 @@ export function useAnimatedColor(
   return useDerivedValue(() =>
     interpolateColor(animation.value, [0, 1], [colorFrom.value, colorTo.value])
   );
-}
+};
