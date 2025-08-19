@@ -1,4 +1,4 @@
-import { ScheduleHistory, Scheduler } from '@components/notifications';
+import { ScheduleHistory, Scheduler } from './index';
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { useAffirmations } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';

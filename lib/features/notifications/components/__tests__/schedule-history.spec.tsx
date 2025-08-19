@@ -1,9 +1,9 @@
-import { ScheduleHistory } from '@components/notifications';
+import { ScheduleHistory } from '../index';
 import { colors } from '@styles';
 import { renderRouterWithContext, renderWithContext } from '@testing';
 import { act, fireEvent, screen, within } from 'expo-router/testing-library';
 import React from 'react';
-import NotificationDetailsModal from '../../../../app/(modals)/notification-details-modal';
+import NotificationDetailsModal from '../../../../../app/(modals)/notification-details-modal';
 
 // Mock useBottomTabBarHeight
 jest.mock('@react-navigation/bottom-tabs', () => ({

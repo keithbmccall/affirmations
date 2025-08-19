@@ -1,17 +1,6 @@
 import { IconSymbol, ThemedText, ThemedView } from '@components/shared';
-import {
-  calculateFps,
-  CAMERA_MODE,
-  CAMERA_POSITION,
-  cameraDeviceOptions,
-  CameraMode,
-  flashModeOptions,
-  gridModeOptions,
-  useCameraFocus,
-  useCameraRoll,
-  useColorLensPalette,
-  useLensPermissions,
-} from '@features/lens';
+import { ColorPalette } from '@features/lens/lens-palette';
+import { useLens } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
@@ -26,8 +15,20 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import { useImageLabeler } from 'react-native-vision-camera-image-labeler';
-import { ColorPalette } from '../color-palette/color-palette';
+import {
+  calculateFps,
+  CAMERA_MODE,
+  CAMERA_POSITION,
+  cameraDeviceOptions,
+  CameraMode,
+  flashModeOptions,
+  gridModeOptions,
+  LensPalette,
+  useCameraFocus,
+  useCameraRoll,
+  useColorLensPalette,
+  useLensPermissions,
+} from '../../index';
 import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -41,6 +42,7 @@ Reanimated.addWhitelistedNativeProps({
 
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
+  const { onSetLensPalettes } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
 
@@ -59,7 +61,7 @@ export const Camera = ({}: CameraProps) => {
 
   const camera = useRef<VisionCamera>(null);
 
-  const { handleFocusTap: handleTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
+  const { handleFocusTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
   const {
@@ -71,7 +73,7 @@ export const Camera = ({}: CameraProps) => {
   const { isColorLensEnabled, setIsColorLensEnabled, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
 
-  const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
+  // const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
 
   const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
   const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
@@ -81,7 +83,7 @@ export const Camera = ({}: CameraProps) => {
     if (!camera.current) return;
 
     try {
-      await camera.current.startRecording({
+      camera.current.startRecording({
         onRecordingFinished: async video => {
           await createAssetAsync(video.path);
           fetchRecentMedia();
@@ -100,10 +102,32 @@ export const Camera = ({}: CameraProps) => {
     if (!camera.current) return;
 
     try {
+      const currentPalette = {
+        primaryColor: palette.primaryColor.value,
+        secondaryColor: palette.secondaryColor.value,
+        tertiaryColor: palette.tertiaryColor.value,
+        quaternaryColor: palette.quaternaryColor.value,
+        quinaryColor: palette.quinaryColor.value,
+        senaryColor: palette.senaryColor.value,
+        backgroundColor: palette.backgroundColor.value,
+        detailColor: palette.detailColor.value,
+      };
       const photo = await camera.current.takePhoto({
         flash: flashModeOptions[flashMode].value,
       });
-      await createAssetAsync(photo.path);
+
+      const asset = await createAssetAsync(photo.path);
+
+      // TODO: save palette
+      const lensPalette: LensPalette = {
+        id: asset.id,
+        uri: asset.uri,
+        mediaType: asset.mediaType,
+        palette: currentPalette,
+      };
+
+      onSetLensPalettes(lensPalette);
+      console.log('asset lens palette: ', lensPalette);
       fetchRecentMedia();
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
@@ -161,7 +185,7 @@ export const Camera = ({}: CameraProps) => {
   );
 
   const gesture = Gesture.Tap().onEnd(({ x, y }) => {
-    runOnJS(handleTap)(x, y);
+    runOnJS(handleFocusTap)(x, y);
   });
 
   const fps = calculateFps({ isColorLensEnabled, isCameraActive });

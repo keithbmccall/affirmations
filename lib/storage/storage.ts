@@ -27,4 +27,5 @@ export const loadData: LoadData = async (key: string) => {
 
 export const StorageDevice = {
   HISTORY_NOTIFICATIONS: 'HISTORY_NOTIFICATIONS',
+  LENS_PALETTES: 'LENS_PALETTES',
 } as const;
