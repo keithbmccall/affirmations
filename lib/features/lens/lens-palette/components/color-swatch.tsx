@@ -1,4 +1,3 @@
-
 import { spacing } from '@styles';
 import React, { memo } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
@@ -6,7 +5,6 @@ import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimat
 import { useAnimatedColor } from '../use-animated-color';
 
 type ColorSwatchProps = {
-  name: string;
   color: SharedValue<string>;
   animationDuration: number;
   animatedStyle?: ViewStyle;
@@ -32,5 +30,3 @@ const styles = StyleSheet.create({
     borderRadius: spacing.sm,
   },
 });
-
-
