@@ -42,7 +42,7 @@ Reanimated.addWhitelistedNativeProps({
 
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
-  const { onSetLensPalettes } = useLens();
+  const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
 
@@ -126,7 +126,7 @@ export const Camera = ({}: CameraProps) => {
         palette: currentPalette,
       };
 
-      onSetLensPalettes(lensPalette);
+      onAddLensPalette(lensPalette);
       console.log('asset lens palette: ', lensPalette);
       fetchRecentMedia();
     } catch (error) {

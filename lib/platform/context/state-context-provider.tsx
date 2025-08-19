@@ -3,9 +3,9 @@ import { FC, PropsWithChildren, useMemo, useReducer } from 'react';
 import {
   Action,
   addHistoryNotification,
+  addLensPalette,
   removeHistoryNotification,
   setHistoryNotifications,
-  setLensPalettes,
   setLoading,
   setName,
   setNotificationChannels,
@@ -45,7 +45,7 @@ const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
         onRemoveHistoryNotification: removeHistoryNotification(dispatch),
       },
       lens: {
-        onSetLensPalettes: setLensPalettes(dispatch),
+        onAddLensPalette: addLensPalette(dispatch),
       },
       general: {
         onSetLoading: setLoading(dispatch),

@@ -24,7 +24,7 @@ export const initialActions: StateContextActions = {
     onRemoveHistoryNotification: noop,
   },
   lens: {
-    onSetLensPalettes: noop,
+    onAddLensPalette: noop,
   },
   general: {
     onSetLoading: noop,
