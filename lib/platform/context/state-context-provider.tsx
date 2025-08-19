@@ -5,6 +5,7 @@ import {
   addHistoryNotification,
   removeHistoryNotification,
   setHistoryNotifications,
+  setLensPalettes,
   setLoading,
   setName,
   setNotificationChannels,
@@ -43,7 +44,9 @@ const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
         onSetHistoryNotifications: setHistoryNotifications(dispatch),
         onRemoveHistoryNotification: removeHistoryNotification(dispatch),
       },
-      lens: {},
+      lens: {
+        onSetLensPalettes: setLensPalettes(dispatch),
+      },
       general: {
         onSetLoading: setLoading(dispatch),
       },

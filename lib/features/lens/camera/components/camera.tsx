@@ -1,18 +1,6 @@
 import { IconSymbol, ThemedText, ThemedView } from '@components/shared';
-import {
-  calculateFps,
-  CAMERA_MODE,
-  CAMERA_POSITION,
-  cameraDeviceOptions,
-  CameraMode,
-  flashModeOptions,
-  gridModeOptions,
-  LensPalette,
-  useCameraFocus,
-  useCameraRoll,
-  useColorLensPalette,
-  useLensPermissions,
-} from '../../index';
+import { ColorPalette } from '@features/lens/lens-palette';
+import { useLens } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
@@ -27,7 +15,20 @@ import {
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import { ColorPalette } from '@features/lens/lens-palette';
+import {
+  calculateFps,
+  CAMERA_MODE,
+  CAMERA_POSITION,
+  cameraDeviceOptions,
+  CameraMode,
+  flashModeOptions,
+  gridModeOptions,
+  LensPalette,
+  useCameraFocus,
+  useCameraRoll,
+  useColorLensPalette,
+  useLensPermissions,
+} from '../../index';
 import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -41,6 +42,7 @@ Reanimated.addWhitelistedNativeProps({
 
 interface CameraProps {}
 export const Camera = ({}: CameraProps) => {
+  const { onSetLensPalettes } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
 
@@ -82,7 +84,7 @@ export const Camera = ({}: CameraProps) => {
 
     try {
       camera.current.startRecording({
-        onRecordingFinished: async (video) => {
+        onRecordingFinished: async video => {
           await createAssetAsync(video.path);
           fetchRecentMedia();
         },
@@ -124,7 +126,8 @@ export const Camera = ({}: CameraProps) => {
         palette: currentPalette,
       };
 
-      console.log(asset, 'asset');
+      onSetLensPalettes(lensPalette);
+      console.log('asset lens palette: ', lensPalette);
       fetchRecentMedia();
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
