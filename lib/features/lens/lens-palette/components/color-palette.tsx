@@ -1,10 +1,10 @@
-
 import { globalStyles, spacing } from '@styles';
 import { capitalizeFirstLetter } from '@utils';
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { ColorSwatch }from './color-swatch';
+import { lensPaletteConfig } from '../config';
 import { useColorLensPalette } from '../use-color-lens-palette';
+import { ColorSwatch } from './color-swatch';
 
 interface ColorPaletteProps {
   palette: ReturnType<typeof useColorLensPalette>['palette'];
@@ -12,12 +12,12 @@ interface ColorPaletteProps {
   animationDuration: number;
   style?: ViewStyle;
 }
-
+const COLOR_SPLIT_STRING = 'Color';
 export const ColorPalette = ({ palette, animationDuration, style }: ColorPaletteProps) => {
   return (
     <View style={[styles.colorPaletteGrid, style]}>
-      {Object.keys(palette).map(paletteKey => {
-        const key = paletteKey.split('Color')[0];
+      {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
+        const key = paletteKey.split(COLOR_SPLIT_STRING)[0];
         const name = capitalizeFirstLetter(key);
         const swatch = palette[paletteKey as keyof typeof palette];
 

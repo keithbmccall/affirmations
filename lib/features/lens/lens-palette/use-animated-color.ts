@@ -7,18 +7,18 @@ import {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { DEFAULT_COLOR } from './consts';
+import { lensPaletteConfig } from './config';
 
 export const useAnimatedColor = (color: SharedValue<string>, animationDuration: number) => {
   const animation = useSharedValue(0);
-  const colorFrom = useSharedValue(DEFAULT_COLOR);
+  const colorFrom = useSharedValue(lensPaletteConfig.defaultColor);
   const colorTo = useSharedValue(color.value);
 
   useAnimatedReaction(
     () => color.value,
     (newColor, prevColor) => {
       animation.value = 0;
-      colorFrom.value = prevColor ?? DEFAULT_COLOR;
+      colorFrom.value = prevColor ?? lensPaletteConfig.defaultColor;
       colorTo.value = newColor;
       animation.value = withTiming(1, {
         duration: animationDuration,

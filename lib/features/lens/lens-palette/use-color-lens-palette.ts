@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 import { Frame } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
+import { DEFAULT_COLOR } from './config';
 import { ColorLensPaletteType, getColorLensPalette } from './get-color-lens-palette';
-import { DEFAULT_COLOR } from './consts';
-
 
 export const useColorLensPalette = () => {
   const [isColorLensEnabled, setIsColorLensEnabled] = useState(false);
