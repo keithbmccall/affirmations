@@ -2,20 +2,20 @@ import { useState } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 import { Frame } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
-import { DEFAULT_COLOR } from './config';
+import { lensPaletteConfig } from './config';
 import { ColorLensPaletteType, getColorLensPalette } from './get-color-lens-palette';
 
 export const useColorLensPalette = () => {
   const [isColorLensEnabled, setIsColorLensEnabled] = useState(false);
 
-  const primaryColor = useSharedValue(DEFAULT_COLOR);
-  const secondaryColor = useSharedValue(DEFAULT_COLOR);
-  const tertiaryColor = useSharedValue(DEFAULT_COLOR);
-  const quaternaryColor = useSharedValue(DEFAULT_COLOR);
-  const quinaryColor = useSharedValue(DEFAULT_COLOR);
-  const senaryColor = useSharedValue(DEFAULT_COLOR);
-  const backgroundColor = useSharedValue(DEFAULT_COLOR);
-  const detailColor = useSharedValue(DEFAULT_COLOR);
+  const primaryColor = useSharedValue(lensPaletteConfig.defaultColor);
+  const secondaryColor = useSharedValue(lensPaletteConfig.defaultColor);
+  const tertiaryColor = useSharedValue(lensPaletteConfig.defaultColor);
+  const quaternaryColor = useSharedValue(lensPaletteConfig.defaultColor);
+  const quinaryColor = useSharedValue(lensPaletteConfig.defaultColor);
+  const senaryColor = useSharedValue(lensPaletteConfig.defaultColor);
+  const backgroundColor = useSharedValue(lensPaletteConfig.defaultColor);
+  const detailColor = useSharedValue(lensPaletteConfig.defaultColor);
 
   const applyColorPalette = (colorPalette: ColorLensPaletteType | null) => {
     primaryColor.value = colorPalette?.primary ?? primaryColor.value;
