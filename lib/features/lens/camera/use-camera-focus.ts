@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Dimensions } from 'react-native';
 import {
   useAnimatedStyle,
@@ -7,7 +8,7 @@ import {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { Point, Camera as VisionCamera } from 'react-native-vision-camera';
+import { Camera as VisionCamera } from 'react-native-vision-camera';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -17,11 +18,7 @@ export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => 
   const focusScale = useSharedValue(0);
   const focusOpacity = useSharedValue(0);
 
-  const focusCamera = (point: Point) => {
-    camera.current?.focus(point);
-  };
-
-  const handleFocusTap = (x: number, y: number) => {
+  const handleFocusTap = useCallback((x: number, y: number) => {
     // Convert screen coordinates to relative coordinates (0-1)
     const relativeX = x / screenWidth;
     const relativeY = y / screenHeight;
@@ -44,8 +41,8 @@ export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => 
     );
 
     // Focus the camera
-    focusCamera({ x, y });
-  };
+    camera.current?.focus({ x, y });
+  }, []);
   // Animated style for focus indicator
   const focusIndicatorAnimatedStyle = useAnimatedStyle(() => ({
     left: `${focusX.value * 100}%`,
