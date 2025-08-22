@@ -40,8 +40,7 @@ Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
 
-interface CameraProps {}
-export const Camera = ({}: CameraProps) => {
+export const Camera = () => {
   const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
@@ -64,6 +63,7 @@ export const Camera = ({}: CameraProps) => {
   const { handleFocusTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
+
   const {
     animatedPhotoStyle,
     handleCameraRollPress,
@@ -74,12 +74,17 @@ export const Camera = ({}: CameraProps) => {
     useColorLensPalette();
 
   // const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
-
-  const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
-  const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
   const showGrid = gridModeOptions[gridMode].value === 'on';
+  const isVideoNotAllowed = isColorLensEnabled;
 
-  const handleVideoCapture = async () => {
+  const fps = useMemo(
+    () => calculateFps({ isColorLensEnabled, isCameraActive }),
+    [isColorLensEnabled, isCameraActive]
+  );
+
+  const colorAnimationDuration = useMemo(() => (1 / fps) * 1000, [fps]);
+
+  const handleVideoCapture = useCallback(async () => {
     if (!camera.current) return;
 
     try {
@@ -96,9 +101,9 @@ export const Camera = ({}: CameraProps) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to record video');
     }
-  };
+  }, [fetchRecentMedia]);
 
-  const handleCapture = async () => {
+  const handleCapture = useCallback(async () => {
     if (!camera.current) return;
 
     try {
@@ -132,39 +137,35 @@ export const Camera = ({}: CameraProps) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
     }
-  };
+  }, [palette, flashMode, onAddLensPalette, fetchRecentMedia]);
 
-  const handleStopRecording = async () => {
+  const handleStopRecording = useCallback(async () => {
     if (!camera.current) return;
     await camera.current.stopRecording();
     setIsRecording(false);
-  };
+  }, []);
 
-  const handleFlashToggle = () => {
+  const handleFlashToggle = useCallback(() => {
     setFlashMode(prev => (prev + 1) % flashModeOptionsLength);
-  };
+  }, []);
 
-  const handleGridToggle = () => {
+  const handleGridToggle = useCallback(() => {
     setGridMode(prev => (prev + 1) % gridModeOptions.length);
-  };
+  }, []);
 
-  const handleSwitchCameraToggle = () => {
+  const handleSwitchCameraToggle = useCallback(() => {
     setCameraPosition(prev =>
       prev === CAMERA_POSITION.BACK ? CAMERA_POSITION.FRONT : CAMERA_POSITION.BACK
     );
-  };
+  }, []);
 
-  const handleCameraDeviceToggle = () => {
+  const handleCameraDeviceToggle = useCallback(() => {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
-  };
+  }, []);
 
-  const handleEnableColorLensToggle = () => {
-    setIsColorLensEnabled(prev => !prev);
-  };
+  const handleEnableColorLensToggle = useCallback(() => setIsColorLensEnabled(prev => !prev), []);
 
-  const handleBackPress = () => {
-    router.back();
-  };
+  const handleBackPress = useCallback(() => router.back(), []);
 
   // Fetch recent photo when permissions are granted
   useEffect(() => {
@@ -184,13 +185,27 @@ export const Camera = ({}: CameraProps) => {
     }, [])
   );
 
-  const gesture = Gesture.Tap().onEnd(({ x, y }) => {
-    runOnJS(handleFocusTap)(x, y);
-  });
+  const gesture = useMemo(
+    () =>
+      Gesture.Tap().onEnd(({ x, y }) => {
+        runOnJS(handleFocusTap)(x, y);
+      }),
+    [handleFocusTap]
+  );
 
-  const fps = calculateFps({ isColorLensEnabled, isCameraActive });
-
-  const colorAnimationDuration = useMemo(() => (1 / fps) * 1000, [fps]);
+  const triggerProps = useMemo(
+    () =>
+      isRecording
+        ? {
+            onPress: handleStopRecording,
+            onLongPress: handleStopRecording,
+          }
+        : {
+            onPress: handleCapture,
+            onLongPress: isVideoNotAllowed ? undefined : handleVideoCapture,
+          },
+    [isVideoNotAllowed, isRecording, handleCapture, handleStopRecording, handleVideoCapture]
+  );
 
   const frameProcessor = useFrameProcessor(
     frame => {
@@ -207,17 +222,6 @@ export const Camera = ({}: CameraProps) => {
     [isCameraActive, isColorLensEnabled]
   );
 
-  const isVideoNotAllowed = isColorLensEnabled;
-  const triggerProps = isRecording
-    ? {
-        onPress: handleStopRecording,
-        onLongPress: handleStopRecording,
-      }
-    : {
-        onPress: handleCapture,
-        onLongPress: isVideoNotAllowed ? undefined : handleVideoCapture,
-      };
-
   return device && hasAllPermissions ? (
     <View style={styles.container}>
       {/* Camera view */}
@@ -228,7 +232,7 @@ export const Camera = ({}: CameraProps) => {
               ref={camera}
               style={StyleSheet.absoluteFill}
               device={device}
-              isActive={hasAllPermissions && isCameraActive}
+              isActive={isCameraActive}
               photo
               video
               audio

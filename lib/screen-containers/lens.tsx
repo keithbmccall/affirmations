@@ -1,12 +1,11 @@
-
+import { ThemedView } from '@components/shared';
+import { Camera } from '@features/lens/camera';
+import { useInitLensPalettes } from '@features/lens/lens-palette';
 import { globalStyles } from '@styles';
 import { StatusBar } from 'expo-status-bar';
+import { memo } from 'react';
 import { StyleSheet } from 'react-native';
-import { ThemedView } from '@components/shared';
 import { ScreenContainerProps } from './types';
-import { useInitLensPalettes } from '@features/lens/lens-palette';
-import { Camera } from '@features/lens/camera';
-
 
 interface LensProps extends ScreenContainerProps {}
 const Lens = ({ statusBarProps }: LensProps) => {
@@ -26,4 +25,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Lens;
+export default memo(Lens);

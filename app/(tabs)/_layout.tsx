@@ -2,14 +2,39 @@ import { IconSymbol } from '@components/shared';
 import { Routes } from '@routes';
 import { useColorScheme } from '@styles';
 import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Platform } from 'react-native';
 import { HapticTab } from '../../.expo-defaults/components/HapticTab';
 import TabBarBackground from '../../.expo-defaults/components/ui/TabBarBackground';
 import { Colors } from '../../.expo-defaults/constants/Colors';
 
+const screensList = [
+  { name: Routes.tabs.home.name, title: Routes.tabs.home.title, icon: Routes.tabs.home.icon },
+  { name: Routes.tabs.lens.name, title: Routes.tabs.lens.title, icon: Routes.tabs.lens.icon },
+  {
+    name: Routes.tabs.affirmations.name,
+    title: Routes.tabs.affirmations.title,
+    icon: Routes.tabs.affirmations.icon,
+  },
+];
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const screens = useMemo(() => {
+    return screensList.map(screen => {
+      return (
+        <Tabs.Screen
+          key={screen.name}
+          name={screen.name}
+          options={{
+            title: screen.title,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name={screen.icon} color={color} />,
+          }}
+        />
+      );
+    });
+  }, [screensList]);
 
   return (
     <Tabs
@@ -27,34 +52,7 @@ export default function TabLayout() {
         }),
       }}
     >
-      <Tabs.Screen
-        name={Routes.tabs.home.name}
-        options={{
-          title: Routes.tabs.home.title,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name={Routes.tabs.home.icon} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name={Routes.tabs.lens.name}
-        options={{
-          title: Routes.tabs.lens.title,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name={Routes.tabs.lens.icon} color={color} />
-          ),
-          tabBarStyle: { display: 'none' },
-        }}
-      />
-      <Tabs.Screen
-        name={Routes.tabs.affirmations.name}
-        options={{
-          title: Routes.tabs.affirmations.title,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name={Routes.tabs.affirmations.icon} color={color} />
-          ),
-        }}
-      />
+      {screens}
     </Tabs>
   );
 }
