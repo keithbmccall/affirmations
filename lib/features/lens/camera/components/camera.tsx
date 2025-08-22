@@ -1,4 +1,4 @@
-import { IconSymbol, ThemedText, ThemedView } from '@components/shared';
+import { IconSymbol, ThemedText } from '@components/shared';
 import { ColorPalette } from '@features/lens/lens-palette';
 import { useLens } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
@@ -222,27 +222,37 @@ export const Camera = () => {
     [isCameraActive, isColorLensEnabled]
   );
 
-  return device && hasAllPermissions ? (
+  return (
     <View style={styles.container}>
       {/* Camera view */}
       <View style={styles.cameraContainer}>
-        <GestureDetector gesture={gesture}>
-          <View style={{ ...globalStyles.flex1 }}>
-            <ReanimatedCamera
-              ref={camera}
-              style={StyleSheet.absoluteFill}
-              device={device}
-              isActive={isCameraActive}
-              photo
-              video
-              audio
-              frameProcessor={isCameraActive ? frameProcessor : undefined}
-              fps={fps}
-            />
-            {/* ===== GRID OVERLAY SECTION ===== */}
+        {device && hasAllPermissions ? (
+          <GestureDetector gesture={gesture}>
+            <View style={styles.cameraInnerContainer}>
+              <ReanimatedCamera
+                ref={camera}
+                style={StyleSheet.absoluteFill}
+                device={device}
+                isActive={isCameraActive}
+                photo
+                video
+                audio
+                frameProcessor={isCameraActive ? frameProcessor : undefined}
+                fps={fps}
+              />
+              {/* ===== GRID OVERLAY SECTION ===== */}
+              {showGrid && <CameraGrid />}
+            </View>
+          </GestureDetector>
+        ) : (
+          <View style={styles.cameraInnerContainer}>
+            <ThemedText style={styles.errorText}>
+              {!device ? 'No camera available' : 'Camera permission required'}
+            </ThemedText>
+
             {showGrid && <CameraGrid />}
           </View>
-        </GestureDetector>
+        )}
 
         {/* ===== BACK BUTTON SECTION ===== */}
         <TouchableOpacity
@@ -325,12 +335,6 @@ export const Camera = () => {
         <View style={styles.bottomStub} />
       </View>
     </View>
-  ) : (
-    <ThemedView style={styles.container}>
-      <ThemedText style={styles.errorText}>
-        {!device ? 'No camera available' : 'Camera permission required'}
-      </ThemedText>
-    </ThemedView>
   );
 };
 
@@ -342,6 +346,9 @@ const styles = StyleSheet.create({
   cameraContainer: {
     ...globalStyles.flex1,
     ...globalStyles.relative,
+  },
+  cameraInnerContainer: {
+    ...globalStyles.flex1,
   },
   errorText: {
     ...globalStyles.center,
