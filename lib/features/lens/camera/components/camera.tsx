@@ -1,5 +1,5 @@
 import { IconSymbol, ThemedText } from '@components/shared';
-import { ColorPalette } from '@features/lens/lens-palette';
+import { ColorPalette, LensPalette, useColorLensPalette } from '@features/lens/lens-palette';
 import { useLens } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
 import { createAssetAsync } from 'expo-media-library';
@@ -23,12 +23,8 @@ import {
   CameraMode,
   flashModeOptions,
   gridModeOptions,
-  LensPalette,
-  useCameraFocus,
-  useCameraRoll,
-  useColorLensPalette,
-  useLensPermissions,
-} from '../../index';
+} from '../camera-options';
+import { useCameraFocus, useCameraRoll, useLensPermissions } from '../hooks';
 import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
