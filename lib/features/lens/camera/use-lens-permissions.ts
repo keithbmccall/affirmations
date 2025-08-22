@@ -1,4 +1,4 @@
-import { useMediaLibraryPermissions } from 'expo-image-picker';
+import { usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
 import { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useCameraPermission, useMicrophonePermission } from 'react-native-vision-camera';
