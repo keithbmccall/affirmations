@@ -1,4 +1,3 @@
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { getAssetsAsync } from 'expo-media-library';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
@@ -18,16 +17,7 @@ export const useCameraRoll = (hasAllPermissions: boolean) => {
   // Open camera roll/photo library
   const handleCameraRollPress = useCallback(async () => {
     try {
-      const result = await launchImageLibraryAsync({
-        mediaTypes: ['images', 'videos'],
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        // Handle selected image - you can add your logic here
-        Alert.alert('Image Selected', `Selected: ${result.assets[0].uri}`);
-      }
+      console.log('camera roll will launch!');
     } catch (error) {
       Alert.alert('Error', 'Failed to open camera roll');
     }
