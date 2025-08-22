@@ -1,7 +1,8 @@
 import { IconSymbol } from '@components/shared';
+import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes';
 import { useColorScheme } from '@styles';
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Platform } from 'react-native';
 import { HapticTab } from '../../.expo-defaults/components/HapticTab';
@@ -20,6 +21,10 @@ const screensList = [
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const pathname = usePathname();
+
+  // Check if current screen is lens
+  const isLensScreen = pathname === `/${Routes.tabs.lens.name}`;
 
   const screens = useMemo(() => {
     return screensList.map(screen => {
@@ -36,23 +41,22 @@ export default function TabLayout() {
     });
   }, [screensList]);
 
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}
-    >
-      {screens}
-    </Tabs>
-  );
+  const screenOptions: BottomTabNavigationOptions = useMemo(() => {
+    return {
+      tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+      headerShown: false,
+      tabBarButton: HapticTab,
+      tabBarBackground: TabBarBackground,
+      tabBarStyle: Platform.select({
+        ios: {
+          // Use a transparent background on iOS to show the blur effect
+          position: 'absolute',
+          display: isLensScreen ? 'none' : undefined,
+        },
+        default: {},
+      }),
+    };
+  }, [colorScheme, isLensScreen]);
+  console.log('layout');
+  return <Tabs screenOptions={screenOptions}>{screens}</Tabs>;
 }
