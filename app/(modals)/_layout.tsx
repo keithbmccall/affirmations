@@ -11,6 +11,7 @@ export default function ModalLayout() {
       }}
     >
       <Stack.Screen name={Routes.modals.notificationDetails.name} />
+      <Stack.Screen name={Routes.modals.lensCameraRoll.name} />
     </Stack>
   );
 }
