@@ -1,4 +1,4 @@
-import { Scheduler } from '../features/notifications/components';
+import { Modal } from '@components/modal';
 import { ThemedText, ThemedView } from '@components/shared';
 import {
   HistoryNotification,
@@ -12,6 +12,7 @@ import { colors, globalStyles, spacing } from '@styles';
 import { getHumanReadableDate } from '@utils';
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
+import { Scheduler } from '../features/notifications/components';
 import { ScreenContainerProps } from './types';
 
 interface NotificationDetailsDisplayProps {
@@ -85,12 +86,7 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText accessibilityRole="header" testID="notification-details-title" type="subtitle">
-          {initialTitle}
-        </ThemedText>
-      </ThemedView>
+    <Modal title={initialTitle} testID="notification-details-title">
       {isFromHistoryPage ? (
         <NotificationDetailsDisplay body={initialBody} date={initialDate} />
       ) : (
@@ -104,7 +100,7 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
           submitProps={{ submitText: 'Edit Message', onSubmit: handleSubmit }}
         />
       )}
-    </ThemedView>
+    </Modal>
   );
 };
 

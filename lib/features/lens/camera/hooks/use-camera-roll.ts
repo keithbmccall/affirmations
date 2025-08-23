@@ -1,4 +1,6 @@
+import { Routes } from '@routes';
 import { getAssetsAsync } from 'expo-media-library';
+import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -17,7 +19,7 @@ export const useCameraRoll = (hasAllPermissions: boolean) => {
   // Open camera roll/photo library
   const handleCameraRollPress = useCallback(async () => {
     try {
-      console.log('camera roll will launch!');
+      router.push(Routes.modals.lensCameraRoll.routePathname);
     } catch (error) {
       Alert.alert('Error', 'Failed to open camera roll');
     }

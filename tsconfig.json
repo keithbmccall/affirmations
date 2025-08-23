@@ -4,6 +4,7 @@
     "strict": true,
     "paths": {
       "@app/*": ["./lib/app/*"],
+      "@components/modal": ["./lib/components/modal"],
       "@components/notifications": ["./lib/components/notifications"],
       "@components/shared": ["./lib/components/shared"],
       "@features/notifications": ["./lib/features/notifications"],

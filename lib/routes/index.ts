@@ -16,6 +16,7 @@ type TabRoutes = {
 
 type ModalRoutes = {
   notificationDetails: Route;
+  lensCameraRoll: Route;
 };
 
 type RoutesStructure = {
@@ -50,6 +51,12 @@ export const Routes: RoutesStructure = {
       title: 'Notification Details',
       icon: 'alarm.fill',
       routePathname: '/(modals)/notification-details-modal',
+    },
+    lensCameraRoll: {
+      name: 'lens-camera-roll-modal',
+      title: 'Camera Roll',
+      icon: 'photo.fill',
+      routePathname: '/(modals)/lens-camera-roll-modal',
     },
   },
 };
