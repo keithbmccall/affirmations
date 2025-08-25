@@ -1,9 +1,11 @@
 import { Modal } from '@components/modal';
 import { ThemedText } from '@components/shared';
 import { globalStyles, spacing, useThemeColor } from '@styles';
-import { getAssetsAsync } from 'expo-media-library';
+import { Image } from 'expo-image';
+import { Asset, getAssetsAsync } from 'expo-media-library';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Dimensions, FlatList, Image, StyleSheet } from 'react-native';
+import { Dimensions, FlatList, Pressable, StyleSheet } from 'react-native';
 import { ScreenContainerProps } from './types';
 
 const { width } = Dimensions.get('window');
@@ -12,7 +14,7 @@ interface LensCameraRollProps extends ScreenContainerProps {}
 
 export const LensCameraRoll = ({}: LensCameraRollProps) => {
   const borderColor = useThemeColor({}, 'background');
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,14 +67,22 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
     }
   }, [loadingMore, hasMore, fetchPhotos]);
 
-  const renderPhoto = useCallback(
-    ({ item }: { item: any }) => (
-      <Image source={{ uri: item.uri }} style={styles.photoItem} resizeMode="cover" />
-    ),
-    []
-  );
+  const renderPhoto = useCallback(({ item }: { item: Asset }) => {
+    return (
+      <Pressable
+        onPress={() => {
+          router.push({
+            pathname: `/lens-camera-roll-modal/camera-roll-inspector`,
+            params: { assetId: item.id },
+          });
+        }}
+      >
+        <Image source={{ uri: item.uri }} style={styles.photoItem} resizeMode="cover" />
+      </Pressable>
+    );
+  }, []);
 
-  const keyExtractor = useCallback((item: any) => item.id, []);
+  const keyExtractor = useCallback((item: Asset) => item.id, []);
 
   return (
     <Modal title="Camera Roll" testID="lens-camera-roll-title">
@@ -111,21 +121,14 @@ const styles = StyleSheet.create({
   description: {
     marginBottom: spacing.xl,
   },
-  closeButton: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-  },
   photoList: {
     ...globalStyles.flex1,
   },
-  photoRow: {
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
+  photoRow: {},
   photoItem: {
-    width: (width - 2) / 3, // Subtract 2 for the border width
-    height: (width - 2) / 3, // Subtract 2 for the border width
+    width: width / 3, // Subtract 2 for the border width
+    height: width / 3, // Subtract 2 for the border width
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   loadingText: {
     padding: spacing.lg,
