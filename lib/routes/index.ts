@@ -19,9 +19,14 @@ type ModalRoutes = {
   lensCameraRoll: Route;
 };
 
+type SubRoutes = {
+  cameraRollInspector: Route;
+};
+
 type RoutesStructure = {
   tabs: TabRoutes;
   modals: ModalRoutes;
+  subRoutes: SubRoutes;
 };
 
 export const Routes: RoutesStructure = {
@@ -57,6 +62,14 @@ export const Routes: RoutesStructure = {
       title: 'Camera Roll',
       icon: 'photo.fill',
       routePathname: '/(modals)/lens-camera-roll-modal',
+    },
+  },
+  subRoutes: {
+    cameraRollInspector: {
+      name: 'camera-roll-inspector',
+      title: 'Camera Roll Inspector',
+      icon: 'photo.fill',
+      routePathname: '/(modals)/lens-camera-roll-modal/camera-roll-inspector',
     },
   },
 };

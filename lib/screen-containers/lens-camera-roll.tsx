@@ -1,5 +1,6 @@
 import { Modal } from '@components/modal';
 import { ThemedText } from '@components/shared';
+import { Routes } from '@routes';
 import { globalStyles, spacing, useThemeColor } from '@styles';
 import { Image } from 'expo-image';
 import { Asset, getAssetsAsync } from 'expo-media-library';
@@ -9,6 +10,13 @@ import { Dimensions, FlatList, Pressable, StyleSheet } from 'react-native';
 import { ScreenContainerProps } from './types';
 
 const { width } = Dimensions.get('window');
+
+const handlePhotoPress = (asset: Asset) => {
+  router.push({
+    pathname: Routes.subRoutes.cameraRollInspector.routePathname,
+    params: { assetId: asset.id },
+  });
+};
 
 interface LensCameraRollProps extends ScreenContainerProps {}
 
@@ -69,14 +77,7 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
 
   const renderPhoto = useCallback(({ item }: { item: Asset }) => {
     return (
-      <Pressable
-        onPress={() => {
-          router.push({
-            pathname: `/lens-camera-roll-modal/camera-roll-inspector`,
-            params: { assetId: item.id },
-          });
-        }}
-      >
+      <Pressable onPress={() => handlePhotoPress(item)}>
         <Image source={{ uri: item.uri }} style={styles.photoItem} resizeMode="cover" />
       </Pressable>
     );
