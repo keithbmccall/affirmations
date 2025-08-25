@@ -114,13 +114,13 @@ export const Camera = () => {
         backgroundColor: palette.backgroundColor.value,
         detailColor: palette.detailColor.value,
       };
+
       const photo = await camera.current.takePhoto({
         flash: flashModeOptions[flashMode].value,
       });
 
       const asset = await createAssetAsync(photo.path);
 
-      // TODO: save palette
       const lensPalette: LensPalette = {
         id: asset.id,
         uri: asset.uri,

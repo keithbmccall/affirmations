@@ -6,7 +6,15 @@ export function lensReducer(state: StateType['lens'], action: Action) {
     case 'ADD_LENS_PALETTE':
       return {
         ...state,
-        lensPalettes: [...state.lensPalettes, action.payload],
+        lensPalettes: {
+          ...state.lensPalettes,
+          [action.payload.id]: action.payload,
+        },
+      };
+    case 'SET_LENS_PALETTES_MAP':
+      return {
+        ...state,
+        lensPalettes: action.payload,
       };
     default:
       return state;
