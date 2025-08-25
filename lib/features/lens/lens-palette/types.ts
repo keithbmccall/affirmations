@@ -13,3 +13,5 @@ export type LensPalette = {
     detailColor: string;
   };
 };
+
+export type LensPalettesMap = Record<LensPalette['id'], LensPalette>;
