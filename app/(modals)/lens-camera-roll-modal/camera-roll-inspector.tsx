@@ -1,5 +1,8 @@
 import { CameraRollInspector } from '@screen-containers/camera-roll-inspector';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function CameraRollInspectorScreen() {
-  return <CameraRollInspector />;
+  const { asset } = useLocalSearchParams<{ asset: string }>();
+
+  return <CameraRollInspector asset={asset} />;
 }
