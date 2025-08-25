@@ -1,5 +1,6 @@
 import { Modal } from '@components/modal';
 import { ThemedText } from '@components/shared';
+import { InspectionAsset, LensPalette } from '@features/lens/lens-palette';
 import { useLens } from '@platform';
 import { Routes } from '@routes';
 import { spacing, useThemeColor } from '@styles';
@@ -10,10 +11,18 @@ import { FlatList, Pressable, StyleSheet } from 'react-native';
 import { ColorPaletteImage } from '../features/lens/lens-palette/components/color-palette-image';
 import { ScreenContainerProps } from './types';
 
-const handlePhotoPress = (asset: Asset) => {
+const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) => {
+  const item: InspectionAsset = {
+    height: asset.height,
+    width: asset.width,
+    uri: asset.uri,
+    mediaType: asset.mediaType,
+    id: asset.id,
+    palette: lensPalette?.palette,
+  };
   router.push({
     pathname: Routes.subRoutes.cameraRollInspector.routePathname,
-    params: { assetId: asset.id },
+    params: { asset: JSON.stringify(item) },
   });
 };
 
@@ -78,10 +87,10 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
   }, [loadingMore, hasMore, fetchPhotos]);
 
   const renderPhoto = useCallback(({ item }: { item: Asset }) => {
-    const lensPalette = lensPalettesMap[item.id];
+    const lensPalette: LensPalette | undefined = lensPalettesMap[item.id];
 
     return (
-      <Pressable onPress={() => handlePhotoPress(item)}>
+      <Pressable onPress={() => handlePhotoPress(item, lensPalette)}>
         <ColorPaletteImage item={item} lensPalette={lensPalette} />
       </Pressable>
     );

@@ -208,9 +208,8 @@ export const Camera = () => {
   const frameProcessor = useFrameProcessor(
     frame => {
       'worklet';
-      // Only process frames when camera is active
       if (!isCameraActive) return;
-      console.log('frame processor called');
+
       // const data = scanImage(frame);
       // console.log(data, 'data');
       if (isColorLensEnabled) {
