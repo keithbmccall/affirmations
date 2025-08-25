@@ -13,13 +13,15 @@ A comprehensive React Native/Expo application for scheduling and managing affirm
 
 ### Camera & Lens Features
 
-- **Advanced Camera Controls**: Multiple camera modes (photo, video, portrait)
-- **Real-time Color Palette**: Extract color palettes from camera frames in real-time
-- **Camera Roll Integration**: Access and display recent media
+- **Advanced Camera Controls**: Multiple camera modes (photo, video, portrait, panorama, square)
+- **Real-time Color Palette Extraction**: Extract 8-color palettes from camera frames in real-time using native iOS frame processors
+- **Camera Roll Integration**: Access and display recent media with infinite scrolling
 - **Grid Overlay**: Professional photography grid for composition
-- **Flash & Device Controls**: Full camera control suite
-- **Gesture Support**: Tap-to-focus functionality
-- **Video Recording**: Capture videos with custom settings
+- **Flash & Device Controls**: Full camera control suite with multiple device support
+- **Gesture Support**: Tap-to-focus functionality with animated focus indicators
+- **Video Recording**: Capture videos with custom settings (disabled during color lens mode)
+- **Camera Roll Inspector**: Modal view for detailed photo inspection
+- **Color Palette Storage**: Automatically save color palettes with captured photos
 
 ### Technical Features
 
@@ -29,6 +31,7 @@ A comprehensive React Native/Expo application for scheduling and managing affirm
 - **State Management**: Global state management with React Context + useReducer
 - **File-based Routing**: Expo Router with modal and tab navigation
 - **Performance Optimized**: Frame processors and worklets for real-time processing
+- **Native iOS Integration**: Custom Swift frame processor for color extraction
 
 ## 🛠 Tech Stack
 
@@ -44,6 +47,8 @@ A comprehensive React Native/Expo application for scheduling and managing affirm
 - **Expo Media Library** for media access
 - **Expo Image Picker** for photo/video selection
 - **React Native Reanimated** for smooth animations
+- **React Native Worklets Core** for performance optimization
+- **Custom iOS Frame Processor** for real-time color extraction
 
 ### Notifications
 
@@ -55,6 +60,7 @@ A comprehensive React Native/Expo application for scheduling and managing affirm
 - **Custom Themed Components** with dark/light mode support
 - **React Native Gesture Handler** for touch interactions
 - **React Native Safe Area Context** for proper layout handling
+- **Expo Symbols** for SF Symbols integration
 
 ### Development Tools
 
@@ -67,7 +73,7 @@ A comprehensive React Native/Expo application for scheduling and managing affirm
 ### Navigation
 
 - **Tab Navigation**: Home, Lens (Camera), Affirmations
-- **Modal Navigation**: Notification details modal
+- **Modal Navigation**: Notification details modal, Camera roll modal, Camera roll inspector
 - **File-based Routing**: Automatic route generation
 
 ### Screens
@@ -81,6 +87,7 @@ A comprehensive React Native/Expo application for scheduling and managing affirm
 - **Global Context**: Centralized state with actions and reducers
 - **Feature-based Organization**: Separate contexts for different app domains
 - **Persistent Storage**: AsyncStorage integration for data persistence
+- **Lens Palette Storage**: Color palette data associated with captured photos
 
 ## 🎨 Design System
 
@@ -154,6 +161,8 @@ affirmations/
 ├── lib/                    # Application library
 │   ├── components/         # Reusable UI components
 │   ├── features/          # Feature-specific logic
+│   │   ├── lens/          # Camera and color palette features
+│   │   └── notifications/ # Notification system
 │   ├── platform/          # Global state management
 │   ├── screen-containers/ # Screen container components
 │   ├── styles/            # Theming and styling system
@@ -202,17 +211,21 @@ eas build --platform android
 
 ### Camera System
 
-- **Real-time Processing**: Frame processors for live color extraction
-- **Multiple Modes**: Photo, video, and portrait modes
-- **Advanced Controls**: Flash, grid, device switching
-- **Performance Optimized**: Worklets for smooth real-time processing
+- **Real-time Processing**: Native iOS frame processors for live color extraction
+- **Multiple Modes**: Photo, video, portrait, panorama, and square modes
+- **Advanced Controls**: Flash, grid, device switching, timer modes
+- **Performance Optimized**: Worklets and frame rate limiting for smooth real-time processing
+- **Color Palette Extraction**: Extracts 8 dominant colors (primary, secondary, tertiary, quaternary, quinary, senary, background, detail)
+- **Camera Roll Integration**: Infinite scrolling gallery with recent photos
+- **Focus Controls**: Tap-to-focus with animated indicators
 
 ### Notification System
 
-- **Flexible Scheduling**: Custom dates and times
+- **Flexible Scheduling**: Custom dates and times with validation
 - **Rich Content**: Titles, messages, and custom data
-- **History Management**: Complete audit trail
+- **History Management**: Complete audit trail with pending and history views
 - **Permission Handling**: Robust permission management
+- **Edit & Delete**: Full CRUD operations on scheduled notifications
 
 ### State Management
 
@@ -220,6 +233,7 @@ eas build --platform android
 - **Type-safe**: Full TypeScript integration
 - **Persistent**: AsyncStorage for data persistence
 - **Modular**: Feature-based organization
+- **Lens Palette Storage**: Color data associated with captured media
 
 ## 🤝 Contributing
 
@@ -259,6 +273,7 @@ This project appears to be evolving into a **comprehensive wellness and mindfuln
 - ✅ Affirmation scheduling and notification system
 - ✅ Advanced camera with real-time color palette extraction
 - ✅ Robust state management and theming system
+- ✅ Camera roll integration with color palette storage
 
 #### Phase 2: AI Integration (Near-term)
 
@@ -266,6 +281,7 @@ This project appears to be evolving into a **comprehensive wellness and mindfuln
 - **Personalized Affirmations**: AI-generated affirmations based on detected emotions and user patterns
 - **Voice Recognition**: Speech-to-text for hands-free affirmation creation
 - **Sentiment Analysis**: Understanding user mood through text analysis
+- **Color Psychology**: Leverage extracted color palettes for mood-based affirmations
 
 #### Phase 3: Advanced Wellness Features (Medium-term)
 
@@ -273,6 +289,7 @@ This project appears to be evolving into a **comprehensive wellness and mindfuln
 - **Environmental Analysis**: Using camera to assess lighting, environment, and mood factors
 - **Social Features**: Sharing affirmations with trusted circles while maintaining privacy
 - **Progress Tracking**: AI-powered insights into emotional patterns and growth
+- **Color Therapy**: Advanced color-based wellness recommendations
 
 #### Phase 4: Holistic Wellness Platform (Long-term)
 
@@ -280,6 +297,7 @@ This project appears to be evolving into a **comprehensive wellness and mindfuln
 - **Multimodal AI**: Combining camera, voice, and biometric data for comprehensive wellness insights
 - **Therapeutic Integration**: Partnerships with mental health professionals and therapy apps
 - **Community Features**: Anonymous support groups and wellness challenges
+- **Environmental Wellness**: Using camera data to suggest environmental improvements
 
 ### 🧠 Technical Architecture Insights
 
@@ -293,6 +311,8 @@ The current codebase reveals several strategic decisions that support this visio
 
 4. **Testing Infrastructure**: The comprehensive testing setup ensures AI features can be reliably deployed and updated.
 
+5. **Color Data Foundation**: The color palette extraction and storage system provides a foundation for color psychology and environmental analysis features.
+
 ### 🎨 Design Philosophy Alignment
 
 The theming system and component architecture suggest a focus on:
@@ -300,6 +320,7 @@ The theming system and component architecture suggest a focus on:
 - **Accessibility**: Ensuring AI features work for users with different abilities
 - **Privacy**: User-controlled data sharing and local processing where possible
 - **Personalization**: Adaptive interfaces that respond to user preferences and needs
+- **Visual Wellness**: Color-aware interfaces that adapt to user mood and environment
 
 ### 🚀 Market Positioning
 
@@ -312,7 +333,7 @@ This project has the potential to become a **premium wellness app** that:
 
 ### 🔮 Predictions
 
-1. **2024-2025**: Core AI features (emotion detection, personalized affirmations)
+1. **2024-2025**: Core AI features (emotion detection, personalized affirmations, color psychology)
 2. **2025-2026**: Biometric integration and advanced analytics
 3. **2026-2027**: Community features and therapeutic partnerships
 4. **2027+**: Platform expansion into broader wellness ecosystem

@@ -2,15 +2,13 @@ import { Modal } from '@components/modal';
 import { ThemedText } from '@components/shared';
 import { useLens } from '@platform';
 import { Routes } from '@routes';
-import { globalStyles, spacing, useThemeColor } from '@styles';
-import { Image } from 'expo-image';
+import { spacing, useThemeColor } from '@styles';
 import { Asset, getAssetsAsync } from 'expo-media-library';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Dimensions, FlatList, Pressable, StyleSheet } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FlatList, Pressable, StyleSheet } from 'react-native';
+import { ColorPaletteImage } from '../features/lens/lens-palette/components/color-palette-image';
 import { ScreenContainerProps } from './types';
-
-const { width } = Dimensions.get('window');
 
 const handlePhotoPress = (asset: Asset) => {
   router.push({
@@ -30,6 +28,8 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [endCursor, setEndCursor] = useState<string | null>(null);
+
+  const contentContainerStyle = useMemo(() => ({ borderColor }), [borderColor]);
 
   const fetchPhotos = useCallback(
     async (isInitial = false) => {
@@ -68,7 +68,7 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
   );
 
   useEffect(() => {
-    fetchPhotos(true);
+    if (!photos.length) fetchPhotos(true);
   }, [fetchPhotos]);
 
   const loadMorePhotos = useCallback(() => {
@@ -80,13 +80,9 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
   const renderPhoto = useCallback(({ item }: { item: Asset }) => {
     const lensPalette = lensPalettesMap[item.id];
 
-    console.log({
-      lensPalette,
-      item,
-    });
     return (
       <Pressable onPress={() => handlePhotoPress(item)}>
-        <Image source={{ uri: item.uri }} style={styles.photoItem} resizeMode="cover" />
+        <ColorPaletteImage item={item} lensPalette={lensPalette} />
       </Pressable>
     );
   }, []);
@@ -109,8 +105,7 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
           renderItem={renderPhoto}
           keyExtractor={keyExtractor}
           numColumns={3}
-          columnWrapperStyle={[styles.photoRow, { borderColor }]}
-          contentContainerStyle={[styles.photoList, { borderColor }]}
+          contentContainerStyle={contentContainerStyle}
           onEndReached={loadMorePhotos}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
@@ -129,15 +124,6 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
 const styles = StyleSheet.create({
   description: {
     marginBottom: spacing.xl,
-  },
-  photoList: {
-    ...globalStyles.flex1,
-  },
-  photoRow: {},
-  photoItem: {
-    width: width / 3, // Subtract 2 for the border width
-    height: width / 3, // Subtract 2 for the border width
-    borderWidth: 1,
   },
   loadingText: {
     padding: spacing.lg,
