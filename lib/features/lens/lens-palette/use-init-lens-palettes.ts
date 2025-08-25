@@ -6,7 +6,7 @@ import { LensPalettesMap } from './types';
 // TODO: fnish installing
 export const useInitLensPalettes = () => {
   const [isLensPalettesInited, setIsLensPalettesInited] = useState(false);
-  const { lensPalettes, onSetLensPalettesMap } = useLens();
+  const { lensPalettesMap, onSetLensPalettesMap } = useLens();
 
   useEffect(() => {
     void loadData(StorageDevice.LENS_PALETTES).then((_lensPalettes: LensPalettesMap) => {
@@ -19,9 +19,9 @@ export const useInitLensPalettes = () => {
   }, [onSetLensPalettesMap]);
 
   useEffect(() => {
-    console.log('lensPalettes: ', isLensPalettesInited, lensPalettes);
-    if (isLensPalettesInited && Object.keys(lensPalettes).length) {
-      saveData(StorageDevice.LENS_PALETTES, lensPalettes);
+    console.log('lensPalettes: ', isLensPalettesInited, lensPalettesMap);
+    if (isLensPalettesInited && Object.keys(lensPalettesMap).length) {
+      saveData(StorageDevice.LENS_PALETTES, lensPalettesMap);
     }
-  }, [lensPalettes]);
+  }, [lensPalettesMap]);
 };

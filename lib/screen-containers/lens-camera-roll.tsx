@@ -1,5 +1,6 @@
 import { Modal } from '@components/modal';
 import { ThemedText } from '@components/shared';
+import { useLens } from '@platform';
 import { Routes } from '@routes';
 import { globalStyles, spacing, useThemeColor } from '@styles';
 import { Image } from 'expo-image';
@@ -21,6 +22,7 @@ const handlePhotoPress = (asset: Asset) => {
 interface LensCameraRollProps extends ScreenContainerProps {}
 
 export const LensCameraRoll = ({}: LensCameraRollProps) => {
+  const { lensPalettesMap } = useLens();
   const borderColor = useThemeColor({}, 'background');
   const [photos, setPhotos] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,6 +78,12 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
   }, [loadingMore, hasMore, fetchPhotos]);
 
   const renderPhoto = useCallback(({ item }: { item: Asset }) => {
+    const lensPalette = lensPalettesMap[item.id];
+
+    console.log({
+      lensPalette,
+      item,
+    });
     return (
       <Pressable onPress={() => handlePhotoPress(item)}>
         <Image source={{ uri: item.uri }} style={styles.photoItem} resizeMode="cover" />

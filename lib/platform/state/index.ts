@@ -12,7 +12,7 @@ export interface StateType {
     isLoading: boolean;
   };
   lens: {
-    lensPalettes: LensPalettesMap;
+    lensPalettesMap: LensPalettesMap;
   };
   affirmations: {
     notifications: {
@@ -33,7 +33,7 @@ export const initialState: StateType = {
     isLoading: false,
   },
   lens: {
-    lensPalettes: {},
+    lensPalettesMap: {},
   },
   affirmations: {
     notifications: {
