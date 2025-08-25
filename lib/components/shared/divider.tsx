@@ -1,6 +1,6 @@
-import { ThemedView, ThemedViewProps } from '@components/shared';
 import { colors } from '@styles';
 import { ColorValue } from 'react-native';
+import { ThemedView, ThemedViewProps } from './themed-view';
 
 interface DividerProps extends Omit<ThemedViewProps, 'style'> {
   color?: ColorValue;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 import { Frame } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
@@ -27,23 +27,42 @@ export const useColorLensPalette = () => {
     backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
     detailColor.value = colorPalette?.detail ?? detailColor.value;
   };
-  const applyColorPaletteWorklet = Worklets.createRunOnJS(applyColorPalette);
 
-  const getColorLensPaletteWorklet = (frame: Frame) => {
-    'worklet';
-    applyColorPaletteWorklet(getColorLensPalette(frame));
-  };
+  const applyColorPaletteWorklet = useMemo(
+    () => Worklets.createRunOnJS(applyColorPalette),
+    [applyColorPalette]
+  );
 
-  const palette = {
-    primaryColor,
-    secondaryColor,
-    tertiaryColor,
-    quaternaryColor,
-    quinaryColor,
-    senaryColor,
-    backgroundColor,
-    detailColor,
-  };
+  const getColorLensPaletteWorklet = useCallback(
+    (frame: Frame) => {
+      'worklet';
+      applyColorPaletteWorklet(getColorLensPalette(frame));
+    },
+    [applyColorPaletteWorklet]
+  );
+
+  const palette = useMemo(
+    () => ({
+      primaryColor,
+      secondaryColor,
+      tertiaryColor,
+      quaternaryColor,
+      quinaryColor,
+      senaryColor,
+      backgroundColor,
+      detailColor,
+    }),
+    [
+      primaryColor,
+      secondaryColor,
+      tertiaryColor,
+      quaternaryColor,
+      quinaryColor,
+      senaryColor,
+      backgroundColor,
+      detailColor,
+    ]
+  );
 
   return {
     isColorLensEnabled,

@@ -1,4 +1,4 @@
-import { LensPalette } from '@features/lens/lens-palette';
+import { LensPalettesMap } from '@features/lens/lens-palette';
 import { HistoryNotification, NotificationWithData } from '@features/notifications';
 import { NotificationChannel } from 'expo-notifications';
 
@@ -12,7 +12,7 @@ export interface StateType {
     isLoading: boolean;
   };
   lens: {
-    lensPalettes: LensPalette[];
+    lensPalettesMap: LensPalettesMap;
   };
   affirmations: {
     notifications: {
@@ -33,7 +33,7 @@ export const initialState: StateType = {
     isLoading: false,
   },
   lens: {
-    lensPalettes: [],
+    lensPalettesMap: {},
   },
   affirmations: {
     notifications: {

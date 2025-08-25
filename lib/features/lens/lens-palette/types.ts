@@ -1,3 +1,5 @@
+import { Asset } from 'expo-media-library';
+
 export type LensPalette = {
   id: string;
   uri: string;
@@ -12,4 +14,12 @@ export type LensPalette = {
     backgroundColor: string;
     detailColor: string;
   };
+};
+
+export type LensPalettesMap = Record<LensPalette['id'], LensPalette>;
+
+export type InspectionAsset = Omit<LensPalette, 'palette'> & {
+  palette?: LensPalette['palette'];
+  height: Asset['height'];
+  width: Asset['width'];
 };
