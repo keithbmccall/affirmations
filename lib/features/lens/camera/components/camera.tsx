@@ -177,6 +177,7 @@ export const Camera = () => {
       setIsCameraActive(true);
 
       return () => {
+        console.log('camera suspended');
         setIsCameraActive(false);
       };
     }, [])
@@ -209,7 +210,7 @@ export const Camera = () => {
       'worklet';
       // Only process frames when camera is active
       if (!isCameraActive) return;
-
+      console.log('frame processor called');
       // const data = scanImage(frame);
       // console.log(data, 'data');
       if (isColorLensEnabled) {
