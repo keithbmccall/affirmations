@@ -1,6 +1,7 @@
 import { colors, globalStyles, spacing } from '@styles';
+import { router } from 'expo-router';
 import { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from './shared/themed-text';
 import { ThemedView } from './shared/themed-view';
 
@@ -8,13 +9,21 @@ interface ModalProps {
   children: ReactNode;
   testID: string;
   title: string;
+  enableBackButton?: boolean;
 }
 
-export const Modal = ({ children, title, testID }: ModalProps) => {
+export const Modal = ({ children, title, testID, enableBackButton }: ModalProps) => {
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.header}>
-        <View style={styles.stub} />
+        {enableBackButton ? (
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <ThemedText type="default">Back</ThemedText>
+          </Pressable>
+        ) : (
+          <View style={styles.stub} />
+        )}
+
         <ThemedText accessibilityRole="header" testID={testID} type="subtitle" style={styles.title}>
           {title}
         </ThemedText>
@@ -31,8 +40,8 @@ const styles = StyleSheet.create({
   },
   header: {
     ...globalStyles.flexRow,
-    justifyContent: 'space-between',
-    // alignItems: 'center',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   title: {
     paddingVertical: spacing.lg,
@@ -43,7 +52,10 @@ const styles = StyleSheet.create({
     ...globalStyles.flex1,
   },
   stub: {
-    height: 1,
+    width: 40,
     backgroundColor: colors.human.white,
+  },
+  backButton: {
+    width: 40,
   },
 });

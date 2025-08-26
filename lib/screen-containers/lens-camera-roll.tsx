@@ -38,7 +38,7 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
   const [hasMore, setHasMore] = useState(true);
   const [endCursor, setEndCursor] = useState<string | null>(null);
 
-  const contentContainerStyle = useMemo(() => ({ borderColor }), [borderColor]);
+  const contentContainerStyle = useMemo(() => ({ borderColor }), []);
 
   const fetchPhotos = useCallback(
     async (isInitial = false) => {
@@ -91,7 +91,7 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
 
     return (
       <Pressable onPress={() => handlePhotoPress(item, lensPalette)}>
-        <ColorPaletteImage item={item} lensPalette={lensPalette} />
+        <ColorPaletteImage image={item} lensPalette={lensPalette} />
       </Pressable>
     );
   }, []);

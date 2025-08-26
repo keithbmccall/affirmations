@@ -1,7 +1,7 @@
 import { globalStyles, spacing } from '@styles';
 import { Image } from 'expo-image';
 import type { Asset } from 'expo-media-library';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { lensPaletteConfig } from '../config';
 import type { LensPalette } from '../types';
@@ -9,14 +9,16 @@ import type { LensPalette } from '../types';
 const { width } = Dimensions.get('window');
 
 interface ColorPaletteImageProps {
-  item: Asset;
+  image: Asset;
   lensPalette: LensPalette;
 }
 
-export const ColorPaletteImage = memo(({ item, lensPalette }: ColorPaletteImageProps) => {
+export const ColorPaletteImage = memo(({ image, lensPalette }: ColorPaletteImageProps) => {
+  console.log({ item: image, lensPalette });
+  const source = useMemo(() => ({ uri: image.uri }), [image.uri]);
   return (
     <View style={styles.container}>
-      <Image source={{ uri: item.uri }} style={styles.photoItem} resizeMode="cover" />
+      <Image source={source} style={styles.photoItem} contentFit="cover" />
       {lensPalette && (
         <View style={styles.palette}>
           {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
