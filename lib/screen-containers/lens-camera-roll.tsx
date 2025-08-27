@@ -3,6 +3,7 @@ import { ThemedText } from '@components/shared';
 import { InspectionAsset, LensPalette } from '@features/lens/lens-palette';
 import { useLens } from '@platform';
 import { Routes } from '@routes';
+import { getCameraRollPhotosCache, setCameraRollPhotosCache } from '@storage';
 import { spacing, useThemeColor } from '@styles';
 import { Asset, getAssetsAsync } from 'expo-media-library';
 import { router } from 'expo-router';
@@ -26,12 +27,14 @@ const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) =>
   });
 };
 
+const defaultPhotos = getCameraRollPhotosCache() || [];
+
 interface LensCameraRollProps extends ScreenContainerProps {}
 
 export const LensCameraRoll = ({}: LensCameraRollProps) => {
   const { lensPalettesMap } = useLens();
   const borderColor = useThemeColor({}, 'background');
-  const [photos, setPhotos] = useState<Asset[]>([]);
+  const [photos, setPhotos] = useState<Asset[]>(defaultPhotos);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,12 +53,16 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
         }
         setError(null);
 
+        const cachedPhotos = getCameraRollPhotosCache();
+        const cachedPhotosLength = cachedPhotos?.length || 30;
+
         const result = await getAssetsAsync({
-          first: 30,
+          first: cachedPhotosLength,
           mediaType: ['photo'],
           sortBy: ['creationTime'],
           after: isInitial ? undefined : endCursor || undefined,
         });
+        setCameraRollPhotosCache(result.assets);
 
         if (isInitial) {
           setPhotos(result.assets);
@@ -77,8 +84,8 @@ export const LensCameraRoll = ({}: LensCameraRollProps) => {
   );
 
   useEffect(() => {
-    if (!photos.length) fetchPhotos(true);
-  }, [fetchPhotos]);
+    fetchPhotos(true);
+  }, []);
 
   const loadMorePhotos = useCallback(() => {
     if (!loadingMore && hasMore) {
