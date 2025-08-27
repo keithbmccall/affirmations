@@ -2,9 +2,8 @@ import { IconSymbol } from '@components/shared';
 import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes';
 import { useColorScheme } from '@styles';
-import { Tabs, usePathname } from 'expo-router';
+import { Tabs } from 'expo-router';
 import React, { useMemo } from 'react';
-import { Platform } from 'react-native';
 import { HapticTab } from '../../.expo-defaults/components/HapticTab';
 import TabBarBackground from '../../.expo-defaults/components/ui/TabBarBackground';
 import { Colors } from '../../.expo-defaults/constants/Colors';
@@ -21,10 +20,6 @@ const screensList = [
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const pathname = usePathname();
-
-  // Check if current screen is lens
-  const isLensScreen = pathname === `/${Routes.tabs.lens.name}`;
 
   const screens = useMemo(() => {
     return screensList.map(screen => {
@@ -35,6 +30,9 @@ export default function TabLayout() {
           options={{
             title: screen.title,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name={screen.icon} color={color} />,
+            tabBarStyle: {
+              display: screen.name === Routes.tabs.lens.name ? 'none' : undefined,
+            },
           }}
         />
       );
@@ -47,16 +45,8 @@ export default function TabLayout() {
       headerShown: false,
       tabBarButton: HapticTab,
       tabBarBackground: TabBarBackground,
-      tabBarStyle: Platform.select({
-        ios: {
-          // Use a transparent background on iOS to show the blur effect
-          position: 'absolute',
-          display: isLensScreen ? 'none' : undefined,
-        },
-        default: {},
-      }),
     };
-  }, [colorScheme, isLensScreen]);
-  console.log('layout');
+  }, [colorScheme]);
+
   return <Tabs screenOptions={screenOptions}>{screens}</Tabs>;
 }
