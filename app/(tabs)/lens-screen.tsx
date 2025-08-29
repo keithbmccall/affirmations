@@ -1,4 +1,4 @@
-import Lens from '@screen-containers/lens';
+import Lens from '../../lib/features/lens/lens';
 
 export default function LensScreen() {
   return <Lens />;

@@ -1,8 +1,9 @@
-import { ScheduleHistory, Scheduler } from './index';
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { useAffirmations } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
 import { Dimensions, StyleSheet } from 'react-native';
+import { ScheduleHistory } from './schedule-history';
+import { Scheduler } from './scheduler';
 
 export const Notifications = () => {
   const {
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     padding: spacing.screenPadding,
   },
   errorText: {
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     color: colors.human.white,
   },
   scheduler: {

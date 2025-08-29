@@ -1,60 +1,50 @@
+import { Colors, HapticTab, TabBarBackground } from '@components/defaults';
 import { IconSymbol } from '@components/shared';
+import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes';
 import { useColorScheme } from '@styles';
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
-import { HapticTab } from '../../.expo-defaults/components/HapticTab';
-import TabBarBackground from '../../.expo-defaults/components/ui/TabBarBackground';
-import { Colors } from '../../.expo-defaults/constants/Colors';
+import React, { useMemo } from 'react';
+
+const screensList = [
+  { name: Routes.tabs.home.name, title: Routes.tabs.home.title, icon: Routes.tabs.home.icon },
+  { name: Routes.tabs.lens.name, title: Routes.tabs.lens.title, icon: Routes.tabs.lens.icon },
+  {
+    name: Routes.tabs.affirmations.name,
+    title: Routes.tabs.affirmations.title,
+    icon: Routes.tabs.affirmations.icon,
+  },
+];
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}
-    >
-      <Tabs.Screen
-        name={Routes.tabs.home.name}
-        options={{
-          title: Routes.tabs.home.title,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name={Routes.tabs.home.icon} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name={Routes.tabs.lens.name}
-        options={{
-          title: Routes.tabs.lens.title,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name={Routes.tabs.lens.icon} color={color} />
-          ),
-          tabBarStyle: { display: 'none' },
-        }}
-      />
-      <Tabs.Screen
-        name={Routes.tabs.affirmations.name}
-        options={{
-          title: Routes.tabs.affirmations.title,
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name={Routes.tabs.affirmations.icon} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+  const screens = useMemo(() => {
+    return screensList.map(screen => {
+      return (
+        <Tabs.Screen
+          key={screen.name}
+          name={screen.name}
+          options={{
+            title: screen.title,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name={screen.icon} color={color} />,
+            tabBarStyle: {
+              display: screen.name === Routes.tabs.lens.name ? 'none' : undefined,
+            },
+          }}
+        />
+      );
+    });
+  }, [screensList]);
+
+  const screenOptions: BottomTabNavigationOptions = useMemo(() => {
+    return {
+      tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+      headerShown: false,
+      tabBarButton: HapticTab,
+      tabBarBackground: TabBarBackground,
+    };
+  }, [colorScheme]);
+
+  return <Tabs screenOptions={screenOptions}>{screens}</Tabs>;
 }

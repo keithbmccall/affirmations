@@ -1,4 +1,4 @@
-import './wdyr';
+// import '../wdyr';
 // wdyr must be imported before any other imports
 import StateContextProvider from '@platform/state-context-provider';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';

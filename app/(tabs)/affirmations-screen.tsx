@@ -1,5 +1,5 @@
 import { ThemedSafeAreaView } from '@components/shared';
-import Affirmations from '@screen-containers/affirmations';
+import { Affirmations } from '@features/affirmations';
 import { globalStyles } from '@styles';
 import { StyleSheet } from 'react-native';
 

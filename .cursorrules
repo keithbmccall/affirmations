@@ -88,7 +88,7 @@ export const MyComponent = ({
 };
 ```
 
-## CRITICAL RULE: Never Define Components Inside Other Components
+## CRITICAL RULE: Avoid Defining Components Inside Other Components - When Needed Then Wrap in useMemo / useCallback
 
 **NEVER** define a component inside another component. This creates performance issues and violates React best practices.
 

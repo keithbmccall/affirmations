@@ -1,11 +1,12 @@
-import { IconSymbol, ThemedText, ThemedView } from '@components/shared';
-import { ColorPalette } from '@features/lens/lens-palette';
+import { IconSymbol, ThemedText } from '@components/shared';
+import { ColorPalette, LensPalette, useColorLensPalette } from '@features/lens/lens-palette';
 import { useLens } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
+import { Image } from 'expo-image';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,12 +24,8 @@ import {
   CameraMode,
   flashModeOptions,
   gridModeOptions,
-  LensPalette,
-  useCameraFocus,
-  useCameraRoll,
-  useColorLensPalette,
-  useLensPermissions,
-} from '../../index';
+} from '../camera-options';
+import { useCameraFocus, useCameraRoll, useLensPermissions } from '../hooks';
 import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -40,9 +37,8 @@ Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
 
-interface CameraProps {}
-export const Camera = ({}: CameraProps) => {
-  const { onSetLensPalettes } = useLens();
+export const Camera = () => {
+  const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
 
@@ -64,6 +60,7 @@ export const Camera = ({}: CameraProps) => {
   const { handleFocusTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
 
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
+
   const {
     animatedPhotoStyle,
     handleCameraRollPress,
@@ -74,12 +71,17 @@ export const Camera = ({}: CameraProps) => {
     useColorLensPalette();
 
   // const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
-
-  const isVideoMode = cameraMode === CAMERA_MODE.VIDEO;
-  const isPortraitMode = cameraMode === CAMERA_MODE.PORTRAIT;
   const showGrid = gridModeOptions[gridMode].value === 'on';
+  const isVideoNotAllowed = isColorLensEnabled;
 
-  const handleVideoCapture = async () => {
+  const fps = useMemo(
+    () => calculateFps({ isColorLensEnabled, isCameraActive }),
+    [isColorLensEnabled, isCameraActive]
+  );
+
+  const colorAnimationDuration = useMemo(() => (1 / fps) * 1000, [fps]);
+
+  const handleVideoCapture = useCallback(async () => {
     if (!camera.current) return;
 
     try {
@@ -96,9 +98,9 @@ export const Camera = ({}: CameraProps) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to record video');
     }
-  };
+  }, [fetchRecentMedia]);
 
-  const handleCapture = async () => {
+  const handleCapture = useCallback(async () => {
     if (!camera.current) return;
 
     try {
@@ -112,13 +114,13 @@ export const Camera = ({}: CameraProps) => {
         backgroundColor: palette.backgroundColor.value,
         detailColor: palette.detailColor.value,
       };
+
       const photo = await camera.current.takePhoto({
         flash: flashModeOptions[flashMode].value,
       });
 
       const asset = await createAssetAsync(photo.path);
 
-      // TODO: save palette
       const lensPalette: LensPalette = {
         id: asset.id,
         uri: asset.uri,
@@ -126,45 +128,41 @@ export const Camera = ({}: CameraProps) => {
         palette: currentPalette,
       };
 
-      onSetLensPalettes(lensPalette);
+      onAddLensPalette(lensPalette);
       console.log('asset lens palette: ', lensPalette);
       fetchRecentMedia();
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
     }
-  };
+  }, [palette, flashMode, onAddLensPalette, fetchRecentMedia]);
 
-  const handleStopRecording = async () => {
+  const handleStopRecording = useCallback(async () => {
     if (!camera.current) return;
     await camera.current.stopRecording();
     setIsRecording(false);
-  };
+  }, []);
 
-  const handleFlashToggle = () => {
+  const handleFlashToggle = useCallback(() => {
     setFlashMode(prev => (prev + 1) % flashModeOptionsLength);
-  };
+  }, []);
 
-  const handleGridToggle = () => {
+  const handleGridToggle = useCallback(() => {
     setGridMode(prev => (prev + 1) % gridModeOptions.length);
-  };
+  }, []);
 
-  const handleSwitchCameraToggle = () => {
+  const handleSwitchCameraToggle = useCallback(() => {
     setCameraPosition(prev =>
       prev === CAMERA_POSITION.BACK ? CAMERA_POSITION.FRONT : CAMERA_POSITION.BACK
     );
-  };
+  }, []);
 
-  const handleCameraDeviceToggle = () => {
+  const handleCameraDeviceToggle = useCallback(() => {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
-  };
+  }, []);
 
-  const handleEnableColorLensToggle = () => {
-    setIsColorLensEnabled(prev => !prev);
-  };
+  const handleEnableColorLensToggle = useCallback(() => setIsColorLensEnabled(prev => !prev), []);
 
-  const handleBackPress = () => {
-    router.back();
-  };
+  const handleBackPress = useCallback(() => router.back(), []);
 
   // Fetch recent photo when permissions are granted
   useEffect(() => {
@@ -179,23 +177,37 @@ export const Camera = ({}: CameraProps) => {
       setIsCameraActive(true);
 
       return () => {
+        console.log('camera suspended');
         setIsCameraActive(false);
       };
     }, [])
   );
 
-  const gesture = Gesture.Tap().onEnd(({ x, y }) => {
-    runOnJS(handleFocusTap)(x, y);
-  });
+  const gesture = useMemo(
+    () =>
+      Gesture.Tap().onEnd(({ x, y }) => {
+        runOnJS(handleFocusTap)(x, y);
+      }),
+    [handleFocusTap]
+  );
 
-  const fps = calculateFps({ isColorLensEnabled, isCameraActive });
-
-  const colorAnimationDuration = useMemo(() => (1 / fps) * 1000, [fps]);
+  const triggerProps = useMemo(
+    () =>
+      isRecording
+        ? {
+            onPress: handleStopRecording,
+            onLongPress: handleStopRecording,
+          }
+        : {
+            onPress: handleCapture,
+            onLongPress: isVideoNotAllowed ? undefined : handleVideoCapture,
+          },
+    [isVideoNotAllowed, isRecording, handleCapture, handleStopRecording, handleVideoCapture]
+  );
 
   const frameProcessor = useFrameProcessor(
     frame => {
       'worklet';
-      // Only process frames when camera is active
       if (!isCameraActive) return;
 
       // const data = scanImage(frame);
@@ -207,38 +219,37 @@ export const Camera = ({}: CameraProps) => {
     [isCameraActive, isColorLensEnabled]
   );
 
-  const isVideoNotAllowed = isColorLensEnabled;
-  const triggerProps = isRecording
-    ? {
-        onPress: handleStopRecording,
-        onLongPress: handleStopRecording,
-      }
-    : {
-        onPress: handleCapture,
-        onLongPress: isVideoNotAllowed ? undefined : handleVideoCapture,
-      };
-
-  return device && hasAllPermissions ? (
+  return (
     <View style={styles.container}>
       {/* Camera view */}
       <View style={styles.cameraContainer}>
-        <GestureDetector gesture={gesture}>
-          <View style={{ ...globalStyles.flex1 }}>
-            <ReanimatedCamera
-              ref={camera}
-              style={StyleSheet.absoluteFill}
-              device={device}
-              isActive={hasAllPermissions && isCameraActive}
-              photo
-              video
-              audio
-              frameProcessor={isCameraActive ? frameProcessor : undefined}
-              fps={fps}
-            />
-            {/* ===== GRID OVERLAY SECTION ===== */}
+        {device && hasAllPermissions ? (
+          <GestureDetector gesture={gesture}>
+            <View style={styles.cameraInnerContainer}>
+              <ReanimatedCamera
+                ref={camera}
+                style={StyleSheet.absoluteFill}
+                device={device}
+                isActive={isCameraActive}
+                photo
+                video
+                audio
+                frameProcessor={isCameraActive ? frameProcessor : undefined}
+                fps={fps}
+              />
+              {/* ===== GRID OVERLAY SECTION ===== */}
+              {showGrid && <CameraGrid />}
+            </View>
+          </GestureDetector>
+        ) : (
+          <View style={styles.cameraInnerContainer}>
+            <ThemedText style={styles.errorText}>
+              {!device ? 'No camera available' : 'Camera permission required'}
+            </ThemedText>
+
             {showGrid && <CameraGrid />}
           </View>
-        </GestureDetector>
+        )}
 
         {/* ===== BACK BUTTON SECTION ===== */}
         <TouchableOpacity
@@ -321,12 +332,6 @@ export const Camera = ({}: CameraProps) => {
         <View style={styles.bottomStub} />
       </View>
     </View>
-  ) : (
-    <ThemedView style={styles.container}>
-      <ThemedText style={styles.errorText}>
-        {!device ? 'No camera available' : 'Camera permission required'}
-      </ThemedText>
-    </ThemedView>
   );
 };
 
@@ -339,8 +344,11 @@ const styles = StyleSheet.create({
     ...globalStyles.flex1,
     ...globalStyles.relative,
   },
+  cameraInnerContainer: {
+    ...globalStyles.flex1,
+  },
   errorText: {
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     color: colors.human.white,
   },
   topControls: {
@@ -384,7 +392,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: colors.human.transparent,
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     borderWidth: 4,
     borderColor: colors.human.white,
   },
@@ -415,7 +423,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     backgroundColor: colors.human.semiTransparent,
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     borderWidth: 2,
     borderColor: colors.human.white,
     ...globalStyles.overflowHidden,

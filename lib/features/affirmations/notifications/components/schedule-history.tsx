@@ -4,7 +4,7 @@ import {
   SCHEDULE_HISTORY_PAGES,
   ScheduleHistoryPages,
   useNotificationsScheduler,
-} from '../index';
+} from '@features/affirmations/notifications';
 import { useAffirmations } from '@platform';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes';

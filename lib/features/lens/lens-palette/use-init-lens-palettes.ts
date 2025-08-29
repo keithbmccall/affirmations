@@ -1,27 +1,27 @@
 import { useLens } from '@platform';
 import { loadData, saveData, StorageDevice } from '@storage';
 import { useEffect, useState } from 'react';
-import { LensPalette } from './types';
+import { LensPalettesMap } from './types';
 
 // TODO: fnish installing
 export const useInitLensPalettes = () => {
   const [isLensPalettesInited, setIsLensPalettesInited] = useState(false);
-  const { lensPalettes, onSetLensPalettes } = useLens();
+  const { lensPalettesMap, onSetLensPalettesMap } = useLens();
 
   useEffect(() => {
-    void loadData(StorageDevice.LENS_PALETTES).then((_lensPalettes: LensPalette[]) => {
+    void loadData(StorageDevice.LENS_PALETTES).then((_lensPalettes: LensPalettesMap) => {
       console.log('lensPalettes: ', _lensPalettes);
       if (_lensPalettes) {
-        onSetLensPalettes(_lensPalettes);
+        onSetLensPalettesMap(_lensPalettes);
       }
       setIsLensPalettesInited(true);
     });
-  }, [onSetLensPalettes]);
+  }, [onSetLensPalettesMap]);
 
   useEffect(() => {
-    console.log('lensPalettes: ', isLensPalettesInited, lensPalettes);
-    if (isLensPalettesInited && lensPalettes.length) {
-      saveData(StorageDevice.LENS_PALETTES, lensPalettes);
+    console.log('lensPalettes: ', isLensPalettesInited, lensPalettesMap);
+    if (isLensPalettesInited && Object.keys(lensPalettesMap).length) {
+      saveData(StorageDevice.LENS_PALETTES, lensPalettesMap);
     }
-  }, [lensPalettes]);
+  }, [lensPalettesMap]);
 };

@@ -1,11 +1,12 @@
-import { useInitNotifications } from '@features/notifications';
+import { useInitNotifications } from '@features/affirmations/notifications';
 import { FC, PropsWithChildren, useMemo, useReducer } from 'react';
 import {
   Action,
   addHistoryNotification,
+  addLensPalette,
   removeHistoryNotification,
   setHistoryNotifications,
-  setLensPalettes,
+  setLensPalettesMap,
   setLoading,
   setName,
   setNotificationChannels,
@@ -45,7 +46,8 @@ const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
         onRemoveHistoryNotification: removeHistoryNotification(dispatch),
       },
       lens: {
-        onSetLensPalettes: setLensPalettes(dispatch),
+        onAddLensPalette: addLensPalette(dispatch),
+        onSetLensPalettesMap: setLensPalettesMap(dispatch),
       },
       general: {
         onSetLoading: setLoading(dispatch),
