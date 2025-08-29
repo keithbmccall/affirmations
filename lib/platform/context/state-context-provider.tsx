@@ -1,4 +1,4 @@
-import { useInitNotifications } from '@features/notifications';
+import { useInitNotifications } from '@features/affirmations/notifications';
 import { FC, PropsWithChildren, useMemo, useReducer } from 'react';
 import {
   Action,

@@ -1,9 +1,10 @@
-import { HistoryNotification } from '@features/notifications';
+import { HistoryNotification } from '@features/affirmations/notifications';
+import { Init } from '@platform';
 import { loadData, saveData, StorageDevice } from '@storage';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import { getAllScheduledNotifications } from '.';
+import { getAllScheduledNotifications } from './notifications';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
 // TODO: move to platform or move to screen-containers/affirmations.tsx

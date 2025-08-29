@@ -1,4 +1,5 @@
 import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
+import { NotificationIdentifier } from '@features/affirmations/notifications';
 import { useGeneral } from '@platform';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors, globalStyles, spacing } from '@styles';
@@ -6,7 +7,6 @@ import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';
-import { NotificationIdentifier, useNotificationsScheduler } from '../notifications/index';
 
 interface FormField<T> {
   value: T;
