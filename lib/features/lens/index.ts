@@ -1,2 +1,3 @@
-export * from './camera';
-export * from './lens-palette';
+export * from './camera-roll-inspector';
+export * from './lens';
+export * from './lens-camera-roll';

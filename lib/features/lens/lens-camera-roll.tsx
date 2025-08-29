@@ -1,16 +1,15 @@
 import { Modal } from '@components/modal';
 import { ThemedText } from '@components/shared';
-import { InspectionAsset, LensPalette } from '@features/lens/lens-palette';
+import { ColorPaletteImage, InspectionAsset, LensPalette } from '@features/lens/lens-palette';
 import { useLens } from '@platform';
 import { Routes } from '@routes';
 import { getCameraRollPhotosCache, setCameraRollPhotosCache } from '@storage';
 import { spacing, useThemeColor } from '@styles';
+import { ScreenContainerProps } from '@types';
 import { Asset, getAssetsAsync } from 'expo-media-library';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet } from 'react-native';
-import { ColorPaletteImage } from '../features/lens/lens-palette/components/color-palette-image';
-import { ScreenContainerProps } from './types';
 
 const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) => {
   const item: InspectionAsset = {

@@ -1,10 +1,4 @@
 import { ThemedButton, ThemedText, ThemedView } from '@components/shared';
-import {
-  NotificationIdentifier,
-  SCHEDULE_HISTORY_PAGES,
-  ScheduleHistoryPages,
-  useNotificationsScheduler,
-} from '../index';
 import { useAffirmations } from '@platform';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes';
@@ -12,6 +6,12 @@ import { colors, globalStyles, spacing } from '@styles';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
+import {
+  NotificationIdentifier,
+  SCHEDULE_HISTORY_PAGES,
+  ScheduleHistoryPages,
+  useNotificationsScheduler,
+} from '../notifications/index';
 import { NotificationRow } from './notification-row/notification-row';
 
 export const ScheduleHistory = () => {

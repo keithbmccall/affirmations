@@ -3,7 +3,7 @@ import { loadData, saveData, StorageDevice } from '@storage';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import { getAllScheduledNotifications } from './notifications';
+import { getAllScheduledNotifications } from '.';
 import { registerForPushNotificationsAsync } from './notifications.registration';
 
 // TODO: move to platform or move to screen-containers/affirmations.tsx

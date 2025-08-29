@@ -6,7 +6,7 @@ import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';
-import { NotificationIdentifier, useNotificationsScheduler } from '../index';
+import { NotificationIdentifier, useNotificationsScheduler } from '../notifications/index';
 
 interface FormField<T> {
   value: T;

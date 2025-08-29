@@ -1,4 +1,4 @@
-import { LensCameraRoll } from '@screen-containers/lens-camera-roll';
+import { LensCameraRoll } from '../../../lib/features/lens/lens-camera-roll';
 
 export default function CameraRollScreen() {
   console.log('camera roll screen rerenders?');

@@ -1,7 +1,7 @@
 import { Modal } from '@components/modal';
 import { ColorPaletteImageInspector, InspectionAsset } from '@features/lens/lens-palette';
+import { ScreenContainerProps } from '@types';
 import { useMemo } from 'react';
-import { ScreenContainerProps } from 'react-native-screens';
 
 const testAsset: InspectionAsset = {
   height: 2376,

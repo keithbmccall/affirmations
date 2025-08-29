@@ -5,15 +5,15 @@ import {
   NotificationIdentifier,
   NotificationWithData,
   SCHEDULE_HISTORY_PAGES,
+  Scheduler,
   useNotificationsScheduler,
-} from '@features/notifications';
+} from '@features/affirmations/notifications';
 import { useAffirmations } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
+import { ScreenContainerProps } from '@types';
 import { getHumanReadableDate } from '@utils';
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { Scheduler } from '../features/notifications/components';
-import { ScreenContainerProps } from './types';
 
 interface NotificationDetailsDisplayProps {
   body: string;

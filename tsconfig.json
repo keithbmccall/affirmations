@@ -5,10 +5,11 @@
     "paths": {
       "@app/*": ["./lib/app/*"],
       "@components/modal": ["./lib/components/modal"],
-      "@components/notifications": ["./lib/components/notifications"],
       "@components/shared": ["./lib/components/shared"],
       "@components/defaults": ["./lib/components/defaults"],
-      "@features/notifications": ["./lib/features/notifications"],
+      "@features/affirmations": ["./lib/features/affirmations"],
+      "@features/affirmations/notifications": ["./lib/features/affirmations/notifications"],
+      "@features/lens": ["./lib/features/lens"],
       "@features/lens/lens-palette": ["./lib/features/lens/lens-palette"],
       "@features/lens/camera": ["./lib/features/lens/camera"],
       "@platform": ["./lib/platform"],

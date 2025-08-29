@@ -1,11 +1,11 @@
 import { ThemedView } from '@components/shared';
-import { Notifications } from '@features/notifications';
+import { Notifications } from '@features/affirmations/notifications';
+import { ScreenContainerProps } from '@types';
 import { StatusBar } from 'expo-status-bar';
-import { ScreenContainerProps } from './types';
 
 interface AffirmationsProps extends ScreenContainerProps {}
 
-const Affirmations = ({ statusBarProps }: AffirmationsProps) => {
+export const Affirmations = ({ statusBarProps }: AffirmationsProps) => {
   // TODO: wrap with affirmations provider
   return (
     <ThemedView>
@@ -14,5 +14,3 @@ const Affirmations = ({ statusBarProps }: AffirmationsProps) => {
     </ThemedView>
   );
 };
-
-export default Affirmations;

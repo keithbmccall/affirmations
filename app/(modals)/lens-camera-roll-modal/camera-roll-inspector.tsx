@@ -1,5 +1,5 @@
-import { CameraRollInspector } from '@screen-containers/camera-roll-inspector';
 import { useLocalSearchParams } from 'expo-router';
+import { CameraRollInspector } from '../../../lib/features/lens/camera-roll-inspector';
 
 export default function CameraRollInspectorScreen() {
   const { asset } = useLocalSearchParams<{ asset: string }>();
