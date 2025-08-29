@@ -25,7 +25,7 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
       // setIsOverlayOpen(prev => !prev);
       if (isOverlayOpen) {
         if (swatchColor.value === _swatch) {
-          // setIsOverlayOpen(false);
+          setIsOverlayOpen(false);
         } else {
           // change to another swatch
           swatchColor.value = _swatch;
@@ -106,9 +106,6 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
       ...globalStyles.absolute,
       top: 30,
       left: 30,
-      // textShadowColor: 'rgba(0, 0, 0, 0.75)',
-      // textShadowOffset: { width: 1, height: 1 },
-      // textShadowRadius: 2,
       opacity: swatchColor.value ? 1 : 0,
     };
   });
