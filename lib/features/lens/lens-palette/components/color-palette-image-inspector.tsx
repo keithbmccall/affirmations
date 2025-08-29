@@ -1,6 +1,7 @@
+import { ThemedText } from '@components/shared';
 import { globalStyles, spacing } from '@styles';
 import { Image } from 'expo-image';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { lensPaletteConfig } from '../config';
@@ -24,7 +25,7 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
       // setIsOverlayOpen(prev => !prev);
       if (isOverlayOpen) {
         if (swatchColor.value === _swatch) {
-          setIsOverlayOpen(false);
+          // setIsOverlayOpen(false);
         } else {
           // change to another swatch
           swatchColor.value = _swatch;
@@ -102,13 +103,19 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
       color: '#ffffff',
       fontSize: 18,
       fontWeight: '600',
-      textAlign: 'center',
-      textShadowColor: 'rgba(0, 0, 0, 0.75)',
-      textShadowOffset: { width: 1, height: 1 },
-      textShadowRadius: 2,
+      ...globalStyles.absolute,
+      top: 30,
+      left: 30,
+      // textShadowColor: 'rgba(0, 0, 0, 0.75)',
+      // textShadowOffset: { width: 1, height: 1 },
+      // textShadowRadius: 2,
       opacity: swatchColor.value ? 1 : 0,
     };
   });
+
+  const closeOverlay = useCallback(() => {
+    setIsOverlayOpen(false);
+  }, []);
 
   const source = useMemo(() => ({ uri: image.uri }), [image.uri]);
 
@@ -118,6 +125,9 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
         <Image source={source} style={styles.photoItem} contentFit="cover" />
         <Animated.View style={animatedOverlayStyle}>
           <Animated.Text style={animatedTextStyle}>{swatchColor.value}</Animated.Text>
+          <Pressable onPress={closeOverlay} style={styles.closeOverlayButton}>
+            <ThemedText>Close</ThemedText>
+          </Pressable>
         </Animated.View>
       </View>
       {palette}
@@ -154,6 +164,11 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  closeOverlayButton: {
+    ...globalStyles.absolute,
+    top: 30,
+    right: 30,
   },
   loadingText: {
     padding: spacing.lg,
