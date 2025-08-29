@@ -27,7 +27,7 @@ export const globalStyles = {
   alignCenter: {
     alignItems: 'center' as const,
   },
-  center: {
+  flexCenter: {
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
   },

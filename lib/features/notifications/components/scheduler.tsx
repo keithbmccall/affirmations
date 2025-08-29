@@ -1,5 +1,4 @@
 import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
-import { NotificationIdentifier, useNotificationsScheduler } from '../index';
 import { useGeneral } from '@platform';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors, globalStyles, spacing } from '@styles';
@@ -7,6 +6,7 @@ import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';
+import { NotificationIdentifier, useNotificationsScheduler } from '../index';
 
 interface FormField<T> {
   value: T;
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   },
   datePicker: {
     height: spacing['9xl'],
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
   },
   submitButton: {
     backgroundColor: colors.primary[500],

@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     ...globalStyles.flex1,
   },
   titleContainer: {
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     paddingVertical: spacing['2xl'],
   },
   detailsContainer: {

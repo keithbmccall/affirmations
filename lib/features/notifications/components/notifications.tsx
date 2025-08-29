@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     padding: spacing.screenPadding,
   },
   errorText: {
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     color: colors.human.white,
   },
   scheduler: {

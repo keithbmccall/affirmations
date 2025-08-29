@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     ...globalStyles.flex1,
   },
   errorText: {
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     color: colors.human.white,
   },
   topControls: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: colors.human.transparent,
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     borderWidth: 4,
     borderColor: colors.human.white,
   },
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     backgroundColor: colors.human.semiTransparent,
-    ...globalStyles.center,
+    ...globalStyles.flexCenter,
     borderWidth: 2,
     borderColor: colors.human.white,
     ...globalStyles.overflowHidden,

@@ -3,9 +3,6 @@ import { ColorPaletteImageInspector, InspectionAsset } from '@features/lens/lens
 import { useMemo } from 'react';
 import { ScreenContainerProps } from 'react-native-screens';
 
-interface CameraRollInspectorProps extends ScreenContainerProps {
-  asset: string;
-}
 const testAsset: InspectionAsset = {
   height: 2376,
   width: 4224,
@@ -23,6 +20,10 @@ const testAsset: InspectionAsset = {
     detailColor: '#203020',
   },
 };
+interface CameraRollInspectorProps extends ScreenContainerProps {
+  asset: string;
+}
+
 export const CameraRollInspector = ({ asset }: CameraRollInspectorProps) => {
   const parsedAsset: InspectionAsset = useMemo(() => {
     return JSON.parse(asset) as InspectionAsset;
