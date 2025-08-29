@@ -1,7 +1,7 @@
 import { globalStyles, spacing } from '@styles';
 import { Image } from 'expo-image';
 import { memo, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { lensPaletteConfig } from '../config';
 import type { InspectionAsset, LensPalette } from '../types';
@@ -11,23 +11,34 @@ interface ColorPaletteImageInspectorProps {
 }
 
 export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInspectorProps) => {
-  const [swatch, setSwatch] = useState<string | null>(null);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   const overlayHeight = useSharedValue(0);
+  // Shared value to store the current swatch color
+  const swatchColor = useSharedValue<string | null>(null);
+  // Shared value to store the current animated color
+  const animatedColor = useSharedValue('transparent');
 
   const palette = useMemo(() => {
     const onPress = (_swatch: string) => {
       // setIsOverlayOpen(prev => !prev);
       if (isOverlayOpen) {
-        if (swatch === _swatch) {
+        if (swatchColor.value === _swatch) {
           setIsOverlayOpen(false);
         } else {
           // change to another swatch
-          setSwatch(_swatch);
+          swatchColor.value = _swatch;
+          animatedColor.value = withSpring(_swatch, {
+            damping: 20,
+            stiffness: 300,
+          });
         }
       } else {
-        setSwatch(_swatch);
+        swatchColor.value = _swatch;
+        animatedColor.value = withSpring(_swatch, {
+          damping: 20,
+          stiffness: 300,
+        });
         setIsOverlayOpen(true);
       }
     };
@@ -51,7 +62,7 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
         </View>
       )
     );
-  }, [image.palette, isOverlayOpen, swatch]);
+  }, [image.palette, isOverlayOpen, swatchColor, animatedColor]);
 
   // Trigger animation when swatch state changes
   useEffect(() => {
@@ -67,9 +78,12 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
         stiffness: 200,
       });
     }
-  }, [swatch, overlayHeight, isOverlayOpen]);
+  }, [overlayHeight, isOverlayOpen]);
 
-  // Animated style for the growing overlay effect
+  // Handle color changes for smooth blending - moved to onPress handler
+  // No useEffect needed since we update animatedColor directly when swatchColor changes
+
+  // Animated style for the growing overlay effect with color interpolation
   const animatedOverlayStyle = useAnimatedStyle(() => {
     return {
       ...globalStyles.absolute,
@@ -77,8 +91,22 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
       right: 0,
       bottom: 0,
       height: `${overlayHeight.value * 100}%`,
-      backgroundColor: swatch ?? 'transparent',
+      backgroundColor: animatedColor.value,
       ...globalStyles.flexCenter,
+    };
+  });
+
+  // Animated text style that shows/hides text based on swatch value
+  const animatedTextStyle = useAnimatedStyle(() => {
+    return {
+      color: '#ffffff',
+      fontSize: 18,
+      fontWeight: '600',
+      textAlign: 'center',
+      textShadowColor: 'rgba(0, 0, 0, 0.75)',
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 2,
+      opacity: swatchColor.value ? 1 : 0,
     };
   });
 
@@ -89,10 +117,9 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
       <View style={styles.paletteCurtain}>
         <Image source={source} style={styles.photoItem} contentFit="cover" />
         <Animated.View style={animatedOverlayStyle}>
-          {swatch && <Text style={styles.swatchText}>{swatch}</Text>}
+          <Animated.Text style={animatedTextStyle}>{swatchColor.value}</Animated.Text>
         </Animated.View>
       </View>
-
       {palette}
     </View>
   );
