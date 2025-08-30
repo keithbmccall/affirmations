@@ -1,3 +1,4 @@
+export * from './components/color-palette';
 export * from './components/color-palette-image';
 export * from './components/color-palette-image-inspector';
 export * from './components/color-swatch';
