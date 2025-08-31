@@ -20,6 +20,7 @@ const testAsset: InspectionAsset = {
     detailColor: '#203020',
   },
 };
+
 interface CameraRollInspectorProps extends ScreenContainerProps {
   asset: string;
 }
@@ -29,7 +30,6 @@ export const CameraRollInspector = ({ asset }: CameraRollInspectorProps) => {
     return JSON.parse(asset) as InspectionAsset;
   }, [asset]);
 
-  // TODO: remove this once we have a real asset
   const fakeAsset = {
     ...testAsset,
     uri: parsedAsset.uri,
@@ -37,7 +37,7 @@ export const CameraRollInspector = ({ asset }: CameraRollInspectorProps) => {
 
   return (
     <Modal title="Camera Roll Inspector" testID="camera-roll-inspector-title" enableBackButton>
-      <ColorPaletteImageInspector image={fakeAsset} />
+      <ColorPaletteImageInspector image={parsedAsset} />
     </Modal>
   );
 };

@@ -70,7 +70,6 @@ export const Camera = () => {
   const { isColorLensEnabled, setIsColorLensEnabled, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
 
-  // const { scanImage } = useImageLabeler({ minConfidence: 0.9 });
   const showGrid = gridModeOptions[gridMode].value === 'on';
   const isVideoNotAllowed = isColorLensEnabled;
 
