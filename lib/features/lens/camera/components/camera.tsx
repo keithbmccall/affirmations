@@ -120,15 +120,17 @@ export const Camera = () => {
 
       const asset = await createAssetAsync(photo.path);
 
-      const lensPalette: LensPalette = {
-        id: asset.id,
-        uri: asset.uri,
-        mediaType: asset.mediaType,
-        palette: currentPalette,
-      };
+      if (isColorLensEnabled) {
+        const lensPalette: LensPalette = {
+          id: asset.id,
+          uri: asset.uri,
+          mediaType: asset.mediaType,
+          palette: currentPalette,
+        };
+        onAddLensPalette(lensPalette);
+        console.log('asset lens palette: ', lensPalette);
+      }
 
-      onAddLensPalette(lensPalette);
-      console.log('asset lens palette: ', lensPalette);
       fetchRecentMedia();
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
