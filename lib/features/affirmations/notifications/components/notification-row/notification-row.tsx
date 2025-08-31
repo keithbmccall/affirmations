@@ -3,7 +3,7 @@ import {
   HistoryNotification,
   NotificationIdentifier,
   NotificationWithData,
-} from '@features/notifications';
+} from '@features/affirmations/notifications';
 import { colors, globalStyles, spacing } from '@styles';
 import { getHumanReadableDate } from '@utils';
 import { useState } from 'react';

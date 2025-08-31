@@ -1,5 +1,8 @@
 import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
-import { NotificationIdentifier } from '@features/affirmations/notifications';
+import {
+  NotificationIdentifier,
+  useNotificationsScheduler,
+} from '@features/affirmations/notifications';
 import { useGeneral } from '@platform';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors, globalStyles, spacing } from '@styles';
