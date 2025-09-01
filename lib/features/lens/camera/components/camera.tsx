@@ -116,6 +116,7 @@ export const Camera = () => {
 
       const photo = await camera.current.takePhoto({
         flash: flashModeOptions[flashMode].value,
+        enableShutterSound: true,
       });
 
       const asset = await createAssetAsync(photo.path);
@@ -135,7 +136,7 @@ export const Camera = () => {
     } catch (error) {
       Alert.alert('Error', 'Failed to capture');
     }
-  }, [palette, flashMode, onAddLensPalette, fetchRecentMedia]);
+  }, [palette, flashMode, onAddLensPalette, fetchRecentMedia, isColorLensEnabled]);
 
   const handleStopRecording = useCallback(async () => {
     if (!camera.current) return;
