@@ -19,6 +19,9 @@
     "recharge": "npm i;npx expo install;npm run podpod;npx expo prebuild",
     "test:all": "jest --watchAll",
     "test": "jest",
+    "version:patch": "node scripts/update-version.js patch",
+    "version:minor": "node scripts/update-version.js minor",
+    "version:major": "node scripts/update-version.js major",
     "preinstall": "corepack enable"
   },
   "dependencies": {
