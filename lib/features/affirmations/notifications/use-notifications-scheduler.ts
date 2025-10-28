@@ -2,7 +2,11 @@ import { NotificationIdentifier } from '@features/affirmations/notifications';
 import { useAffirmations } from '@platform';
 import { catchError } from '@utils';
 import { useCallback } from 'react';
-import { getAllScheduledNotifications } from './notifications';
+import {
+  cancelScheduledNotification,
+  getAllScheduledNotifications,
+  scheduleNotification,
+} from './notifications';
 
 export const useNotificationsScheduler = () => {
   const { onSetPendingNotifications, onAddHistoryNotification, onRemoveHistoryNotification } =
