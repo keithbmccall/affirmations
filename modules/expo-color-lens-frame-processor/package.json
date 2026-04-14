@@ -1,0 +1,13 @@
+{
+  "name": "expo-color-lens-frame-processor",
+  "version": "1.0.0",
+  "description": "VisionCamera frame processor for color lens palette extraction",
+  "main": "index.ts",
+  "license": "MIT",
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-vision-camera": "*"
+  }
+}
