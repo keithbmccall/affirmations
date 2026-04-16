@@ -1,5 +1,5 @@
 import { globalStyles, spacing } from '@styles';
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { lensPaletteConfig } from '../config';
 import { useColorLensPalette } from '../use-color-lens-palette';
@@ -12,7 +12,7 @@ interface ColorPaletteProps {
   style?: ViewStyle;
 }
 
-export const ColorPalette = ({ palette, animationDuration, style }: ColorPaletteProps) => {
+export const ColorPalette = memo(({ palette, animationDuration, style }: ColorPaletteProps) => {
   return (
     <View style={[styles.colorPaletteGrid, style]}>
       {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
@@ -24,7 +24,7 @@ export const ColorPalette = ({ palette, animationDuration, style }: ColorPalette
       })}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   colorPaletteGrid: {

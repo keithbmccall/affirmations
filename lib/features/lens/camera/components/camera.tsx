@@ -5,7 +5,7 @@ import { colors, globalStyles, spacing } from '@styles';
 import { Image } from 'expo-image';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { runOnJS } from 'react-native-reanimated';
@@ -37,7 +37,7 @@ Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
 
-export const Camera = () => {
+export const Camera = memo(() => {
   const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
@@ -206,6 +206,24 @@ export const Camera = () => {
           },
     [isVideoNotAllowed, isRecording, handleCapture, handleStopRecording, handleVideoCapture]
   );
+  const backButtonStyle = useMemo(() => [styles.backButton, { top: insets.top }], [insets.top]);
+  const topControlsStyle = useMemo(() => [styles.topControls, { top: insets.top + 60 }], [insets.top]);
+  const bottomControlsStyle = useMemo(
+    () => [styles.bottomControls, { bottom: insets.bottom + 40 }],
+    [insets.bottom]
+  );
+  const cameraRollPreviewContainerStyle = useMemo(
+    () => [styles.cameraRollPreviewContainer, animatedPhotoStyle],
+    [animatedPhotoStyle]
+  );
+  const cameraRollSource = useMemo(
+    () => (recentPhoto ? { uri: recentPhoto } : undefined),
+    [recentPhoto]
+  );
+  const captureButtonStyle = useMemo(
+    () => [styles.captureButton, isRecording && styles.captureButtonRecording],
+    [isRecording]
+  );
 
   const frameProcessor = useFrameProcessor(
     frame => {
@@ -255,7 +273,7 @@ export const Camera = () => {
 
         {/* ===== BACK BUTTON SECTION ===== */}
         <TouchableOpacity
-          style={[styles.backButton, { top: insets.top }]}
+          style={backButtonStyle}
           onPress={handleBackPress}
         >
           <IconSymbol size={controlSymbolSize} color={colors.human.white} name="chevron.left" />
@@ -263,7 +281,7 @@ export const Camera = () => {
       </View>
 
       {/* ===== TOP CONTROLS SECTION ===== */}
-      <View style={[styles.topControls, { top: insets.top + 60 }]}>
+      <View style={topControlsStyle}>
         <TouchableOpacity style={styles.topButton} onPress={handleGridToggle}>
           <IconSymbol
             size={controlSymbolSize}
@@ -308,15 +326,15 @@ export const Camera = () => {
       </View>
 
       {/* ===== BOTTOM CONTROLS SECTION ===== */}
-      <View style={[styles.bottomControls, { bottom: insets.bottom + 40 }]}>
+      <View style={bottomControlsStyle}>
         {/* Camera Roll Button */}
         <TouchableOpacity style={styles.cameraRollButton} onPress={handleCameraRollPress}>
           {recentPhoto ? (
             <Reanimated.View
               key={recentPhoto}
-              style={[styles.cameraRollPreviewContainer, animatedPhotoStyle]}
+              style={cameraRollPreviewContainerStyle}
             >
-              <Image source={{ uri: recentPhoto }} style={styles.cameraRollPreview} />
+              <Image source={cameraRollSource} style={styles.cameraRollPreview} />
             </Reanimated.View>
           ) : (
             <Text style={styles.cameraRollIcon}>📷</Text>
@@ -325,7 +343,7 @@ export const Camera = () => {
 
         {/* Capture Button */}
         <TouchableOpacity
-          style={[styles.captureButton, isRecording && styles.captureButtonRecording]}
+          style={captureButtonStyle}
           {...triggerProps}
         >
           <View style={styles.captureButtonInner} />
@@ -335,7 +353,7 @@ export const Camera = () => {
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

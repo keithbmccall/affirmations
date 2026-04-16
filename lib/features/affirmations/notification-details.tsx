@@ -12,7 +12,7 @@ import { useAffirmations } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
 import { ScreenContainerProps } from '@types';
 import { getHumanReadableDate } from '@utils';
-import { useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 
 interface NotificationDetailsDisplayProps {
@@ -20,7 +20,7 @@ interface NotificationDetailsDisplayProps {
   date: Date;
 }
 
-export const NotificationDetailsDisplay = ({ body, date }: NotificationDetailsDisplayProps) => {
+export const NotificationDetailsDisplay = memo(({ body, date }: NotificationDetailsDisplayProps) => {
   const { month, day, time } = getHumanReadableDate(date);
 
   return (
@@ -48,7 +48,7 @@ export const NotificationDetailsDisplay = ({ body, date }: NotificationDetailsDi
       </ThemedView>
     </ThemedView>
   );
-};
+});
 
 interface NotificationDetailsProps extends ScreenContainerProps {
   notificationId: NotificationIdentifier;
@@ -56,7 +56,7 @@ interface NotificationDetailsProps extends ScreenContainerProps {
 }
 
 // TODO: Delete + Edit logic
-export const NotificationDetails = ({ notificationId, page }: NotificationDetailsProps) => {
+export const NotificationDetails = memo(({ notificationId, page }: NotificationDetailsProps) => {
   const {
     notifications: { pendingNotifications, historyNotifications },
   } = useAffirmations();
@@ -78,12 +78,19 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
   const initialTitle = title ?? '';
   const initialBody = body ?? '';
 
-  const handleSubmit = (values: { title: string; body: string; date: Date }) => {
-    editPushNotification({
-      identifier,
-      ...values,
-    });
-  };
+  const handleSubmit = useCallback(
+    (values: { title: string; body: string; date: Date }) => {
+      editPushNotification({
+        identifier,
+        ...values,
+      });
+    },
+    [editPushNotification, identifier]
+  );
+  const submitProps = useMemo(
+    () => ({ submitText: 'Edit Message', onSubmit: handleSubmit }),
+    [handleSubmit]
+  );
 
   return (
     <Modal title={initialTitle} testID="notification-details-title">
@@ -97,12 +104,12 @@ export const NotificationDetails = ({ notificationId, page }: NotificationDetail
           initialDate={initialDate}
           initialTitle={initialTitle}
           notificationId={notificationId}
-          submitProps={{ submitText: 'Edit Message', onSubmit: handleSubmit }}
+          submitProps={submitProps}
         />
       )}
     </Modal>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

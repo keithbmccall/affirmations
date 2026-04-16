@@ -11,6 +11,20 @@ interface ColorPaletteImageInspectorProps {
   image: InspectionAsset;
 }
 
+interface SwatchButtonProps {
+  swatch: string;
+  onSelect: (swatch: string) => void;
+}
+
+const SwatchButton = memo(({ swatch, onSelect }: SwatchButtonProps) => {
+  const handlePress = useCallback(() => {
+    onSelect(swatch);
+  }, [onSelect, swatch]);
+  const swatchStyle = useMemo(() => [styles.swatch, { backgroundColor: swatch }], [swatch]);
+
+  return <Pressable onPress={handlePress} style={swatchStyle} />;
+});
+
 export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInspectorProps) => {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
@@ -20,14 +34,12 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
   // Shared value to store the current animated color
   const animatedColor = useSharedValue('transparent');
 
-  const palette = useMemo(() => {
-    const onPress = (_swatch: string) => {
-      // setIsOverlayOpen(prev => !prev);
+  const handleSwatchPress = useCallback(
+    (_swatch: string) => {
       if (isOverlayOpen) {
         if (swatchColor.value === _swatch) {
           setIsOverlayOpen(false);
         } else {
-          // change to another swatch
           swatchColor.value = _swatch;
           animatedColor.value = withSpring(_swatch, {
             damping: 20,
@@ -42,8 +54,11 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
         });
         setIsOverlayOpen(true);
       }
-    };
+    },
+    [animatedColor, isOverlayOpen, swatchColor]
+  );
 
+  const palette = useMemo(() => {
     return (
       image.palette && (
         <View style={styles.palette}>
@@ -52,18 +67,12 @@ export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInsp
 
             if (!swatch) return null;
 
-            return (
-              <Pressable
-                key={paletteKey}
-                onPress={() => onPress(swatch)}
-                style={[styles.swatch, { backgroundColor: swatch }]}
-              />
-            );
+            return <SwatchButton key={paletteKey} swatch={swatch} onSelect={handleSwatchPress} />;
           })}
         </View>
       )
     );
-  }, [image.palette, isOverlayOpen, swatchColor, animatedColor]);
+  }, [handleSwatchPress, image.palette]);
 
   // Trigger animation when swatch state changes
   useEffect(() => {

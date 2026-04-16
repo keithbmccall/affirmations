@@ -57,14 +57,16 @@ const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
   );
 
   useInitNotifications(providerActions, state);
+  const contextValue = useMemo(
+    () => ({
+      ...state,
+      actions: providerActions,
+    }),
+    [providerActions, state]
+  );
 
   return (
-    <StateContext.Provider
-      value={{
-        ...state,
-        actions: providerActions,
-      }}
-    >
+    <StateContext.Provider value={contextValue}>
       {children}
     </StateContext.Provider>
   );

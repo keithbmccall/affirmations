@@ -1,4 +1,5 @@
 import { colors } from '@styles';
+import { memo } from 'react';
 import { ColorValue } from 'react-native';
 import { ThemedView, ThemedViewProps } from './themed-view';
 
@@ -7,7 +8,7 @@ interface DividerProps extends Omit<ThemedViewProps, 'style'> {
   width?: number;
   vertical?: boolean;
 }
-export const Divider = ({
+export const Divider = memo(({
   color = colors.human.white,
   width = 1,
   vertical = false,
@@ -22,4 +23,4 @@ export const Divider = ({
       {...props}
     />
   );
-};
+});

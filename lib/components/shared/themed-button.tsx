@@ -1,4 +1,5 @@
 import { Pressable, type PressableProps } from 'react-native';
+import { memo } from 'react';
 
 import { useThemeColor } from '@styles';
 
@@ -8,13 +9,13 @@ export type ThemedButtonProps = PressableProps & {
   showPressFeedback?: boolean;
 };
 
-export function ThemedButton({
+export const ThemedButton = memo(({
   style,
   lightColor,
   darkColor,
   showPressFeedback = true,
   ...otherProps
-}: ThemedButtonProps) {
+}: ThemedButtonProps) => {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return (
@@ -28,4 +29,4 @@ export function ThemedButton({
       {...otherProps}
     />
   );
-}
+});

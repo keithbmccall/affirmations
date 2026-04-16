@@ -1,4 +1,5 @@
 import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
+import { memo } from 'react';
 
 import { useThemeColor } from '@styles';
 
@@ -8,13 +9,13 @@ export type ThemedInputProps = TextInputProps & {
   value?: string;
 };
 
-export function ThemedInput({
+export const ThemedInput = memo(({
   style,
   lightColor,
   darkColor,
   value = '',
   ...rest
-}: ThemedInputProps) {
+}: ThemedInputProps) => {
   const textColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
@@ -32,7 +33,7 @@ export function ThemedInput({
       {...rest}
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   input: {

@@ -1,11 +1,12 @@
 import { Divider, ThemedText, ThemedView } from '@components/shared';
 import { useAffirmations } from '@platform';
 import { colors, globalStyles, spacing } from '@styles';
+import { memo } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import { ScheduleHistory } from './schedule-history';
 import { Scheduler } from './scheduler';
 
-export const Notifications = () => {
+export const Notifications = memo(() => {
   const {
     notifications: { token },
   } = useAffirmations();
@@ -25,7 +26,7 @@ export const Notifications = () => {
       <ThemedText style={styles.errorText}>Notifications are not enabled</ThemedText>
     </ThemedView>
   );
-};
+});
 
 const heightDimension = Dimensions.get('window').height;
 const styles = StyleSheet.create({

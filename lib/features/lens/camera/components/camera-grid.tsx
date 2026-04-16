@@ -1,8 +1,9 @@
 import { Divider } from '@components/shared';
 import { colors, globalStyles } from '@styles';
+import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-export const CameraGrid = () => {
+export const CameraGrid = memo(() => {
   return (
     <>
       <View style={styles.gridOverlayColumn}>
@@ -15,7 +16,7 @@ export const CameraGrid = () => {
       </View>
     </>
   );
-};
+});
 
 const styles = StyleSheet.create({
   gridOverlayColumn: {

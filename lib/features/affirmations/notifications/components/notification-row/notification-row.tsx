@@ -6,7 +6,7 @@ import {
 } from '@features/affirmations/notifications';
 import { colors, globalStyles, spacing } from '@styles';
 import { getHumanReadableDate } from '@utils';
-import { useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -21,7 +21,7 @@ interface NotificationRowContentProps {
   notification: NotificationWithData | HistoryNotification;
 }
 
-const NotificationRowContent = ({ notification }: NotificationRowContentProps) => {
+const NotificationRowContent = memo(({ notification }: NotificationRowContentProps) => {
   const { content } = notification;
   const { month, day, time } = getHumanReadableDate(new Date(content.data.triggerDate.time));
 
@@ -44,7 +44,7 @@ const NotificationRowContent = ({ notification }: NotificationRowContentProps) =
       </ThemedView>
     </ThemedView>
   );
-};
+});
 
 interface NotificationRowProps {
   notification: NotificationWithData | HistoryNotification;
@@ -52,7 +52,7 @@ interface NotificationRowProps {
   onDelete?: (identifier: NotificationIdentifier) => void;
 }
 
-export const NotificationRow = ({ notification, onPress, onDelete }: NotificationRowProps) => {
+export const NotificationRow = memo(({ notification, onPress, onDelete }: NotificationRowProps) => {
   const { identifier } = notification;
   const [isSwipeOpen, setIsSwipeOpen] = useState(false);
   const testID = `notification-row-${identifier}`;
@@ -83,6 +83,9 @@ export const NotificationRow = ({ notification, onPress, onDelete }: Notificatio
       onPress(identifier);
     }
   };
+  const handleSimplePress = useCallback(() => {
+    onPress?.(identifier);
+  }, [identifier, onPress]);
 
   const animateToPosition = (targetPosition: number, shouldBeOpen: boolean) => {
     'worklet';
@@ -131,10 +134,11 @@ export const NotificationRow = ({ notification, onPress, onDelete }: Notificatio
 
       isGestureActive.value = false;
     });
+  const swipeableContentStyle = useMemo(() => [styles.swipeableContent, animatedStyle], [animatedStyle]);
 
   if (!onDelete) {
     return onPress ? (
-      <ThemedButton onPress={() => onPress(identifier)} testID={testID}>
+      <ThemedButton onPress={handleSimplePress} testID={testID}>
         <NotificationRowContent notification={notification} />
       </ThemedButton>
     ) : (
@@ -161,7 +165,7 @@ export const NotificationRow = ({ notification, onPress, onDelete }: Notificatio
       </View>
 
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.swipeableContent, animatedStyle]}>
+        <Animated.View style={swipeableContentStyle}>
           {onPress ? (
             <ThemedButton onPress={handlePress} testID={testID} showPressFeedback={false}>
               <NotificationRowContent notification={notification} />
@@ -175,7 +179,7 @@ export const NotificationRow = ({ notification, onPress, onDelete }: Notificatio
       </GestureDetector>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   row: {

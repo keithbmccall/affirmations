@@ -1,7 +1,7 @@
 import { Modal } from '@components/modal';
 import { ColorPaletteImageInspector, InspectionAsset } from '@features/lens/lens-palette';
 import { ScreenContainerProps } from '@types';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 const testAsset: InspectionAsset = {
   height: 2376,
@@ -25,7 +25,7 @@ interface CameraRollInspectorProps extends ScreenContainerProps {
   asset: string;
 }
 
-export const CameraRollInspector = ({ asset }: CameraRollInspectorProps) => {
+export const CameraRollInspector = memo(({ asset }: CameraRollInspectorProps) => {
   const parsedAsset: InspectionAsset = useMemo(() => {
     return JSON.parse(asset) as InspectionAsset;
   }, [asset]);
@@ -40,4 +40,4 @@ export const CameraRollInspector = ({ asset }: CameraRollInspectorProps) => {
       <ColorPaletteImageInspector image={parsedAsset} />
     </Modal>
   );
-};
+});

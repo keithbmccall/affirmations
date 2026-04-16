@@ -1,6 +1,8 @@
 import { ThemedButton, ThemedText, ThemedView } from '@components/shared';
 import {
+  HistoryNotification,
   NotificationIdentifier,
+  NotificationWithData,
   SCHEDULE_HISTORY_PAGES,
   ScheduleHistoryPages,
   useNotificationsScheduler,
@@ -10,11 +12,11 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes';
 import { colors, globalStyles, spacing } from '@styles';
 import { router } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { NotificationRow } from './notification-row/notification-row';
 
-export const ScheduleHistory = () => {
+export const ScheduleHistory = memo(() => {
   const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
 
   const bottomTabHeight = useBottomTabBarHeight();
@@ -58,20 +60,55 @@ export const ScheduleHistory = () => {
     [cancelPushNotification, isPendingPage]
   );
 
+  const handlePendingPagePress = useCallback(() => {
+    setPage(SCHEDULE_HISTORY_PAGES.PENDING);
+  }, []);
+
+  const handleHistoryPagePress = useCallback(() => {
+    setPage(SCHEDULE_HISTORY_PAGES.HISTORY);
+  }, []);
+
+  const pendingPillStyle = useMemo(
+    () => [styles.pill, isPendingPage && styles.activePill],
+    [isPendingPage]
+  );
+  const historyPillStyle = useMemo(
+    () => [styles.pill, isHistoryPage && styles.activePill],
+    [isHistoryPage]
+  );
+  const contentContainerStyle = useMemo(
+    () => ({ paddingBottom: bottomTabHeight * 2 }),
+    [bottomTabHeight]
+  );
+  const renderItem = useCallback(
+    ({ item }: { item: NotificationWithData | HistoryNotification }) => (
+      <NotificationRow
+        notification={item}
+        onPress={handleNotificationPress}
+        onDelete={handleNotificationDelete}
+      />
+    ),
+    [handleNotificationDelete, handleNotificationPress]
+  );
+  const keyExtractor = useCallback(
+    (item: NotificationWithData | HistoryNotification) => item.identifier,
+    []
+  );
+
   // console.log({ historyNotifications, pendingNotifications });
 
   return (
     <ThemedView>
       <ThemedView style={styles.pillContainer}>
         <ThemedButton
-          onPress={() => setPage(SCHEDULE_HISTORY_PAGES.PENDING)}
-          style={[styles.pill, isPendingPage && { backgroundColor: colors.primary[500] }]}
+          onPress={handlePendingPagePress}
+          style={pendingPillStyle}
         >
           <ThemedText type="defaultSemiBold">Pending</ThemedText>
         </ThemedButton>
         <ThemedButton
-          onPress={() => setPage(SCHEDULE_HISTORY_PAGES.HISTORY)}
-          style={[styles.pill, isHistoryPage && { backgroundColor: colors.primary[500] }]}
+          onPress={handleHistoryPagePress}
+          style={historyPillStyle}
         >
           <ThemedText type="defaultSemiBold">History</ThemedText>
         </ThemedButton>
@@ -79,19 +116,13 @@ export const ScheduleHistory = () => {
 
       <FlatList
         data={notificationsByDate}
-        renderItem={({ item }) => (
-          <NotificationRow
-            notification={item}
-            onPress={handleNotificationPress}
-            onDelete={handleNotificationDelete}
-          />
-        )}
-        keyExtractor={item => item.identifier}
-        contentContainerStyle={{ paddingBottom: bottomTabHeight * 2 }}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        contentContainerStyle={contentContainerStyle}
       />
     </ThemedView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   pillContainer: {
@@ -106,5 +137,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing['4xl'],
     ...globalStyles.alignCenter,
+  },
+  activePill: {
+    backgroundColor: colors.primary[500],
   },
 });

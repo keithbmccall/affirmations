@@ -1,6 +1,6 @@
 import { colors, globalStyles, spacing } from '@styles';
 import { router } from 'expo-router';
-import { ReactNode } from 'react';
+import { memo, ReactNode, useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from './shared/themed-text';
 import { ThemedView } from './shared/themed-view';
@@ -12,12 +12,16 @@ interface ModalProps {
   enableBackButton?: boolean;
 }
 
-export const Modal = ({ children, title, testID, enableBackButton }: ModalProps) => {
+export const Modal = memo(({ children, title, testID, enableBackButton }: ModalProps) => {
+  const handleBackPress = useCallback(() => {
+    router.back();
+  }, []);
+
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.header}>
         {enableBackButton ? (
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <Pressable onPress={handleBackPress} style={styles.backButton}>
             <ThemedText type="default">Back</ThemedText>
           </Pressable>
         ) : (
@@ -32,7 +36,7 @@ export const Modal = ({ children, title, testID, enableBackButton }: ModalProps)
       <ThemedView style={styles.contentContainer}>{children}</ThemedView>
     </ThemedView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

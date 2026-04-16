@@ -1,4 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
+import { memo } from 'react';
 import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react-native';
 import { ThemedInput, ThemedText, ThemedView } from '../components/shared';
 import { useSettings } from '../platform';
@@ -37,4 +38,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Settings;
+export default memo(Settings);

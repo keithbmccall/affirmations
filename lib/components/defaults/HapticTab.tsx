@@ -1,8 +1,9 @@
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { PlatformPressable } from '@react-navigation/elements';
 import * as Haptics from 'expo-haptics';
+import { memo } from 'react';
 
-export function HapticTab(props: BottomTabBarButtonProps) {
+export const HapticTab = memo((props: BottomTabBarButtonProps) => {
   return (
     <PlatformPressable
       {...props}
@@ -15,4 +16,4 @@ export function HapticTab(props: BottomTabBarButtonProps) {
       }}
     />
   );
-}
+});

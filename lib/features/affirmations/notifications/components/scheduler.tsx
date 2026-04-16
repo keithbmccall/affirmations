@@ -8,7 +8,7 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { colors, globalStyles, spacing } from '@styles';
 import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 interface FormField<T> {
@@ -29,7 +29,7 @@ interface SchedulerProps {
   notificationId?: NotificationIdentifier;
 }
 
-export const Scheduler = ({
+export const Scheduler = memo(({
   initialDate = fiveMinutesFromNow,
   initialTitle = '',
   initialBody = '',
@@ -235,7 +235,7 @@ export const Scheduler = ({
       </ThemedView>
     </ScrollView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

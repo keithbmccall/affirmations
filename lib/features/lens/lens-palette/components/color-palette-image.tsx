@@ -10,7 +10,7 @@ const { width } = Dimensions.get('window');
 
 interface ColorPaletteImageProps {
   image: Asset;
-  lensPalette: LensPalette;
+  lensPalette?: LensPalette;
 }
 
 export const ColorPaletteImage = memo(({ image, lensPalette }: ColorPaletteImageProps) => {
