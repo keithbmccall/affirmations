@@ -9,6 +9,7 @@
       "@components/defaults": ["./lib/components/defaults"],
       "@features/affirmations": ["./lib/features/affirmations"],
       "@features/affirmations/notifications": ["./lib/features/affirmations/notifications"],
+      "@features/notifications": ["./lib/features/affirmations/notifications"],
       "@features/lens": ["./lib/features/lens"],
       "@features/lens/lens-palette": ["./lib/features/lens/lens-palette"],
       "@features/lens/camera": ["./lib/features/lens/camera"],

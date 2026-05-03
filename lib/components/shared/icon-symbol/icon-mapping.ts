@@ -26,7 +26,7 @@ export const ICON_MAPPING = {
   'arrow.right': 'arrow-forward',
   'arrow.up': 'arrow-upward',
   'arrow.down': 'arrow-downward',
-  'arrow.trianglehead.2.clockwise.rotate.90.circle': 'camera-rotate-right',
+  'arrow.trianglehead.2.clockwise.rotate.90.circle': 'cameraswitch',
   'swatchpalette.fill': 'palette',
   magnifyingglass: 'search',
   'envelope.fill': 'email',

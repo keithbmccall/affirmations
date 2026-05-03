@@ -15,10 +15,8 @@ module.exports = defineConfig([
         project: './tsconfig.json',
       },
     },
-    plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
-      import: require('eslint-plugin-import'),
-    },
+    // Do not re-register plugins here: eslint-config-expo/flat already provides
+    // `import` and `@typescript-eslint`; ESLint 9 rejects duplicate plugin keys.
     settings: {
       'import/resolver': {
         typescript: {

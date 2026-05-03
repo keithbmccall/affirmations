@@ -9,6 +9,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "ts": "tsc --noEmit",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "nuke": "rm -rf node_modules .jest-cache coverage && watchman watch-del '/Users/keithmccall/WebstormProjects/affirmations' ; watchman watch-project '/Users/keithmccall/WebstormProjects/affirmations' && npm i",

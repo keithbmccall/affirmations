@@ -4,7 +4,7 @@ import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react
 import { ThemedInput, ThemedText, ThemedView } from '../components/shared';
 import { useSettings } from '../platform';
 import { globalStyles, spacing } from '../styles';
-import { ScreenContainerProps } from './types';
+import { ScreenContainerProps } from '@types';
 
 interface SettingsProps extends ScreenContainerProps {}
 const Settings = ({ statusBarProps }: SettingsProps) => {

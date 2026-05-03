@@ -13,8 +13,8 @@ const MockedDateTimePicker = setupDateTimePickerMock();
 const mockSchedulePushNotification = jest.fn();
 const mockRefreshPendingNotifications = jest.fn();
 
-jest.mock('@features/notifications', () => ({
-  ...jest.requireActual('@features/notifications'),
+jest.mock('../../use-notifications-scheduler', () => ({
+  ...jest.requireActual('../../use-notifications-scheduler'),
   useNotificationsScheduler: jest.fn(() => ({
     schedulePushNotification: mockSchedulePushNotification,
     refreshPendingNotifications: mockRefreshPendingNotifications,

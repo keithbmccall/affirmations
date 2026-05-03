@@ -1,4 +1,4 @@
-import { NotificationIdentifier } from '@features/affirmations/notifications';
+import type { NotificationIdentifier } from './types';
 import { useAffirmations } from '@platform';
 import { catchError } from '@utils';
 import { useCallback } from 'react';

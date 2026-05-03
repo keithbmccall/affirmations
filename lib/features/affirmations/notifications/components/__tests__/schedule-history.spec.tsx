@@ -3,7 +3,7 @@ import { colors } from '@styles';
 import { renderRouterWithContext, renderWithContext } from '@testing';
 import { act, fireEvent, screen, within } from 'expo-router/testing-library';
 import React from 'react';
-import NotificationDetailsModal from '../../../../../app/(modals)/notification-details-modal';
+import NotificationDetailsModal from '../../../../../../app/(modals)/notification-details-modal';
 
 // Mock useBottomTabBarHeight
 jest.mock('@react-navigation/bottom-tabs', () => ({
@@ -13,8 +13,8 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
 
 // Mock the notification scheduler hook
 const mockCancelPushNotification = jest.fn();
-jest.mock('@features/notifications', () => ({
-  ...jest.requireActual('@features/notifications'),
+jest.mock('@features/affirmations/notifications', () => ({
+  ...jest.requireActual('@features/affirmations/notifications'),
   useNotificationsScheduler: () => ({
     cancelPushNotification: mockCancelPushNotification,
   }),
@@ -90,6 +90,11 @@ jest.mock('@storage', () => ({
   saveData: jest.fn(),
 }));
 
+/** expo-router test context only wraps `typeof x === 'function'` as `{ default }`; memo() is typeof 'object'. */
+function ScheduleHistoryIndexRoute() {
+  return <ScheduleHistory />;
+}
+
 describe('ScheduleHistory Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -159,7 +164,7 @@ describe('ScheduleHistory Component', () => {
   describe('Navigation', () => {
     it('navigates to notification details when notification is pressed', async () => {
       renderRouterWithContext({
-        index: ScheduleHistory,
+        index: ScheduleHistoryIndexRoute,
         '(modals)/notification-details-modal': NotificationDetailsModal,
       });
       const button = await screen.findByRole('button', { name: 'Morning Affirmation' });
@@ -174,7 +179,7 @@ describe('ScheduleHistory Component', () => {
 
     it('navigates to notification details from history tab', async () => {
       renderRouterWithContext({
-        index: ScheduleHistory,
+        index: ScheduleHistoryIndexRoute,
         '(modals)/notification-details-modal': NotificationDetailsModal,
       });
 
