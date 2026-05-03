@@ -12,10 +12,7 @@ export interface ColorLensPaletteType {
   detail: string;
 }
 
-const plugin = VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette', {
-  name: 'getColorLensPalette',
-  type: 'frameProcessor',
-});
+const plugin = VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette', {});
 
 export function getColorLensPalette(frame: Frame): ColorLensPaletteType | null {
   'worklet';
