@@ -1,5 +1,5 @@
-import { LensPalettesMap } from '@features/lens/lens-palette';
-import { HistoryNotification, NotificationWithData } from '@features/notifications';
+import type { LensPalettesMap } from '@features/lens/lens-palette/types';
+import type { HistoryNotification, NotificationWithData } from '@features/affirmations/notifications/types';
 import { NotificationChannel } from 'expo-notifications';
 
 export interface StateType {

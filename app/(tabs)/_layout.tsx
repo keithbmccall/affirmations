@@ -1,10 +1,12 @@
-import { Colors, HapticTab, TabBarBackground } from '@components/defaults';
-import { IconSymbol } from '@components/shared';
+import { Colors } from '@components/defaults/constants/Colors';
+import { HapticTab } from '@components/defaults/HapticTab';
+import TabBarBackground from '@components/defaults/ui/TabBarBackground';
+import { IconSymbol } from '@components/shared/icon-symbol/icon-symbol';
 import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
-import { Routes } from '@routes';
-import { useColorScheme } from '@styles';
+import { Routes } from '@routes/routes';
+import { useColorScheme } from '@styles/hooks/useColorScheme';
 import { Tabs } from 'expo-router';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 const screensList = [
   { name: Routes.tabs.home.name, title: Routes.tabs.home.title, icon: Routes.tabs.home.icon },

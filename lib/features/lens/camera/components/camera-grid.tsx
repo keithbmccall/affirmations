@@ -1,5 +1,6 @@
-import { Divider } from '@components/shared';
-import { colors, globalStyles } from '@styles';
+import { Divider } from '@components/shared/divider';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 

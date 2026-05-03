@@ -1,5 +1,5 @@
 import { useLens } from '@platform';
-import { loadData, saveData, StorageDevice } from '@storage';
+import { loadData, saveData, StorageDevice } from '@storage/storage';
 import { useEffect, useState } from 'react';
 import { LensPalettesMap } from './types';
 

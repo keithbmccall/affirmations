@@ -1,16 +1,20 @@
-import { ThemedButton, ThemedText, ThemedView } from '@components/shared';
+import { ThemedButton } from '@components/shared/themed-button';
+import { ThemedText } from '@components/shared/themed-text';
+import { ThemedView } from '@components/shared/themed-view';
 import {
-  HistoryNotification,
-  NotificationIdentifier,
-  NotificationWithData,
   SCHEDULE_HISTORY_PAGES,
-  ScheduleHistoryPages,
-  useNotificationsScheduler,
-} from '@features/affirmations/notifications';
+  type HistoryNotification,
+  type NotificationIdentifier,
+  type NotificationWithData,
+  type ScheduleHistoryPages,
+} from '@features/affirmations/notifications/types';
+import { useNotificationsScheduler } from '@features/affirmations/notifications/use-notifications-scheduler';
 import { useAffirmations } from '@platform';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { Routes } from '@routes';
-import { colors, globalStyles, spacing } from '@styles';
+import { Routes } from '@routes/routes';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
 import { router } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';

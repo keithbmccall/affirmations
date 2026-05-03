@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { catchError } from '@utils';
+import { catchError } from '@utils/helpers';
 
 type SaveData = (key: string, value: string | Record<string, any>) => void;
 export const saveData: SaveData = async (key, value) => {

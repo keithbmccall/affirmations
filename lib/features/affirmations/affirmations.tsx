@@ -1,6 +1,6 @@
-import { ThemedView } from '@components/shared';
-import { Notifications } from '@features/affirmations/notifications';
-import { ScreenContainerProps } from '@types';
+import { ThemedView } from '@components/shared/themed-view';
+import { Notifications } from '@features/affirmations/notifications/components/notifications';
+import type { ScreenContainerProps } from '@shared-types/screen-container';
 import { StatusBar } from 'expo-status-bar';
 import { memo } from 'react';
 

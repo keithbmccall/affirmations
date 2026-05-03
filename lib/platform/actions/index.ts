@@ -1,4 +1,4 @@
-import { noop } from '@utils';
+import { noop } from '@utils/helpers';
 import { AffirmationsActions, AffirmationsActionsFunctions } from './affirmations';
 import { GeneralActions, GeneralActionsFunctions } from './general';
 import { LensActions, LensActionsFunctions } from './lens';

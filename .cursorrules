@@ -26,11 +26,13 @@ This is a React Native/Expo affirmations app built with TypeScript. The app allo
 Always organize imports in this exact order:
 
 ```typescript
-// 1. Custom components (absolute imports)
-import { ThemedButton, ThemedText, ThemedView } from '@components/shared';
+// 1. Custom components (absolute imports; no shared barrel — import concrete modules)
+import { ThemedButton } from '@components/shared/themed-button';
+import { ThemedText } from '@components/shared/themed-text';
+import { ThemedView } from '@components/shared/themed-view';
 
 // 2. Features and platform (absolute imports)
-import { useNotificationsScheduler } from '@features/notifications';
+import { useNotificationsScheduler } from '@features/affirmations/notifications/use-notifications-scheduler';
 import { useAffirmations } from '@platform';
 
 // 3. External libraries
@@ -595,8 +597,8 @@ const input = screen.getByTestId('title-input'); // Already rendered
 
 ```typescript
 // For test-specific behavior
-jest.mock('@utils', () => ({
-  ...jest.requireActual('@utils'),
+jest.mock('@utils/time', () => ({
+  ...jest.requireActual('@utils/time'),
   getHumanReadableDate: jest.fn(date => ({
     month: 'January',
     day: 15,
@@ -622,11 +624,11 @@ const mockNotifications = [
 
 ```typescript
 // ✅ Provides all necessary context automatically
-import { renderWithContext } from '@testing';
+import { renderWithContext } from '@testing/render-with-context';
 const { getByTestId } = renderWithContext(<MyComponent />);
 
 // ✅ For testing navigation and modal routes
-import { renderRouterWithContext } from '@testing';
+import { renderRouterWithContext } from '@testing/render-with-context';
 renderRouterWithContext({
   index: MyComponent,
   '(modals)/my-modal': MyModal,
@@ -653,7 +655,7 @@ await act(async () => {
 
 ```typescript
 // ✅ Use shared utilities for complex mocks
-import { setupDateTimePickerMock, simulateDatePickerPress } from '@testing';
+import { setupDateTimePickerMock, simulateDatePickerPress } from '@testing/date-time-picker-mock';
 
 jest.mock('@react-native-community/datetimepicker');
 const MockedDateTimePicker = setupDateTimePickerMock();
@@ -731,7 +733,7 @@ jest.mock('react', () => ({
 }));
 
 // ✅ Mock only external dependencies
-jest.mock('@storage', () => ({
+jest.mock('@storage/storage', () => ({
   loadData: jest.fn(),
 }));
 

@@ -1,4 +1,4 @@
-import { spacing } from '@styles';
+import { spacing } from '@styles/spacing';
 import React, { memo } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';

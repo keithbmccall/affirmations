@@ -1,6 +1,6 @@
-import { HistoryNotification } from '@features/affirmations/notifications';
+import type { HistoryNotification } from '@features/affirmations/notifications/types';
 import { Init } from '@platform';
-import { loadData, saveData, StorageDevice } from '@storage';
+import { loadData, saveData, StorageDevice } from '@storage/storage';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';

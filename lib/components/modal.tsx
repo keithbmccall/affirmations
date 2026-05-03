@@ -1,4 +1,6 @@
-import { colors, globalStyles, spacing } from '@styles';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
 import { router } from 'expo-router';
 import { memo, ReactNode, useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';

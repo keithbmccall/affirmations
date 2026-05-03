@@ -1,8 +1,8 @@
-import { ThemedView } from '@components/shared';
-import { Camera } from '@features/lens/camera';
-import { useInitLensPalettes } from '@features/lens/lens-palette';
-import { globalStyles } from '@styles';
-import { ScreenContainerProps } from '@types';
+import { ThemedView } from '@components/shared/themed-view';
+import { Camera } from '@features/lens/camera/components/camera';
+import { useInitLensPalettes } from '@features/lens/lens-palette/use-init-lens-palettes';
+import { globalStyles } from '@styles/global-styles';
+import type { ScreenContainerProps } from '@shared-types/screen-container';
 import { StatusBar } from 'expo-status-bar';
 import { memo } from 'react';
 import { StyleSheet } from 'react-native';

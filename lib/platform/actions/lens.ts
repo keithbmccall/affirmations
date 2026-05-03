@@ -1,4 +1,4 @@
-import { LensPalette, LensPalettesMap } from '@features/lens/lens-palette';
+import type { LensPalette, LensPalettesMap } from '@features/lens/lens-palette/types';
 import { Dispatch } from 'react';
 import { ActionType } from './types';
 

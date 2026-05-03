@@ -1,6 +1,10 @@
-import { Divider, ThemedText, ThemedView } from '@components/shared';
+import { Divider } from '@components/shared/divider';
+import { ThemedText } from '@components/shared/themed-text';
+import { ThemedView } from '@components/shared/themed-view';
 import { useAffirmations } from '@platform';
-import { colors, globalStyles, spacing } from '@styles';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
 import { memo } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import { ScheduleHistory } from './schedule-history';

@@ -1,4 +1,5 @@
-import { globalStyles, spacing } from '@styles';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
 import type { Asset } from 'expo-media-library';
 import { memo, useMemo } from 'react';

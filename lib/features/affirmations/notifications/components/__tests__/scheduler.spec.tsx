@@ -1,5 +1,6 @@
-import { Scheduler } from '../index';
-import { renderWithContext, setupDateTimePickerMock, simulateDatePickerPress } from '@testing';
+import { Scheduler } from '../scheduler';
+import { setupDateTimePickerMock, simulateDatePickerPress } from '@testing/date-time-picker-mock';
+import { renderWithContext } from '@testing/render-with-context';
 import { act, fireEvent, waitFor } from 'expo-router/testing-library';
 import React from 'react';
 

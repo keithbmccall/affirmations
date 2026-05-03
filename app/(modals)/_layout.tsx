@@ -1,5 +1,5 @@
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { Routes } from '@routes';
+import { Routes } from '@routes/routes';
 import { Stack } from 'expo-router';
 import { useMemo } from 'react';
 

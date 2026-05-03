@@ -1,7 +1,12 @@
-import { IconSymbol, ThemedText } from '@components/shared';
-import { ColorPalette, LensPalette, useColorLensPalette } from '@features/lens/lens-palette';
+import { IconSymbol } from '@components/shared/icon-symbol/icon-symbol';
+import { ThemedText } from '@components/shared/themed-text';
+import { ColorPalette } from '@features/lens/lens-palette/components/color-palette';
+import type { LensPalette } from '@features/lens/lens-palette/types';
+import { useColorLensPalette } from '@features/lens/lens-palette/use-color-lens-palette';
 import { useLens } from '@platform';
-import { colors, globalStyles, spacing } from '@styles';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
@@ -25,7 +30,9 @@ import {
   flashModeOptions,
   gridModeOptions,
 } from '../camera-options';
-import { useCameraFocus, useCameraRoll, useLensPermissions } from '../hooks';
+import { useCameraFocus } from '../hooks/use-camera-focus';
+import { useCameraRoll } from '../hooks/use-camera-roll';
+import { useLensPermissions } from '../hooks/use-lens-permissions';
 import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;

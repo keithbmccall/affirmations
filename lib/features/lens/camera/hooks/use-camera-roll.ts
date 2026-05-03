@@ -1,4 +1,4 @@
-import { Routes } from '@routes';
+import { Routes } from '@routes/routes';
 import { getAssetsAsync } from 'expo-media-library';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';

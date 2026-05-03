@@ -1,6 +1,7 @@
 import { Modal } from '@components/modal';
-import { ColorPaletteImageInspector, InspectionAsset } from '@features/lens/lens-palette';
-import { ScreenContainerProps } from '@types';
+import { ColorPaletteImageInspector } from '@features/lens/lens-palette/components/color-palette-image-inspector';
+import type { InspectionAsset } from '@features/lens/lens-palette/types';
+import type { ScreenContainerProps } from '@shared-types/screen-container';
 import { memo, useMemo } from 'react';
 
 const testAsset: InspectionAsset = {

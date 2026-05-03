@@ -1,6 +1,6 @@
-import { ScheduleHistory } from '../index';
-import { colors } from '@styles';
-import { renderRouterWithContext, renderWithContext } from '@testing';
+import { ScheduleHistory } from '../schedule-history';
+import { colors } from '@styles/colors';
+import { renderRouterWithContext, renderWithContext } from '@testing/render-with-context';
 import { act, fireEvent, screen, within } from 'expo-router/testing-library';
 import React from 'react';
 import NotificationDetailsModal from '../../../../../../app/(modals)/notification-details-modal';
@@ -13,16 +13,16 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
 
 // Mock the notification scheduler hook
 const mockCancelPushNotification = jest.fn();
-jest.mock('@features/affirmations/notifications', () => ({
-  ...jest.requireActual('@features/affirmations/notifications'),
+jest.mock('@features/affirmations/notifications/use-notifications-scheduler', () => ({
+  ...jest.requireActual('@features/affirmations/notifications/use-notifications-scheduler'),
   useNotificationsScheduler: () => ({
     cancelPushNotification: mockCancelPushNotification,
   }),
 }));
 
 // Mock date formatting utility for predictable test output
-jest.mock('@utils', () => ({
-  ...jest.requireActual('@utils'),
+jest.mock('@utils/time', () => ({
+  ...jest.requireActual('@utils/time'),
   getHumanReadableDate: jest.fn(date => ({
     month: 'January',
     day: 15,
@@ -84,8 +84,8 @@ jest.mock('expo-notifications', () => ({
   getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'test-token' })),
 }));
 
-jest.mock('@storage', () => ({
-  ...jest.requireActual('@storage'),
+jest.mock('@storage/storage', () => ({
+  ...jest.requireActual('@storage/storage'),
   loadData: jest.fn(() => Promise.resolve(mockHistoryNotifications)),
   saveData: jest.fn(),
 }));

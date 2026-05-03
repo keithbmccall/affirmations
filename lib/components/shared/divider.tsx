@@ -1,4 +1,4 @@
-import { colors } from '@styles';
+import { colors } from '@styles/colors';
 import { memo } from 'react';
 import { ColorValue } from 'react-native';
 import { ThemedView, ThemedViewProps } from './themed-view';

@@ -1,17 +1,20 @@
 import { Modal } from '@components/modal';
-import { ThemedText, ThemedView } from '@components/shared';
+import { ThemedText } from '@components/shared/themed-text';
+import { ThemedView } from '@components/shared/themed-view';
+import { Scheduler } from '@features/affirmations/notifications/components/scheduler';
 import {
-  HistoryNotification,
-  NotificationIdentifier,
-  NotificationWithData,
   SCHEDULE_HISTORY_PAGES,
-  Scheduler,
-  useNotificationsScheduler,
-} from '@features/affirmations/notifications';
+  type HistoryNotification,
+  type NotificationIdentifier,
+  type NotificationWithData,
+} from '@features/affirmations/notifications/types';
+import { useNotificationsScheduler } from '@features/affirmations/notifications/use-notifications-scheduler';
 import { useAffirmations } from '@platform';
-import { colors, globalStyles, spacing } from '@styles';
-import { ScreenContainerProps } from '@types';
-import { getHumanReadableDate } from '@utils';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
+import type { ScreenContainerProps } from '@shared-types/screen-container';
+import { getHumanReadableDate } from '@utils/time';
 import { memo, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 

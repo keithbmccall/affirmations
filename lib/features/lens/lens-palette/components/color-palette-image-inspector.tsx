@@ -1,5 +1,6 @@
-import { ThemedText } from '@components/shared';
-import { globalStyles, spacing } from '@styles';
+import { ThemedText } from '@components/shared/themed-text';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';

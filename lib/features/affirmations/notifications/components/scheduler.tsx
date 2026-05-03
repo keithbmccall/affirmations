@@ -1,10 +1,15 @@
-import { ThemedButton, ThemedInput, ThemedText, ThemedView } from '@components/shared';
+import { ThemedButton } from '@components/shared/themed-button';
+import { ThemedInput } from '@components/shared/themed-input';
+import { ThemedText } from '@components/shared/themed-text';
+import { ThemedView } from '@components/shared/themed-view';
 import type { NotificationIdentifier } from '../types';
 import { useNotificationsScheduler } from '../use-notifications-scheduler';
 import { useGeneral } from '@platform';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { colors, globalStyles, spacing } from '@styles';
-import { fiveMinutesFromNow, twoYearsFromNow } from '@utils';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
+import { fiveMinutesFromNow, twoYearsFromNow } from '@utils/time';
 import { useRouter } from 'expo-router';
 import React, { memo, useCallback, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet } from 'react-native';

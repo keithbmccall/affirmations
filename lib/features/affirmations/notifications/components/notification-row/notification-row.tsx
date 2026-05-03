@@ -1,11 +1,15 @@
-import { ThemedButton, ThemedText, ThemedView } from '@components/shared';
-import {
+import { ThemedButton } from '@components/shared/themed-button';
+import { ThemedText } from '@components/shared/themed-text';
+import { ThemedView } from '@components/shared/themed-view';
+import type {
   HistoryNotification,
   NotificationIdentifier,
   NotificationWithData,
-} from '@features/affirmations/notifications';
-import { colors, globalStyles, spacing } from '@styles';
-import { getHumanReadableDate } from '@utils';
+} from '@features/affirmations/notifications/types';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
+import { getHumanReadableDate } from '@utils/time';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';

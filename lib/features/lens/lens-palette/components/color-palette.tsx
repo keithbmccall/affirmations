@@ -1,4 +1,5 @@
-import { globalStyles, spacing } from '@styles';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
 import React, { memo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { lensPaletteConfig } from '../config';

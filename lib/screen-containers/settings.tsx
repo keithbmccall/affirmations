@@ -1,10 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { memo } from 'react';
 import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react-native';
-import { ThemedInput, ThemedText, ThemedView } from '../components/shared';
-import { useSettings } from '../platform';
-import { globalStyles, spacing } from '../styles';
-import { ScreenContainerProps } from '@types';
+import { ThemedInput } from '@components/shared/themed-input';
+import { ThemedText } from '@components/shared/themed-text';
+import { ThemedView } from '@components/shared/themed-view';
+import { useSettings } from '@platform';
+import { globalStyles } from '@styles/global-styles';
+import { spacing } from '@styles/spacing';
+import type { ScreenContainerProps } from '@shared-types/screen-container';
 
 interface SettingsProps extends ScreenContainerProps {}
 const Settings = ({ statusBarProps }: SettingsProps) => {

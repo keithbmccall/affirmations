@@ -1,6 +1,6 @@
 import type { NotificationIdentifier } from './types';
 import { useAffirmations } from '@platform';
-import { catchError } from '@utils';
+import { catchError } from '@utils/helpers';
 import { useCallback } from 'react';
 import {
   cancelScheduledNotification,
