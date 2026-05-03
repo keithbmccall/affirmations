@@ -4,9 +4,9 @@ import type { ScreenContainerProps } from '@shared-types/screen-container';
 import { StatusBar } from 'expo-status-bar';
 import { memo } from 'react';
 
-interface AffirmationsProps extends ScreenContainerProps {}
+type AffirmationsProps = ScreenContainerProps;
 
-export const Affirmations = memo(({ statusBarProps }: AffirmationsProps) => {
+export const Affirmations = memo(function Affirmations({ statusBarProps }: AffirmationsProps) {
   // TODO: wrap with affirmations provider
   return (
     <ThemedView>

@@ -23,7 +23,10 @@ interface NotificationDetailsDisplayProps {
   date: Date;
 }
 
-export const NotificationDetailsDisplay = memo(({ body, date }: NotificationDetailsDisplayProps) => {
+export const NotificationDetailsDisplay = memo(function NotificationDetailsDisplay({
+  body,
+  date,
+}: NotificationDetailsDisplayProps) {
   const { month, day, time } = getHumanReadableDate(date);
 
   return (
@@ -59,7 +62,10 @@ interface NotificationDetailsProps extends ScreenContainerProps {
 }
 
 // TODO: Delete + Edit logic
-export const NotificationDetails = memo(({ notificationId, page }: NotificationDetailsProps) => {
+export const NotificationDetails = memo(function NotificationDetails({
+  notificationId,
+  page,
+}: NotificationDetailsProps) {
   const {
     notifications: { pendingNotifications, historyNotifications },
   } = useAffirmations();

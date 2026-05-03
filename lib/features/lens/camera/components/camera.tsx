@@ -23,10 +23,8 @@ import {
 } from 'react-native-vision-camera';
 import {
   calculateFps,
-  CAMERA_MODE,
   CAMERA_POSITION,
   cameraDeviceOptions,
-  CameraMode,
   flashModeOptions,
   gridModeOptions,
 } from '../camera-options';
@@ -44,14 +42,13 @@ Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
 
-export const Camera = memo(() => {
+export const Camera = memo(function Camera() {
   const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
   const insets = useSafeAreaInsets();
 
   // State management
   const [cameraDevice, setCameraDevice] = useState<number>(0);
-  const [cameraMode, setCameraMode] = useState<CameraMode>(CAMERA_MODE.PHOTO);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
   const [flashMode, setFlashMode] = useState<number>(0);
   const [gridMode, setGridMode] = useState<number>(0);
@@ -64,7 +61,7 @@ export const Camera = memo(() => {
 
   const camera = useRef<VisionCamera>(null);
 
-  const { handleFocusTap, focusIndicatorAnimatedStyle } = useCameraFocus(camera);
+  const { handleFocusTap } = useCameraFocus(camera);
 
   const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
 
@@ -101,7 +98,7 @@ export const Camera = memo(() => {
         },
       });
       setIsRecording(true);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to record video');
     }
   }, [fetchRecentMedia]);
@@ -140,7 +137,7 @@ export const Camera = memo(() => {
       }
 
       fetchRecentMedia();
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to capture');
     }
   }, [palette, flashMode, onAddLensPalette, fetchRecentMedia, isColorLensEnabled]);

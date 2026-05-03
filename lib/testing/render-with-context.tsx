@@ -32,7 +32,7 @@ const createTestWrapper = (config: RenderWithContextConfig) => {
     wrapper: AdditionalWrapper,
   } = config;
 
-  return ({ children }: { children: React.ReactNode }) => {
+  return function TestContextWrapper({ children }: { children: React.ReactNode }) {
     let wrappedChildren = children;
 
     // Add ThemeProvider if requested

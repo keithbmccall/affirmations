@@ -10,7 +10,7 @@ import { Dimensions, StyleSheet } from 'react-native';
 import { ScheduleHistory } from './schedule-history';
 import { Scheduler } from './scheduler';
 
-export const Notifications = memo(() => {
+export const Notifications = memo(function Notifications() {
   const {
     notifications: { token },
   } = useAffirmations();

@@ -14,7 +14,7 @@ interface ModalProps {
   enableBackButton?: boolean;
 }
 
-export const Modal = memo(({ children, title, testID, enableBackButton }: ModalProps) => {
+export const Modal = memo(function Modal({ children, title, testID, enableBackButton }: ModalProps) {
   const handleBackPress = useCallback(() => {
     router.back();
   }, []);

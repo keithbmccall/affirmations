@@ -17,7 +17,7 @@ interface SwatchButtonProps {
   onSelect: (swatch: string) => void;
 }
 
-const SwatchButton = memo(({ swatch, onSelect }: SwatchButtonProps) => {
+const SwatchButton = memo(function SwatchButton({ swatch, onSelect }: SwatchButtonProps) {
   const handlePress = useCallback(() => {
     onSelect(swatch);
   }, [onSelect, swatch]);
@@ -26,7 +26,9 @@ const SwatchButton = memo(({ swatch, onSelect }: SwatchButtonProps) => {
   return <Pressable onPress={handlePress} style={swatchStyle} />;
 });
 
-export const ColorPaletteImageInspector = memo(({ image }: ColorPaletteImageInspectorProps) => {
+export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspector({
+  image,
+}: ColorPaletteImageInspectorProps) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   const overlayHeight = useSharedValue(0);

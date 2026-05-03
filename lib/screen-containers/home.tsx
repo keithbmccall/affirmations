@@ -11,7 +11,7 @@ import { spacing } from '@styles/spacing';
 import type { ScreenContainerProps } from '@shared-types/screen-container';
 import Settings from './settings';
 
-interface HomeProps extends ScreenContainerProps {}
+type HomeProps = ScreenContainerProps;
 const lensScreenHref = { pathname: '/(tabs)/lens-screen' } as const;
 const affirmationsScreenHref = { pathname: '/(tabs)/affirmations-screen' } as const;
 

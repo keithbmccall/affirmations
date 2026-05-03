@@ -20,7 +20,7 @@ export const useCameraRoll = (hasAllPermissions: boolean) => {
   const handleCameraRollPress = useCallback(async () => {
     try {
       router.push(Routes.modals.lensCameraRoll.routePathname);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to open camera roll');
     }
   }, []);

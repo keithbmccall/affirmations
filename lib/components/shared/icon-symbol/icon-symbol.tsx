@@ -10,7 +10,7 @@ import { ICON_MAPPING } from './icon-mapping';
  * This ensures a consistent look across platforms, and optimal resource usage.
  * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
  */
-export const IconSymbol = memo(({
+export const IconSymbol = memo(function IconSymbol({
   name,
   size = 24,
   color,
@@ -21,6 +21,6 @@ export const IconSymbol = memo(({
   color: string | OpaqueColorValue;
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
-}) => {
+}) {
   return <MaterialIcons color={color} size={size} name={ICON_MAPPING[name]} style={style} />;
 });

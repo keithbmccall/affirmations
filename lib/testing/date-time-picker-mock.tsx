@@ -1,3 +1,4 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import React from 'react';
 import { View } from 'react-native';
 
@@ -35,7 +36,12 @@ export const createDateTimePickerMock = (config: DateTimePickerMockConfig = {}) 
     additionalProps = {},
   } = config;
 
-  return ({ onChange, value, testID: propsTestID, ...otherProps }: any) => {
+  function DateTimePickerMock({
+    onChange,
+    value,
+    testID: propsTestID,
+    ...otherProps
+  }: any) {
     const finalTestID = propsTestID || testID;
     const onPressHandler = customOnChange || defaultOnChange(onChange);
 
@@ -50,7 +56,9 @@ export const createDateTimePickerMock = (config: DateTimePickerMockConfig = {}) 
         {formatDate(value)}
       </View>
     );
-  };
+  }
+
+  return DateTimePickerMock;
 };
 
 /**
@@ -58,8 +66,6 @@ export const createDateTimePickerMock = (config: DateTimePickerMockConfig = {}) 
  * Call this at the top of your test file after imports
  */
 export const setupDateTimePickerMock = (config?: DateTimePickerMockConfig) => {
-  // This should be called after the jest.mock() declaration
-  const DateTimePicker = require('@react-native-community/datetimepicker').default;
   const MockedDateTimePicker = DateTimePicker as jest.MockedFunction<typeof DateTimePicker>;
 
   MockedDateTimePicker.mockImplementation(createDateTimePickerMock(config));

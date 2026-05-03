@@ -4,7 +4,7 @@ import { globalStyles } from '@styles/global-styles';
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-export const CameraGrid = memo(() => {
+export const CameraGrid = memo(function CameraGrid() {
   return (
     <>
       <View style={styles.gridOverlayColumn}>

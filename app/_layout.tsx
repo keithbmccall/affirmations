@@ -4,15 +4,12 @@ import StateContextProvider from '@platform/state-context-provider';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useColorScheme } from '@styles/hooks/useColorScheme';
 import { useFonts } from 'expo-font';
-import { Stack, useLocalSearchParams, usePathname, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 export default function RootLayout() {
-  const router = useRouter();
-  const local = useLocalSearchParams();
-  const path = usePathname();
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),

@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { memo } from 'react';
 import { StyleSheet } from 'react-native';
 
-interface LensProps extends ScreenContainerProps {}
+type LensProps = ScreenContainerProps;
 const Lens = ({ statusBarProps }: LensProps) => {
   useInitLensPalettes();
 

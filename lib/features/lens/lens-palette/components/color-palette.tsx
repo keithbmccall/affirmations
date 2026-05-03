@@ -13,7 +13,11 @@ interface ColorPaletteProps {
   style?: ViewStyle;
 }
 
-export const ColorPalette = memo(({ palette, animationDuration, style }: ColorPaletteProps) => {
+export const ColorPalette = memo(function ColorPalette({
+  palette,
+  animationDuration,
+  style,
+}: ColorPaletteProps) {
   return (
     <View style={[styles.colorPaletteGrid, style]}>
       {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {

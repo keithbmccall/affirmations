@@ -2,7 +2,7 @@ import { SymbolView, SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import { memo } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 
-export const IconSymbol = memo(({
+export const IconSymbol = memo(function IconSymbol({
   name,
   size = 24,
   color,
@@ -14,7 +14,7 @@ export const IconSymbol = memo(({
   color: string;
   style?: StyleProp<ViewStyle>;
   weight?: SymbolWeight;
-}) => {
+}) {
   return (
     <SymbolView
       weight={weight}

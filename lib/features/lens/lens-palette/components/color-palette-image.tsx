@@ -14,7 +14,10 @@ interface ColorPaletteImageProps {
   lensPalette?: LensPalette;
 }
 
-export const ColorPaletteImage = memo(({ image, lensPalette }: ColorPaletteImageProps) => {
+export const ColorPaletteImage = memo(function ColorPaletteImage({
+  image,
+  lensPalette,
+}: ColorPaletteImageProps) {
   console.log({ item: image, lensPalette });
   const source = useMemo(() => ({ uri: image.uri }), [image.uri]);
   return (

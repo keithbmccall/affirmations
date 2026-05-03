@@ -8,12 +8,12 @@ interface DividerProps extends Omit<ThemedViewProps, 'style'> {
   width?: number;
   vertical?: boolean;
 }
-export const Divider = memo(({
+export const Divider = memo(function Divider({
   color = colors.human.white,
   width = 1,
   vertical = false,
   ...props
-}: DividerProps) => {
+}: DividerProps) {
   return (
     <ThemedView
       style={[

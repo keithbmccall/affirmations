@@ -9,13 +9,13 @@ export type ThemedInputProps = TextInputProps & {
   value?: string;
 };
 
-export const ThemedInput = memo(({
+export const ThemedInput = memo(function ThemedInput({
   style,
   lightColor,
   darkColor,
   value = '',
   ...rest
-}: ThemedInputProps) => {
+}: ThemedInputProps) {
   const textColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 

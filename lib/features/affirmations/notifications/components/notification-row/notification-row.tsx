@@ -25,7 +25,9 @@ interface NotificationRowContentProps {
   notification: NotificationWithData | HistoryNotification;
 }
 
-const NotificationRowContent = memo(({ notification }: NotificationRowContentProps) => {
+const NotificationRowContent = memo(function NotificationRowContent({
+  notification,
+}: NotificationRowContentProps) {
   const { content } = notification;
   const { month, day, time } = getHumanReadableDate(new Date(content.data.triggerDate.time));
 
@@ -56,7 +58,11 @@ interface NotificationRowProps {
   onDelete?: (identifier: NotificationIdentifier) => void;
 }
 
-export const NotificationRow = memo(({ notification, onPress, onDelete }: NotificationRowProps) => {
+export const NotificationRow = memo(function NotificationRow({
+  notification,
+  onPress,
+  onDelete,
+}: NotificationRowProps) {
   const { identifier } = notification;
   const [isSwipeOpen, setIsSwipeOpen] = useState(false);
   const testID = `notification-row-${identifier}`;

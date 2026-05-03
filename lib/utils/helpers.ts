@@ -1,5 +1,5 @@
 export const noop = () => null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export const pluralize = (itemLength: number, word: string) => {
   return itemLength === 1 ? word : `${word}s`;
 };

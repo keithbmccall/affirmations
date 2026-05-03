@@ -20,7 +20,7 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { NotificationRow } from './notification-row/notification-row';
 
-export const ScheduleHistory = memo(() => {
+export const ScheduleHistory = memo(function ScheduleHistory() {
   const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
 
   const bottomTabHeight = useBottomTabBarHeight();

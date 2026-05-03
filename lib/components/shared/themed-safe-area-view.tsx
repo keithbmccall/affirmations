@@ -8,12 +8,12 @@ export type ThemedSafeAreaViewProps = SafeAreaViewProps & {
   darkColor?: string;
 };
 
-export const ThemedSafeAreaView = memo(({
+export const ThemedSafeAreaView = memo(function ThemedSafeAreaView({
   style,
   lightColor,
   darkColor,
   ...otherProps
-}: ThemedSafeAreaViewProps) => {
+}: ThemedSafeAreaViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return <SafeAreaView style={[{ backgroundColor }, style]} {...otherProps} />;

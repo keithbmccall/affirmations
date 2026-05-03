@@ -9,7 +9,7 @@ import { globalStyles } from '@styles/global-styles';
 import { spacing } from '@styles/spacing';
 import type { ScreenContainerProps } from '@shared-types/screen-container';
 
-interface SettingsProps extends ScreenContainerProps {}
+type SettingsProps = ScreenContainerProps;
 const Settings = ({ statusBarProps }: SettingsProps) => {
   const { user, onSetName } = useSettings();
 

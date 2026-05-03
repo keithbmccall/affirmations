@@ -288,8 +288,8 @@ describe('ScheduleHistory Component', () => {
       renderWithContext(<ScheduleHistory />);
 
       // Wait for pending notifications to load
-      const morningAffirmation = await screen.findByText('Morning Affirmation');
-      const eveningReflection = await screen.findByText('Evening Reflection');
+      await screen.findByText('Morning Affirmation');
+      await screen.findByText('Evening Reflection');
 
       // Get all notification rows
       const notificationRows = screen.getAllByTestId(/notification-row|swipeable-notification-row/);
@@ -318,8 +318,8 @@ describe('ScheduleHistory Component', () => {
       fireEvent.press(historyButton);
 
       // Wait for history notifications to load
-      const pastAffirmation = await screen.findByText('Past Affirmation');
-      const yesterdayReflection = await screen.findByText('Yesterday Reflection');
+      await screen.findByText('Past Affirmation');
+      await screen.findByText('Yesterday Reflection');
 
       // Get all notification rows
       const notificationRows = screen.getAllByTestId(/notification-row/);
@@ -395,15 +395,13 @@ describe('ScheduleHistory Component', () => {
       const deleteButton = await screen.findByTestId('delete-notification-button-pending-1');
       expect(deleteButton).toBeOnTheScreen();
 
-      // Verify the notification row is swipeable
-      const notificationRow = await screen.findByTestId('swipeable-notification-row-pending-1');
-      expect(notificationRow).toBeOnTheScreen();
+      expect(await screen.findByTestId('swipeable-notification-row-pending-1')).toBeOnTheScreen();
     });
 
     it('shows delete action when swiping left', async () => {
       renderWithContext(<ScheduleHistory />);
 
-      const notificationRow = await screen.findByTestId('swipeable-notification-row-pending-1');
+      await screen.findByTestId('swipeable-notification-row-pending-1');
       const deleteButton = await screen.findByTestId('delete-notification-button-pending-1');
 
       // Delete button should be visible (it's positioned absolutely)

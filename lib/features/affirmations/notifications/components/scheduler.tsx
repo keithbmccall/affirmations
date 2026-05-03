@@ -32,7 +32,7 @@ interface SchedulerProps {
   notificationId?: NotificationIdentifier;
 }
 
-export const Scheduler = memo(({
+export const Scheduler = memo(function Scheduler({
   initialDate = fiveMinutesFromNow,
   initialTitle = '',
   initialBody = '',
@@ -40,7 +40,7 @@ export const Scheduler = memo(({
   enableRefreshControl = true,
   submitProps,
   notificationId,
-}: SchedulerProps) => {
+}: SchedulerProps) {
   const router = useRouter();
   const { schedulePushNotification, refreshPendingNotifications, cancelPushNotification } =
     useNotificationsScheduler();

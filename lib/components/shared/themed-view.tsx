@@ -8,7 +8,7 @@ export type ThemedViewProps = ViewProps & {
   darkColor?: string;
 };
 
-export const ThemedView = memo(({ style, lightColor, darkColor, ...otherProps }: ThemedViewProps) => {
+export const ThemedView = memo(function ThemedView({ style, lightColor, darkColor, ...otherProps }: ThemedViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return <View style={[{ backgroundColor }, style]} {...otherProps} />;

@@ -10,7 +10,11 @@ type ColorSwatchProps = {
   animatedStyle?: ViewStyle;
 };
 
-export const ColorSwatch = memo(({ color, animationDuration, animatedStyle }: ColorSwatchProps) => {
+export const ColorSwatch = memo(function ColorSwatch({
+  color,
+  animationDuration,
+  animatedStyle,
+}: ColorSwatchProps) {
   const animatedColor = useAnimatedColor(color, animationDuration);
   const animatedBackgroundStyle = useAnimatedStyle(
     () => ({

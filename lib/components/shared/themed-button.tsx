@@ -9,13 +9,13 @@ export type ThemedButtonProps = PressableProps & {
   showPressFeedback?: boolean;
 };
 
-export const ThemedButton = memo(({
+export const ThemedButton = memo(function ThemedButton({
   style,
   lightColor,
   darkColor,
   showPressFeedback = true,
   ...otherProps
-}: ThemedButtonProps) => {
+}: ThemedButtonProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return (

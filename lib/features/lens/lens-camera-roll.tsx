@@ -30,14 +30,14 @@ const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) =>
 
 const defaultPhotos = getCameraRollPhotosCache() || [];
 
-interface LensCameraRollProps extends ScreenContainerProps {}
+type LensCameraRollProps = ScreenContainerProps;
 
 interface PhotoGridItemProps {
   item: Asset;
   lensPalette: LensPalette | undefined;
 }
 
-const PhotoGridItem = memo(({ item, lensPalette }: PhotoGridItemProps) => {
+const PhotoGridItem = memo(function PhotoGridItem({ item, lensPalette }: PhotoGridItemProps) {
   const handlePress = useCallback(() => {
     handlePhotoPress(item, lensPalette);
   }, [item, lensPalette]);
@@ -49,7 +49,7 @@ const PhotoGridItem = memo(({ item, lensPalette }: PhotoGridItemProps) => {
   );
 });
 
-export const LensCameraRoll = memo(({}: LensCameraRollProps) => {
+export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRollProps) {
   const { lensPalettesMap } = useLens();
   const borderColor = useThemeColor({}, 'background');
   const [photos, setPhotos] = useState<Asset[]>(defaultPhotos);
