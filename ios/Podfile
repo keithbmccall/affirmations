@@ -70,5 +70,15 @@ target 'ScheduledAffirmations' do
         end
       end
     end
+
+    #{MARKER}
+    # Xcode 26+ / Apple Clang: fmt 11.x FMT_STRING consteval fails (React Native third-party pod).
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        target.build_configurations.each do |build_config|
+          build_config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        end
+      end
+    end
   end
 end
