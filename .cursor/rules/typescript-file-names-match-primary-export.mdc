@@ -1,0 +1,42 @@
+---
+description: lib/ TS — filename matches primary named export; avoid default exports
+globs: "lib/**/*.ts,lib/**/*.tsx"
+alwaysApply: false
+---
+
+# File names and exports (`lib/`)
+
+## New and heavily touched modules
+
+Prefer **one primary named export** and a **basename that matches that identifier** (including casing):
+
+- **Components** → `SampleComponent.tsx` exporting `SampleComponent` (PascalCase).
+- **Hooks** → `useSampleHook.ts` exporting `useSampleHook` (camelCase).
+- **Helpers / pure functions** → same as hooks: filename = the main `export function` / `export const` name.
+
+Use **`.tsx`** when the file contains JSX; otherwise **`.ts`**.
+
+Much of the repo still uses **kebab-case** files that do not match the export (e.g. `themed-button.tsx` → `ThemedButton`). **Do not bulk-rename.** Prefer the match-export convention for **new** files; when you are already doing a large edit to a module, consider renaming the file to align (update imports in the same change).
+
+## Default exports
+
+**Avoid `export default` in `lib/`** when a named export works — default imports are harder to search and refactor.
+
+Use a default export only when something **requires** it (framework, unavoidable interop) or an established pattern in this repo already does so.
+
+## Exceptions
+
+- **`app/` (Expo Router)** — not covered by this rule’s glob. Route files use route-based names and usually **default-export** screens/layouts; follow Expo Router, not this file-naming rule.
+- **Tests** — `*.spec.ts`, `*.spec.tsx`, and `__tests__` helpers: keep existing test naming; they need not mirror a single primary implementation export.
+
+## Quick reference
+
+```typescript
+// Prefer
+export const ThemedButton = memo(function ThemedButton() { /* ... */ });
+
+// Avoid in new lib/ code when avoidable
+export default memo(ThemedButton);
+```
+
+Longer import order and component structure: root **`.cursorrules`** and **affirmations-project** rule.
