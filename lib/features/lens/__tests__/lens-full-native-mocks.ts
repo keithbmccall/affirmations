@@ -1,10 +1,18 @@
 /* Shared Jest native doubles for lens camera + lens screen specs.
  * Import this file before any imports from @features/lens (side effect only). */
 
+jest.mock('@features/lens/camera/createSkiaLensPaint', () => ({
+  createSkiaLensPaint: jest.fn(() => ({ dispose: jest.fn() })),
+}));
+
+jest.mock('@features/lens/camera/applySkiaLensToPhotoFile', () => ({
+  applySkiaLensToPhotoFile: jest.fn(async () => 'file:///cache/lens-skia-filtered.jpg'),
+}));
+
 jest.mock('react-native-worklets-core', () => ({
   Worklets: {
     createRunOnJS: <T extends (...args: unknown[]) => unknown>(fn: T) =>
-      (((...args: unknown[]) => (fn as (...a: unknown[]) => unknown)(...args)) as unknown) as T,
+      ((...args: unknown[]) => (fn as (...a: unknown[]) => unknown)(...args)) as unknown as T,
   },
 }));
 
@@ -51,6 +59,8 @@ jest.mock('react-native-vision-camera', () => {
     useMicrophonePermission: () => lensVisionCameraMockState.useMicrophonePermission(),
     useFrameProcessor: (fn: (f: unknown) => void, deps: unknown) =>
       lensVisionCameraMockState.useFrameProcessor(fn, deps),
+    useSkiaFrameProcessor: (fn: (f: unknown) => void, deps: unknown) =>
+      lensVisionCameraMockState.useSkiaFrameProcessor(fn, deps),
     VisionCameraProxy: {
       initFrameProcessorPlugin: () => lensVisionCameraMockState.initFrameProcessorPlugin(),
     },

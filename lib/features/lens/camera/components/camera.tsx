@@ -1,5 +1,6 @@
 import { IconSymbol } from '@components/shared/icon-symbol/icon-symbol';
 import { ThemedText } from '@components/shared/themed-text';
+import { applySkiaLensToPhotoFile } from '@features/lens/camera/applySkiaLensToPhotoFile';
 import { ColorPalette } from '@features/lens/lens-palette/components/color-palette';
 import type { LensPalette } from '@features/lens/lens-palette/types';
 import { useColorLensPalette } from '@features/lens/lens-palette/use-color-lens-palette';
@@ -34,9 +35,9 @@ import {
 import { useCameraFocus } from '../hooks/use-camera-focus';
 import { useCameraRoll } from '../hooks/use-camera-roll';
 import { useLensPermissions } from '../hooks/use-lens-permissions';
-import { finishCameraVideoRecording } from './camera-recording-finish';
 import { CameraGrid } from './camera-grid';
 import { LensCameraSurface } from './lens-camera-surface';
+import { saveVideoRecording } from './save-video-recording';
 import { SkiaCameraSurface } from './skia-camera-surface';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -95,7 +96,7 @@ export const Camera = memo(function Camera() {
 
     try {
       camera.current.startRecording({
-        onRecordingFinished: video => finishCameraVideoRecording(video, fetchRecentMedia),
+        onRecordingFinished: video => saveVideoRecording(video, fetchRecentMedia),
         onRecordingError: error => {
           Alert.alert('Recording error', error.message);
         },
@@ -126,24 +127,40 @@ export const Camera = memo(function Camera() {
         enableShutterSound: true,
       });
 
-      const asset = await createAssetAsync(photo.path);
+      if (!isLensMode) {
+        const paintedUri = await applySkiaLensToPhotoFile({
+          inputPath: photo.path,
+          colorMode: skiaColorMode,
+        });
+        await createAssetAsync(paintedUri);
+      } else {
+        const asset = await createAssetAsync(photo.path);
 
-      if (isColorLensEnabled) {
-        const lensPalette: LensPalette = {
-          id: asset.id,
-          uri: asset.uri,
-          mediaType: asset.mediaType,
-          palette: currentPalette,
-        };
-        onAddLensPalette(lensPalette);
-        console.log('asset lens palette: ', lensPalette);
+        if (isColorLensEnabled) {
+          const lensPalette: LensPalette = {
+            id: asset.id,
+            uri: asset.uri,
+            mediaType: asset.mediaType,
+            palette: currentPalette,
+          };
+          onAddLensPalette(lensPalette);
+          console.log('asset lens palette: ', lensPalette);
+        }
       }
 
       fetchRecentMedia();
     } catch {
       Alert.alert('Error', 'Failed to capture');
     }
-  }, [palette, flashMode, onAddLensPalette, fetchRecentMedia, isColorLensEnabled]);
+  }, [
+    palette,
+    flashMode,
+    onAddLensPalette,
+    fetchRecentMedia,
+    isColorLensEnabled,
+    isLensMode,
+    skiaColorMode,
+  ]);
 
   const handleStopRecording = useCallback(async () => {
     if (!camera.current) return;
