@@ -74,4 +74,41 @@ describe('use-lens-permissions.ts', () => {
       [{ text: 'OK' }]
     );
   });
+
+  it('requests media library access when camera and microphone are already granted', async () => {
+    const requestMedia = jest.fn(async () => {});
+    lensMediaLibraryMockState.mediaLibraryGranted = false;
+    lensMediaLibraryMockState.requestMediaLibraryPermission.mockImplementation(requestMedia);
+    lensVisionCameraMockState.useCameraPermission.mockReturnValue({
+      hasPermission: true,
+      requestPermission: jest.fn(async () => {}),
+    });
+    lensVisionCameraMockState.useMicrophonePermission.mockReturnValue({
+      hasPermission: true,
+      requestPermission: jest.fn(async () => {}),
+    });
+    renderWithContext(<PermissionsHarness />);
+    await act(async () => {
+      await flushProviderMicrotasks();
+    });
+    expect(requestMedia).toHaveBeenCalled();
+    lensMediaLibraryMockState.mediaLibraryGranted = true;
+  });
+
+  it('requests microphone permission when camera is already granted', async () => {
+    const requestMic = jest.fn(async () => {});
+    lensVisionCameraMockState.useCameraPermission.mockReturnValue({
+      hasPermission: true,
+      requestPermission: jest.fn(async () => {}),
+    });
+    lensVisionCameraMockState.useMicrophonePermission.mockReturnValue({
+      hasPermission: false,
+      requestPermission: requestMic,
+    });
+    renderWithContext(<PermissionsHarness />);
+    await act(async () => {
+      await flushProviderMicrotasks();
+    });
+    expect(requestMic).toHaveBeenCalled();
+  });
 });

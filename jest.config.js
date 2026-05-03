@@ -32,7 +32,20 @@ module.exports = {
     '!**/*.spec.{ts,tsx}',
     '!**/*.test.{ts,tsx}',
     '!**/types/**',
+    '!lib/**/types.ts',
+    '!**/useColorScheme.web.ts',
+    '!lib/features/lens/lens-palette/use-animated-color.ts',
   ],
+
+  // Minimums aligned with current lib coverage (see `npm test -- --coverage`)
+  coverageThreshold: {
+    global: {
+      statements: 99.27,
+      branches: 94.68,
+      functions: 99.57,
+      lines: 99.75,
+    },
+  },
 
   // Coverage directory
   coverageDirectory: '<rootDir>/coverage',

@@ -31,6 +31,7 @@ import {
 import { useCameraFocus } from '../hooks/use-camera-focus';
 import { useCameraRoll } from '../hooks/use-camera-roll';
 import { useLensPermissions } from '../hooks/use-lens-permissions';
+import { finishCameraVideoRecording } from './camera-recording-finish';
 import { CameraGrid } from './camera-grid';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -89,10 +90,7 @@ export const Camera = memo(function Camera() {
 
     try {
       camera.current.startRecording({
-        onRecordingFinished: async video => {
-          await createAssetAsync(video.path);
-          fetchRecentMedia();
-        },
+        onRecordingFinished: video => finishCameraVideoRecording(video, fetchRecentMedia),
         onRecordingError: error => {
           Alert.alert('Recording error', error.message);
         },

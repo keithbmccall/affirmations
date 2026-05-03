@@ -138,4 +138,20 @@ describe('lens-camera-roll.tsx', () => {
     renderWithContext(<LensCameraRoll />);
     expect(await screen.findByText('Failed to load photos from camera roll')).toBeOnTheScreen();
   });
+
+  it('ignores pagination when no additional pages exist', async () => {
+    lensMediaLibraryMockState.getAssetsAsync.mockResolvedValue({
+      assets: [makeAsset({ id: 'only' })],
+      endCursor: null,
+      hasNextPage: false,
+      totalCount: 1,
+    });
+    renderWithContext(<LensCameraRoll />);
+    const list = await screen.findByTestId('lens-camera-roll-list');
+    await act(async () => {
+      fireEvent(list, 'onEndReached');
+      await flushProviderMicrotasks();
+    });
+    expect(lensMediaLibraryMockState.getAssetsAsync).toHaveBeenCalledTimes(1);
+  });
 });
