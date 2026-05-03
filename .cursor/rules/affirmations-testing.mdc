@@ -1,0 +1,37 @@
+---
+description: Affirmations app — Jest + RNTL patterns, queries, mocks, render helpers
+globs: "jest.config.js,jest.setup.js,**/*.spec.ts,**/*.spec.tsx"
+alwaysApply: false
+---
+
+# Testing (Affirmations)
+
+## Setup
+
+- **`renderWithContext`** when the tree needs global providers.
+- **`renderRouterWithContext`** for Expo Router / modal routes (pass route map object).
+
+## Queries
+
+- **First discovery of UI:** prefer **`await screen.findBy*`** (role, text, testId) so the test waits.
+- After something is known on screen, **`getBy*`** is fine.
+- **Avoid** `waitFor` **only** to poll until `getBy*` succeeds — use **`findBy*`** instead.
+- Scope with **`within(element)`** when asserting inside a card/row.
+
+## Behavior
+
+- Test **what users see and do** (press, type, see message) — not internal React state.
+- **Async:** after `fireEvent.press`, use **`findBy*`** (or `await findByText`) for outcomes.
+- **`act`** when needed for navigation/async bursts (see **`.cursorrules`** examples).
+
+## Mocks
+
+- Mock **external** modules (storage, notifications, time) — not all of `react`.
+- **`jest.requireActual`** when partially overriding a module.
+- Reset **`mockClear`** / relevant mocks in **`beforeEach`**.
+
+## Shared utilities
+
+Use **`@testing/render-with-context`**, **`@testing/date-time-picker-mock`** (and similar) when they already exist for the pattern you need.
+
+Extended examples, pitfalls, and summaries: **`.cursorrules`** (Testing sections).

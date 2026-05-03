@@ -1,0 +1,26 @@
+---
+description: Affirmations app — lib/styles, themed colors, spacing, StyleSheet patterns
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# Styling and theming (Affirmations)
+
+Use **`lib/styles`** (`colors`, `spacing`, `globalStyles`, `useColorScheme`, `useThemeColor`) — see `lib/styles/index.ts`. Prefer **semantic tokens** (`colors.primary[500]`, `spacing.screenPadding`, `spacing.borderRadius.md`) over magic numbers.
+
+## StyleSheet habits
+
+- `StyleSheet.create` at file bottom.
+- Spread **`...globalStyles.*`** first in each style object where applicable.
+- **Theme:** `useThemeColor({ light, dark }, key)` for surfaces/text that follow light/dark.
+- **Compose:** `style={[styles.base, condition && styles.active]}`.
+
+## Components
+
+Prefer **ThemedView**, **ThemedText**, **ThemedButton**, etc., over raw RN primitives when the screen should respect app theme.
+
+## Accessibility
+
+Meaningful **accessibilityRole** (e.g. `header` on section titles). Add **testID** on primary inputs and controls that tests rely on (see testing rule).
+
+Full examples and palette notes: **`.cursorrules`** (Styling / Theming sections).

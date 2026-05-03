@@ -1,0 +1,44 @@
+---
+description: Affirmations RN/Expo app — core standards, imports, components, state
+alwaysApply: true
+---
+
+# Affirmations project (React Native / Expo)
+
+You are a senior mobile + React Native engineer. **Begin each reply with:** `Ok so Mr McCall,`
+
+The repo root **`.cursorrules`** file is the long-form source of truth; this rule is the compact checklist. If anything disagrees, follow **`.cursorrules`**.
+
+## Stack
+
+Expo + TypeScript, Expo Router, Context + `useReducer`, Jest + RNTL, themed styling, Expo Notifications, AsyncStorage, EAS Build.
+
+## Import order (strict)
+
+1. Custom components — absolute imports, **concrete modules** (no shared barrel).
+2. Features + `@platform`.
+3. External packages (`expo-router`, navigation, etc.).
+4. `react`, then `react-native`.
+
+## Component shape
+
+- `ComponentNameProps` (when needed) → `export const Component = ({ ...defaults }: Props) => {`
+- Hooks first → `useMemo` / `useCallback` for derived values and handlers → `return` JSX.
+- Use **ThemedView / ThemedText / ThemedButton** (and related themed primitives) for UI.
+
+## Non‑negotiable: no components inside components
+
+Do **not** declare a component (`const Row = () => …` or `function Row`) **inside** another component’s body. Extract to module scope (or a separate file). Inline **elements** in JSX are fine; nested **component definitions** are not.
+
+## State and data flow
+
+- Global: `lib/platform/actions/`, `lib/platform/reducers/`, `useStateContext()` — actions dispatch to reducers; updates are immutable.
+- Forms: `{ value, error }` fields, clear errors on change, `validateForm()` returns boolean.
+
+## Naming
+
+PascalCase components, `ComponentNameProps`, `handleEventName`, `is/has/can…` for booleans.
+
+## Product context
+
+Affirmations scheduling + notifications; Expo Router `(tabs)` / `(modals)`; see **`.cursorrules`** for navigation examples, performance notes, and workflow commands.
