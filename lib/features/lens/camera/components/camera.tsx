@@ -18,30 +18,32 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CameraPosition,
   useCameraDevice,
-  useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
 import {
   calculateFps,
   CAMERA_POSITION,
+  CAMERA_VIEW_MODE,
   cameraDeviceOptions,
   flashModeOptions,
   gridModeOptions,
+  SKIA_COLOR_MODE,
+  type CameraViewMode,
+  type SkiaColorMode,
 } from '../camera-options';
 import { useCameraFocus } from '../hooks/use-camera-focus';
 import { useCameraRoll } from '../hooks/use-camera-roll';
 import { useLensPermissions } from '../hooks/use-lens-permissions';
 import { finishCameraVideoRecording } from './camera-recording-finish';
 import { CameraGrid } from './camera-grid';
+import { LensCameraSurface } from './lens-camera-surface';
+import { SkiaCameraSurface } from './skia-camera-surface';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
 const controlSymbolSize = 30;
-
-const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
-Reanimated.addWhitelistedNativeProps({
-  isActive: true,
-});
+/** Skia blur is GPU-heavy; lower FPS reduces memory pressure and thermal crashes. */
+const SKIA_FPS = 15;
 
 export const Camera = memo(function Camera() {
   const { onAddLensPalette } = useLens();
@@ -51,6 +53,8 @@ export const Camera = memo(function Camera() {
   // State management
   const [cameraDevice, setCameraDevice] = useState<number>(0);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
+  const [cameraViewMode, setCameraViewMode] = useState<CameraViewMode>(CAMERA_VIEW_MODE.LENS);
+  const [skiaColorMode, setSkiaColorMode] = useState<SkiaColorMode>(SKIA_COLOR_MODE.DEFAULT);
   const [flashMode, setFlashMode] = useState<number>(0);
   const [gridMode, setGridMode] = useState<number>(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -76,7 +80,8 @@ export const Camera = memo(function Camera() {
     useColorLensPalette();
 
   const showGrid = gridModeOptions[gridMode].value === 'on';
-  const isVideoNotAllowed = isColorLensEnabled;
+  const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
+  const isVideoNotAllowed = isColorLensEnabled || !isLensMode;
 
   const fps = useMemo(
     () => calculateFps({ isColorLensEnabled, isCameraActive }),
@@ -164,6 +169,18 @@ export const Camera = memo(function Camera() {
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptionsLength);
   }, []);
 
+  const handleCameraViewModeToggle = useCallback(() => {
+    setCameraViewMode(prev =>
+      prev === CAMERA_VIEW_MODE.LENS ? CAMERA_VIEW_MODE.SKIA : CAMERA_VIEW_MODE.LENS
+    );
+  }, []);
+
+  const handleSkiaColorModeToggle = useCallback(() => {
+    setSkiaColorMode(prev =>
+      prev === SKIA_COLOR_MODE.DEFAULT ? SKIA_COLOR_MODE.TAME_RED : SKIA_COLOR_MODE.DEFAULT
+    );
+  }, []);
+
   const handleEnableColorLensToggle = useCallback(() => setIsColorLensEnabled(prev => !prev), []);
 
   const handleBackPress = useCallback(() => router.back(), []);
@@ -230,20 +247,6 @@ export const Camera = memo(function Camera() {
     [isRecording]
   );
 
-  const frameProcessor = useFrameProcessor(
-    frame => {
-      'worklet';
-      if (!isCameraActive) return;
-
-      // const data = scanImage(frame);
-      // console.log(data, 'data');
-      if (isColorLensEnabled) {
-        getColorLensPaletteWorklet(frame);
-      }
-    },
-    [isCameraActive, isColorLensEnabled]
-  );
-
   return (
     <View style={styles.container}>
       {/* Camera view */}
@@ -251,17 +254,24 @@ export const Camera = memo(function Camera() {
         {device && hasAllPermissions ? (
           <GestureDetector gesture={gesture}>
             <View style={styles.cameraInnerContainer}>
-              <ReanimatedCamera
-                ref={camera}
-                style={StyleSheet.absoluteFill}
-                device={device}
-                isActive={isCameraActive}
-                photo
-                video
-                audio
-                frameProcessor={isCameraActive ? frameProcessor : undefined}
-                fps={fps}
-              />
+              {isLensMode ? (
+                <LensCameraSurface
+                  cameraRef={camera}
+                  device={device}
+                  isActive={isCameraActive}
+                  fps={fps}
+                  isColorLensEnabled={isColorLensEnabled}
+                  getColorLensPaletteWorklet={getColorLensPaletteWorklet}
+                />
+              ) : (
+                <SkiaCameraSurface
+                  cameraRef={camera}
+                  device={device}
+                  isActive={isCameraActive}
+                  fps={SKIA_FPS}
+                  colorMode={skiaColorMode}
+                />
+              )}
               {/* ===== GRID OVERLAY SECTION ===== */}
               {showGrid && <CameraGrid />}
             </View>
@@ -284,6 +294,17 @@ export const Camera = memo(function Camera() {
 
       {/* ===== TOP CONTROLS SECTION ===== */}
       <View style={topControlsStyle}>
+        <TouchableOpacity
+          testID="lens-control-view-mode"
+          style={styles.topButton}
+          onPress={handleCameraViewModeToggle}
+        >
+          <IconSymbol
+            size={controlSymbolSize}
+            color={colors.human.white}
+            name={isLensMode ? 'drop.fill' : 'camera.fill'}
+          />
+        </TouchableOpacity>
         <TouchableOpacity testID="lens-control-grid" style={styles.topButton} onPress={handleGridToggle}>
           <IconSymbol
             size={controlSymbolSize}
@@ -324,23 +345,41 @@ export const Camera = memo(function Camera() {
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity
-          testID="lens-toggle-color-lens"
-          style={styles.topButton}
-          onPress={handleEnableColorLensToggle}
-        >
-          <IconSymbol
-            size={controlSymbolSize}
-            color={colors.human.white}
-            name="swatchpalette.fill"
-          />
-        </TouchableOpacity>
-        {isColorLensEnabled && (
-          <ColorPalette
-            palette={palette}
-            animationDuration={colorAnimationDuration}
-            style={styles.colorPaletteContainer}
-          />
+        {isLensMode && (
+          <>
+            <TouchableOpacity
+              testID="lens-toggle-color-lens"
+              style={styles.topButton}
+              onPress={handleEnableColorLensToggle}
+            >
+              <IconSymbol
+                size={controlSymbolSize}
+                color={colors.human.white}
+                name="swatchpalette.fill"
+              />
+            </TouchableOpacity>
+            {isColorLensEnabled && (
+              <ColorPalette
+                palette={palette}
+                animationDuration={colorAnimationDuration}
+                style={styles.colorPaletteContainer}
+              />
+            )}
+          </>
+        )}
+
+        {!isLensMode && (
+          <TouchableOpacity
+            testID="lens-control-skia-color-mode"
+            style={styles.topButton}
+            onPress={handleSkiaColorModeToggle}
+          >
+            <IconSymbol
+              size={controlSymbolSize}
+              color={colors.human.white}
+              name={skiaColorMode === SKIA_COLOR_MODE.DEFAULT ? 'sun.max.fill' : 'moon.fill'}
+            />
+          </TouchableOpacity>
         )}
       </View>
 
