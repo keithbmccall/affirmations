@@ -175,7 +175,7 @@ export const Camera = memo(function Camera() {
     if (mediaLibraryPermission) {
       fetchRecentMedia();
     }
-  }, [mediaLibraryPermission]);
+  }, [fetchRecentMedia, mediaLibraryPermission]);
 
   // Camera suspension logic - suspend when screen loses focus
   useFocusEffect(
@@ -308,8 +308,16 @@ export const Camera = memo(function Camera() {
           />
         </TouchableOpacity>
         {cameraDeviceOptionsLength > 1 && (
-          <TouchableOpacity style={styles.topButton} onPress={handleCameraDeviceToggle}>
-            <Text style={styles.topButtonIcon}>💿</Text>
+          <TouchableOpacity
+            style={styles.topButton}
+            onPress={handleCameraDeviceToggle}
+            accessibilityLabel="Switch lens configuration"
+          >
+            <IconSymbol
+              size={controlSymbolSize}
+              color={colors.human.white}
+              name="camera.aperture"
+            />
           </TouchableOpacity>
         )}
 
@@ -385,10 +393,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: 20,
     height: 50,
-  },
-  topButtonIcon: {
-    color: colors.human.white,
-    fontSize: 20,
   },
   bottomControls: {
     ...globalStyles.absolute,

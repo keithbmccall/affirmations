@@ -11,6 +11,7 @@ export const ICON_MAPPING = {
   'chevron.left': 'chevron-left',
   'arrowshape.backward.fill': 'arrow-back',
   'camera.fill': 'camera-alt',
+  'camera.aperture': 'blur-circular',
   'note.text': 'note',
   'person.fill': 'person',
   gear: 'settings',
