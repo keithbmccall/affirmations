@@ -1,4 +1,11 @@
-import { catchError, keyGenerator, noop, pluralize, splitCamelCase } from '../helpers';
+import {
+  capitalizeFirstLetter,
+  catchError,
+  keyGenerator,
+  noop,
+  pluralize,
+  splitCamelCase,
+} from '../helpers';
 
 describe('helpers', () => {
   it('noop returns null', () => {
@@ -31,11 +38,29 @@ describe('helpers', () => {
   });
 
   describe('splitCamelCase', () => {
-    it('splits camelCase words', () => {
-      expect(splitCamelCase('camelCaseWord')).toBe('camelCaseWord'); // This regex does not insert spaces
+    it('leaves camelCase unchanged (replacement is same captured letter)', () => {
+      expect(splitCamelCase('camelCaseWord')).toBe('camelCaseWord');
     });
     it('returns the same string if no uppercase', () => {
       expect(splitCamelCase('word')).toBe('word');
+    });
+    it('preserves multiple consecutive capitals', () => {
+      expect(splitCamelCase('XMLParser')).toBe('XMLParser');
+    });
+  });
+
+  describe('capitalizeFirstLetter', () => {
+    it('capitalizes the first letter of a lowercase word', () => {
+      expect(capitalizeFirstLetter('hello')).toBe('Hello');
+    });
+    it('leaves an already capitalized string unchanged except first char', () => {
+      expect(capitalizeFirstLetter('Hello')).toBe('Hello');
+    });
+    it('handles a single character', () => {
+      expect(capitalizeFirstLetter('a')).toBe('A');
+    });
+    it('handles empty string', () => {
+      expect(capitalizeFirstLetter('')).toBe('');
     });
   });
 

@@ -43,7 +43,7 @@ const PhotoGridItem = memo(function PhotoGridItem({ item, lensPalette }: PhotoGr
   }, [item, lensPalette]);
 
   return (
-    <Pressable onPress={handlePress}>
+    <Pressable testID={`lens-photo-grid-${item.id}`} onPress={handlePress}>
       <ColorPaletteImage image={item} lensPalette={lensPalette as LensPalette} />
     </Pressable>
   );
@@ -145,6 +145,7 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
         </ThemedText>
       ) : (
         <FlatList
+          testID="lens-camera-roll-list"
           data={photos}
           renderItem={renderPhoto}
           keyExtractor={keyExtractor}

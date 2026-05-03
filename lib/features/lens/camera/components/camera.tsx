@@ -279,28 +279,32 @@ export const Camera = memo(function Camera() {
         )}
 
         {/* ===== BACK BUTTON SECTION ===== */}
-        <TouchableOpacity style={backButtonStyle} onPress={handleBackPress}>
+        <TouchableOpacity testID="lens-back-button" style={backButtonStyle} onPress={handleBackPress}>
           <IconSymbol size={controlSymbolSize} color={colors.human.white} name="chevron.left" />
         </TouchableOpacity>
       </View>
 
       {/* ===== TOP CONTROLS SECTION ===== */}
       <View style={topControlsStyle}>
-        <TouchableOpacity style={styles.topButton} onPress={handleGridToggle}>
+        <TouchableOpacity testID="lens-control-grid" style={styles.topButton} onPress={handleGridToggle}>
           <IconSymbol
             size={controlSymbolSize}
             color={colors.human.white}
             name={gridModeOptions[gridMode].icon}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.topButton} onPress={handleFlashToggle}>
+        <TouchableOpacity testID="lens-control-flash" style={styles.topButton} onPress={handleFlashToggle}>
           <IconSymbol
             size={controlSymbolSize}
             color={colors.human.white}
             name={flashModeOptions[flashMode].icon}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.topButton} onPress={handleSwitchCameraToggle}>
+        <TouchableOpacity
+          testID="lens-control-flip-camera"
+          style={styles.topButton}
+          onPress={handleSwitchCameraToggle}
+        >
           <IconSymbol
             size={controlSymbolSize}
             color={colors.human.white}
@@ -309,6 +313,7 @@ export const Camera = memo(function Camera() {
         </TouchableOpacity>
         {cameraDeviceOptionsLength > 1 && (
           <TouchableOpacity
+            testID="lens-control-lens-device"
             style={styles.topButton}
             onPress={handleCameraDeviceToggle}
             accessibilityLabel="Switch lens configuration"
@@ -321,7 +326,11 @@ export const Camera = memo(function Camera() {
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity style={styles.topButton} onPress={handleEnableColorLensToggle}>
+        <TouchableOpacity
+          testID="lens-toggle-color-lens"
+          style={styles.topButton}
+          onPress={handleEnableColorLensToggle}
+        >
           <IconSymbol
             size={controlSymbolSize}
             color={colors.human.white}
@@ -340,7 +349,11 @@ export const Camera = memo(function Camera() {
       {/* ===== BOTTOM CONTROLS SECTION ===== */}
       <View style={bottomControlsStyle}>
         {/* Camera Roll Button */}
-        <TouchableOpacity style={styles.cameraRollButton} onPress={handleCameraRollPress}>
+        <TouchableOpacity
+          testID="lens-camera-roll-open"
+          style={styles.cameraRollButton}
+          onPress={handleCameraRollPress}
+        >
           {recentPhoto ? (
             <Reanimated.View key={recentPhoto} style={cameraRollPreviewContainerStyle}>
               <Image source={cameraRollSource} style={styles.cameraRollPreview} />
@@ -351,7 +364,7 @@ export const Camera = memo(function Camera() {
         </TouchableOpacity>
 
         {/* Capture Button */}
-        <TouchableOpacity style={captureButtonStyle} {...triggerProps}>
+        <TouchableOpacity testID="lens-capture-button" style={captureButtonStyle} {...triggerProps}>
           <View style={styles.captureButtonInner} />
         </TouchableOpacity>
 

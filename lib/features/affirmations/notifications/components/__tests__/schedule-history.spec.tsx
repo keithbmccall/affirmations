@@ -1,7 +1,9 @@
 import { ScheduleHistory } from '../schedule-history';
 import { colors } from '@styles/colors';
+import { flushProviderMicrotasks } from '@testing/flush-provider-microtasks';
 import { renderRouterWithContext, renderWithContext } from '@testing/render-with-context';
 import { act, fireEvent, screen, within } from 'expo-router/testing-library';
+import * as Notifications from 'expo-notifications';
 import React from 'react';
 import NotificationDetailsModal from '../../../../../../app/(modals)/notification-details-modal';
 
@@ -78,12 +80,6 @@ const mockHistoryNotifications = [
   },
 ];
 
-jest.mock('expo-notifications', () => ({
-  ...jest.requireActual('expo-notifications'),
-  getAllScheduledNotificationsAsync: jest.fn(() => Promise.resolve(mockPendingNotifications)),
-  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'test-token' })),
-}));
-
 jest.mock('@storage/storage', () => ({
   ...jest.requireActual('@storage/storage'),
   loadData: jest.fn(() => Promise.resolve(mockHistoryNotifications)),
@@ -95,13 +91,30 @@ function ScheduleHistoryIndexRoute() {
   return <ScheduleHistory />;
 }
 
+async function renderScheduleHistory(ui: React.ReactElement = <ScheduleHistory />) {
+  const utils = renderWithContext(ui);
+  await flushProviderMicrotasks();
+  return utils;
+}
+
+async function renderScheduleHistoryRouter(
+  context: Parameters<typeof renderRouterWithContext>[0]
+) {
+  const utils = renderRouterWithContext(context);
+  await flushProviderMicrotasks();
+  return utils;
+}
+
 describe('ScheduleHistory Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest
+      .mocked(Notifications.getAllScheduledNotificationsAsync)
+      .mockResolvedValue(mockPendingNotifications as never);
   });
 
   it('maintains tab state during re-renders', async () => {
-    const { rerender } = renderWithContext(<ScheduleHistory />);
+    const { rerender } = await renderScheduleHistory();
 
     const historyButton = await screen.findByRole('button', { name: 'History' });
     fireEvent.press(historyButton);
@@ -116,7 +129,7 @@ describe('ScheduleHistory Component', () => {
   });
 
   it('displays pending notifications and history notifications with correct content', async () => {
-    renderWithContext(<ScheduleHistory />);
+    await renderScheduleHistory();
 
     const pendingButton = await screen.findByRole('button', { name: 'Pending' });
     const historyButton = await screen.findByRole('button', { name: 'History' });
@@ -163,7 +176,7 @@ describe('ScheduleHistory Component', () => {
 
   describe('Navigation', () => {
     it('navigates to notification details when notification is pressed', async () => {
-      renderRouterWithContext({
+      await renderScheduleHistoryRouter({
         index: ScheduleHistoryIndexRoute,
         '(modals)/notification-details-modal': NotificationDetailsModal,
       });
@@ -178,7 +191,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('navigates to notification details from history tab', async () => {
-      renderRouterWithContext({
+      await renderScheduleHistoryRouter({
         index: ScheduleHistoryIndexRoute,
         '(modals)/notification-details-modal': NotificationDetailsModal,
       });
@@ -198,7 +211,7 @@ describe('ScheduleHistory Component', () => {
 
   describe('Tab Switching', () => {
     it('switches between pending and history tabs correctly', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Initially on pending tab
       const pendingButton = await screen.findByRole('button', { name: 'Pending' });
@@ -239,7 +252,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('displays correct notifications when switching tabs', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Initially shows pending notifications
       expect(await screen.findByText('Morning Affirmation')).toBeOnTheScreen();
@@ -265,7 +278,7 @@ describe('ScheduleHistory Component', () => {
       // Mock the cancel function to throw an error
       mockCancelPushNotification.mockRejectedValueOnce(new Error('Delete failed'));
 
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       const deleteButton = await screen.findByTestId('delete-notification-button-pending-1');
 
@@ -285,7 +298,7 @@ describe('ScheduleHistory Component', () => {
 
   describe('Data Sorting', () => {
     it('sorts notifications by trigger date', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Wait for pending notifications to load
       await screen.findByText('Morning Affirmation');
@@ -311,7 +324,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('sorts history notifications by trigger date', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Switch to history tab
       const historyButton = await screen.findByRole('button', { name: 'History' });
@@ -343,7 +356,7 @@ describe('ScheduleHistory Component', () => {
 
   describe('Swipe to Delete', () => {
     it('renders swipeable components for pending notifications', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Should see swipeable components for pending notifications
       expect(await screen.findByTestId('swipeable-notification-row-pending-1')).toBeOnTheScreen();
@@ -351,7 +364,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('renders swipeable components for history notifications', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Switch to history tab
       const historyButton = await screen.findByRole('button', { name: 'History' });
@@ -367,7 +380,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('calls cancelPushNotification when delete button is pressed', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       const deleteButton = await screen.findByTestId('delete-notification-button-pending-1');
 
@@ -379,7 +392,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('has properly styled delete action button', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       const deleteButton = await screen.findByTestId('delete-notification-button-pending-1');
       expect(deleteButton).toBeOnTheScreen();
@@ -389,7 +402,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('disables press functionality when swipe is open', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Verify delete button is present (indicating swipe functionality)
       const deleteButton = await screen.findByTestId('delete-notification-button-pending-1');
@@ -399,7 +412,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('shows delete action when swiping left', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       await screen.findByTestId('swipeable-notification-row-pending-1');
       const deleteButton = await screen.findByTestId('delete-notification-button-pending-1');
@@ -409,7 +422,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('handles multiple delete operations correctly', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Delete first notification
       const deleteButton1 = await screen.findByTestId('delete-notification-button-pending-1');
@@ -430,7 +443,7 @@ describe('ScheduleHistory Component', () => {
     });
 
     it('maintains proper test IDs for all notification rows', async () => {
-      renderWithContext(<ScheduleHistory />);
+      await renderScheduleHistory();
 
       // Pending notifications should have swipeable test IDs
       expect(await screen.findByTestId('swipeable-notification-row-pending-1')).toBeOnTheScreen();

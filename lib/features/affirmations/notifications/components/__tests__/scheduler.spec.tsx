@@ -4,6 +4,10 @@ import { renderWithContext } from '@testing/render-with-context';
 import { act, fireEvent, waitFor } from 'expo-router/testing-library';
 import React from 'react';
 
+jest.mock('@features/affirmations/notifications/use-init-notifications', () => ({
+  useInitNotifications: jest.fn(),
+}));
+
 // Use the shared DateTimePicker mock utility
 jest.mock('@react-native-community/datetimepicker');
 

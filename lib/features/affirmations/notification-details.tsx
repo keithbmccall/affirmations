@@ -77,7 +77,7 @@ export const NotificationDetails = memo(function NotificationDetails({
     return notifications.find(notification => notification.identifier === notificationId) as
       | NotificationWithData
       | HistoryNotification;
-  }, [notificationId, page]);
+  }, [notificationId, isFromHistoryPage, historyNotifications, pendingNotifications]);
 
   const {
     content: { title, body, data },

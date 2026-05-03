@@ -23,7 +23,7 @@ const SwatchButton = memo(function SwatchButton({ swatch, onSelect }: SwatchButt
   }, [onSelect, swatch]);
   const swatchStyle = useMemo(() => [styles.swatch, { backgroundColor: swatch }], [swatch]);
 
-  return <Pressable onPress={handlePress} style={swatchStyle} />;
+  return <Pressable testID="lens-inspector-swatch" onPress={handlePress} style={swatchStyle} />;
 });
 
 export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspector({

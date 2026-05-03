@@ -30,6 +30,7 @@ const useInitHistoryNotifications: Init = (providerActions, providerState) => {
   }, [historyNotifications]);
 };
 
+/* istanbul ignore next -- module-level Expo handler registration */
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,

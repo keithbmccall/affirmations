@@ -14,13 +14,18 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
-// Mock expo-notifications
+// Mock expo-notifications (extend as integration tests need more of the surface)
 jest.mock('expo-notifications', () => ({
-  requestPermissionsAsync: jest.fn(),
-  scheduleNotificationAsync: jest.fn(),
-  cancelScheduledNotificationAsync: jest.fn(),
-  getAllScheduledNotificationsAsync: jest.fn(),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  scheduleNotificationAsync: jest.fn(() => Promise.resolve('scheduled-id')),
+  cancelScheduledNotificationAsync: jest.fn(() => Promise.resolve()),
+  getAllScheduledNotificationsAsync: jest.fn(() => Promise.resolve([])),
   setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve()),
+  getNotificationChannelsAsync: jest.fn(() => Promise.resolve([])),
+  SchedulableTriggerInputTypes: { DATE: 'date' },
+  AndroidImportance: { MAX: 5 },
   addNotificationReceivedListener: jest.fn(() => {
     return {
       remove: jest.fn(),

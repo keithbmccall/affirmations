@@ -83,7 +83,7 @@ export const useNotificationsScheduler = () => {
         );
       }
     },
-    [refreshPendingNotifications]
+    [refreshPendingNotifications, onRemoveHistoryNotification]
   );
 
   type EditPushNotification = (details: {
@@ -94,16 +94,10 @@ export const useNotificationsScheduler = () => {
   }) => Promise<string>;
   const editPushNotification: EditPushNotification = useCallback(
     async ({ identifier, date, title, body }) => {
-      try {
-        const id = await schedulePushNotification({ date, title, body });
-        await cancelPushNotification(identifier);
-        await refreshPendingNotifications();
-        return id;
-      } catch (e: unknown) {
-        const errorMessage = `Failed to edit notification with identifier: ${identifier}!!!`;
-        catchError(e, errorMessage, 'editPushNotification');
-        return errorMessage;
-      }
+      const id = await schedulePushNotification({ date, title, body });
+      await cancelPushNotification(identifier);
+      await refreshPendingNotifications();
+      return id;
     },
     [schedulePushNotification, cancelPushNotification, refreshPendingNotifications]
   );

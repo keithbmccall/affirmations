@@ -2,26 +2,7 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Alert, Platform } from 'react-native';
-
-function getProjectId(): string | null {
-  // Try multiple sources for the project ID
-  const sources = [
-    Constants?.expoConfig?.extra?.eas?.projectId,
-    Constants?.easConfig?.projectId,
-    Constants?.expoConfig?.extra?.projectId,
-    // Fallback to the known project ID if all else fails
-    'b6f11482-5e3a-4128-bc25-1c2468552783',
-  ];
-
-  for (const source of sources) {
-    if (source) {
-      console.log('Found projectId from source:', source);
-      return source;
-    }
-  }
-
-  return null;
-}
+import { FALLBACK_EAS_PROJECT_ID, resolveExpoProjectId } from './expo-push-project-id';
 
 export async function registerForPushNotificationsAsync() {
   let token;
@@ -55,12 +36,9 @@ export async function registerForPushNotificationsAsync() {
       console.log('Constants.expoConfig?.extra:', Constants.expoConfig?.extra);
       console.log('Constants.expoConfig?.extra?.eas:', Constants.expoConfig?.extra?.eas);
 
-      const projectId = getProjectId();
+      const projectId = resolveExpoProjectId(Constants) ?? FALLBACK_EAS_PROJECT_ID;
       console.log('Found projectId:', projectId);
 
-      if (!projectId) {
-        throw new Error('Project ID not found');
-      }
       token = (
         await Notifications.getExpoPushTokenAsync({
           projectId,
