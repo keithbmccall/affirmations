@@ -214,7 +214,10 @@ export const Camera = memo(() => {
     [isVideoNotAllowed, isRecording, handleCapture, handleStopRecording, handleVideoCapture]
   );
   const backButtonStyle = useMemo(() => [styles.backButton, { top: insets.top }], [insets.top]);
-  const topControlsStyle = useMemo(() => [styles.topControls, { top: insets.top + 60 }], [insets.top]);
+  const topControlsStyle = useMemo(
+    () => [styles.topControls, { top: insets.top + 60 }],
+    [insets.top]
+  );
   const bottomControlsStyle = useMemo(
     () => [styles.bottomControls, { bottom: insets.bottom + 40 }],
     [insets.bottom]
@@ -279,10 +282,7 @@ export const Camera = memo(() => {
         )}
 
         {/* ===== BACK BUTTON SECTION ===== */}
-        <TouchableOpacity
-          style={backButtonStyle}
-          onPress={handleBackPress}
-        >
+        <TouchableOpacity style={backButtonStyle} onPress={handleBackPress}>
           <IconSymbol size={controlSymbolSize} color={colors.human.white} name="chevron.left" />
         </TouchableOpacity>
       </View>
@@ -337,10 +337,7 @@ export const Camera = memo(() => {
         {/* Camera Roll Button */}
         <TouchableOpacity style={styles.cameraRollButton} onPress={handleCameraRollPress}>
           {recentPhoto ? (
-            <Reanimated.View
-              key={recentPhoto}
-              style={cameraRollPreviewContainerStyle}
-            >
+            <Reanimated.View key={recentPhoto} style={cameraRollPreviewContainerStyle}>
               <Image source={cameraRollSource} style={styles.cameraRollPreview} />
             </Reanimated.View>
           ) : (
@@ -349,10 +346,7 @@ export const Camera = memo(() => {
         </TouchableOpacity>
 
         {/* Capture Button */}
-        <TouchableOpacity
-          style={captureButtonStyle}
-          {...triggerProps}
-        >
+        <TouchableOpacity style={captureButtonStyle} {...triggerProps}>
           <View style={styles.captureButtonInner} />
         </TouchableOpacity>
 

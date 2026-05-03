@@ -1,0 +1,29 @@
+---
+description: Prefer inferred component names; avoid manual displayName in React
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# React component names (avoid manual `displayName`)
+
+Do not assign `Component.displayName = '...'` unless there is no practical way to give the component an inferrable name (rare in this codebase).
+
+**Prefer patterns where the name comes from the source:**
+
+- **Named function inside `memo`:** use a named function expression so the name is not anonymous.
+
+```tsx
+// ❌ Avoid: anonymous + manual displayName
+const Widget = memo(() => <View />);
+Widget.displayName = 'Widget';
+
+// ✅ Prefer: name is inferred from the function
+const Widget = memo(function Widget() {
+  return <View />;
+});
+```
+
+- **`forwardRef`:** use `forwardRef(function MyInput(props, ref) { ... })` instead of an arrow + `displayName`.
+- **Exports:** a `function` declaration already has a name; `const X = function X() {}` works when you need a const binding.
+
+**When manual `displayName` is acceptable:** only for components that are built in a way that cannot carry a name (e.g. some dynamic factory cases). Add a one-line comment explaining why.

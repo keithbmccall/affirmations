@@ -37,14 +37,14 @@ export default function TabLayout() {
         />
       );
     });
-  }, [screensList]);
+  }, []);
 
   const screenOptions: BottomTabNavigationOptions = useMemo(() => {
     return {
       tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
       headerShown: false,
-      tabBarButton: HapticTab,
-      tabBarBackground: TabBarBackground,
+      tabBarButton: props => <HapticTab {...props} />,
+      tabBarBackground: () => <TabBarBackground />,
     };
   }, [colorScheme]);
 
