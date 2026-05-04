@@ -33,7 +33,7 @@ module.exports = {
     '!**/types/**',
     '!lib/**/types.ts',
     '!**/useColorScheme.web.ts',
-    '!lib/features/lens/lens-palette/use-animated-color.ts',
+    '!lib/features/Lens/ColorPalette/useAnimatedColor.ts',
   ],
 
   // Minimums aligned with current lib coverage (see `npm test -- --coverage`)

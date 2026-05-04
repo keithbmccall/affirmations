@@ -1,5 +1,5 @@
-import { NotificationDetails } from '@features/affirmations/notification-details';
-import type { NotificationDetailsParams } from '@features/affirmations/notifications/types';
+import { NotificationDetails } from '@features/Affirmations/NotificationDetails';
+import type { NotificationDetailsParams } from '@features/Affirmations/Notifications/types';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function NotificationDetailsModal() {

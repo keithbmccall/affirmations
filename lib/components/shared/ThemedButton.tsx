@@ -1,0 +1,31 @@
+import { useThemeColor } from '@styles/hooks/useThemeColor';
+import { memo } from 'react';
+import { Pressable, type PressableProps } from 'react-native';
+
+export type ThemedButtonProps = PressableProps & {
+  lightColor?: string;
+  darkColor?: string;
+  showPressFeedback?: boolean;
+};
+
+export const ThemedButton = memo(function ThemedButton({
+  style,
+  lightColor,
+  darkColor,
+  showPressFeedback = true,
+  ...otherProps
+}: ThemedButtonProps) {
+  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+
+  return (
+    <Pressable
+      style={state => [
+        { backgroundColor },
+        typeof style === 'function' ? style(state) : style,
+        showPressFeedback && state.pressed && { opacity: 0.7 },
+      ]}
+      accessibilityRole="button"
+      {...otherProps}
+    />
+  );
+});

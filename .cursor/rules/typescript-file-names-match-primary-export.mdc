@@ -6,7 +6,7 @@ alwaysApply: false
 
 # File names and exports (`lib/`)
 
-## New and heavily touched modules
+## Basename and primary export
 
 Prefer a **basename that matches the primary named export** (including casing)—the main component, hook, or function that file exists for:
 
@@ -26,9 +26,11 @@ Use **`.tsx`** when the file contains JSX; otherwise **`.ts`**.
 - **Do not** split or merge implementation files **only** to satisfy a filename; keep one module unless there is a real design reason to split.
 - On **case-insensitive** filesystems, use a **two-step** `git mv` when only casing changes (e.g. `foo.tsx` → `Foo.tmp.tsx` → `Foo.tsx`).
 
-## Incremental adoption
+## Aligning existing code
 
-Much of `lib/` still uses kebab-case names that do not match exports. **Do not bulk-rename** for consistency alone. Prefer this rule for **new** modules and when you are **already making a substantial edit** to a file—rename in the same change set as that work. Aligning the rest of the tree can proceed **file by file** over time.
+- **Bulk or multi-file renames are allowed** when deliberately aligning a subtree of `lib/` (e.g. a feature folder). Prefer **`git mv`**, then update **all** import paths, **`tsconfig.json` path entries**, and **`jest.mock(...)`** module specifiers that pointed at old paths.
+- After a rename pass, run **`tsc --noEmit`** and **tests** before merging.
+- Do **not** split or merge modules **only** to satisfy a filename—that constraint stays under **Applying renames** above.
 
 ## Default exports
 
@@ -54,7 +56,7 @@ export const ThemedButton = memo(function ThemedButton() {
   /* ... */
 });
 
-// Avoid in new lib/ code when avoidable
+// Avoid in lib/ code when avoidable
 export default memo(ThemedButton);
 ```
 

@@ -37,7 +37,7 @@ Do **not** declare a component (`const Row = () => …` or `function Row`) **ins
 
 ## Naming
 
-PascalCase components, `ComponentNameProps`, `handleEventName`, `is/has/can…` for booleans. For **new `lib/` modules**, also follow **typescript-file-names-match-primary-export** (basename tracks the **primary** named export; other named exports on the same file are fine; avoid default exports unless required).
+PascalCase components, `ComponentNameProps`, `handleEventName`, `is/has/can…` for booleans. For **`lib/` modules**, also follow **typescript-file-names-match-primary-export** (basename tracks the **primary** named export; other named exports on the same file are fine; avoid default exports unless required).
 
 ## Product context
 

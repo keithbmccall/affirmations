@@ -1,0 +1,26 @@
+import { colors } from '@styles/colors';
+import { memo } from 'react';
+import { ColorValue } from 'react-native';
+import { ThemedView, ThemedViewProps } from './ThemedView';
+
+interface DividerProps extends Omit<ThemedViewProps, 'style'> {
+  color?: ColorValue;
+  width?: number;
+  vertical?: boolean;
+}
+export const Divider = memo(function Divider({
+  color = colors.human.white,
+  width = 1,
+  vertical = false,
+  ...props
+}: DividerProps) {
+  return (
+    <ThemedView
+      style={[
+        { borderColor: color },
+        vertical ? { borderRightWidth: width } : { borderBottomWidth: width },
+      ]}
+      {...props}
+    />
+  );
+});

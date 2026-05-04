@@ -1,0 +1,52 @@
+import { Divider } from '@components/shared/Divider';
+import { ThemedText } from '@components/shared/ThemedText';
+import { ThemedView } from '@components/shared/ThemedView';
+import { useAffirmations } from '@platform';
+import { colors } from '@styles/colors';
+import { globalStyles } from '@styles/globalStyles';
+import { spacing } from '@styles/spacing';
+import { memo } from 'react';
+import { Dimensions, StyleSheet } from 'react-native';
+import { ScheduleHistory } from './ScheduleHistory';
+import { Scheduler } from './Scheduler';
+
+export const Notifications = memo(function Notifications() {
+  const {
+    notifications: { token },
+  } = useAffirmations();
+
+  return token ? (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.scheduler}>
+        <Scheduler />
+      </ThemedView>
+      <Divider color={colors.ui.border} />
+      <ThemedView style={styles.scheduleHistory}>
+        <ScheduleHistory />
+      </ThemedView>
+    </ThemedView>
+  ) : (
+    <ThemedView style={styles.container}>
+      <ThemedText style={styles.errorText}>Notifications are not enabled</ThemedText>
+    </ThemedView>
+  );
+});
+
+const heightDimension = Dimensions.get('window').height;
+const styles = StyleSheet.create({
+  container: {
+    ...globalStyles.flexColumn,
+    ...globalStyles.flex1,
+    padding: spacing.screenPadding,
+  },
+  errorText: {
+    ...globalStyles.flexCenter,
+    color: colors.human.white,
+  },
+  scheduler: {
+    height: heightDimension * 0.53,
+  },
+  scheduleHistory: {
+    height: heightDimension * 0.37,
+  },
+});

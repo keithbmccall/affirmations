@@ -27,12 +27,12 @@ Always organize imports in this exact order:
 
 ```typescript
 // 1. Custom components (absolute imports; no shared barrel — import concrete modules)
-import { ThemedButton } from '@components/shared/themed-button';
-import { ThemedText } from '@components/shared/themed-text';
-import { ThemedView } from '@components/shared/themed-view';
+import { ThemedButton } from '@components/shared/ThemedButton';
+import { ThemedText } from '@components/shared/ThemedText';
+import { ThemedView } from '@components/shared/ThemedView';
 
 // 2. Features and platform (absolute imports)
-import { useNotificationsScheduler } from '@features/affirmations/notifications/useNotificationsScheduler';
+import { useNotificationsScheduler } from '@features/Affirmations/Notifications/useNotificationsScheduler';
 import { useAffirmations } from '@platform';
 
 // 3. External libraries
@@ -832,7 +832,7 @@ eas build --platform ios
 
 - `app/_layout.tsx`: Root layout with providers
 - `app/(tabs)/_layout.tsx`: Tab navigation setup
-- `lib/platform/state-context-provider.tsx`: Global state provider
+- `lib/platform/context/StateContextProvider.tsx`: Global state provider
 
 ## Common Patterns
 

@@ -161,10 +161,10 @@ affirmations/
 ├── lib/                    # Application library
 │   ├── components/         # Reusable UI components
 │   ├── features/          # Feature-specific logic
-│   │   ├── lens/          # Camera and color palette features
-│   │   └── notifications/ # Notification system
+│   │   ├── Lens/          # Camera (Camera/), color palette (ColorPalette/)
+│   │   └── Affirmations/  # Affirmations + Notifications/
 │   ├── platform/          # Global state management
-│   ├── screen-containers/ # Screen container components
+│   ├── screens/           # Screen container components
 │   ├── styles/            # Theming and styling system
 │   ├── testing/           # Testing utilities
 │   └── utils/             # Utility functions

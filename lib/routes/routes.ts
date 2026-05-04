@@ -1,10 +1,10 @@
 import { ExpoRouter } from 'expo-router';
-import { ICON_MAPPING } from '@components/shared/icon-symbol/icon-mapping';
+import { iconMapping } from '@components/shared/icon-symbol/iconMapping';
 
 type Route = {
   name: string;
   title: string;
-  icon: keyof typeof ICON_MAPPING;
+  icon: keyof typeof iconMapping;
   routePathname: ExpoRouter.__routes['hrefInputParams']['pathname'];
 };
 

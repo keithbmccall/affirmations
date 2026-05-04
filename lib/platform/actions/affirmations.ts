@@ -2,7 +2,7 @@ import type {
   HistoryNotification,
   NotificationIdentifier,
   NotificationWithData,
-} from '@features/affirmations/notifications/types';
+} from '@features/Affirmations/Notifications/types';
 import { NotificationChannel } from 'expo-notifications';
 import { Dispatch } from 'react';
 import { ActionType } from './types';
