@@ -40,6 +40,7 @@ export const SkiaCameraSurface = ({
   const frameProcessor = useSkiaFrameProcessor(
     frame => {
       'worklet';
+      /* istanbul ignore next -- Skia frame.render runs on device only */
       frame.render(lensPaint);
     },
     [lensPaint]

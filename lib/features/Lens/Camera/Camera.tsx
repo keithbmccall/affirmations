@@ -92,6 +92,7 @@ export const Camera = memo(function Camera() {
   const colorAnimationDuration = useMemo(() => (1 / fps) * 1000, [fps]);
 
   const handleVideoCapture = useCallback(async () => {
+    /* istanbul ignore next -- ref is set when capture is reachable in production */
     if (!camera.current) return;
 
     try {
@@ -108,6 +109,7 @@ export const Camera = memo(function Camera() {
   }, [fetchRecentMedia]);
 
   const handleCapture = useCallback(async () => {
+    /* istanbul ignore next -- ref is set when capture is reachable in production */
     if (!camera.current) return;
 
     try {
@@ -163,6 +165,7 @@ export const Camera = memo(function Camera() {
   ]);
 
   const handleStopRecording = useCallback(async () => {
+    /* istanbul ignore next -- ref is always set when stop is reachable in production */
     if (!camera.current) return;
     await camera.current.stopRecording();
     setIsRecording(false);
@@ -222,6 +225,7 @@ export const Camera = memo(function Camera() {
   );
 
   const gesture = useMemo(
+    /* istanbul ignore next -- Gesture onEnd + runOnJS not executed under Jest RNGH/Reanimated mocks */
     () =>
       Gesture.Tap().onEnd(({ x, y }) => {
         runOnJS(handleFocusTap)(x, y);
