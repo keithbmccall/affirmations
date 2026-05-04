@@ -32,7 +32,7 @@ import { ThemedText } from '@components/shared/themed-text';
 import { ThemedView } from '@components/shared/themed-view';
 
 // 2. Features and platform (absolute imports)
-import { useNotificationsScheduler } from '@features/affirmations/notifications/use-notifications-scheduler';
+import { useNotificationsScheduler } from '@features/affirmations/notifications/useNotificationsScheduler';
 import { useAffirmations } from '@platform';
 
 // 3. External libraries

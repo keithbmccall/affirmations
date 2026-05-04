@@ -1,6 +1,6 @@
 ---
-description: lib/ TS — filename matches primary named export; avoid default exports
-globs: "lib/**/*.ts,lib/**/*.tsx"
+description: lib/ TS — basename matches primary export, chosen module name, or config bundle; co-located *.spec.*; avoid default exports
+globs: 'lib/**/*.ts,lib/**/*.tsx'
 alwaysApply: false
 ---
 
@@ -8,15 +8,27 @@ alwaysApply: false
 
 ## New and heavily touched modules
 
-Prefer **one primary named export** and a **basename that matches that identifier** (including casing):
+Prefer a **basename that matches the primary named export** (including casing)—the main component, hook, or function that file exists for:
 
 - **Components** → `SampleComponent.tsx` exporting `SampleComponent` (PascalCase).
 - **Hooks** → `useSampleHook.ts` exporting `useSampleHook` (camelCase).
 - **Helpers / pure functions** → same as hooks: filename = the main `export function` / `export const` name.
 
+**Multiple exports per file are fine.** “Primary” does **not** mean “only one export.” The same module may export types, constants, small helpers, or a secondary component alongside the primary symbol; the filename should still track that **primary** symbol (or a documented barrel pattern like `types.ts` when there is no single main symbol).
+
+When several **related** exports belong to one concern (small API surface, shared gesture helpers, **combined config** objects), the basename may instead be a **chosen camelCase module name** that describes the concern—even if no export uses that exact identifier—as long as the name is intentional and stable.
+
 Use **`.tsx`** when the file contains JSX; otherwise **`.ts`**.
 
-Much of the repo still uses **kebab-case** files that do not match the export (e.g. `themed-button.tsx` → `ThemedButton`). **Do not bulk-rename.** Prefer the match-export convention for **new** files; when you are already doing a large edit to a module, consider renaming the file to align (update imports in the same change).
+## Applying renames (when you align a module)
+
+- Prefer **`git mv`** plus updating import paths and `jest.mock(...)` module specifiers.
+- **Do not** split or merge implementation files **only** to satisfy a filename; keep one module unless there is a real design reason to split.
+- On **case-insensitive** filesystems, use a **two-step** `git mv` when only casing changes (e.g. `foo.tsx` → `Foo.tmp.tsx` → `Foo.tsx`).
+
+## Incremental adoption
+
+Much of `lib/` still uses kebab-case names that do not match exports. **Do not bulk-rename** for consistency alone. Prefer this rule for **new** modules and when you are **already making a substantial edit** to a file—rename in the same change set as that work. Aligning the rest of the tree can proceed **file by file** over time.
 
 ## Default exports
 
@@ -27,13 +39,20 @@ Use a default export only when something **requires** it (framework, unavoidable
 ## Exceptions
 
 - **`app/` (Expo Router)** — not covered by this rule’s glob. Route files use route-based names and usually **default-export** screens/layouts; follow Expo Router, not this file-naming rule.
-- **Tests** — `*.spec.ts`, `*.spec.tsx`, and `__tests__` helpers: keep existing test naming; they need not mirror a single primary implementation export.
+
+## Tests (`lib/`)
+
+- **Do not add new** `__tests__/` directories under `lib/` for specs. Keep tests **next to** the file they cover.
+- Name the spec file with the **same basename** as the implementation plus **`.spec.ts`** or **`.spec.tsx`**: e.g. `Notifications.tsx` → `Notifications.spec.tsx`; `workletGestures.ts` → `workletGestures.spec.ts`.
+- Existing `__tests__/` trees may remain until migrated; new work should follow co-location.
 
 ## Quick reference
 
 ```typescript
 // Prefer
-export const ThemedButton = memo(function ThemedButton() { /* ... */ });
+export const ThemedButton = memo(function ThemedButton() {
+  /* ... */
+});
 
 // Avoid in new lib/ code when avoidable
 export default memo(ThemedButton);
