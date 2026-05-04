@@ -44,7 +44,7 @@ Use a default export only when something **requires** it (framework, unavoidable
 
 - **Do not add new** `__tests__/` directories under `lib/` for specs. Keep tests **next to** the file they cover.
 - Name the spec file with the **same basename** as the implementation plus **`.spec.ts`** or **`.spec.tsx`**: e.g. `Notifications.tsx` → `Notifications.spec.tsx`; `workletGestures.ts` → `workletGestures.spec.ts`.
-- Existing `__tests__/` trees may remain until migrated; new work should follow co-location.
+- Co-locate new specs; do not reintroduce `__tests__/` under `lib/`.
 
 ## Quick reference
 
