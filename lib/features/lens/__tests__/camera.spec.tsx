@@ -1,5 +1,7 @@
 import './lens-full-native-mocks';
 
+import { applySkiaLensToPhotoFile } from '@features/lens/camera/applySkiaLensToPhotoFile';
+import { SKIA_COLOR_MODE } from '@features/lens/camera/camera-options';
 import { Camera } from '@features/lens/camera/components/camera';
 import { flushProviderMicrotasks } from '@testing/flush-provider-microtasks';
 import { renderWithContext } from '@testing/render-with-context';
@@ -246,5 +248,22 @@ describe('camera.tsx', () => {
     });
     expect(alertSpy).toHaveBeenCalledWith('Error', 'Failed to open camera roll');
     jest.mocked(ExpoRouter.router.push).mockRestore();
+  });
+
+  it('in Skia view mode saves only the filtered photo to the library', async () => {
+    renderWithContext(<Camera />);
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('lens-control-view-mode'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('lens-capture-button'));
+      await flushProviderMicrotasks();
+    });
+    expect(applySkiaLensToPhotoFile).toHaveBeenCalledWith({
+      inputPath: '/tmp/photo.jpg',
+      colorMode: SKIA_COLOR_MODE.DEFAULT,
+    });
+    expect(lensMediaLibraryMockState.createAssetAsync).toHaveBeenCalledTimes(1);
+    expect(lensMediaLibraryMockState.createAssetAsync).toHaveBeenCalledWith('file:///cache/lens-skia-filtered.jpg');
   });
 });

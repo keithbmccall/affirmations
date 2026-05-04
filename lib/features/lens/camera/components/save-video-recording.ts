@@ -1,9 +1,9 @@
 import { createAssetAsync } from 'expo-media-library';
 
-export async function finishCameraVideoRecording(
+export async function saveVideoRecording(
   video: { path: string },
-  fetchRecentMedia: () => void | Promise<void>
+  fetchRecentMedia: () => Promise<void>
 ): Promise<void> {
   await createAssetAsync(video.path);
-  await Promise.resolve(fetchRecentMedia());
+  await fetchRecentMedia();
 }

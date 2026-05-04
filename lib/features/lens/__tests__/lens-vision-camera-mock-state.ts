@@ -13,7 +13,12 @@ export const lensVisionCameraMockState = {
     lensVisionCameraMockState.lastFrameProcessor = fn;
     return fn;
   }),
+  useSkiaFrameProcessor: jest.fn((fn: (frame: unknown) => void) => {
+    lensVisionCameraMockState.lastSkiaFrameProcessor = fn;
+    return fn;
+  }),
   lastFrameProcessor: null as null | ((frame: unknown) => void),
+  lastSkiaFrameProcessor: null as null | ((frame: unknown) => void),
   initFrameProcessorPlugin: jest.fn(() => ({
     call: jest.fn(() => ({
       primary: '#111111',
