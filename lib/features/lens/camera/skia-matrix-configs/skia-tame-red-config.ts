@@ -1,12 +1,9 @@
+import { SKIA_REC709_LUMA } from '@features/lens/camera/skia-matrix-configs/skia-lens-color-matrix';
+
 /**
  * Tunable Skia color-matrix parameters for the TAME_RED color mode (`SKIA_COLOR_MODE` in `camera-options`).
  * Adjust here when testing warm indoor vs daylight / blue-sky scenes — no component edits required.
  */
-
-/** Rec. 709 luma weights for saturation matrices built in this module. */
-const LUMA_R = 0.213;
-const LUMA_G = 0.715;
-const LUMA_B = 0.072;
 
 export interface SkiaTameRedConfig {
   /**
@@ -39,6 +36,7 @@ export function buildTameRedSaturationColorMatrix(
   config: SkiaTameRedConfig = SKIA_TAME_RED_CONFIG
 ): number[] {
   const { redSaturationFactor, greenBlueSaturationMultiplier } = config;
+  const { r: LUMA_R, g: LUMA_G, b: LUMA_B } = SKIA_REC709_LUMA;
 
   const sR = baseSaturation * redSaturationFactor;
   const srR = (1 - sR) * LUMA_R;
