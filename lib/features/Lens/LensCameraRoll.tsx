@@ -1,4 +1,4 @@
-import { Modal } from '@components/modal';
+import { Modal } from '@components/Modal';
 import { ThemedText } from '@components/shared/ThemedText';
 import { ColorPaletteImage } from '@features/Lens/ColorPalette/ColorPaletteImage';
 import type { InspectionAsset, LensPalette } from '@features/Lens/ColorPalette/types';

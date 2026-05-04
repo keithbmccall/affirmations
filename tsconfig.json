@@ -4,7 +4,7 @@
     "strict": true,
     "paths": {
       "@app/*": ["./lib/app/*"],
-      "@components/modal": ["./lib/components/Modal"],
+      "@components/Modal": ["./lib/components/Modal"],
       "@components/shared/*": ["./lib/components/shared/*"],
       "@components/defaults/*": ["./lib/components/defaults/*"],
       "@features/*": ["./lib/features/*"],

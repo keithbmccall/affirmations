@@ -1,4 +1,4 @@
-import { Modal } from '@components/modal';
+import { Modal } from '@components/Modal';
 import { ThemedText } from '@components/shared/ThemedText';
 import { ThemedView } from '@components/shared/ThemedView';
 import { Scheduler } from '@features/Affirmations/Notifications/Scheduler';

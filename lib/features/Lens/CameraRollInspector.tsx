@@ -1,4 +1,4 @@
-import { Modal } from '@components/modal';
+import { Modal } from '@components/Modal';
 import { ColorPaletteImageInspector } from '@features/Lens/ColorPalette/ColorPaletteImageInspector';
 import type { InspectionAsset } from '@features/Lens/ColorPalette/types';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
