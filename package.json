@@ -21,7 +21,7 @@
     "test:all": "jest --watchAll",
     "test": "jest",
     "test:coverage:lens": "jest lib/features/lens --coverage --collectCoverageFrom='lib/features/lens/**/*.{ts,tsx}' --collectCoverageFrom='!lib/features/lens/**/*.spec.{ts,tsx}'",
-    "test:coverage:affirmations": "jest --testPathPattern=lib/features/affirmations --coverage --collectCoverageFrom='lib/features/affirmations/**/*.ts' --collectCoverageFrom='lib/features/affirmations/**/*.tsx' --collectCoverageFrom='!lib/features/affirmations/**/__tests__/**' --collectCoverageFrom='!lib/features/affirmations/**/*.spec.ts' --collectCoverageFrom='!lib/features/affirmations/**/*.spec.tsx' --coverageReporters=text --coverageThreshold='{\"global\":{\"lines\":100,\"statements\":100,\"functions\":100,\"branches\":100}}'",
+    "test:coverage:affirmations": "jest --testPathPattern=lib/features/affirmations --coverage --collectCoverageFrom='lib/features/affirmations/**/*.ts' --collectCoverageFrom='lib/features/affirmations/**/*.tsx' --collectCoverageFrom='!lib/features/affirmations/**/*.spec.ts' --collectCoverageFrom='!lib/features/affirmations/**/*.spec.tsx' --coverageReporters=text --coverageThreshold='{\"global\":{\"lines\":100,\"statements\":100,\"functions\":100,\"branches\":100}}'",
     "version:patch": "node scripts/update-version.js patch",
     "version:minor": "node scripts/update-version.js minor",
     "version:major": "node scripts/update-version.js major",

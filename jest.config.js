@@ -10,7 +10,7 @@ module.exports = {
   roots: ['<rootDir>/lib'],
 
   // Test file patterns - using .spec. naming convention
-  testMatch: ['**/__tests__/**/*.spec.{js,jsx,ts,tsx}', '**/?(*.)+(spec).{js,jsx,ts,tsx}'],
+  testMatch: ['**/?(*.)+(spec).{js,jsx,ts,tsx}'],
 
   // Setup files that run before each test
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
@@ -28,7 +28,6 @@ module.exports = {
     '!**/node_modules/**',
     '!**/coverage/**',
     '!**/index.{ts,tsx}',
-    '!**/__tests__/**',
     '!**/*.spec.{ts,tsx}',
     '!**/*.test.{ts,tsx}',
     '!**/types/**',
