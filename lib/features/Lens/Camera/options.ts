@@ -80,20 +80,3 @@ export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITI
 export type CameraViewMode = (typeof CAMERA_VIEW_MODE)[keyof typeof CAMERA_VIEW_MODE];
 export type SkiaColorMode = (typeof SKIA_COLOR_MODE)[keyof typeof SKIA_COLOR_MODE];
 
-const COLOR_LENS_FPS = 1;
-const DEFAULT_FPS = 15;
-
-export const calculateFps = ({
-  isColorLensEnabled,
-  isCameraActive,
-}: {
-  isColorLensEnabled: boolean;
-  isCameraActive: boolean;
-}) => {
-  switch (true) {
-    case isCameraActive && isColorLensEnabled:
-      return COLOR_LENS_FPS;
-    default:
-      return DEFAULT_FPS;
-  }
-};

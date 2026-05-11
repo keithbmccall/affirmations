@@ -3,7 +3,7 @@ import React, { createRef } from 'react';
 import type { CameraDevice } from 'react-native-vision-camera';
 import { Camera as VisionCamera } from 'react-native-vision-camera';
 
-import { LensCameraSurface } from './LensCameraSurface';
+import { COLOR_LENS_PALETTE_MIN_INTERVAL_MS, LensCameraSurface } from './LensCameraSurface';
 
 let lastCameraProps: Record<string, unknown> | null = null;
 
@@ -72,5 +72,53 @@ describe('LensCameraSurface', () => {
     );
 
     expect(lastCameraProps?.frameProcessor).toBeUndefined();
+  });
+
+  it('throttles getColorLensPaletteWorklet when at least COLOR_LENS_PALETTE_MIN_INTERVAL_MS have elapsed', () => {
+    const baseTimeMs = 1_700_000_000_000;
+    let nowMs = baseTimeMs;
+    const dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => nowMs);
+
+    const cameraRef = createRef<VisionCamera | null>();
+    const getColorLensPaletteWorklet = jest.fn();
+
+    render(
+      <LensCameraSurface
+        cameraRef={cameraRef}
+        device={mockDevice}
+        isActive
+        fps={30}
+        isColorLensEnabled
+        getColorLensPaletteWorklet={getColorLensPaletteWorklet}
+      />
+    );
+
+    expect(getColorLensPaletteWorklet).toHaveBeenCalledTimes(1);
+
+    const frameProcessor = lastCameraProps?.frameProcessor as (frame: unknown) => void;
+    try {
+      frameProcessor({});
+    } catch {
+      /* worklet body may throw outside native runtime */
+    }
+    expect(getColorLensPaletteWorklet).toHaveBeenCalledTimes(1);
+
+    nowMs = baseTimeMs + COLOR_LENS_PALETTE_MIN_INTERVAL_MS - 1;
+    try {
+      frameProcessor({});
+    } catch {
+      /* worklet body may throw outside native runtime */
+    }
+    expect(getColorLensPaletteWorklet).toHaveBeenCalledTimes(1);
+
+    nowMs = baseTimeMs + COLOR_LENS_PALETTE_MIN_INTERVAL_MS;
+    try {
+      frameProcessor({});
+    } catch {
+      /* worklet body may throw outside native runtime */
+    }
+    expect(getColorLensPaletteWorklet).toHaveBeenCalledTimes(2);
+
+    dateNowSpy.mockRestore();
   });
 });

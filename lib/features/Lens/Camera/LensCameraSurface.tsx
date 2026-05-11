@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import Reanimated from 'react-native-reanimated';
+import Reanimated, { useSharedValue } from 'react-native-reanimated';
 import {
   CameraDevice,
   Frame,
@@ -11,6 +11,8 @@ const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
 Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
+
+export const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000;
 
 interface LensCameraSurfaceProps {
   cameraRef: React.RefObject<VisionCamera | null>;
@@ -29,13 +31,19 @@ export const LensCameraSurface = ({
   isColorLensEnabled,
   getColorLensPaletteWorklet,
 }: LensCameraSurfaceProps) => {
+  const lastColorLensPaletteSampleMs = useSharedValue(0);
+
   const frameProcessor = useFrameProcessor(
     frame => {
       'worklet';
       if (!isActive) return;
 
       if (isColorLensEnabled) {
-        getColorLensPaletteWorklet(frame);
+        const now = Date.now();
+        if (now - lastColorLensPaletteSampleMs.value >= COLOR_LENS_PALETTE_MIN_INTERVAL_MS) {
+          lastColorLensPaletteSampleMs.value = now;
+          getColorLensPaletteWorklet(frame);
+        }
       }
     },
     [isActive, isColorLensEnabled]

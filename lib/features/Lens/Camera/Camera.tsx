@@ -11,6 +11,8 @@ import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,15 +21,12 @@ import {
   useCameraDevice,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CameraGrid } from './CameraGrid';
 import { useCameraFocus } from './hooks/useCameraFocus';
 import { useCameraRoll } from './hooks/useCameraRoll';
 import { useLensPermissions } from './hooks/useLensPermissions';
 import { LensCameraSurface } from './LensCameraSurface';
 import {
-  calculateFps,
   CAMERA_POSITION,
   CAMERA_VIEW_MODE,
   cameraDeviceOptions,
@@ -45,7 +44,8 @@ const cameraDeviceOptionsLength = cameraDeviceOptions.length;
 const controlSymbolSize = 30;
 /** Skia blur is GPU-heavy; lower FPS reduces memory pressure and thermal crashes. */
 const SKIA_FPS = 15;
-
+const COLOR_LENS_FPS = 15;
+const DEFAULT_FPS = 30;
 export const Camera = memo(function Camera() {
   const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
@@ -84,12 +84,10 @@ export const Camera = memo(function Camera() {
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
   const isVideoNotAllowed = isColorLensEnabled || !isLensMode;
 
-  const fps = useMemo(
-    () => calculateFps({ isColorLensEnabled, isCameraActive }),
-    [isColorLensEnabled, isCameraActive]
-  );
+  const fps =
+    isCameraActive && isColorLensEnabled ? COLOR_LENS_FPS : DEFAULT_FPS;
 
-  const colorAnimationDuration = useMemo(() => (1 / fps) * 1000, [fps]);
+  const colorAnimationDuration = (1 / fps) * 1000;
 
   const handleVideoCapture = useCallback(async () => {
     /* istanbul ignore next -- ref is set when capture is reachable in production */
@@ -308,7 +306,11 @@ export const Camera = memo(function Camera() {
         )}
 
         {/* ===== BACK BUTTON SECTION ===== */}
-        <TouchableOpacity testID="lens-back-button" style={backButtonStyle} onPress={handleBackPress}>
+        <TouchableOpacity
+          testID="lens-back-button"
+          style={backButtonStyle}
+          onPress={handleBackPress}
+        >
           <IconSymbol size={controlSymbolSize} color={colors.human.white} name="chevron.left" />
         </TouchableOpacity>
       </View>
@@ -326,14 +328,22 @@ export const Camera = memo(function Camera() {
             name={isLensMode ? 'drop.fill' : 'camera.fill'}
           />
         </TouchableOpacity>
-        <TouchableOpacity testID="lens-control-grid" style={styles.topButton} onPress={handleGridToggle}>
+        <TouchableOpacity
+          testID="lens-control-grid"
+          style={styles.topButton}
+          onPress={handleGridToggle}
+        >
           <IconSymbol
             size={controlSymbolSize}
             color={colors.human.white}
             name={gridModeOptions[gridMode].icon}
           />
         </TouchableOpacity>
-        <TouchableOpacity testID="lens-control-flash" style={styles.topButton} onPress={handleFlashToggle}>
+        <TouchableOpacity
+          testID="lens-control-flash"
+          style={styles.topButton}
+          onPress={handleFlashToggle}
+        >
           <IconSymbol
             size={controlSymbolSize}
             color={colors.human.white}
