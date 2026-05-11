@@ -19,7 +19,7 @@ interface SkiaCameraSurfaceProps {
   cameraRef: React.RefObject<VisionCamera | null>;
   device: CameraDevice;
   isActive: boolean;
-  fps: number; 
+  fps: number;
   colorMode: SkiaColorMode;
 }
 

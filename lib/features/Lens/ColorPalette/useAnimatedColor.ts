@@ -16,18 +16,22 @@ export const useAnimatedColor = (color: SharedValue<string>, animationDuration: 
 
   useAnimatedReaction(
     () => color.value,
-    (newColor, prevColor) => {
-      animation.value = 0;
-      colorFrom.value = prevColor ?? lensPaletteConfig.defaultColor;
+    newColor => {
+      const currentDisplay = interpolateColor(
+        animation.value,
+        [0, 1],
+        [colorFrom.value, colorTo.value]
+      );
+      colorFrom.value = currentDisplay;
       colorTo.value = newColor;
+      animation.value = 0;
       animation.value = withTiming(1, {
         duration: animationDuration,
-        easing: Easing.linear,
+        easing: Easing.in(Easing.cubic),
       });
     }
   );
 
-  // TODO: Using colorFrom and colorTo in here raises "Attempting to assign to readonly property" error...
   return useDerivedValue(() =>
     interpolateColor(animation.value, [0, 1], [colorFrom.value, colorTo.value])
   );

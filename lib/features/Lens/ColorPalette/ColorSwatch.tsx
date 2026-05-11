@@ -1,7 +1,7 @@
 import { spacing } from '@styles/spacing';
-import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import React, { memo } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
+import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useAnimatedColor } from './useAnimatedColor';
 
 type ColorSwatchProps = {
@@ -29,8 +29,8 @@ export const ColorSwatch = memo(function ColorSwatch({
 const styles = StyleSheet.create({
   tile: {
     padding: 3,
-    minWidth: 40,
-    minHeight: 40,
+    minWidth: 35,
+    minHeight: 35,
     borderRadius: spacing.sm,
   },
 });

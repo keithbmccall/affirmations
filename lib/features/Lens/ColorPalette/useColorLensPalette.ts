@@ -17,16 +17,28 @@ export const useColorLensPalette = () => {
   const backgroundColor = useSharedValue(lensPaletteConfig.defaultColor);
   const detailColor = useSharedValue(lensPaletteConfig.defaultColor);
 
-  const applyColorPalette = (colorPalette: ColorLensPaletteType | null) => {
-    primaryColor.value = colorPalette?.primary ?? primaryColor.value;
-    secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
-    tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
-    quaternaryColor.value = colorPalette?.quaternary ?? quaternaryColor.value;
-    quinaryColor.value = colorPalette?.quinary ?? quinaryColor.value;
-    senaryColor.value = colorPalette?.senary ?? senaryColor.value;
-    backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
-    detailColor.value = colorPalette?.detail ?? detailColor.value;
-  };
+  const applyColorPalette = useCallback(
+    (colorPalette: ColorLensPaletteType | null) => {
+      primaryColor.value = colorPalette?.primary ?? primaryColor.value;
+      secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
+      tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
+      quaternaryColor.value = colorPalette?.quaternary ?? quaternaryColor.value;
+      quinaryColor.value = colorPalette?.quinary ?? quinaryColor.value;
+      senaryColor.value = colorPalette?.senary ?? senaryColor.value;
+      backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
+      detailColor.value = colorPalette?.detail ?? detailColor.value;
+    },
+    [
+      primaryColor,
+      secondaryColor,
+      tertiaryColor,
+      quaternaryColor,
+      quinaryColor,
+      senaryColor,
+      backgroundColor,
+      detailColor,
+    ]
+  );
 
   const applyColorPaletteWorklet = useMemo(
     () => Worklets.createRunOnJS(applyColorPalette),

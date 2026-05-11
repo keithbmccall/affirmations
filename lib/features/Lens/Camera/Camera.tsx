@@ -46,6 +46,8 @@ const controlSymbolSize = 30;
 const SKIA_FPS = 15;
 const COLOR_LENS_FPS = 15;
 const DEFAULT_FPS = 30;
+/** Swatch blend duration (ms); larger = slower transitions vs camera FPS */
+const COLOR_SWATCH_BLEND_MS = 350;
 export const Camera = memo(function Camera() {
   const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
@@ -84,10 +86,9 @@ export const Camera = memo(function Camera() {
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
   const isVideoNotAllowed = isColorLensEnabled || !isLensMode;
 
-  const fps =
-    isCameraActive && isColorLensEnabled ? COLOR_LENS_FPS : DEFAULT_FPS;
+  const fps = isCameraActive && isColorLensEnabled ? COLOR_LENS_FPS : DEFAULT_FPS;
 
-  const colorAnimationDuration = (1 / fps) * 1000;
+  const colorAnimationDuration = 500;
 
   const handleVideoCapture = useCallback(async () => {
     /* istanbul ignore next -- ref is set when capture is reachable in production */

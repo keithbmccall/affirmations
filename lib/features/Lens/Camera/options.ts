@@ -79,4 +79,3 @@ export type TimerMode = (typeof TIMER_MODE)[keyof typeof TIMER_MODE];
 export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITION];
 export type CameraViewMode = (typeof CAMERA_VIEW_MODE)[keyof typeof CAMERA_VIEW_MODE];
 export type SkiaColorMode = (typeof SKIA_COLOR_MODE)[keyof typeof SKIA_COLOR_MODE];
-
