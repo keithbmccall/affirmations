@@ -11,8 +11,6 @@ import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
 import { createAssetAsync } from 'expo-media-library';
 import { router, useFocusEffect } from 'expo-router';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,6 +19,13 @@ import {
   useCameraDevice,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CameraGrid } from './CameraGrid';
+import { useCameraFocus } from './hooks/useCameraFocus';
+import { useCameraRoll } from './hooks/useCameraRoll';
+import { useLensPermissions } from './hooks/useLensPermissions';
+import { LensCameraSurface } from './LensCameraSurface';
 import {
   calculateFps,
   CAMERA_POSITION,
@@ -32,11 +37,6 @@ import {
   type CameraViewMode,
   type SkiaColorMode,
 } from './options';
-import { useCameraFocus } from './hooks/useCameraFocus';
-import { useCameraRoll } from './hooks/useCameraRoll';
-import { useLensPermissions } from './hooks/useLensPermissions';
-import { CameraGrid } from './CameraGrid';
-import { LensCameraSurface } from './LensCameraSurface';
 import { saveVideoRecording } from './saveVideoRecording';
 import { SkiaCameraSurface } from './SkiaCameraSurface';
 

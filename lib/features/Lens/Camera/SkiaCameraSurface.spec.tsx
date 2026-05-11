@@ -1,11 +1,11 @@
 import { render } from '@testing-library/react-native';
-import React, { createRef } from 'react';
-import type { CameraDevice } from 'react-native-vision-camera';
 import { Camera as VisionCamera } from 'react-native-vision-camera';
-
+import React, { createRef } from 'react';
+import { resetSkiaVisionCameraMockState, skiaVisionCameraMockState } from './getSkiaVisionCameraJestMock';
 import { SKIA_COLOR_MODE } from './options';
 import { SkiaCameraSurface } from './SkiaCameraSurface';
-import { resetSkiaVisionCameraMockState, skiaVisionCameraMockState } from './getSkiaVisionCameraJestMock';
+import type { CameraDevice } from 'react-native-vision-camera';
+
 
 const mockDispose = jest.fn();
 const mockCreateSkiaLensPaint = jest.fn((_colorMode: unknown) => ({ dispose: mockDispose }));

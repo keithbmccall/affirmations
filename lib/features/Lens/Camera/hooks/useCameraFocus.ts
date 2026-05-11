@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-import { Dimensions } from 'react-native';
 import {
   useAnimatedStyle,
   useSharedValue,
@@ -9,6 +7,8 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 import { Camera as VisionCamera } from 'react-native-vision-camera';
+import { useCallback } from 'react';
+import { Dimensions } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 

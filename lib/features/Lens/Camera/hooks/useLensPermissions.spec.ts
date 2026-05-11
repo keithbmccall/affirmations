@@ -1,6 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
-
 import { useLensPermissions } from './useLensPermissions';
 
 const mockRequestCamera = jest.fn(() => Promise.resolve());

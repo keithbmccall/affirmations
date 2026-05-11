@@ -1,9 +1,9 @@
 import { Routes } from '@routes/routes';
 import { getAssetsAsync } from 'expo-media-library';
 import { router } from 'expo-router';
+import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
-import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export const useCameraRoll = (hasAllPermissions: boolean) => {
   const [recentMedia, setRecentMedia] = useState<string | null>(null);

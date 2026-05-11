@@ -1,8 +1,8 @@
 import { renderHook, act } from '@testing-library/react-native';
 import React from 'react';
+import { useCameraFocus } from './useCameraFocus';
 import type { Camera } from 'react-native-vision-camera';
 
-import { useCameraFocus } from './useCameraFocus';
 
 const asCameraRef = (ref: { current: { focus: jest.Mock } | null }) =>
   ref as unknown as React.RefObject<Camera | null>;

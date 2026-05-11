@@ -17,13 +17,15 @@ const MockCamera = forwardRef<unknown, Record<string, unknown>>((props, _ref) =>
 export function getSkiaVisionCameraJestMock() {
   return {
     Camera: MockCamera,
-    useSkiaFrameProcessor: jest.fn((processor: (frame: { render: (p: unknown) => void }) => void) => {
-      try {
-        processor({ render: jest.fn() });
-      } catch {
-        /* worklet body may throw outside native runtime */
+    useSkiaFrameProcessor: jest.fn(
+      (processor: (frame: { render: (p: unknown) => void }) => void) => {
+        try {
+          processor({ render: jest.fn() });
+        } catch {
+          /* worklet body may throw outside native runtime */
+        }
+        return processor;
       }
-      return processor;
-    }),
+    ),
   };
 }

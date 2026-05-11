@@ -1,8 +1,8 @@
 // import '../wdyr';
 // wdyr must be imported before any other imports
 import { StateContextProvider } from '@platform/StateContextProvider';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useColorScheme } from '@styles/hooks/useColorScheme';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

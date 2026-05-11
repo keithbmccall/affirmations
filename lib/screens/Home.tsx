@@ -1,7 +1,3 @@
-import { Link } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { ThemedText } from '@components/shared/ThemedText';
 import { ThemedView } from '@components/shared/ThemedView';
@@ -9,6 +5,10 @@ import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
+import { Link } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { memo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Settings from './Settings';
 
 type HomeProps = ScreenContainerProps;

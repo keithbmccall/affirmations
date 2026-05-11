@@ -1,11 +1,11 @@
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
-import type { Asset } from 'expo-media-library';
 import { memo, useMemo } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import type { LensPalette } from './types';
+import type { Asset } from 'expo-media-library';
 
 const { width } = Dimensions.get('window');
 

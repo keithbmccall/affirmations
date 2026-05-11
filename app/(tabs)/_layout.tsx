@@ -2,9 +2,9 @@ import { Colors } from '@components/defaults/constants/Colors';
 import { HapticTab } from '@components/defaults/HapticTab';
 import TabBarBackground from '@components/defaults/ui/TabBarBackground';
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
-import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes/routes';
 import { useColorScheme } from '@styles/hooks/useColorScheme';
+import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
 import { useMemo } from 'react';
 

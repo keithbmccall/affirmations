@@ -1,6 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
-import { memo } from 'react';
-import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react-native';
 import { ThemedInput } from '@components/shared/ThemedInput';
 import { ThemedText } from '@components/shared/ThemedText';
 import { ThemedView } from '@components/shared/ThemedView';
@@ -8,6 +5,9 @@ import { useSettings } from '@platform';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
+import { StatusBar } from 'expo-status-bar';
+import { memo } from 'react';
+import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react-native';
 
 type SettingsProps = ScreenContainerProps;
 const Settings = ({ statusBarProps }: SettingsProps) => {

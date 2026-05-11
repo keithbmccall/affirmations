@@ -1,13 +1,11 @@
 import { catchError } from '@utils/helpers';
-
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import {
   cancelScheduledNotification,
   getAllScheduledNotifications,
   scheduleNotification,
 } from './notificationActions';
 import { useNotificationsScheduler } from './useNotificationsScheduler';
-
-import { renderHook, act, waitFor } from '@testing-library/react-native';
 
 const mockOnSetPendingNotifications = jest.fn();
 const mockOnAddHistoryNotification = jest.fn();

@@ -2,9 +2,9 @@ import { ThemedText } from '@components/shared/ThemedText';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import type { InspectionAsset, LensPalette } from './types';
 

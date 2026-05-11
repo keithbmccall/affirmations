@@ -10,10 +10,10 @@ import {
 } from '@features/Affirmations/Notifications/types';
 import { useNotificationsScheduler } from '@features/Affirmations/Notifications/useNotificationsScheduler';
 import { useAffirmations } from '@platform';
-import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
+import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import { getHumanReadableDate } from '@utils/time';
 import { memo, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';

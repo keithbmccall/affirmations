@@ -10,11 +10,11 @@ import {
 } from '@features/Affirmations/Notifications/types';
 import { useNotificationsScheduler } from '@features/Affirmations/Notifications/useNotificationsScheduler';
 import { useAffirmations } from '@platform';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Routes } from '@routes/routes';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { router } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';

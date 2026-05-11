@@ -1,11 +1,11 @@
-import { ThemedText } from './shared/ThemedText';
-import { ThemedView } from './shared/ThemedView';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { router } from 'expo-router';
 import { memo, ReactNode, useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { ThemedText } from './shared/ThemedText';
+import { ThemedView } from './shared/ThemedView';
 
 interface ModalProps {
   children: ReactNode;

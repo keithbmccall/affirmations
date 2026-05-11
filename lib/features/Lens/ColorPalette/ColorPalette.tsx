@@ -2,9 +2,9 @@ import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import React, { memo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
+import { ColorSwatch } from './ColorSwatch';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import { useColorLensPalette } from './useColorLensPalette';
-import { ColorSwatch } from './ColorSwatch';
 
 interface ColorPaletteProps {
   palette: ReturnType<typeof useColorLensPalette>['palette'];

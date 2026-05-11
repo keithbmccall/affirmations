@@ -10,8 +10,6 @@ import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { getHumanReadableDate } from '@utils/time';
-import { memo, useCallback, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -19,6 +17,8 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+import { memo, useCallback, useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { notificationRowConfig } from './NotificationRow/notificationRowConfig';
 import { clampTranslateX, resolveSwipePositionOnEnd } from './workletGestures';
 

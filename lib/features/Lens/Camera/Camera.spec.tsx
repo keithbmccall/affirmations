@@ -1,12 +1,12 @@
-import { Camera } from './Camera';
 import { applySkiaLensToPhotoFile } from '@features/Lens/Camera/applySkiaLensToPhotoFile';
-import { render, fireEvent, screen, waitFor, act } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { createAssetAsync } from 'expo-media-library';
 import { router } from 'expo-router';
 import React from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as VisionCameraModule from 'react-native-vision-camera';
+import { Camera } from './Camera';
 
 const mockOnAddLensPalette = jest.fn();
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
@@ -188,8 +188,7 @@ function TestSafeArea({ children }: { children: React.ReactNode }) {
   );
 }
 
-const renderCamera = (ui: React.ReactElement) =>
-  render(ui, { wrapper: TestSafeArea });
+const renderCamera = (ui: React.ReactElement) => render(ui, { wrapper: TestSafeArea });
 
 describe('Camera', () => {
   let alertSpy: jest.SpyInstance;
@@ -218,9 +217,11 @@ describe('Camera', () => {
       requestMediaLibraryPermission: jest.fn(),
       requestMicrophonePermission: jest.fn(),
     });
-    mockStartRecording.mockImplementation(({ onRecordingFinished }: { onRecordingFinished?: (v: { path: string }) => void }) => {
-      onRecordingFinished?.({ path: '/tmp/video.mp4' });
-    });
+    mockStartRecording.mockImplementation(
+      ({ onRecordingFinished }: { onRecordingFinished?: (v: { path: string }) => void }) => {
+        onRecordingFinished?.({ path: '/tmp/video.mp4' });
+      }
+    );
     mockTakePhoto.mockResolvedValue({ path: '/tmp/photo.jpg' });
     mockedCreateAssetAsync.mockResolvedValue({
       id: 'asset-1',

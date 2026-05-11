@@ -1,5 +1,5 @@
-import Reanimated from 'react-native-reanimated';
 import { StyleSheet } from 'react-native';
+import Reanimated from 'react-native-reanimated';
 import {
   CameraDevice,
   Frame,

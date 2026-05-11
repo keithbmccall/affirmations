@@ -1,5 +1,5 @@
-import { ExpoRouter } from 'expo-router';
 import { iconMapping } from '@components/shared/icon-symbol/iconMapping';
+import { ExpoRouter } from 'expo-router';
 
 type Route = {
   name: string;

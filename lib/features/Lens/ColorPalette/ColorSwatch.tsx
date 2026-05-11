@@ -1,7 +1,7 @@
 import { spacing } from '@styles/spacing';
+import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import React, { memo } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
-import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useAnimatedColor } from './useAnimatedColor';
 
 type ColorSwatchProps = {

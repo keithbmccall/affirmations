@@ -6,8 +6,8 @@ import {
   RenderOptions,
   renderRouter,
 } from 'expo-router/testing-library';
-import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import React from 'react';
 
 // Configuration options for the render context
 export interface RenderWithContextConfig {

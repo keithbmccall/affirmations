@@ -1,10 +1,8 @@
+import { Routes } from '@routes/routes';
 import { renderHook, act } from '@testing-library/react-native';
 import { getAssetsAsync } from 'expo-media-library';
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
-
-import { Routes } from '@routes/routes';
-
 import { useCameraRoll } from './useCameraRoll';
 
 jest.mock('expo-media-library', () => ({

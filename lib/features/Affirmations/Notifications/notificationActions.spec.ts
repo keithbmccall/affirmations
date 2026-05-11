@@ -1,10 +1,10 @@
 import * as Notifications from 'expo-notifications';
-import { NotificationSounds } from './NotificationSounds';
 import {
   cancelScheduledNotification,
   getAllScheduledNotifications,
   scheduleNotification,
 } from './notificationActions';
+import { NotificationSounds } from './NotificationSounds';
 
 describe('notificationActions', () => {
   beforeEach(() => {

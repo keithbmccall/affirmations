@@ -1,6 +1,7 @@
-import { type SkiaColorMode } from '@features/Lens/Camera/options';
 import { createSkiaLensPaint } from '@features/Lens/Camera/createSkiaLensPaint';
+import { type SkiaColorMode } from '@features/Lens/Camera/options';
 import { useEffect, useMemo } from 'react';
+
 import { StyleSheet } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 import {
@@ -18,7 +19,7 @@ interface SkiaCameraSurfaceProps {
   cameraRef: React.RefObject<VisionCamera | null>;
   device: CameraDevice;
   isActive: boolean;
-  fps: number;
+  fps: number; 
   colorMode: SkiaColorMode;
 }
 
