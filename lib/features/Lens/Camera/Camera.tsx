@@ -41,7 +41,6 @@ import { SkiaCameraSurface } from './SkiaCameraSurface';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
-const controlSymbolSize = 30;
 /** Skia blur is GPU-heavy; lower FPS reduces memory pressure and thermal crashes. */
 const SKIA_FPS = 15;
 const COLOR_LENS_FPS = 15;
@@ -312,7 +311,11 @@ export const Camera = memo(function Camera() {
           style={backButtonStyle}
           onPress={handleBackPress}
         >
-          <IconSymbol size={controlSymbolSize} color={colors.human.white} name="chevron.left" />
+          <IconSymbol
+            size={globalStyles.symbolSize}
+            color={colors.human.white}
+            name="chevron.left"
+          />
         </TouchableOpacity>
       </View>
 
@@ -324,7 +327,7 @@ export const Camera = memo(function Camera() {
           onPress={handleCameraViewModeToggle}
         >
           <IconSymbol
-            size={controlSymbolSize}
+            size={globalStyles.symbolSize}
             color={colors.human.white}
             name={isLensMode ? 'drop.fill' : 'camera.fill'}
           />
@@ -335,7 +338,7 @@ export const Camera = memo(function Camera() {
           onPress={handleGridToggle}
         >
           <IconSymbol
-            size={controlSymbolSize}
+            size={globalStyles.symbolSize}
             color={colors.human.white}
             name={gridModeOptions[gridMode].icon}
           />
@@ -346,7 +349,7 @@ export const Camera = memo(function Camera() {
           onPress={handleFlashToggle}
         >
           <IconSymbol
-            size={controlSymbolSize}
+            size={globalStyles.symbolSize}
             color={colors.human.white}
             name={flashModeOptions[flashMode].icon}
           />
@@ -357,7 +360,7 @@ export const Camera = memo(function Camera() {
           onPress={handleSwitchCameraToggle}
         >
           <IconSymbol
-            size={controlSymbolSize}
+            size={globalStyles.symbolSize}
             color={colors.human.white}
             name="arrow.trianglehead.2.clockwise.rotate.90.circle"
           />
@@ -370,7 +373,7 @@ export const Camera = memo(function Camera() {
             accessibilityLabel="Switch lens configuration"
           >
             <IconSymbol
-              size={controlSymbolSize}
+              size={globalStyles.symbolSize}
               color={colors.human.white}
               name="camera.aperture"
             />
@@ -385,7 +388,7 @@ export const Camera = memo(function Camera() {
               onPress={handleEnableColorLensToggle}
             >
               <IconSymbol
-                size={controlSymbolSize}
+                size={globalStyles.symbolSize}
                 color={colors.human.white}
                 name="swatchpalette.fill"
               />
@@ -407,7 +410,7 @@ export const Camera = memo(function Camera() {
             onPress={handleSkiaColorModeToggle}
           >
             <IconSymbol
-              size={controlSymbolSize}
+              size={globalStyles.symbolSize}
               color={colors.human.white}
               name={skiaColorMode === SKIA_COLOR_MODE.DEFAULT ? 'sun.max.fill' : 'moon.fill'}
             />

@@ -1,3 +1,4 @@
+import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
@@ -14,7 +15,12 @@ interface ModalProps {
   enableBackButton?: boolean;
 }
 
-export const Modal = memo(function Modal({ children, title, testID, enableBackButton }: ModalProps) {
+export const Modal = memo(function Modal({
+  children,
+  title,
+  testID,
+  enableBackButton,
+}: ModalProps) {
   const handleBackPress = useCallback(() => {
     router.back();
   }, []);
@@ -23,8 +29,17 @@ export const Modal = memo(function Modal({ children, title, testID, enableBackBu
     <ThemedView style={styles.container}>
       <ThemedView style={styles.header}>
         {enableBackButton ? (
-          <Pressable onPress={handleBackPress} style={styles.backButton}>
-            <ThemedText type="default">Back</ThemedText>
+          <Pressable
+            accessibilityLabel="Back"
+            accessibilityRole="button"
+            onPress={handleBackPress}
+            style={styles.backButton}
+          >
+            <IconSymbol
+              size={globalStyles.symbolSize}
+              color={colors.human.white}
+              name="chevron.left"
+            />
           </Pressable>
         ) : (
           <View style={styles.stub} />
@@ -63,5 +78,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     width: 40,
+    ...globalStyles.flexCenter,
   },
 });
