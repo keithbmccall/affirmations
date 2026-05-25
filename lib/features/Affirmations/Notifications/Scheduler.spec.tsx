@@ -58,17 +58,6 @@ jest.mock('@features/Affirmations/Notifications/useNotificationsScheduler', () =
   }),
 }));
 
-jest.mock('@platform', () => {
-  const actual = jest.requireActual('@platform');
-  return {
-    ...actual,
-    useGeneral: () => ({
-      isLoading: false,
-      onSetLoading: jest.fn(),
-    }),
-  };
-});
-
 describe('Scheduler', () => {
   let alertSpy: jest.SpyInstance;
   const mockRouterBack = jest.fn();

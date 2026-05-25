@@ -7,14 +7,13 @@ import {
   removeHistoryNotification,
   setHistoryNotifications,
   setLensPalettesMap,
-  setLoading,
   setName,
   setNotificationChannels,
   setNotificationToken,
   setPendingNotifications,
   StateContextActions,
 } from '../actions';
-import { affirmationsReducer, generalReducer, lensReducer, settingsReducer } from '../reducers';
+import { affirmationsReducer, lensReducer, settingsReducer } from '../reducers';
 import { initialState, StateType } from '../state';
 import { StateContext } from './context';
 
@@ -24,7 +23,6 @@ const rootReducer = (state: StateType, action: Action): StateType => {
     settings: settingsReducer(state.settings, action),
     affirmations: affirmationsReducer(state.affirmations, action),
     lens: lensReducer(state.lens, action),
-    general: generalReducer(state.general, action),
   };
 };
 
@@ -48,9 +46,6 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       lens: {
         onAddLensPalette: addLensPalette(dispatch),
         onSetLensPalettesMap: setLensPalettesMap(dispatch),
-      },
-      general: {
-        onSetLoading: setLoading(dispatch),
       },
     }),
     []

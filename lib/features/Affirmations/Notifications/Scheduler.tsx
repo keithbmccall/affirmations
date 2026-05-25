@@ -2,7 +2,6 @@ import { ThemedButton } from '@components/shared/ThemedButton';
 import { ThemedInput } from '@components/shared/ThemedInput';
 import { ThemedText } from '@components/shared/ThemedText';
 import { ThemedView } from '@components/shared/ThemedView';
-import { useGeneral } from '@platform';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
@@ -44,7 +43,7 @@ export const Scheduler = memo(function Scheduler({
   const router = useRouter();
   const { schedulePushNotification, refreshPendingNotifications, cancelPushNotification } =
     useNotificationsScheduler();
-  const { isLoading, onSetLoading } = useGeneral();
+  const [refreshing, setRefreshing] = useState(false);
   const [date, setDate] = useState<FormField<Date>>({ value: initialDate, error: '' });
   const [title, setTitle] = useState<FormField<string>>({ value: initialTitle, error: '' });
   const [message, setMessage] = useState<FormField<string>>({ value: initialBody, error: '' });
@@ -143,11 +142,11 @@ export const Scheduler = memo(function Scheduler({
     title.value.trim() !== '' && message.value.trim() !== '' && date.value > new Date();
 
   const onRefresh = useCallback(async () => {
-    onSetLoading(true);
+    setRefreshing(true);
     setDate({ value: fiveMinutesFromNow, error: '' });
     await refreshPendingNotifications();
-    setTimeout(() => onSetLoading(false), 500); // Simulate async refresh
-  }, [onSetLoading, refreshPendingNotifications]);
+    setTimeout(() => setRefreshing(false), 500); // Simulate async refresh
+  }, [refreshPendingNotifications]);
 
   /* istanbul ignore next -- date.error is set by validateForm but submit stays disabled for past dates */
   const dateErrorView = date.error ? (
@@ -160,7 +159,7 @@ export const Scheduler = memo(function Scheduler({
       style={styles.container}
       refreshControl={
         enableRefreshControl ? (
-          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         ) : undefined
       }
     >

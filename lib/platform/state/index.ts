@@ -8,9 +8,6 @@ export interface StateType {
       name: string;
     };
   };
-  general: {
-    isLoading: boolean;
-  };
   lens: {
     lensPalettesMap: LensPalettesMap;
   };
@@ -28,9 +25,6 @@ export const initialState: StateType = {
     user: {
       name: '',
     },
-  },
-  general: {
-    isLoading: false,
   },
   lens: {
     lensPalettesMap: {},
