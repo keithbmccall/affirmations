@@ -4,7 +4,7 @@ import {
   buildUniformSaturationColorMatrix,
 } from '@features/Lens/Camera/skia-matrix-configs/skiaLensColorMatrix';
 import { buildTameRedSaturationColorMatrix } from '@features/Lens/Camera/skia-matrix-configs/skiaTameRedConfig';
-import { Skia, TileMode, type SkPaint } from '@shopify/react-native-skia';
+import { ColorChannel, Skia, TileMode, type SkPaint } from '@shopify/react-native-skia';
 
 /**
  * Blur strength (Gaussian sigma) at {@link SKIA_LENS_BLUR_REFERENCE_SHORT_SIDE}.
@@ -18,6 +18,12 @@ export const SKIA_LENS_BLUR_SIGMA = 40;
  * sigma by `outputShortSide / this` so blur matches preview intensity.
  */
 export const SKIA_LENS_BLUR_REFERENCE_SHORT_SIDE = 1080;
+export const SKIA_LENS_DISPLACEMENT_SCALE = 12;
+export const SKIA_LENS_DISPLACEMENT_REFERENCE_SHORT_SIDE = SKIA_LENS_BLUR_REFERENCE_SHORT_SIDE;
+export const SKIA_LENS_DISPLACEMENT_FREQ_X = 0.012;
+export const SKIA_LENS_DISPLACEMENT_FREQ_Y = 0.02;
+export const SKIA_LENS_DISPLACEMENT_OCTAVES = 2;
+export const SKIA_LENS_DISPLACEMENT_SEED = 11;
 
 export interface CreateSkiaLensPaintOptions {
   /** When set (e.g. still width/height min), blur sigma is scaled vs {@link SKIA_LENS_BLUR_REFERENCE_SHORT_SIDE}. */
@@ -37,10 +43,15 @@ export function createSkiaLensPaint(
   colorMode: SkiaColorMode,
   options?: CreateSkiaLensPaintOptions
 ): SkPaint {
+  const outputShortSidePx =
+    options?.outputShortSidePx ?? SKIA_LENS_DISPLACEMENT_REFERENCE_SHORT_SIDE;
   const blurSigma =
-    options?.outputShortSidePx != null
+    options?.outputShortSidePx !== undefined
       ? (SKIA_LENS_BLUR_SIGMA * options.outputShortSidePx) / SKIA_LENS_BLUR_REFERENCE_SHORT_SIDE
       : SKIA_LENS_BLUR_SIGMA;
+  const displacementScale =
+    (SKIA_LENS_DISPLACEMENT_SCALE * outputShortSidePx) /
+    SKIA_LENS_DISPLACEMENT_REFERENCE_SHORT_SIDE;
 
   const contrastFilter = Skia.ColorFilter.MakeMatrix(
     buildLinearContrastColorMatrix(SKIA_LENS_CONTRAST)
@@ -61,8 +72,24 @@ export function createSkiaLensPaint(
   const colorImageFilter = Skia.ImageFilter.MakeColorFilter(colorFilter, null);
   const blurFilter = Skia.ImageFilter.MakeBlur(blurSigma, blurSigma, TileMode.Clamp, null);
   const composed = Skia.ImageFilter.MakeCompose(colorImageFilter, blurFilter);
+  const turbulenceShader = Skia.Shader.MakeTurbulence(
+    SKIA_LENS_DISPLACEMENT_FREQ_X,
+    SKIA_LENS_DISPLACEMENT_FREQ_Y,
+    SKIA_LENS_DISPLACEMENT_OCTAVES,
+    SKIA_LENS_DISPLACEMENT_SEED,
+    0,
+    0
+  );
+  const turbulenceFilter = Skia.ImageFilter.MakeShader(turbulenceShader, null);
+  const displacedFilter = Skia.ImageFilter.MakeDisplacementMap(
+    ColorChannel.G,
+    ColorChannel.A,
+    displacementScale,
+    turbulenceFilter,
+    composed
+  );
 
   const paint = Skia.Paint();
-  paint.setImageFilter(composed);
+  paint.setImageFilter(displacedFilter);
   return paint;
 }

@@ -16,7 +16,7 @@ const plugin = VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette',
 
 export function getColorLensPalette(frame: Frame): ColorLensPaletteType | null {
   'worklet';
-  if (plugin == null) {
+  if (plugin === null || plugin === undefined) {
     throw new Error('Failed to load Frame Processor Plugin!');
   }
   return plugin.call(frame) as unknown as ColorLensPaletteType | null;
