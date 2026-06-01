@@ -1,5 +1,5 @@
-import { createSkiaLensPaint } from '@features/Lens/Camera/createSkiaLensPaint';
-import { type SkiaColorMode } from '@features/Lens/Camera/options';
+import { createSkiaLensPaint } from '@features/Lens/Obskura/createSkiaLensPaint';
+import { type SkiaColorMode } from '@features/Lens/Obskura/obskuraOptions';
 import {
   ImageFormat,
   Skia,

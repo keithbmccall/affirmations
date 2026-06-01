@@ -1,4 +1,4 @@
-import { applySkiaLensToPhotoFile } from '@features/Lens/Camera/applySkiaLensToPhotoFile';
+import { applySkiaLensToPhotoFile } from '@features/Lens/Obskura/applySkiaLensToPhotoFile';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { createAssetAsync } from 'expo-media-library';
 import { router } from 'expo-router';
@@ -52,7 +52,7 @@ jest.mock('@features/Lens/ColorPalette/ColorPalette', () => ({
   },
 }));
 
-jest.mock('@features/Lens/Camera/applySkiaLensToPhotoFile', () => ({
+jest.mock('@features/Lens/Obskura/applySkiaLensToPhotoFile', () => ({
   applySkiaLensToPhotoFile: jest.fn(() => Promise.resolve('file:///painted.jpg')),
 }));
 
@@ -106,7 +106,7 @@ jest.mock('react-native-vision-camera', () => {
   };
 });
 
-jest.mock('@features/Lens/Camera/SkiaCameraSurface', () => {
+jest.mock('@features/Lens/Obskura/SkiaCameraSurface', () => {
   const { Camera } = jest.requireMock('react-native-vision-camera');
   return {
     SkiaCameraSurface: (props: { cameraRef: React.MutableRefObject<unknown> }) => (

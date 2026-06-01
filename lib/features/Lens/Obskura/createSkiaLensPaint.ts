@@ -1,9 +1,9 @@
-import { SKIA_COLOR_MODE, type SkiaColorMode } from '@features/Lens/Camera/options';
+import { SKIA_COLOR_MODE, type SkiaColorMode } from '@features/Lens/Obskura/obskuraOptions';
 import {
   buildLinearContrastColorMatrix,
   buildUniformSaturationColorMatrix,
-} from '@features/Lens/Camera/skia-matrix-configs/skiaLensColorMatrix';
-import { buildTameRedSaturationColorMatrix } from '@features/Lens/Camera/skia-matrix-configs/skiaTameRedConfig';
+} from '@features/Lens/Obskura/skiaLensColorMatrix';
+import { buildTameRedSaturationColorMatrix } from '@features/Lens/Obskura/skiaTameRedConfig';
 import { ColorChannel, Skia, TileMode, type SkPaint } from '@shopify/react-native-skia';
 
 /**

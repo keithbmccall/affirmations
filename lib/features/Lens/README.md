@@ -29,7 +29,8 @@ lib/features/Lens/
 ├── Lens.tsx                 # Tab screen shell; loads palettes from storage
 ├── LensCameraRoll.tsx       # Modal: paginated photo grid + palette strips
 ├── CameraRollInspector.tsx  # Modal sub-route: full-screen photo + palette overlay
-├── Camera/                  # Vision Camera UI, surfaces, hooks, Skia export
+├── Camera/                  # Vision Camera UI, Lens surface, hooks
+├── Obskura/                 # Skia GPU filter pipeline (preview + still export)
 ├── ColorPalette/            # Live swatches, persistence types, roll thumbnails
 └── README.md                # This file
 ```
@@ -248,7 +249,7 @@ These must be correct for Lens to build and run on device:
 
 | Use case | Mechanism | File(s) |
 |----------|-----------|---------|
-| Animated camera `isActive` | `Reanimated.createAnimatedComponent(VisionCamera)` + `addWhitelistedNativeProps({ isActive: true })` | `LensCameraSurface.tsx`, `SkiaCameraSurface.tsx` |
+| Animated camera `isActive` | `Reanimated.createAnimatedComponent(VisionCamera)` + `addWhitelistedNativeProps({ isActive: true })` | `LensCameraSurface.tsx`, `Obskura/SkiaCameraSurface.tsx` |
 | Tap to focus | `Gesture.Tap` → `runOnJS(handleFocusTap)` → `camera.focus({ x, y })` in view space | `Camera.tsx`, `useCameraFocus.ts` |
 | Palette swatch colors | Shared values updated from frame path | `useColorLensPalette.ts`, `ColorPalette.tsx` |
 | Camera roll thumbnail | `useAnimatedStyle` on preview container | `useCameraRoll.ts`, `Camera.tsx` |
@@ -284,15 +285,23 @@ These must be correct for Lens to build and run on device:
 |------|------|
 | `Camera.tsx` | Main UI, capture, recording, mode toggles |
 | `LensCameraSurface.tsx` | Lens view + color frame processor |
-| `SkiaCameraSurface.tsx` | Skia view + `useSkiaFrameProcessor` |
 | `CameraGrid.tsx` | Composition grid overlay |
-| `createSkiaLensPaint.ts` | Shared Skia filter paint |
-| `applySkiaLensToPhotoFile.ts` | Post-capture Skia JPEG |
 | `saveVideoRecording.ts` | `createAssetAsync` for video path |
-| `options.ts` | Modes, flash, grid, device, Skia color enums |
+| `options.ts` | Modes, flash, grid, device, view mode |
 | `hooks/useLensPermissions.ts` | Permission requests |
 | `hooks/useCameraRoll.ts` | Thumbnail + open roll modal |
 | `hooks/useCameraFocus.ts` | Tap-to-focus (ring UI unused) |
+
+### Obskura (`Obskura/`)
+
+| Path | Role |
+|------|------|
+| `SkiaCameraSurface.tsx` | Skia view + `useSkiaFrameProcessor` |
+| `createSkiaLensPaint.ts` | Shared Skia filter paint |
+| `applySkiaLensToPhotoFile.ts` | Post-capture Skia JPEG |
+| `obskuraOptions.ts` | `SKIA_COLOR_MODE`, `SkiaColorMode` |
+| `skiaLensColorMatrix.ts` | Rec.709 matrix builders |
+| `skiaTameRedConfig.ts` | TAME_RED saturation matrix |
 
 ### Color palette (`ColorPalette/`)
 
@@ -337,7 +346,7 @@ Documented gaps in the current implementation (not fixed in this doc):
 1. **After Babel or worklets changes**: `npx expo start --clear` (or `npm start -- --reset-cache`).
 2. **Plugin not found / palette always fails**: Check Xcode/device logs for `[ExpoColorLensFrameProcessor] Registering VisionCamera plugin "getColorLensPalette"`. Re-run prebuild and `pod install` if the native module changed.
 3. **Isolate Skia vs color lens**: Toggle view mode to Skia, or turn off color lens in Lens mode.
-4. **Thermal / crashes in Skia mode**: Lower `SKIA_FPS` or `SKIA_LENS_BLUR_SIGMA` in `createSkiaLensPaint.ts` before adding more per-frame GPU work.
+4. **Thermal / crashes in Skia mode**: Lower `SKIA_FPS` or `SKIA_LENS_BLUR_SIGMA` in `Obskura/createSkiaLensPaint.ts` before adding more per-frame GPU work.
 5. **Lens coverage locally**: `npm run test:coverage:lens` (see `package.json`).
 
 ## Best practices for code in this feature
@@ -349,7 +358,7 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 **Do**
 
 - Keep UI orchestration in `Camera.tsx`; keep camera + `frameProcessor` wiring only in `LensCameraSurface.tsx` / `SkiaCameraSurface.tsx`.
-- Keep Skia paint logic in `createSkiaLensPaint.ts` and `skia-matrix-configs/`—one source of truth for preview and `applySkiaLensToPhotoFile.ts`.
+- Keep Skia paint logic in `Obskura/` (`createSkiaLensPaint.ts`, matrix configs)—one source of truth for preview and `applySkiaLensToPhotoFile.ts`.
 - Keep native palette extraction in `modules/expo-color-lens-frame-processor`; JS only registers and calls the plugin via `getColorLensPalette.ts`.
 - Co-locate tests: `Feature.spec.tsx` next to the implementation.
 

@@ -1,7 +1,7 @@
-import { SKIA_REC709_LUMA } from '@features/Lens/Camera/skia-matrix-configs/skiaLensColorMatrix';
+import { SKIA_REC709_LUMA } from '@features/Lens/Obskura/skiaLensColorMatrix';
 
 /**
- * Tunable Skia color-matrix parameters for the TAME_RED color mode (`SKIA_COLOR_MODE` in `options`).
+ * Tunable Skia color-matrix parameters for the TAME_RED color mode (`SKIA_COLOR_MODE` in `obskuraOptions`).
  * Adjust here when testing warm indoor vs daylight / blue-sky scenes — no component edits required.
  */
 

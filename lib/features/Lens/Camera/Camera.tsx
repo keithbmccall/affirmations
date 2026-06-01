@@ -1,6 +1,8 @@
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { ThemedText } from '@components/shared/ThemedText';
-import { applySkiaLensToPhotoFile } from '@features/Lens/Camera/applySkiaLensToPhotoFile';
+import { applySkiaLensToPhotoFile } from '@features/Lens/Obskura/applySkiaLensToPhotoFile';
+import { SKIA_COLOR_MODE, type SkiaColorMode } from '@features/Lens/Obskura/obskuraOptions';
+import { SkiaCameraSurface } from '@features/Lens/Obskura/SkiaCameraSurface';
 import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
@@ -32,12 +34,9 @@ import {
   cameraDeviceOptions,
   flashModeOptions,
   gridModeOptions,
-  SKIA_COLOR_MODE,
   type CameraViewMode,
-  type SkiaColorMode,
 } from './options';
 import { saveVideoRecording } from './saveVideoRecording';
-import { SkiaCameraSurface } from './SkiaCameraSurface';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
