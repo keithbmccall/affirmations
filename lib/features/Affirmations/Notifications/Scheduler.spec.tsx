@@ -1,5 +1,5 @@
 import { Scheduler } from '@features/Affirmations/Notifications/Scheduler';
-import { renderWithContext } from '@testing/render-with-context';
+import { renderWithContext } from '@testing/renderWithContext';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import * as ExpoRouter from 'expo-router';
 import React from 'react';

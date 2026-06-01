@@ -5,7 +5,7 @@ import {
   type NotificationWithData,
 } from '@features/Affirmations/Notifications/types';
 import { useAffirmations } from '@platform';
-import { renderWithContext } from '@testing/render-with-context';
+import { renderWithContext } from '@testing/renderWithContext';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import * as ExpoRouter from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';

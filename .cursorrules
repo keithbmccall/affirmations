@@ -624,11 +624,11 @@ const mockNotifications = [
 
 ```typescript
 // ✅ Provides all necessary context automatically
-import { renderWithContext } from '@testing/render-with-context';
+import { renderWithContext } from '@testing/renderWithContext';
 const { getByTestId } = renderWithContext(<MyComponent />);
 
 // ✅ For testing navigation and modal routes
-import { renderRouterWithContext } from '@testing/render-with-context';
+import { renderRouterWithContext } from '@testing/renderWithContext';
 renderRouterWithContext({
   index: MyComponent,
   '(modals)/my-modal': MyModal,
@@ -655,7 +655,7 @@ await act(async () => {
 
 ```typescript
 // ✅ Use shared utilities for complex mocks
-import { setupDateTimePickerMock, simulateDatePickerPress } from '@testing/date-time-picker-mock';
+import { setupDateTimePickerMock, simulateDatePickerPress } from '@testing/dateTimePickerMock';
 
 jest.mock('@react-native-community/datetimepicker');
 const MockedDateTimePicker = setupDateTimePickerMock();

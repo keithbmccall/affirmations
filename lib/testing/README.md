@@ -4,7 +4,7 @@ This directory contains reusable testing utilities that can be shared across the
 
 ## Available Utilities
 
-### 📅 [DateTimePicker Mock](./date-time-picker-mock.md)
+### 📅 [DateTimePicker Mock](./dateTimePickerMock.md)
 
 Mock utility for `@react-native-community/datetimepicker` with configurable behavior.
 
@@ -19,7 +19,7 @@ import { setupDateTimePickerMock, simulateDatePickerPress } from '@testing';
 - Built-in date utilities for testing
 - Full TypeScript support
 
-### 🎨 [Render Utilities](./render-with-context.md)
+### 🎨 [Render Utilities](./renderWithContext.md)
 
 Consistent rendering with context providers for component testing.
 
@@ -53,11 +53,12 @@ const { getByTestId } = renderWithContext(<YourComponent />);
 ```
 lib/testing/
 ├── README.md                    # This overview file
-├── date-time-picker-mock.md     # DateTimePicker mock docs
-├── render-with-context.md       # Render utilities docs
+├── dateTimePickerMock.md        # DateTimePicker mock docs
+├── renderWithContext.md         # Render utilities docs
 ├── index.ts                     # Main exports
-├── date-time-picker-mock.tsx    # DateTimePicker mock implementation
-└── render-with-context.tsx      # Render utilities implementation
+├── dateTimePickerMock.tsx       # DateTimePicker mock implementation
+├── renderWithContext.tsx        # Render utilities implementation
+└── flushProviderMicrotasks.ts   # Async provider microtask flush helper
 ```
 
 ## Design Principles
@@ -98,7 +99,7 @@ When adding a new testing utility, follow this pattern:
 ### 1. Create Implementation File
 
 ```typescript
-// lib/testing/my-new-utility.tsx
+// lib/testing/myNewUtility.tsx
 export interface MyUtilityConfig {
   // Configuration options
 }
@@ -112,13 +113,13 @@ export const setupMyUtility = (config: MyUtilityConfig = {}) => {
 
 ```typescript
 // lib/testing/index.ts
-export { setupMyUtility, type MyUtilityConfig } from './my-new-utility';
+export { setupMyUtility, type MyUtilityConfig } from './myNewUtility';
 ```
 
 ### 3. Create Documentation
 
 ```markdown
-<!-- lib/testing/my-new-utility.md -->
+<!-- lib/testing/myNewUtility.md -->
 
 # My New Utility
 
@@ -134,7 +135,7 @@ Description of what this utility does...
 ```markdown
 <!-- lib/testing/README.md -->
 
-### 🔧 [My New Utility](./my-new-utility.md)
+### 🔧 [My New Utility](./myNewUtility.md)
 
 Brief description of the utility.
 ```

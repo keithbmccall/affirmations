@@ -1,6 +1,6 @@
 import { Notifications } from '@features/Affirmations/Notifications/Notifications';
 import { useAffirmations } from '@platform';
-import { renderWithContext } from '@testing/render-with-context';
+import { renderWithContext } from '@testing/renderWithContext';
 import { screen } from '@testing-library/react-native';
 import React, { useEffect } from 'react';
 

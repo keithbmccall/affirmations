@@ -32,6 +32,6 @@ alwaysApply: false
 
 ## Shared utilities
 
-Use **`@testing/render-with-context`**, **`@testing/date-time-picker-mock`** (and similar) when they already exist for the pattern you need.
+Use **`@testing/renderWithContext`**, **`@testing/dateTimePickerMock`** (and similar) when they already exist for the pattern you need.
 
 Extended examples, pitfalls, and summaries: **`.cursorrules`** (Testing sections).
