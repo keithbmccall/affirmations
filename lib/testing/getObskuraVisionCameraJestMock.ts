@@ -1,20 +1,20 @@
 import React, { forwardRef } from 'react';
 import { View } from 'react-native';
 
-export const skiaVisionCameraMockState = {
+export const obskuraVisionCameraMockState = {
   lastCameraProps: null as Record<string, unknown> | null,
 };
 
-export function resetSkiaVisionCameraMockState() {
-  skiaVisionCameraMockState.lastCameraProps = null;
+export function resetObskuraVisionCameraMockState() {
+  obskuraVisionCameraMockState.lastCameraProps = null;
 }
 
 const MockCamera = forwardRef<unknown, Record<string, unknown>>((props, _ref) => {
-  skiaVisionCameraMockState.lastCameraProps = props;
-  return React.createElement(View, { testID: 'mock-skia-camera' });
+  obskuraVisionCameraMockState.lastCameraProps = props;
+  return React.createElement(View, { testID: 'mock-obskura-camera' });
 });
 
-export function getSkiaVisionCameraJestMock() {
+export function getObskuraVisionCameraJestMock() {
   return {
     Camera: MockCamera,
     useSkiaFrameProcessor: jest.fn(

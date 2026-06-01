@@ -1,32 +1,32 @@
 import {
-  resetSkiaVisionCameraMockState,
-  skiaVisionCameraMockState,
-} from '@testing/getSkiaVisionCameraJestMock';
+  resetObskuraVisionCameraMockState,
+  obskuraVisionCameraMockState,
+} from '@testing/getObskuraVisionCameraJestMock';
 import { render } from '@testing-library/react-native';
 import React, { createRef } from 'react';
 import type { CameraDevice } from 'react-native-vision-camera';
 import { Camera as VisionCamera } from 'react-native-vision-camera';
-import { SKIA_COLOR_MODE } from './obskuraOptions';
-import { SkiaCameraSurface } from './SkiaCameraSurface';
+import { ObskuraCameraSurface } from './ObskuraCameraSurface';
+import { OBSKURA_COLOR_MODE } from './options';
 
 const mockDispose = jest.fn();
-const mockCreateSkiaLensPaint = jest.fn((_colorMode: unknown) => ({ dispose: mockDispose }));
+const mockCreateObskuraLensPaint = jest.fn((_colorMode: unknown) => ({ dispose: mockDispose }));
 
-jest.mock('@features/Lens/Obskura/createSkiaLensPaint', () => ({
-  createSkiaLensPaint: (colorMode: unknown) => mockCreateSkiaLensPaint(colorMode),
+jest.mock('@features/Lens/Obskura/createObskuraLensPaint', () => ({
+  createObskuraLensPaint: (colorMode: unknown) => mockCreateObskuraLensPaint(colorMode),
 }));
 
 jest.mock('react-native-vision-camera', () =>
-  jest.requireActual('@testing/getSkiaVisionCameraJestMock').getSkiaVisionCameraJestMock()
+  jest.requireActual('@testing/getObskuraVisionCameraJestMock').getObskuraVisionCameraJestMock()
 );
 
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
 
-describe('SkiaCameraSurface', () => {
+describe('ObskuraCameraSurface', () => {
   beforeEach(() => {
-    resetSkiaVisionCameraMockState();
+    resetObskuraVisionCameraMockState();
     mockDispose.mockClear();
-    mockCreateSkiaLensPaint.mockClear();
+    mockCreateObskuraLensPaint.mockClear();
     jest.clearAllMocks();
   });
 
@@ -34,73 +34,73 @@ describe('SkiaCameraSurface', () => {
     const cameraRef = createRef<VisionCamera | null>();
 
     render(
-      <SkiaCameraSurface
+      <ObskuraCameraSurface
         cameraRef={cameraRef}
         device={mockDevice}
         isActive
         fps={15}
-        colorMode={SKIA_COLOR_MODE.DEFAULT}
+        colorMode={OBSKURA_COLOR_MODE.DEFAULT}
       />
     );
 
-    expect(mockCreateSkiaLensPaint).toHaveBeenCalledWith(SKIA_COLOR_MODE.DEFAULT);
-    expect(skiaVisionCameraMockState.lastCameraProps?.frameProcessor).toBeDefined();
-    expect(skiaVisionCameraMockState.lastCameraProps?.fps).toBe(15);
+    expect(mockCreateObskuraLensPaint).toHaveBeenCalledWith(OBSKURA_COLOR_MODE.DEFAULT);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.frameProcessor).toBeDefined();
+    expect(obskuraVisionCameraMockState.lastCameraProps?.fps).toBe(15);
   });
 
   it('omits frameProcessor when inactive', () => {
     const cameraRef = createRef<VisionCamera | null>();
 
     render(
-      <SkiaCameraSurface
+      <ObskuraCameraSurface
         cameraRef={cameraRef}
         device={mockDevice}
         isActive={false}
         fps={15}
-        colorMode={SKIA_COLOR_MODE.TAME_RED}
+        colorMode={OBSKURA_COLOR_MODE.TAME_RED}
       />
     );
 
-    expect(skiaVisionCameraMockState.lastCameraProps?.frameProcessor).toBeUndefined();
+    expect(obskuraVisionCameraMockState.lastCameraProps?.frameProcessor).toBeUndefined();
   });
 
   it('disposes previous paint when color mode changes', () => {
     const cameraRef = createRef<VisionCamera | null>();
 
     const { rerender } = render(
-      <SkiaCameraSurface
+      <ObskuraCameraSurface
         cameraRef={cameraRef}
         device={mockDevice}
         isActive
         fps={15}
-        colorMode={SKIA_COLOR_MODE.DEFAULT}
+        colorMode={OBSKURA_COLOR_MODE.DEFAULT}
       />
     );
 
     rerender(
-      <SkiaCameraSurface
+      <ObskuraCameraSurface
         cameraRef={cameraRef}
         device={mockDevice}
         isActive
         fps={15}
-        colorMode={SKIA_COLOR_MODE.TAME_RED}
+        colorMode={OBSKURA_COLOR_MODE.TAME_RED}
       />
     );
 
     expect(mockDispose).toHaveBeenCalledTimes(1);
-    expect(mockCreateSkiaLensPaint).toHaveBeenCalledWith(SKIA_COLOR_MODE.TAME_RED);
+    expect(mockCreateObskuraLensPaint).toHaveBeenCalledWith(OBSKURA_COLOR_MODE.TAME_RED);
   });
 
   it('disposes paint on unmount', () => {
     const cameraRef = createRef<VisionCamera | null>();
 
     const { unmount } = render(
-      <SkiaCameraSurface
+      <ObskuraCameraSurface
         cameraRef={cameraRef}
         device={mockDevice}
         isActive
         fps={15}
-        colorMode={SKIA_COLOR_MODE.DEFAULT}
+        colorMode={OBSKURA_COLOR_MODE.DEFAULT}
       />
     );
 

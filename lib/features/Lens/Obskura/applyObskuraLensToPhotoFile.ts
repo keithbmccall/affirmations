@@ -1,5 +1,5 @@
-import { createSkiaLensPaint } from '@features/Lens/Obskura/createSkiaLensPaint';
-import { type SkiaColorMode } from '@features/Lens/Obskura/obskuraOptions';
+import { createObskuraLensPaint } from '@features/Lens/Obskura/createObskuraLensPaint';
+import { type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import {
   ImageFormat,
   Skia,
@@ -12,9 +12,9 @@ import { cacheDirectory, EncodingType, writeAsStringAsync } from 'expo-file-syst
 
 const JPEG_QUALITY = 95;
 
-export interface ApplySkiaLensToPhotoFileParams {
+export interface ApplyObskuraLensToPhotoFileParams {
   inputPath: string;
-  colorMode: SkiaColorMode;
+  colorMode: ObskuraColorMode;
 }
 
 function toFileUri(path: string): string {
@@ -26,12 +26,12 @@ function toFileUri(path: string): string {
 }
 
 /**
- * Reads a still from `takePhoto`, applies the same Skia lens as the live preview, writes a JPEG to cache, and returns a `file://` URI for `createAssetAsync`.
+ * Reads a still from `takePhoto`, applies the same Obskura lens as the live preview, writes a JPEG to cache, and returns a `file://` URI for `createAssetAsync`.
  */
-export async function applySkiaLensToPhotoFile({
+export async function applyObskuraLensToPhotoFile({
   inputPath,
   colorMode,
-}: ApplySkiaLensToPhotoFileParams): Promise<string> {
+}: ApplyObskuraLensToPhotoFileParams): Promise<string> {
   if (!cacheDirectory) {
     throw new Error('FileSystem.cacheDirectory is not available');
   }
@@ -47,13 +47,13 @@ export async function applySkiaLensToPhotoFile({
     sourceData = await Skia.Data.fromURI(sourceUri);
     sourceImage = Skia.Image.MakeImageFromEncoded(sourceData);
     if (!sourceImage) {
-      throw new Error('Could not decode image for Skia lens');
+      throw new Error('Could not decode image for Obskura lens');
     }
 
     const width = sourceImage.width();
     const height = sourceImage.height();
     const outputShortSidePx = Math.min(width, height);
-    lensPaint = createSkiaLensPaint(colorMode, { outputShortSidePx });
+    lensPaint = createObskuraLensPaint(colorMode, { outputShortSidePx });
 
     surface = Skia.Surface.MakeOffscreen(width, height);
     if (!surface) {
@@ -66,7 +66,7 @@ export async function applySkiaLensToPhotoFile({
     snapshot = surface.makeImageSnapshot();
 
     const encoded = snapshot.encodeToBase64(ImageFormat.JPEG, JPEG_QUALITY);
-    const outputUri = `${cacheDirectory}lens-skia-${Date.now()}.jpg`;
+    const outputUri = `${cacheDirectory}lens-obskura-${Date.now()}.jpg`;
     await writeAsStringAsync(outputUri, encoded, { encoding: EncodingType.Base64 });
     return outputUri;
   } finally {

@@ -1,5 +1,5 @@
-import { createSkiaLensPaint } from '@features/Lens/Obskura/createSkiaLensPaint';
-import { type SkiaColorMode } from '@features/Lens/Obskura/obskuraOptions';
+import { createObskuraLensPaint } from '@features/Lens/Obskura/createObskuraLensPaint';
+import { type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { useEffect, useMemo } from 'react';
 
 import { StyleSheet } from 'react-native';
@@ -15,22 +15,22 @@ Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
 
-interface SkiaCameraSurfaceProps {
+interface ObskuraCameraSurfaceProps {
   cameraRef: React.RefObject<VisionCamera | null>;
   device: CameraDevice;
   isActive: boolean;
   fps: number;
-  colorMode: SkiaColorMode;
+  colorMode: ObskuraColorMode;
 }
 
-export const SkiaCameraSurface = ({
+export const ObskuraCameraSurface = ({
   cameraRef,
   device,
   isActive,
   fps,
   colorMode,
-}: SkiaCameraSurfaceProps) => {
-  const lensPaint = useMemo(() => createSkiaLensPaint(colorMode), [colorMode]);
+}: ObskuraCameraSurfaceProps) => {
+  const lensPaint = useMemo(() => createObskuraLensPaint(colorMode), [colorMode]);
 
   useEffect(() => {
     return () => {
@@ -41,7 +41,7 @@ export const SkiaCameraSurface = ({
   const frameProcessor = useSkiaFrameProcessor(
     frame => {
       'worklet';
-      /* istanbul ignore next -- Skia frame.render runs on device only */
+      /* istanbul ignore next -- frame.render runs on device only */
       frame.render(lensPaint);
     },
     [lensPaint]

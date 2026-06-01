@@ -63,7 +63,7 @@ export const CAMERA_POSITION = {
 
 export const CAMERA_VIEW_MODE = {
   LENS: 'lens',
-  SKIA: 'skia',
+  OBSKURA: 'obskura',
 } as const;
 
 // Type aliases

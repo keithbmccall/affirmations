@@ -11,16 +11,16 @@ The Lens tab (`app/(tabs)/lens-screen.tsx` → `lib/features/Lens/Lens.tsx` → 
 | View mode | Mode toggle icon (when active) | What the user sees |
 |-----------|-------------------------------|-------------------|
 | **Lens** | `drop.fill` | Live camera preview; optional **color lens** (separate control) extracts a palette and animates swatches |
-| **Skia** | `camera.fill` | Live camera with a GPU blur/saturation/contrast **filter** (Skia frame processor) |
+| **Obskura** | `camera.fill` | Live camera with a GPU blur/saturation/contrast **filter** (Skia frame processor via Obskura) |
 
 **Controls are separate from view mode:**
 
 | Control | Icon | When visible |
 |---------|------|--------------|
-| View mode toggle | `drop.fill` (Lens) / `camera.fill` (Skia) | Always in top bar |
+| View mode toggle | `drop.fill` (Lens) / `camera.fill` (Obskura) | Always in top bar |
 | Color lens toggle | `swatchpalette.fill` | Lens view mode only — enables palette extraction |
 
-Both view modes share one `VisionCamera` ref, permissions, capture controls, and focus gestures. Only one surface component mounts at a time (`LensCameraSurface` or `SkiaCameraSurface`).
+Both view modes share one `VisionCamera` ref, permissions, capture controls, and focus gestures. Only one surface component mounts at a time (`LensCameraSurface` or `ObskuraCameraSurface`).
 
 ## Feature layout
 
@@ -30,7 +30,7 @@ lib/features/Lens/
 ├── LensCameraRoll.tsx       # Modal: paginated photo grid + palette strips
 ├── CameraRollInspector.tsx  # Modal sub-route: full-screen photo + palette overlay
 ├── Camera/                  # Vision Camera UI, Lens surface, hooks
-├── Obskura/                 # Skia GPU filter pipeline (preview + still export)
+├── Obskura/                 # GPU filter pipeline (React Native Skia; preview + still export)
 ├── ColorPalette/            # Live swatches, persistence types, roll thumbnails
 └── README.md                # This file
 ```
@@ -104,11 +104,11 @@ Live palette keys are defined in `lensPaletteConfig.colorPaletteKeys` (eight swa
 | Permissions | `useLensPermissions` — camera, mic, media library on mount |
 | Grid overlay | `CameraGrid` — rule-of-thirds `Divider` lines when grid mode on |
 | Recent thumbnail | `useCameraRoll` — latest library asset URI + fade/scale animation; opens roll modal |
-| Video | `startRecording` / `stopRecording`; `saveVideoRecording` → `createAssetAsync` (no Skia post-process) |
-| Photo | `takePhoto` → Skia post-process in Skia mode, or direct save / palette attach in Lens mode |
-| Top bar | View mode, grid, flash, flip, multi-camera device, color lens toggle, Skia color mode, live `ColorPalette` |
+| Video | `startRecording` / `stopRecording`; `saveVideoRecording` → `createAssetAsync` (no Obskura post-process) |
+| Photo | `takePhoto` → Obskura post-process in Obskura mode, or direct save / palette attach in Lens mode |
+| Top bar | View mode, grid, flash, flip, multi-camera device, color lens toggle, Obskura color mode, live `ColorPalette` |
 
-See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens-mode-color-palette-path), and [Skia mode](#skia-mode-filter-path) for frame processors and FPS.
+See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens-mode-color-palette-path), and [Obskura mode](#obskura-mode-filter-path) for frame processors and FPS.
 
 ## Camera roll modal
 
@@ -137,7 +137,7 @@ Peer dependencies for frame processors and Skia preview are satisfied in `packag
 |---------|-----------|---------------|
 | **Vision Camera** | Camera device selection, preview, `takePhoto` / video recording, hosts `useFrameProcessor` and `useSkiaFrameProcessor` | [visioncamera.margelo.com](https://react-native-vision-camera.com/) · [GitHub](https://github.com/mrousavy/react-native-vision-camera) |
 | **react-native-worklets-core** | Compiles functions marked with `'worklet'`; `Worklets.createRunOnJS` bridges from the camera frame thread back to React/Reanimated | [GitHub](https://github.com/margelo/react-native-worklets-core) |
-| **React Native Skia** | GPU image filters on the live preview (`useSkiaFrameProcessor`) and offscreen still export (`applySkiaLensToPhotoFile`) | [Installation](https://shopify.github.io/react-native-skia/docs/getting-started/installation) |
+| **React Native Skia** | GPU image filters on the live preview (`useSkiaFrameProcessor`) and offscreen still export (`applyObskuraLensToPhotoFile`) | [Installation](https://shopify.github.io/react-native-skia/docs/getting-started/installation) |
 
 **Reanimated** is not part of the frame pipeline, but it is required on this screen for `Reanimated.createAnimatedComponent(VisionCamera)`, tap-to-focus (`runOnJS`), palette UI, and camera-roll preview animations. Reanimated worklets and worklets-core are **different systems**—see [Reanimated's role](#reanimateds-role).
 
@@ -147,16 +147,16 @@ Peer dependencies for frame processors and Skia preview are satisfied in `packag
 flowchart TB
   Camera[Camera.tsx] --> mode{CAMERA_VIEW_MODE}
   mode -->|LENS| LensSurface[LensCameraSurface]
-  mode -->|SKIA| SkiaSurface[SkiaCameraSurface]
+  mode -->|OBSKURA| ObskuraSurface[ObskuraCameraSurface]
   LensSurface --> useFP[useFrameProcessor worklet]
   useFP --> plugin[getColorLensPalette via VisionCameraProxy]
   plugin --> ios[ExpoColorLensFrameProcessor Swift iOS]
   useFP --> runOnJS[Worklets.createRunOnJS]
   runOnJS --> paletteUI[Reanimated SharedValues + ColorPalette]
-  SkiaSurface --> useSkia[useSkiaFrameProcessor]
+  ObskuraSurface --> useSkia[useSkiaFrameProcessor]
   useSkia --> render[frame.render lensPaint]
-  lensPaint --> createPaint[createSkiaLensPaint]
-  capture[takePhoto] --> applyStill[applySkiaLensToPhotoFile when SKIA mode]
+  lensPaint --> createPaint[createObskuraLensPaint]
+  capture[takePhoto] --> applyStill[applyObskuraLensToPhotoFile when Obskura mode]
 ```
 
 ### Two JavaScript runtimes
@@ -171,8 +171,8 @@ React state (`useState`) read from a worklet closure without being listed in dep
 |---------|---------------------------|
 | Preview FPS (Lens, color lens **off**) | **30** (`DEFAULT_FPS`) |
 | Preview FPS (Lens, color lens **on**, screen active) | **15** (`COLOR_LENS_FPS`) |
-| Preview FPS (Skia view mode) | **15** (`SKIA_FPS` on `SkiaCameraSurface` only) |
-| Video (long-press capture) | Allowed only when `isLensMode && !isColorLensEnabled` (`isVideoNotAllowed` is true if color lens is on or view mode is Skia) |
+| Preview FPS (Obskura view mode) | **15** (`OBSKURA_FPS` on `ObskuraCameraSurface` only) |
+| Video (long-press capture) | Allowed only in Lens mode with color lens off (`isVideoNotAllowed` when color lens is on or Obskura view mode is active) |
 | Frame processors when backgrounded | `isCameraActive` false via `useFocusEffect`; surfaces pass `frameProcessor={isActive ? processor : undefined}` |
 | Tap to focus | `Gesture.Tap` → `runOnJS(handleFocusTap)` → `camera.focus({ x, y })` with **x/y relative to the camera `GestureDetector` view** (not normalized 0–1) |
 | Focus ring UI | Not rendered today; `useCameraFocus` still builds `focusIndicatorAnimatedStyle` using **window** `Dimensions` for percentage layout—fix that if the ring is added |
@@ -202,33 +202,33 @@ Used when `cameraViewMode === CAMERA_VIEW_MODE.LENS`.
 3. Otherwise save the raw photo via `createAssetAsync(photo.path)`.
 4. Refresh camera-roll thumbnail via `useCameraRoll`.
 
-Video recording (long-press capture) is allowed only in **Lens mode with color lens off**. `isVideoNotAllowed = isColorLensEnabled || !isLensMode` in `Camera.tsx`—so video is disabled when color lens is on **or** when Skia view mode is active (photo only in Skia).
+Video recording (long-press capture) is allowed only in **Lens mode with color lens off**. `isVideoNotAllowed = isColorLensEnabled || isObskuraMode` in `Camera.tsx`—so video is disabled when color lens is on **or** when Obskura view mode is active (photo only in Obskura).
 
 ### FPS
 
-In Lens view mode, `Camera.tsx` passes `fps` to `LensCameraSurface`: **15** when `isCameraActive && isColorLensEnabled`, else **30**. Color lens off does **not** lower FPS. Skia view mode always uses **15** on `SkiaCameraSurface`, independent of color lens.
+In Lens view mode, `Camera.tsx` passes `fps` to `LensCameraSurface`: **15** when `isCameraActive && isColorLensEnabled`, else **30**. Color lens off does **not** lower FPS. Obskura view mode always uses **15** on `ObskuraCameraSurface`, independent of color lens.
 
-## Skia mode (filter path)
+## Obskura mode (filter path)
 
-Used when `cameraViewMode === CAMERA_VIEW_MODE.SKIA`.
+Used when `cameraViewMode === CAMERA_VIEW_MODE.OBSKURA`.
 
 ### Live preview flow
 
-1. **`SkiaCameraSurface`** builds a **`SkPaint`** via `createSkiaLensPaint(colorMode)` (memoized per mode).
+1. **`ObskuraCameraSurface`** builds a **`SkPaint`** via `createObskuraLensPaint(colorMode)` (memoized per mode).
 2. **`useSkiaFrameProcessor`** receives frames as a drawable surface; the worklet calls `frame.render(lensPaint)`.
-3. Filter chain: saturation (uniform or tame-red matrix) composed with contrast, then Gaussian blur (`SKIA_LENS_BLUR_SIGMA`, scaled for output size when exporting stills).
-4. Preview FPS is fixed at **15** (`SKIA_FPS` in `Camera.tsx`) to reduce GPU heat and memory pressure.
+3. Filter chain: saturation (uniform or tame-red matrix) composed with contrast, then Gaussian blur (`OBSKURA_LENS_BLUR_SIGMA`, scaled for output size when exporting stills).
+4. Preview FPS is fixed at **15** (`OBSKURA_FPS` in `Camera.tsx`) to reduce GPU heat and memory pressure.
 
-### Capture flow (Skia mode)
+### Capture flow (Obskura mode)
 
 1. `takePhoto` returns an unfiltered file path from the camera.
-2. **`applySkiaLensToPhotoFile`** decodes the image with Skia, draws through the **same** `createSkiaLensPaint` logic (with `outputShortSidePx` so blur matches preview), encodes JPEG to cache, returns `file://` URI.
+2. **`applyObskuraLensToPhotoFile`** decodes the image with React Native Skia, draws through the **same** `createObskuraLensPaint` logic (with `outputShortSidePx` so blur matches preview), encodes JPEG to cache, returns `file://` URI.
 3. `createAssetAsync(paintedUri)` saves to the photo library.
 
 ### Resource lifecycle
 
-- `lensPaint.dispose()` in `SkiaCameraSurface` when `colorMode` changes or the component unmounts.
-- `applySkiaLensToPhotoFile` disposes `SkImage`, `SkSurface`, `SkData`, and `SkPaint` in a `finally` block.
+- `lensPaint.dispose()` in `ObskuraCameraSurface` when `colorMode` changes or the component unmounts.
+- `applyObskuraLensToPhotoFile` disposes `SkImage`, `SkSurface`, `SkData`, and `SkPaint` in a `finally` block.
 
 ## Project wiring checklist
 
@@ -249,7 +249,7 @@ These must be correct for Lens to build and run on device:
 
 | Use case | Mechanism | File(s) |
 |----------|-----------|---------|
-| Animated camera `isActive` | `Reanimated.createAnimatedComponent(VisionCamera)` + `addWhitelistedNativeProps({ isActive: true })` | `LensCameraSurface.tsx`, `Obskura/SkiaCameraSurface.tsx` |
+| Animated camera `isActive` | `Reanimated.createAnimatedComponent(VisionCamera)` + `addWhitelistedNativeProps({ isActive: true })` | `LensCameraSurface.tsx`, `Obskura/ObskuraCameraSurface.tsx` |
 | Tap to focus | `Gesture.Tap` → `runOnJS(handleFocusTap)` → `camera.focus({ x, y })` in view space | `Camera.tsx`, `useCameraFocus.ts` |
 | Palette swatch colors | Shared values updated from frame path | `useColorLensPalette.ts`, `ColorPalette.tsx` |
 | Camera roll thumbnail | `useAnimatedStyle` on preview container | `useCameraRoll.ts`, `Camera.tsx` |
@@ -261,12 +261,12 @@ These must be correct for Lens to build and run on device:
 | Feature | iOS | Android | Web |
 |---------|-----|---------|-----|
 | Camera preview | Yes | Yes | No |
-| Skia live filter | Yes | Yes | No |
+| Obskura live filter | Yes | Yes | No |
 | Color lens palette (native plugin) | Yes | **No** — plugin not in active module | No |
-| Photo capture (Lens or Skia) | Yes | Yes | No |
+| Photo capture (Lens or Obskura) | Yes | Yes | No |
 | Video capture | Lens mode, color lens **off** only | Same | No |
 
-`modules/expo-color-lens-frame-processor/expo-module.config.json` lists `"platforms": ["apple"]` only. Enabling color lens on Android will throw when `getColorLensPalette` cannot load the plugin. Skia mode remains the cross-platform filter path.
+`modules/expo-color-lens-frame-processor/expo-module.config.json` lists `"platforms": ["apple"]` only. Enabling color lens on Android will throw when `getColorLensPalette` cannot load the plugin. Obskura mode remains the cross-platform filter path.
 
 ## Key files map
 
@@ -296,12 +296,12 @@ These must be correct for Lens to build and run on device:
 
 | Path | Role |
 |------|------|
-| `SkiaCameraSurface.tsx` | Skia view + `useSkiaFrameProcessor` |
-| `createSkiaLensPaint.ts` | Shared Skia filter paint |
-| `applySkiaLensToPhotoFile.ts` | Post-capture Skia JPEG |
-| `obskuraOptions.ts` | `SKIA_COLOR_MODE`, `SkiaColorMode` |
-| `skiaLensColorMatrix.ts` | Rec.709 matrix builders |
-| `skiaTameRedConfig.ts` | TAME_RED saturation matrix |
+| `ObskuraCameraSurface.tsx` | Obskura view + `useSkiaFrameProcessor` |
+| `createObskuraLensPaint.ts` | Shared Obskura filter paint |
+| `applyObskuraLensToPhotoFile.ts` | Post-capture Obskura JPEG |
+| `options.ts` | `OBSKURA_COLOR_MODE`, `ObskuraColorMode` |
+| `obskuraLensColorMatrix.ts` | Rec.709 matrix builders |
+| `obskuraTameRedConfig.ts` | TAME_RED saturation matrix |
 
 ### Color palette (`ColorPalette/`)
 
@@ -325,7 +325,7 @@ These must be correct for Lens to build and run on device:
 | `lib/platform/reducers/lens.ts` | `lensPalettesMap` updates |
 | `lib/platform/hooks` → `useLens()` | State + actions |
 | `modules/expo-color-lens-frame-processor/` | iOS frame processor plugin |
-| `lib/testing/getSkiaVisionCameraJestMock.ts` | Jest Vision Camera mock |
+| `lib/testing/getObskuraVisionCameraJestMock.ts` | Jest Vision Camera mock |
 
 ## Known limitations
 
@@ -345,8 +345,8 @@ Documented gaps in the current implementation (not fixed in this doc):
 
 1. **After Babel or worklets changes**: `npx expo start --clear` (or `npm start -- --reset-cache`).
 2. **Plugin not found / palette always fails**: Check Xcode/device logs for `[ExpoColorLensFrameProcessor] Registering VisionCamera plugin "getColorLensPalette"`. Re-run prebuild and `pod install` if the native module changed.
-3. **Isolate Skia vs color lens**: Toggle view mode to Skia, or turn off color lens in Lens mode.
-4. **Thermal / crashes in Skia mode**: Lower `SKIA_FPS` or `SKIA_LENS_BLUR_SIGMA` in `Obskura/createSkiaLensPaint.ts` before adding more per-frame GPU work.
+3. **Isolate Obskura vs color lens**: Toggle view mode to Obskura, or turn off color lens in Lens mode.
+4. **Thermal / crashes in Obskura mode**: Lower `OBSKURA_FPS` or `OBSKURA_LENS_BLUR_SIGMA` in `Obskura/createObskuraLensPaint.ts` before adding more per-frame GPU work.
 5. **Lens coverage locally**: `npm run test:coverage:lens` (see `package.json`).
 
 ## Best practices for code in this feature
@@ -357,15 +357,15 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 
 **Do**
 
-- Keep UI orchestration in `Camera.tsx`; keep camera + `frameProcessor` wiring only in `LensCameraSurface.tsx` / `SkiaCameraSurface.tsx`.
-- Keep Skia paint logic in `Obskura/` (`createSkiaLensPaint.ts`, matrix configs)—one source of truth for preview and `applySkiaLensToPhotoFile.ts`.
+- Keep UI orchestration in `Camera.tsx`; keep camera + `frameProcessor` wiring only in `LensCameraSurface.tsx` / `ObskuraCameraSurface.tsx`.
+- Keep Obskura paint logic in `Obskura/` (`createObskuraLensPaint.ts`, matrix configs)—one source of truth for preview and `applyObskuraLensToPhotoFile.ts`.
 - Keep native palette extraction in `modules/expo-color-lens-frame-processor`; JS only registers and calls the plugin via `getColorLensPalette.ts`.
 - Co-locate tests: `Feature.spec.tsx` next to the implementation.
 
 **Avoid**
 
 - Adding frame processor logic inline in `Camera.tsx`.
-- Duplicating filter math for Skia preview vs still export.
+- Duplicating filter math for Obskura preview vs still export.
 
 ### Frame processors and worklets
 
@@ -385,19 +385,19 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 - Removing throttling without thermal testing.
 - Reading React state in worklets without listing it in dependencies.
 
-### Skia resources
+### Obskura resources (React Native Skia)
 
 **Do**
 
-- Create paints via `createSkiaLensPaint`; `dispose()` in `useEffect` cleanup on the surface.
-- Dispose all Skia objects in `finally` on still export paths.
-- Tune `SKIA_FPS`, `COLOR_LENS_FPS`, and blur sigma before adding more GPU work per frame.
+- Create paints via `createObskuraLensPaint`; `dispose()` in `useEffect` cleanup on the surface.
+- Dispose all Skia API objects in `finally` on still export paths.
+- Tune `OBSKURA_FPS`, `COLOR_LENS_FPS`, and blur sigma before adding more GPU work per frame.
 - Use `outputShortSidePx` when exporting stills so blur matches preview.
 
 **Avoid**
 
 - Leaking `SkPaint` / `SkImage` across mode changes.
-- Different filter parameters in preview vs `applySkiaLensToPhotoFile`.
+- Different filter parameters in preview vs `applyObskuraLensToPhotoFile`.
 
 ### React and Reanimated on this screen
 
@@ -417,8 +417,8 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 
 **Do**
 
-- Gate video when modes conflict: `isVideoNotAllowed = isColorLensEnabled || !isLensMode` (no video in Skia mode or with color lens on).
-- Lower FPS when Skia or color lens is active.
+- Gate video when modes conflict: `isVideoNotAllowed = isColorLensEnabled || isObskuraMode` (no video in Obskura mode or with color lens on).
+- Lower FPS when Obskura or color lens is active.
 - Set `isCameraActive` false when the screen loses focus.
 
 **Avoid**
@@ -443,7 +443,7 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 **Do**
 
 - Mock `react-native-vision-camera` at the test boundary.
-- Use `getSkiaVisionCameraJestMock` for Skia surface tests.
+- Use `getObskuraVisionCameraJestMock` for Obskura surface tests.
 - Assert user-visible behavior and mock camera props (e.g. `frameProcessor` when active).
 - Prefer `findBy*` for initial async queries.
 
@@ -482,15 +482,15 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 |-------|--------|
 | `setState` inside a frame worklet | `Worklets.createRunOnJS` + shared values |
 | Incomplete `useFrameProcessor` deps | Full dependency list including callbacks |
-| Duplicate Skia filter math in preview vs export | `createSkiaLensPaint` only |
+| Duplicate Obskura filter math in preview vs export | `createObskuraLensPaint` only |
 | Frame processor only in `.expo-defaults/` | Active `modules/expo-color-lens-frame-processor` + prebuild |
 | Inline component inside `Camera` | Module-scope component |
 | Memoizing primitive-only expressions | Memoize objects, arrays, and functions |
 
 ### When adding a new feature
 
-1. Decide which path it belongs to: **Lens (palette)**, **Skia (GPU filter)**, or **UI-only** (no frame processor).
-2. If it needs per-frame work, extend the correct surface and native plugin (iOS) or Skia paint—do not add a third `frameProcessor` on the same `<Camera>` instance.
+1. Decide which path it belongs to: **Lens (palette)**, **Obskura (GPU filter)**, or **UI-only** (no frame processor).
+2. If it needs per-frame work, extend the correct surface and native plugin (iOS) or Obskura paint—do not add a third `frameProcessor` on the same `<Camera>` instance.
 3. Update this README when you add a new mode, platform, or plugin name.
 4. Run `npm run test:coverage:lens` if you touch covered Lens camera files.
 
@@ -500,7 +500,7 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 |----------|-----|---------|
 | Lens mode, color lens off | Photo + video (long-press) | Same |
 | Lens mode, color lens on | Live swatches animate; photo saves palette to map + storage; no video | Expect plugin error until Android module exists |
-| Skia mode | Live filter; photo only (no video); still matches preview | Same; watch thermals |
+| Obskura mode | Live filter; photo only (no video); still matches preview | Same; watch thermals |
 | Camera roll modal | Grid loads; cells with palette show strip; inspector overlay | Same |
 | Reopen app | Palettes restored from AsyncStorage for known asset ids | Same |
 | Navigate away / background | Camera suspends (`isCameraActive`) | Same |

@@ -1,4 +1,4 @@
-import { applySkiaLensToPhotoFile } from '@features/Lens/Obskura/applySkiaLensToPhotoFile';
+import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { createAssetAsync } from 'expo-media-library';
 import { router } from 'expo-router';
@@ -52,8 +52,8 @@ jest.mock('@features/Lens/ColorPalette/ColorPalette', () => ({
   },
 }));
 
-jest.mock('@features/Lens/Obskura/applySkiaLensToPhotoFile', () => ({
-  applySkiaLensToPhotoFile: jest.fn(() => Promise.resolve('file:///painted.jpg')),
+jest.mock('@features/Lens/Obskura/applyObskuraLensToPhotoFile', () => ({
+  applyObskuraLensToPhotoFile: jest.fn(() => Promise.resolve('file:///painted.jpg')),
 }));
 
 jest.mock('expo-media-library', () => ({
@@ -106,11 +106,11 @@ jest.mock('react-native-vision-camera', () => {
   };
 });
 
-jest.mock('@features/Lens/Obskura/SkiaCameraSurface', () => {
+jest.mock('@features/Lens/Obskura/ObskuraCameraSurface', () => {
   const { Camera } = jest.requireMock('react-native-vision-camera');
   return {
-    SkiaCameraSurface: (props: { cameraRef: React.MutableRefObject<unknown> }) => (
-      <Camera ref={props.cameraRef} testID="skia-surface-mock" />
+    ObskuraCameraSurface: (props: { cameraRef: React.MutableRefObject<unknown> }) => (
+      <Camera ref={props.cameraRef} testID="obskura-surface-mock" />
     ),
   };
 });
@@ -172,7 +172,7 @@ jest.mock('expo-router', () => {
 });
 
 const mockedCreateAssetAsync = createAssetAsync as jest.MockedFunction<typeof createAssetAsync>;
-const mockedApplySkiaLensToPhotoFile = jest.mocked(applySkiaLensToPhotoFile);
+const mockedApplyObskuraLensToPhotoFile = jest.mocked(applyObskuraLensToPhotoFile);
 const mockedVisionCameraModule = jest.mocked(VisionCameraModule);
 
 function TestSafeArea({ children }: { children: React.ReactNode }) {
@@ -241,7 +241,7 @@ describe('Camera', () => {
   });
 
   it('shows no camera message when device is missing', async () => {
-    mockedVisionCameraModule.useCameraDevice.mockReturnValueOnce(null);
+    mockedVisionCameraModule.useCameraDevice.mockReturnValueOnce(undefined);
 
     renderCamera(<Camera />);
 
@@ -281,7 +281,7 @@ describe('Camera', () => {
   });
 
   it('shows grid on error state when device is missing', async () => {
-    mockedVisionCameraModule.useCameraDevice.mockReturnValueOnce(null);
+    mockedVisionCameraModule.useCameraDevice.mockReturnValueOnce(undefined);
 
     renderCamera(<Camera />);
 
@@ -298,13 +298,13 @@ describe('Camera', () => {
     expect(router.back).toHaveBeenCalled();
   });
 
-  it('toggles to Skia surface and shows Skia color control', async () => {
+  it('toggles to Obskura surface and shows Obskura color control', async () => {
     renderCamera(<Camera />);
 
     fireEvent.press(await screen.findByTestId('lens-control-view-mode'));
 
-    expect(await screen.findByTestId('skia-surface-mock')).toBeTruthy();
-    expect(screen.getByTestId('lens-control-skia-color-mode')).toBeTruthy();
+    expect(await screen.findByTestId('obskura-surface-mock')).toBeTruthy();
+    expect(screen.getByTestId('lens-control-obskura-color-mode')).toBeTruthy();
   });
 
   it('toggles grid overlay', async () => {
@@ -359,18 +359,18 @@ describe('Camera', () => {
     });
   });
 
-  it('captures photo in Skia mode and saves painted asset', async () => {
+  it('captures photo in Obskura mode and saves painted asset', async () => {
     renderCamera(<Camera />);
 
     fireEvent.press(await screen.findByTestId('lens-control-view-mode'));
     await waitFor(() => {
-      expect(screen.getByTestId('skia-surface-mock')).toBeTruthy();
+      expect(screen.getByTestId('obskura-surface-mock')).toBeTruthy();
     });
 
     fireEvent.press(await screen.findByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockedApplySkiaLensToPhotoFile).toHaveBeenCalled();
+      expect(mockedApplyObskuraLensToPhotoFile).toHaveBeenCalled();
       expect(mockedCreateAssetAsync).toHaveBeenCalledWith('file:///painted.jpg');
     });
   });
@@ -391,7 +391,7 @@ describe('Camera', () => {
     });
   });
 
-  it('does not start recording on long press in Skia mode', async () => {
+  it('does not start recording on long press in Obskura mode', async () => {
     renderCamera(<Camera />);
 
     fireEvent.press(await screen.findByTestId('lens-control-view-mode'));
@@ -503,7 +503,7 @@ describe('Camera', () => {
     expect(await screen.findByTestId('expo-image')).toBeTruthy();
   });
 
-  it('cycles flash, flip, lens device, color lens toggle, and Skia color mode', async () => {
+  it('cycles flash, flip, lens device, color lens toggle, and Obskura color mode', async () => {
     renderCamera(<Camera />);
 
     fireEvent.press(await screen.findByTestId('lens-control-flash'));
@@ -514,8 +514,8 @@ describe('Camera', () => {
     fireEvent.press(screen.getByTestId('lens-toggle-color-lens'));
 
     fireEvent.press(screen.getByTestId('lens-control-view-mode'));
-    fireEvent.press(await screen.findByTestId('lens-control-skia-color-mode'));
-    fireEvent.press(screen.getByTestId('lens-control-skia-color-mode'));
+    fireEvent.press(await screen.findByTestId('lens-control-obskura-color-mode'));
+    fireEvent.press(screen.getByTestId('lens-control-obskura-color-mode'));
 
     fireEvent.press(screen.getByTestId('lens-control-view-mode'));
     expect(await screen.findByTestId('vision-camera-mock')).toBeTruthy();

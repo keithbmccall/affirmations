@@ -1,14 +1,14 @@
 /**
- * Shared Rec. 709 luma weights and pure 4×5 Skia color-matrix builders for the lens pipeline.
+ * Shared Rec. 709 luma weights and pure 4×5 color-matrix builders for the Obskura pipeline.
  */
 
-export const SKIA_REC709_LUMA = {
+export const OBSKURA_REC709_LUMA = {
   r: 0.213,
   g: 0.715,
   b: 0.072,
 } as const;
 
-export type SkiaRec709Luma = typeof SKIA_REC709_LUMA;
+export type ObskuraRec709Luma = typeof OBSKURA_REC709_LUMA;
 
 /**
  * Linear contrast around mid-gray: `t = 0.5 * (1 - contrast)`. `1.0` = neutral; above 1 increases punch.
@@ -24,7 +24,7 @@ export function buildLinearContrastColorMatrix(contrast: number): number[] {
  */
 export function buildUniformSaturationColorMatrix(
   saturation: number,
-  luma: SkiaRec709Luma = SKIA_REC709_LUMA
+  luma: ObskuraRec709Luma = OBSKURA_REC709_LUMA
 ): number[] {
   const { r: lr, g: lg, b: lb } = luma;
   const s = saturation;

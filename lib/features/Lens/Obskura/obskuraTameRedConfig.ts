@@ -1,11 +1,11 @@
-import { SKIA_REC709_LUMA } from '@features/Lens/Obskura/skiaLensColorMatrix';
+import { OBSKURA_REC709_LUMA } from '@features/Lens/Obskura/obskuraLensColorMatrix';
 
 /**
- * Tunable Skia color-matrix parameters for the TAME_RED color mode (`SKIA_COLOR_MODE` in `obskuraOptions`).
+ * Tunable color-matrix parameters for the TAME_RED color mode (`OBSKURA_COLOR_MODE` in `options`).
  * Adjust here when testing warm indoor vs daylight / blue-sky scenes — no component edits required.
  */
 
-export interface SkiaTameRedConfig {
+export interface ObskuraTameRedConfig {
   /**
    * Red output row uses `baseSaturation * redSaturationFactor` as effective saturation `s`.
    * Lower → less red push (stronger tame). Typical range ~0.2–0.45 while iterating.
@@ -23,7 +23,7 @@ export interface SkiaTameRedConfig {
  * Live tuning surface for tame-red. Values were validated mainly under warm light;
  * revisit `greenBlueSaturationMultiplier` after blue-sky / daylight passes.
  */
-export const SKIA_TAME_RED_CONFIG: SkiaTameRedConfig = {
+export const OBSKURA_TAME_RED_CONFIG: ObskuraTameRedConfig = {
   redSaturationFactor: 0.28,
   greenBlueSaturationMultiplier: 1.18,
 };
@@ -33,10 +33,10 @@ export const SKIA_TAME_RED_CONFIG: SkiaTameRedConfig = {
  */
 export function buildTameRedSaturationColorMatrix(
   baseSaturation: number,
-  config: SkiaTameRedConfig = SKIA_TAME_RED_CONFIG
+  config: ObskuraTameRedConfig = OBSKURA_TAME_RED_CONFIG
 ): number[] {
   const { redSaturationFactor, greenBlueSaturationMultiplier } = config;
-  const { r: LUMA_R, g: LUMA_G, b: LUMA_B } = SKIA_REC709_LUMA;
+  const { r: LUMA_R, g: LUMA_G, b: LUMA_B } = OBSKURA_REC709_LUMA;
 
   const sR = baseSaturation * redSaturationFactor;
   const srR = (1 - sR) * LUMA_R;

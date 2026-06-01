@@ -1,8 +1,8 @@
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { ThemedText } from '@components/shared/ThemedText';
-import { applySkiaLensToPhotoFile } from '@features/Lens/Obskura/applySkiaLensToPhotoFile';
-import { SKIA_COLOR_MODE, type SkiaColorMode } from '@features/Lens/Obskura/obskuraOptions';
-import { SkiaCameraSurface } from '@features/Lens/Obskura/SkiaCameraSurface';
+import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
+import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
+import { ObskuraCameraSurface } from '@features/Lens/Obskura/ObskuraCameraSurface';
 import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
@@ -40,8 +40,8 @@ import { saveVideoRecording } from './saveVideoRecording';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
-/** Skia blur is GPU-heavy; lower FPS reduces memory pressure and thermal crashes. */
-const SKIA_FPS = 15;
+/** Obskura blur is GPU-heavy; lower FPS reduces memory pressure and thermal crashes. */
+const OBSKURA_FPS = 15;
 const COLOR_LENS_FPS = 15;
 const DEFAULT_FPS = 30;
 /** Swatch blend duration (ms); larger = slower transitions vs camera FPS */
@@ -55,7 +55,9 @@ export const Camera = memo(function Camera() {
   const [cameraDevice, setCameraDevice] = useState<number>(0);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
   const [cameraViewMode, setCameraViewMode] = useState<CameraViewMode>(CAMERA_VIEW_MODE.LENS);
-  const [skiaColorMode, setSkiaColorMode] = useState<SkiaColorMode>(SKIA_COLOR_MODE.DEFAULT);
+  const [obskuraColorMode, setObskuraColorMode] = useState<ObskuraColorMode>(
+    OBSKURA_COLOR_MODE.DEFAULT
+  );
   const [flashMode, setFlashMode] = useState<number>(0);
   const [gridMode, setGridMode] = useState<number>(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -82,7 +84,8 @@ export const Camera = memo(function Camera() {
 
   const showGrid = gridModeOptions[gridMode].value === 'on';
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
-  const isVideoNotAllowed = isColorLensEnabled || !isLensMode;
+  const isObskuraMode = cameraViewMode === CAMERA_VIEW_MODE.OBSKURA;
+  const isVideoNotAllowed = isColorLensEnabled || isObskuraMode;
 
   const fps = isCameraActive && isColorLensEnabled ? COLOR_LENS_FPS : DEFAULT_FPS;
 
@@ -126,10 +129,10 @@ export const Camera = memo(function Camera() {
         enableShutterSound: true,
       });
 
-      if (!isLensMode) {
-        const paintedUri = await applySkiaLensToPhotoFile({
+      if (isObskuraMode) {
+        const paintedUri = await applyObskuraLensToPhotoFile({
           inputPath: photo.path,
-          colorMode: skiaColorMode,
+          colorMode: obskuraColorMode,
         });
         await createAssetAsync(paintedUri);
       } else {
@@ -157,8 +160,8 @@ export const Camera = memo(function Camera() {
     onAddLensPalette,
     fetchRecentMedia,
     isColorLensEnabled,
-    isLensMode,
-    skiaColorMode,
+    isObskuraMode,
+    obskuraColorMode,
   ]);
 
   const handleStopRecording = useCallback(async () => {
@@ -188,13 +191,15 @@ export const Camera = memo(function Camera() {
 
   const handleCameraViewModeToggle = useCallback(() => {
     setCameraViewMode(prev =>
-      prev === CAMERA_VIEW_MODE.LENS ? CAMERA_VIEW_MODE.SKIA : CAMERA_VIEW_MODE.LENS
+      prev === CAMERA_VIEW_MODE.LENS ? CAMERA_VIEW_MODE.OBSKURA : CAMERA_VIEW_MODE.LENS
     );
   }, []);
 
-  const handleSkiaColorModeToggle = useCallback(() => {
-    setSkiaColorMode(prev =>
-      prev === SKIA_COLOR_MODE.DEFAULT ? SKIA_COLOR_MODE.TAME_RED : SKIA_COLOR_MODE.DEFAULT
+  const handleObskuraColorModeToggle = useCallback(() => {
+    setObskuraColorMode(prev =>
+      prev === OBSKURA_COLOR_MODE.DEFAULT
+        ? OBSKURA_COLOR_MODE.TAME_RED
+        : OBSKURA_COLOR_MODE.DEFAULT
     );
   }, []);
 
@@ -282,12 +287,12 @@ export const Camera = memo(function Camera() {
                   getColorLensPaletteWorklet={getColorLensPaletteWorklet}
                 />
               ) : (
-                <SkiaCameraSurface
+                <ObskuraCameraSurface
                   cameraRef={camera}
                   device={device}
                   isActive={isCameraActive}
-                  fps={SKIA_FPS}
-                  colorMode={skiaColorMode}
+                  fps={OBSKURA_FPS}
+                  colorMode={obskuraColorMode}
                 />
               )}
               {/* ===== GRID OVERLAY SECTION ===== */}
@@ -402,16 +407,18 @@ export const Camera = memo(function Camera() {
           </>
         )}
 
-        {!isLensMode && (
+        {isObskuraMode && (
           <TouchableOpacity
-            testID="lens-control-skia-color-mode"
+            testID="lens-control-obskura-color-mode"
             style={styles.topButton}
-            onPress={handleSkiaColorModeToggle}
+            onPress={handleObskuraColorModeToggle}
           >
             <IconSymbol
               size={globalStyles.symbolSize}
               color={colors.human.white}
-              name={skiaColorMode === SKIA_COLOR_MODE.DEFAULT ? 'sun.max.fill' : 'moon.fill'}
+              name={
+                obskuraColorMode === OBSKURA_COLOR_MODE.DEFAULT ? 'sun.max.fill' : 'moon.fill'
+              }
             />
           </TouchableOpacity>
         )}
