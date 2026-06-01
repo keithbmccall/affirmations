@@ -1,345 +1,341 @@
-# Affirmations - React Native/Expo App
+# Scheduled Affirmations
 
-A comprehensive React Native/Expo application for scheduling and managing affirmations with notifications, featuring advanced camera functionality with real-time color palette extraction.
+A React Native / Expo app for scheduling and managing affirmations with local notifications, plus an advanced **Lens** camera: live color-palette extraction on iOS (**color lens**) and a Skia GPU filter path (**Obskura**). Display name and version come from [`app.json`](app.json) (**Scheduled Affirmations**, v2.0.1); Expo slug: `affirmations`.
 
-## 🚀 Features
+## Features
 
-### Core Functionality
+### Core functionality
 
-- **Affirmation Scheduling**: Schedule personalized affirmations with custom titles and messages
-- **Notification Management**: View, edit, and cancel scheduled notifications
-- **History Tracking**: Maintain a complete history of sent notifications
-- **Permission Handling**: Robust camera, microphone, and media library permission management
+- **Affirmation scheduling**: Title, message, and date/time validation via `Scheduler`
+- **Pending and history**: Pill toggle between pending and sent lists (`ScheduleHistory`)
+- **Gestures and details**: Swipe-to-delete on rows (`workletGestures`); notification details modal; cancel and edit flows
+- **Push notifications**: Permission handling, Expo push token registration (`registerForPushNotificationsAsync`, `resolveExpoProjectId`); affirmations UI gated until a token is available
+- **Permissions**: Camera, microphone, and media library handling for Lens
 
-### Camera & Lens Features
+### Camera and Lens
 
-- **Advanced Camera Controls**: Multiple camera modes (photo, video, portrait, panorama, square)
-- **Real-time Color Palette Extraction**: Extract 8-color palettes from camera frames in real-time using native iOS frame processors
-- **Camera Roll Integration**: Access and display recent media with infinite scrolling
-- **Grid Overlay**: Professional photography grid for composition
-- **Flash & Device Controls**: Full camera control suite with multiple device support
-- **Gesture Support**: Tap-to-focus functionality with animated focus indicators
-- **Video Recording**: Capture videos with custom settings (disabled during color lens mode)
-- **Camera Roll Inspector**: Modal view for detailed photo inspection
-- **Color Palette Storage**: Automatically save color palettes with captured photos
+| Area | What it does |
+|------|----------------|
+| **View modes** | **Lens** (palette + standard camera) vs **Obskura** (Skia live preview and still export) — `CAMERA_VIEW_MODE` in [`lib/features/Lens/Camera/options.ts`](lib/features/Lens/Camera/options.ts) |
+| **Color lens** (Lens mode) | Live 8-swatch palette from frames; palette saved on photo capture when enabled — **iOS only** (native frame processor) |
+| **Obskura** | Skia GPU filter; color modes `default` and `tame-red`; **photo only** (no video) |
+| **Capture** | Tap for photo; long-press for video when color lens is **off** and view mode is **Lens** (not Obskura) |
+| **Shared controls** | Grid, flash, physical device selection, front/back flip, tap-to-focus, camera roll thumbnail with modal and inspector |
+| **Platform** | **Obskura** on iOS and Android; **color lens** requires the local iOS plugin — not shipped for Android yet |
 
-### Technical Features
+Full Lens architecture, platform matrix, and debugging: [`lib/features/Lens/README.md`](lib/features/Lens/README.md).
 
-- **Dark/Light Theme Support**: Complete theming system with automatic scheme detection
-- **TypeScript**: Fully typed codebase for better development experience
-- **Testing**: Comprehensive Jest testing with React Native Testing Library
-- **State Management**: Global state management with React Context + useReducer
-- **File-based Routing**: Expo Router with modal and tab navigation
-- **Performance Optimized**: Frame processors and worklets for real-time processing
-- **Native iOS Integration**: Custom Swift frame processor for color extraction
+### Technical features
 
-## 🛠 Tech Stack
+- **New Architecture** enabled (`newArchEnabled: true` in `app.json`)
+- **TypeScript** throughout `lib/`
+- **Co-located tests**: `*.spec.tsx` / `*.spec.ts` next to implementation files
+- **State**: React Context + `useReducer` under [`lib/platform/`](lib/platform/)
+- **Routing**: Expo Router — tabs and modals
+- **AI / editor conventions**: [`.cursorrules`](.cursorrules) and [`.cursor/rules/`](.cursor/rules/)
 
-### Core Framework
+## Tech stack
 
-- **React Native** with **Expo SDK 53**
-- **TypeScript** for type safety
-- **Expo Router** for file-based navigation
+### Core framework
 
-### Camera & Media
+- **Expo SDK** 53.0.27
+- **React** 19.0.0
+- **React Native** 0.79.6
+- **Expo Router** 5.1.11
+- **TypeScript** 5.8.3
 
-- **React Native Vision Camera** for advanced camera functionality
-- **Expo Media Library** for media access
-- **Expo Image Picker** for photo/video selection
-- **React Native Reanimated** for smooth animations
-- **React Native Worklets Core** for performance optimization
-- **Custom iOS Frame Processor** for real-time color extraction
+### Camera and graphics
 
-### Notifications
+- **react-native-vision-camera** 4.7.0
+- **react-native-reanimated** 3.17.5
+- **react-native-worklets-core** 1.5.0
+- **@shopify/react-native-skia** v2.0.0-next.4
+- **expo-color-lens-frame-processor** — local package at [`modules/expo-color-lens-frame-processor`](modules/expo-color-lens-frame-processor)
 
-- **Expo Notifications** for local notification scheduling
-- **AsyncStorage** for persistent data storage
+### Notifications and storage
 
-### UI & Styling
+- **expo-notifications** 0.31.5
+- **@react-native-async-storage/async-storage** 2.1.2
 
-- **Custom Themed Components** with dark/light mode support
-- **React Native Gesture Handler** for touch interactions
-- **React Native Safe Area Context** for proper layout handling
-- **Expo Symbols** for SF Symbols integration
+### UI and platform
 
-### Development Tools
+- Themed components (`ThemedView`, `ThemedText`, `ThemedButton`, …)
+- **react-native-gesture-handler**, **react-native-safe-area-context**
+- **expo-image**, **expo-blur**, **expo-symbols**, **expo-media-library**, **expo-haptics**, and related Expo modules (see [`package.json`](package.json))
 
-- **Jest** + **React Native Testing Library** for testing
-- **ESLint** + **Prettier** for code quality
-- **Expo Haptics** for tactile feedback
+### Development
 
-## 📱 App Structure
+- **Jest** 29 + **jest-expo** 53 + **@testing-library/react-native**
+- **ESLint** + **Prettier**
+
+## App structure
 
 ### Navigation
 
-- **Tab Navigation**: Home, Lens (Camera), Affirmations
-- **Modal Navigation**: Notification details modal, Camera roll modal, Camera roll inspector
-- **File-based Routing**: Automatic route generation
+```mermaid
+flowchart TB
+  subgraph tabs [Tab navigator]
+    Home[index - Settings hub]
+    Lens[lens-screen - tab bar hidden]
+    Affirm[affirmations-screen]
+  end
+  subgraph modals [Modals]
+    Details[notification-details-modal]
+    Roll[lens-camera-roll-modal]
+    Inspector[camera-roll-inspector]
+  end
+  Home --> Lens
+  Home --> Affirm
+  Lens --> Roll
+  Roll --> Inspector
+  Affirm --> Details
+```
+
+Route names and paths: [`lib/routes/routes.ts`](lib/routes/routes.ts). The Lens tab hides the bottom tab bar while focused ([`app/(tabs)/_layout.tsx`](app/(tabs)/_layout.tsx)).
 
 ### Screens
 
-1. **Home Screen**: Settings and navigation hub
-2. **Lens Screen**: Advanced camera with color palette extraction
-3. **Affirmations Screen**: Schedule and manage notifications
+1. **Home** ([`lib/screens/Home.tsx`](lib/screens/Home.tsx)) — settings and navigation hub
+2. **Lens** — full-screen camera (Lens + Obskura)
+3. **Affirmations** — scheduler and schedule history when push setup is complete
 
-### State Management
+### State management
 
-- **Global Context**: Centralized state with actions and reducers
-- **Feature-based Organization**: Separate contexts for different app domains
-- **Persistent Storage**: AsyncStorage integration for data persistence
-- **Lens Palette Storage**: Color palette data associated with captured photos
+- Global **Context** with feature **actions** and **reducers** in [`lib/platform/`](lib/platform/)
+- **Affirmations**: pending/history notifications, scheduling helpers
+- **Lens**: `lensPalettesMap` — color palettes keyed to captured media, hydrated from storage
 
-## 🎨 Design System
+## Design system
 
-### Theming
+- **Themes**: Light/dark via system scheme and `useThemeColor`
+- **Tokens**: Semantic colors ([`lib/styles/colors.ts`](lib/styles/colors.ts)), 4px-based spacing ([`lib/styles/spacing.ts`](lib/styles/spacing.ts)), shared layouts ([`lib/styles/globalStyles.ts`](lib/styles/globalStyles.ts))
+- **Components**: Themed primitives and shared UI under [`lib/components/`](lib/components/)
 
-- **Automatic Theme Detection**: Light/dark mode based on system settings
-- **Comprehensive Color Palette**: Semantic color naming system
-- **Consistent Spacing**: 4px base unit system
-- **Typography Scale**: Consistent text sizing and weights
+Styling conventions for contributors: [`.cursorrules`](.cursorrules) (styling sections).
 
-### Components
+## Prerequisites
 
-- **Themed Components**: All components support theming
-- **Shared Components**: Reusable UI components
-- **Custom Icons**: SF Symbols integration
-- **Responsive Design**: Adapts to different screen sizes
+Before developing Lens or running native builds:
 
-## 🔧 Development
+- **Node.js** — Use a version supported by [Expo SDK 53](https://docs.expo.dev/) (no `engines` field in this repo; follow current Expo LTS guidance)
+- **npm** — **10.9.2** via `packageManager` in `package.json`; `preinstall` runs `corepack enable`
+- **iOS** — Recent **Xcode**, **CocoaPods** (`npm run podpod` after native changes)
+- **Android** — **Android Studio**, SDK, emulator or device
+- **Dev client** — **Required** for Lens: Vision Camera, worklets, Skia, and the iOS frame processor do **not** run in Expo Go alone. Use `npm run ios` / `npm run android` or an EAS development build
+- **Watchman** (optional, macOS) — Referenced in the `nuke` script for cache resets
 
-### Getting Started
+## Development
 
-1. **Install Dependencies**
+### Getting started
+
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. **Start Development Server**
+2. First-time or after native module changes:
 
    ```bash
-   npx expo start
+   npm run recharge
    ```
 
-3. **Run on Device/Simulator**
-   - Press `i` for iOS Simulator
-   - Press `a` for Android Emulator
-   - Scan QR code with Expo Go app
+   This runs `npm i`, `npx expo install`, `npx expo prebuild`, and `podpod` (iOS pods).
 
-### Available Scripts
+3. Run on a simulator or device:
+
+   ```bash
+   npm run ios
+   # or
+   npm run android
+   ```
+
+4. Start Metro (use `--clear` after Babel or worklets changes):
+
+   ```bash
+   npm start
+   npm start -- --clear
+   ```
+
+### Available scripts
 
 ```bash
 # Development
-npm start                    # Start Expo development server
-npm run ios                 # Run on iOS simulator
-npm run android             # Run on Android emulator
-npm run web                 # Run on web browser
+npm start                 # Expo dev server
+npm run ios               # expo run:ios (dev client)
+npm run android           # expo run:android (dev client)
+npm run web               # expo start --web
+
+# Code quality
+npm run lint              # ESLint (expo lint)
+npm run ts                # tsc --noEmit
+npm run format            # Prettier write
+npm run format:check      # Prettier check
 
 # Testing
-npm test                    # Run all tests
-npm run test:all           # Run tests in watch mode
+npm test                  # Jest
+npm run test:all          # Jest watch mode
+npm run test:coverage:lens
+npm run test:coverage:affirmations
 
-# Code Quality
-npm run lint               # Run ESLint
-npm run format             # Format code with Prettier
-npm run format:check       # Check code formatting
+# Native hygiene
+npm run nuke              # Remove node_modules, jest cache, coverage; reinstall
+npm run nuke:full         # Also remove ios/ and android/, then nuke
+npm run nuke:start        # nuke + recharge + ios
+npm run nuke:fullstart    # nuke:full + recharge + ios
+npm run recharge          # install + expo install + prebuild + podpod
+npm run podpod            # cd ios && pod install
 
-# Project Management
-npm run reset-project      # Reset to blank project
-npm run nuke              # Clean install (remove node_modules, etc.)
-npm run recharge          # Reinstall and rebuild native code
+# Version bumps (app.json / related)
+npm run version:patch
+npm run version:minor
+npm run version:major
 ```
 
-### Project Structure
+### Project structure
 
 ```
 affirmations/
-├── app/                    # Expo Router app directory
-│   ├── (tabs)/            # Tab navigation screens
-│   ├── (modals)/          # Modal screens
-│   └── _layout.tsx        # Root layout
-├── lib/                    # Application library
-│   ├── components/         # Reusable UI components
-│   ├── features/          # Feature-specific logic
-│   │   ├── Lens/          # Camera (Camera/), color palette (ColorPalette/)
-│   │   └── Affirmations/  # Affirmations + Notifications/
-│   ├── platform/          # Global state management
-│   ├── screens/           # Screen container components
-│   ├── styles/            # Theming and styling system
-│   ├── testing/           # Testing utilities
-│   └── utils/             # Utility functions
-├── assets/                # Static assets
-└── ios/android/          # Native platform code
+├── app/                    # Expo Router (tabs + modals)
+│   ├── (tabs)/
+│   ├── (modals)/
+│   └── _layout.tsx
+├── lib/
+│   ├── components/
+│   ├── features/
+│   │   ├── Affirmations/
+│   │   └── Lens/           # Camera, Obskura, ColorPalette — see Lens/README.md
+│   ├── platform/           # actions, reducers, context
+│   ├── routes/
+│   ├── screens/
+│   ├── styles/
+│   ├── testing/            # Shared test utilities — see testing/README.md
+│   └── utils/
+├── modules/
+│   └── expo-color-lens-frame-processor/
+├── plugins/                # e.g. withFmtXcode26Podfile.js
+├── .cursor/rules/
+├── assets/
+├── ios/ android/           # Generated after prebuild
+├── app.json
+├── eas.json
+└── package.json
 ```
 
-## 🧪 Testing
+## Testing
 
-The app includes comprehensive testing with:
+Tests use **Jest** and **React Native Testing Library**. Shared helpers live in [`lib/testing/README.md`](lib/testing/README.md), including:
 
-- **Jest** test runner
-- **React Native Testing Library** for component testing
-- **Custom test utilities** for context and navigation testing
-- **Mock implementations** for native modules
+- `renderWithContext` / `renderRouterWithContext` for providers and navigation
+- Date/time picker mocks
+- `getObskuraVisionCameraJestMock` for Vision Camera in Lens tests
 
-### Running Tests
+Philosophy (see [`.cursor/rules/affirmations-testing.mdc`](.cursor/rules/affirmations-testing.mdc)): prefer **`findBy*`** queries first; assert user-visible behavior, not implementation details.
 
 ```bash
-npm test                    # Run all tests
-npm test -- --watch        # Run tests in watch mode
-npm test -- path/to/test   # Run specific test file
+npm test
+npm run test:all
+npm test -- path/to/file.spec.tsx
+npm run test:coverage:lens          # 100% thresholds on selected Lens files
+npm run test:coverage:affirmations  # 100% thresholds on Affirmations feature files
 ```
 
-## 📦 Building
+## Building
 
-### Development Build
+Use [EAS Build](https://docs.expo.dev/build/introduction/) with profiles in [`eas.json`](eas.json):
 
 ```bash
-npm run build
+# Development (internal distribution, debug iOS)
+eas build --profile development --platform ios
+eas build --profile development --platform android
+
+# Preview / production
+eas build --profile preview --platform all
+eas build --profile production --platform ios
+eas build --profile production --platform android
 ```
 
-### Production Build
+There is no `npm run build` script in this repo — native runs use `expo run:*` locally; release artifacts use EAS.
 
-```bash
-# iOS
-eas build --platform ios
+## Key features
 
-# Android
-eas build --platform android
-```
+### Affirmations and notifications
 
-## 🔍 Key Features Deep Dive
+- Schedule local notifications with validated title, message, and trigger time
+- Separate **pending** and **history** lists with sorting by trigger date
+- Modal flow for notification details; swipe and actions for management
+- History persisted via AsyncStorage; custom notification sounds where configured
 
-### Camera System
+### Lens (summary)
 
-- **Real-time Processing**: Native iOS frame processors for live color extraction
-- **Multiple Modes**: Photo, video, portrait, panorama, and square modes
-- **Advanced Controls**: Flash, grid, device switching, timer modes
-- **Performance Optimized**: Worklets and frame rate limiting for smooth real-time processing
-- **Color Palette Extraction**: Extracts 8 dominant colors (primary, secondary, tertiary, quaternary, quinary, senary, background, detail)
-- **Camera Roll Integration**: Infinite scrolling gallery with recent photos
-- **Focus Controls**: Tap-to-focus with animated indicators
+- Toggle **Lens** vs **Obskura** without leaving the camera screen
+- **Color lens**: real-time swatches and palette persistence on capture (iOS)
+- **Obskura**: Skia-painted stills and live preview at reduced FPS for stability
+- Camera roll integration with inspector sub-route
 
-### Notification System
+**Full architecture, FPS limits, and platform matrix:** [`lib/features/Lens/README.md`](lib/features/Lens/README.md)
 
-- **Flexible Scheduling**: Custom dates and times with validation
-- **Rich Content**: Titles, messages, and custom data
-- **History Management**: Complete audit trail with pending and history views
-- **Permission Handling**: Robust permission management
-- **Edit & Delete**: Full CRUD operations on scheduled notifications
+### State and persistence
 
-### State Management
+- Immutable reducer updates for affirmations and lens palette map
+- Lens palettes loaded on mount (`useInitLensPalettes`) and saved when captures complete
+- Type-safe actions from [`lib/platform/actions/`](lib/platform/actions/)
 
-- **Context-based**: React Context with useReducer
-- **Type-safe**: Full TypeScript integration
-- **Persistent**: AsyncStorage for data persistence
-- **Modular**: Feature-based organization
-- **Lens Palette Storage**: Color data associated with captured media
+## Contributing
 
-## 🤝 Contributing
-
-1. Fork the repository
+1. Fork the repository (if applicable to your workflow)
 2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+3. Match conventions in [`.cursorrules`](.cursorrules) — imports, themed components, co-located tests
+4. Add or update tests for behavior you change
+5. Run `npm run ts`, `npm run lint`, and `npm test`
+6. Open a pull request with a clear description and test notes
 
-## 📄 License
+## License
 
 This project is private and proprietary.
 
-## 🆘 Support
+## Support
 
-For issues and questions:
+For issues:
 
-- Check the existing issues
-- Create a new issue with detailed information
-- Include device/OS information for bug reports
+- Search existing issues first
+- File a new issue with steps to reproduce, expected vs actual behavior, and device/OS details
 
----
+## Roadmap and direction
 
-## 🤖 AI Forecast
+### Shipped (foundation)
 
-Based on the sophisticated architecture and feature set of this affirmations app, here's my analysis of the long-term vision:
+- Affirmation scheduling, pending/history UI, and notification details flow
+- Lens camera with **Obskura** (cross-platform Skia path)
+- **iOS color lens** via `expo-color-lens-frame-processor`
+- Co-located Jest coverage with strict gates for Lens and Affirmations surfaces
+- React Native New Architecture enabled
 
-### 🎯 Core Vision
+### Near-term (2026)
 
-This project appears to be evolving into a **comprehensive wellness and mindfulness platform** that combines traditional affirmation practices with cutting-edge AI and computer vision technology.
+Grounded in current gaps documented in [`lib/features/Lens/README.md`](lib/features/Lens/README.md#known-limitations):
 
-### 🔮 Long-term Trajectory
+- **Android color lens** — ship frame processor in the local Expo module (today: Apple-only in module config)
+- **Focus ring UI** — `useCameraFocus` exposes animation; ring not rendered in `Camera.tsx`
+- **Frame processor dependencies** — align worklet closure deps with Vision Camera guidance
+- **Lens provider** — finish provider/install TODOs in `Lens.tsx` / `useInitLensPalettes`
+- **Permission and test hygiene** — media-library effect deps, remove debug logs, small export/test mismatches
 
-#### Phase 1: Foundation (Current)
+### Medium term (2026–2027)
 
-- ✅ Affirmation scheduling and notification system
-- ✅ Advanced camera with real-time color palette extraction
-- ✅ Robust state management and theming system
-- ✅ Camera roll integration with color palette storage
+- Richer affirmation personalization (templates, categories) without over-scoping the core scheduler
+- Deeper color / mood tie-ins using stored palettes (grounded in data you already capture)
+- Optional biometric or wellness integrations only where privacy and permissions are explicit
 
-#### Phase 2: AI Integration (Near-term)
+### Longer term
 
-- **Emotion Detection**: Using the camera to analyze user facial expressions and emotional states
-- **Personalized Affirmations**: AI-generated affirmations based on detected emotions and user patterns
-- **Voice Recognition**: Speech-to-text for hands-free affirmation creation
-- **Sentiment Analysis**: Understanding user mood through text analysis
-- **Color Psychology**: Leverage extracted color palettes for mood-based affirmations
+- Community or shared affirmation flows with strong privacy defaults
+- Broader wellness integrations (partnerships, analytics) if product direction warrants it
 
-#### Phase 3: Advanced Wellness Features (Medium-term)
-
-- **Biometric Integration**: Heart rate, stress levels, and sleep data correlation
-- **Environmental Analysis**: Using camera to assess lighting, environment, and mood factors
-- **Social Features**: Sharing affirmations with trusted circles while maintaining privacy
-- **Progress Tracking**: AI-powered insights into emotional patterns and growth
-- **Color Therapy**: Advanced color-based wellness recommendations
-
-#### Phase 4: Holistic Wellness Platform (Long-term)
-
-- **Predictive Affirmations**: AI that anticipates when users need affirmations based on patterns
-- **Multimodal AI**: Combining camera, voice, and biometric data for comprehensive wellness insights
-- **Therapeutic Integration**: Partnerships with mental health professionals and therapy apps
-- **Community Features**: Anonymous support groups and wellness challenges
-- **Environmental Wellness**: Using camera data to suggest environmental improvements
-
-### 🧠 Technical Architecture Insights
-
-The current codebase reveals several strategic decisions that support this vision:
-
-1. **Real-time Processing Foundation**: The frame processor architecture for color palette extraction is a stepping stone to real-time emotion detection and environmental analysis.
-
-2. **Modular State Management**: The context-based state system with feature-based organization allows for easy integration of new AI features without architectural changes.
-
-3. **Permission-First Design**: The robust permission handling system will be crucial for accessing biometric data and advanced device features.
-
-4. **Testing Infrastructure**: The comprehensive testing setup ensures AI features can be reliably deployed and updated.
-
-5. **Color Data Foundation**: The color palette extraction and storage system provides a foundation for color psychology and environmental analysis features.
-
-### 🎨 Design Philosophy Alignment
-
-The theming system and component architecture suggest a focus on:
-
-- **Accessibility**: Ensuring AI features work for users with different abilities
-- **Privacy**: User-controlled data sharing and local processing where possible
-- **Personalization**: Adaptive interfaces that respond to user preferences and needs
-- **Visual Wellness**: Color-aware interfaces that adapt to user mood and environment
-
-### 🚀 Market Positioning
-
-This project has the potential to become a **premium wellness app** that:
-
-- Differentiates itself through AI-powered personalization
-- Appeals to both casual users and serious wellness practitioners
-- Creates a new category combining traditional mindfulness with modern technology
-- Builds a sustainable business model through premium features and professional partnerships
-
-### 🔮 Predictions
-
-1. **2024-2025**: Core AI features (emotion detection, personalized affirmations, color psychology)
-2. **2025-2026**: Biometric integration and advanced analytics
-3. **2026-2027**: Community features and therapeutic partnerships
-4. **2027+**: Platform expansion into broader wellness ecosystem
-
-The combination of solid technical foundations, thoughtful architecture, and the integration of cutting-edge AI capabilities positions this project for significant growth in the rapidly expanding mental wellness market.
+The modular platform layer (context + feature reducers) and the frame-processor / Skia split (real-time native vs GPU filter) are intentional: new sensing or AI features can plug in without rewriting navigation or affirmations core.
 
 ---
 
-Built with ❤️ using React Native and Expo
+Further reading: [Lens developer guide](lib/features/Lens/README.md) · [Testing utilities](lib/testing/README.md)
+
+Built with React Native and Expo.
