@@ -6,6 +6,8 @@ import { StyleSheet } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 import {
   CameraDevice,
+  Templates,
+  useCameraFormat,
   useSkiaFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
@@ -30,6 +32,12 @@ export const ObskuraCameraSurface = ({
   fps,
   colorMode,
 }: ObskuraCameraSurfaceProps) => {
+  const formatFilters = useMemo(
+    () => [{ fps }, ...Templates.FrameProcessing, { photoResolution: 'max' as const }],
+    [fps]
+  );
+  const format = useCameraFormat(device, formatFilters);
+
   const lensPaint = useMemo(() => createObskuraLensPaint(colorMode), [colorMode]);
 
   useEffect(() => {
@@ -53,9 +61,8 @@ export const ObskuraCameraSurface = ({
       style={StyleSheet.absoluteFill}
       device={device}
       isActive={isActive}
+      format={format}
       photo
-      video
-      audio
       frameProcessor={isActive ? frameProcessor : undefined}
       fps={fps}
     />

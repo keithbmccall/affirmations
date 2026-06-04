@@ -1,4 +1,5 @@
 import {
+  mockObskuraFrameProcessingFormat,
   resetObskuraVisionCameraMockState,
   obskuraVisionCameraMockState,
 } from '@testing/getObskuraVisionCameraJestMock';
@@ -46,6 +47,12 @@ describe('ObskuraCameraSurface', () => {
     expect(mockCreateObskuraLensPaint).toHaveBeenCalledWith(OBSKURA_COLOR_MODE.DEFAULT);
     expect(obskuraVisionCameraMockState.lastCameraProps?.frameProcessor).toBeDefined();
     expect(obskuraVisionCameraMockState.lastCameraProps?.fps).toBe(15);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.format).toBe(
+      mockObskuraFrameProcessingFormat
+    );
+    expect(obskuraVisionCameraMockState.lastCameraProps?.photo).toBe(true);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.video).toBeUndefined();
+    expect(obskuraVisionCameraMockState.lastCameraProps?.audio).toBeUndefined();
   });
 
   it('omits frameProcessor when inactive', () => {

@@ -214,10 +214,11 @@ Used when `cameraViewMode === CAMERA_VIEW_MODE.OBSKURA`.
 
 ### Live preview flow
 
-1. **`ObskuraCameraSurface`** builds a **`SkPaint`** via `createObskuraLensPaint(colorMode)` (memoized per mode).
-2. **`useSkiaFrameProcessor`** receives frames as a drawable surface; the worklet calls `frame.render(lensPaint)`.
-3. Filter chain: saturation (uniform or tame-red matrix) composed with contrast, then Gaussian blur (`OBSKURA_LENS_BLUR_SIGMA`, scaled for output size when exporting stills).
-4. Preview FPS is fixed at **15** (`OBSKURA_FPS` in `Camera.tsx`) to reduce GPU heat and memory pressure.
+1. **`ObskuraCameraSurface`** selects a camera format via **`useCameraFormat`** with **`Templates.FrameProcessing`** (~1080×720 video for the frame processor) and **`photoResolution: 'max'`** for full-quality stills.
+2. Builds a **`SkPaint`** via `createObskuraLensPaint(colorMode)` (memoized per mode).
+3. **`useSkiaFrameProcessor`** receives frames at the format’s video resolution; the worklet calls `frame.render(lensPaint)`.
+4. Filter chain: saturation (uniform or tame-red matrix) composed with contrast, then Gaussian blur (`OBSKURA_LENS_BLUR_SIGMA`, scaled for output size when exporting stills).
+5. Preview FPS is fixed at **15** (`OBSKURA_FPS` in `Camera.tsx`). Obskura mounts **`photo` only** (no `video` / `audio` pipelines).
 
 ### Capture flow (Obskura mode)
 
@@ -346,7 +347,7 @@ Documented gaps in the current implementation (not fixed in this doc):
 1. **After Babel or worklets changes**: `npx expo start --clear` (or `npm start -- --reset-cache`).
 2. **Plugin not found / palette always fails**: Check Xcode/device logs for `[ExpoColorLensFrameProcessor] Registering VisionCamera plugin "getColorLensPalette"`. Re-run prebuild and `pod install` if the native module changed.
 3. **Isolate Obskura vs color lens**: Toggle view mode to Obskura, or turn off color lens in Lens mode.
-4. **Thermal / crashes in Obskura mode**: Lower `OBSKURA_FPS` or `OBSKURA_LENS_BLUR_SIGMA` in `Obskura/createObskuraLensPaint.ts` before adding more per-frame GPU work.
+4. **Memory kill (jetsam) in Obskura mode**: iOS may terminate after ~1 min at full preview resolution. Mitigations (in order): keep **`useCameraFormat`** + `Templates.FrameProcessing` on `ObskuraCameraSurface`, lower `OBSKURA_LENS_BLUR_SIGMA`, then try a lower `videoResolution` (e.g. 960×540) in the format filters. Lower `OBSKURA_FPS` only if needed.
 5. **Lens coverage locally**: `npm run test:coverage:lens` (see `package.json`).
 
 ## Best practices for code in this feature
@@ -391,7 +392,9 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 
 - Create paints via `createObskuraLensPaint`; `dispose()` in `useEffect` cleanup on the surface.
 - Dispose all Skia API objects in `finally` on still export paths.
-- Tune `OBSKURA_FPS`, `COLOR_LENS_FPS`, and blur sigma before adding more GPU work per frame.
+- Use **`useCameraFormat`** on Obskura with **`Templates.FrameProcessing`** for preview; **`photoResolution: 'max'`** for capture.
+- Obskura surface: **`photo` only** — no `video` or `audio` while the Skia frame processor runs.
+- Tune `OBSKURA_LENS_BLUR_SIGMA` before lowering `OBSKURA_FPS` or adding more GPU work per frame.
 - Use `outputShortSidePx` when exporting stills so blur matches preview.
 
 **Avoid**
@@ -418,7 +421,7 @@ Affirmations-wide rules live in `.cursorrules` and `.cursor/rules/affirmations-p
 **Do**
 
 - Gate video when modes conflict: `isVideoNotAllowed = isColorLensEnabled || isObskuraMode` (no video in Obskura mode or with color lens on).
-- Lower FPS when Obskura or color lens is active.
+- Cap Obskura preview resolution via `useCameraFormat`; lower FPS in Obskura only when jetsam persists after format + blur tuning.
 - Set `isCameraActive` false when the screen loses focus.
 
 **Avoid**

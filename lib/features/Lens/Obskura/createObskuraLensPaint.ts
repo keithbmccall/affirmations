@@ -11,7 +11,7 @@ import { ColorChannel, Skia, TileMode, type SkPaint } from '@shopify/react-nativ
  * Higher = heavier preview + more GPU work per frame.
  * If the app gets hot or crashes in Obskura mode, lower this before changing FPS.
  */
-export const OBSKURA_LENS_BLUR_SIGMA = 40;
+export const OBSKURA_LENS_BLUR_SIGMA = 28;
 /**
  * Short-side length (px) that {@link OBSKURA_LENS_BLUR_SIGMA} is tuned for. Live preview
  * runs at roughly HD-class frame sizes; full-res stills are larger, so export scales
