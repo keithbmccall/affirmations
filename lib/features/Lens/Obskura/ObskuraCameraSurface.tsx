@@ -1,7 +1,7 @@
 import { buildObskuraLensPaintFromPipeline } from '@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline';
 import { OBSKURA_LENS_PIPELINE } from '@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig';
 import { type ObskuraColorMode } from '@features/Lens/Obskura/options';
-import { useEffect, useMemo } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 
 import { StyleSheet } from 'react-native';
 import Reanimated from 'react-native-reanimated';
@@ -26,13 +26,13 @@ interface ObskuraCameraSurfaceProps {
   colorMode: ObskuraColorMode;
 }
 
-export const ObskuraCameraSurface = ({
+export const ObskuraCameraSurface = memo(function ObskuraCameraSurface({
   cameraRef,
   device,
   isActive,
   fps,
   colorMode,
-}: ObskuraCameraSurfaceProps) => {
+}: ObskuraCameraSurfaceProps) {
   const formatFilters = useMemo(
     () => [{ fps }, ...Templates.FrameProcessing, { photoResolution: 'max' as const }],
     [fps]
@@ -71,4 +71,4 @@ export const ObskuraCameraSurface = ({
       fps={fps}
     />
   );
-};
+});
