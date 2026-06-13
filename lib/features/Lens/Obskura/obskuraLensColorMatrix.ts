@@ -34,3 +34,11 @@ export function buildUniformSaturationColorMatrix(
 
   return [sr + s, sg, sb, 0, 0, sr, sg + s, sb, 0, 0, sr, sg, sb + s, 0, 0, 0, 0, 0, 1, 0];
 }
+
+/**
+ * Uniform RGB offset. `0` = neutral; negative darkens (pulls highlights / whites down).
+ */
+export function buildBrightnessColorMatrix(brightness: number): number[] {
+  const b = brightness;
+  return [1, 0, 0, 0, b, 0, 1, 0, 0, b, 0, 0, 1, 0, b, 0, 0, 0, 1, 0];
+}
