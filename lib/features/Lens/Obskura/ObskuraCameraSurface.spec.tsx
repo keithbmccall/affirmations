@@ -1,3 +1,24 @@
+import { ObskuraCameraSurface } from './ObskuraCameraSurface';
+import { OBSKURA_COLOR_MODE } from './options';
+
+const mockDispose = jest.fn();
+const mockBuildObskuraLensPaintFromPipeline = jest.fn((_pipeline: unknown, _context: unknown) => ({
+  dispose: mockDispose,
+}));
+
+jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', () => ({
+  buildObskuraLensPaintFromPipeline: (pipeline: unknown, context: unknown) =>
+    mockBuildObskuraLensPaintFromPipeline(pipeline, context),
+}));
+
+jest.mock('@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig', () => ({
+  OBSKURA_LENS_PIPELINE: [{ action: 'blur', settings: { sigma: 60 } }],
+}));
+
+jest.mock('react-native-vision-camera', () =>
+  jest.requireActual('@testing/getObskuraVisionCameraJestMock').getObskuraVisionCameraJestMock()
+);
+
 import {
   mockObskuraFrameProcessingFormat,
   resetObskuraVisionCameraMockState,
@@ -7,19 +28,6 @@ import { render } from '@testing-library/react-native';
 import React, { createRef } from 'react';
 import type { CameraDevice } from 'react-native-vision-camera';
 import { Camera as VisionCamera } from 'react-native-vision-camera';
-import { ObskuraCameraSurface } from './ObskuraCameraSurface';
-import { OBSKURA_COLOR_MODE } from './options';
-
-const mockDispose = jest.fn();
-const mockCreateObskuraLensPaint = jest.fn((_colorMode: unknown) => ({ dispose: mockDispose }));
-
-jest.mock('@features/Lens/Obskura/createObskuraLensPaint', () => ({
-  createObskuraLensPaint: (colorMode: unknown) => mockCreateObskuraLensPaint(colorMode),
-}));
-
-jest.mock('react-native-vision-camera', () =>
-  jest.requireActual('@testing/getObskuraVisionCameraJestMock').getObskuraVisionCameraJestMock()
-);
 
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
 
@@ -27,7 +35,7 @@ describe('ObskuraCameraSurface', () => {
   beforeEach(() => {
     resetObskuraVisionCameraMockState();
     mockDispose.mockClear();
-    mockCreateObskuraLensPaint.mockClear();
+    mockBuildObskuraLensPaintFromPipeline.mockClear();
     jest.clearAllMocks();
   });
 
@@ -44,7 +52,10 @@ describe('ObskuraCameraSurface', () => {
       />
     );
 
-    expect(mockCreateObskuraLensPaint).toHaveBeenCalledWith(OBSKURA_COLOR_MODE.DEFAULT);
+    expect(mockBuildObskuraLensPaintFromPipeline).toHaveBeenCalledWith(
+      [{ action: 'blur', settings: { sigma: 60 } }],
+      { colorMode: OBSKURA_COLOR_MODE.DEFAULT }
+    );
     expect(obskuraVisionCameraMockState.lastCameraProps?.frameProcessor).toBeDefined();
     expect(obskuraVisionCameraMockState.lastCameraProps?.fps).toBe(15);
     expect(obskuraVisionCameraMockState.lastCameraProps?.format).toBe(
@@ -95,7 +106,10 @@ describe('ObskuraCameraSurface', () => {
     );
 
     expect(mockDispose).toHaveBeenCalledTimes(1);
-    expect(mockCreateObskuraLensPaint).toHaveBeenCalledWith(OBSKURA_COLOR_MODE.TAME_RED);
+    expect(mockBuildObskuraLensPaintFromPipeline).toHaveBeenCalledWith(
+      [{ action: 'blur', settings: { sigma: 60 } }],
+      { colorMode: OBSKURA_COLOR_MODE.TAME_RED }
+    );
   });
 
   it('disposes paint on unmount', () => {

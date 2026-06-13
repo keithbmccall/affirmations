@@ -1,9 +1,5 @@
+import type { ToneCurveStepSettings } from '@features/Lens/Obskura/pipeline/obskuraLensPipelineTypes';
 import { Skia, type SkImageFilter, type SkRuntimeEffect } from '@shopify/react-native-skia';
-
-/** Raises dark tones; shared across Obskura color modes. */
-export const OBSKURA_LENS_SHADOW_LIFT = 0.1;
-/** Lowers bright tones / whites; shared across Obskura color modes. */
-export const OBSKURA_LENS_HIGHLIGHT_PULL = 0.1;
 
 const TONE_CURVE_SKSL = `
 uniform shader image;
@@ -41,9 +37,12 @@ function getObskuraToneCurveEffect(): SkRuntimeEffect {
 /**
  * Luma-weighted shadow lift and highlight pull. Chained after blur, before color grading.
  */
-export function buildObskuraToneCurveImageFilter(input: SkImageFilter | null): SkImageFilter {
+export function buildObskuraToneCurveImageFilter(
+  input: SkImageFilter | null,
+  settings: ToneCurveStepSettings
+): SkImageFilter {
   const builder = Skia.RuntimeShaderBuilder(getObskuraToneCurveEffect());
-  builder.setUniform('shadowLift', [OBSKURA_LENS_SHADOW_LIFT]);
-  builder.setUniform('highlightPull', [OBSKURA_LENS_HIGHLIGHT_PULL]);
+  builder.setUniform('shadowLift', [settings.shadowLift]);
+  builder.setUniform('highlightPull', [settings.highlightPull]);
   return Skia.ImageFilter.MakeRuntimeShader(builder, null, input);
 }

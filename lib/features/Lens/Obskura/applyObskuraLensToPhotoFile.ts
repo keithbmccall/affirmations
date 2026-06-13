@@ -1,4 +1,5 @@
-import { createObskuraLensPaint } from '@features/Lens/Obskura/createObskuraLensPaint';
+import { buildObskuraLensPaintFromPipeline } from '@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline';
+import { OBSKURA_LENS_PIPELINE } from '@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig';
 import { type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import {
   ImageFormat,
@@ -53,7 +54,10 @@ export async function applyObskuraLensToPhotoFile({
     const width = sourceImage.width();
     const height = sourceImage.height();
     const outputShortSidePx = Math.min(width, height);
-    lensPaint = createObskuraLensPaint(colorMode, { outputShortSidePx });
+    lensPaint = buildObskuraLensPaintFromPipeline(OBSKURA_LENS_PIPELINE, {
+      colorMode,
+      outputShortSidePx,
+    });
 
     surface = Skia.Surface.MakeOffscreen(width, height);
     if (!surface) {

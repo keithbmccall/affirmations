@@ -1,10 +1,9 @@
-import { OBSKURA_REC709_LUMA } from '@features/Lens/Obskura/obskuraLensColorMatrix';
+import { OBSKURA_REC709_LUMA } from '@features/Lens/Obskura/pipeline/matrices/obskuraRec709Luma';
 
 /**
  * Tunable color-matrix parameters for the TAME_RED color mode (`OBSKURA_COLOR_MODE` in `options`).
  * Adjust here when testing warm indoor vs daylight / blue-sky scenes — no component edits required.
  */
-
 export interface ObskuraTameRedConfig {
   /**
    * Red output row uses `baseSaturation * redSaturationFactor` as effective saturation `s`.
@@ -13,7 +12,7 @@ export interface ObskuraTameRedConfig {
   redSaturationFactor: number;
   /**
    * Green and blue rows use `baseSaturation * greenBlueSaturationMultiplier`.
-   * Raise slightly if tame-red feels flat or skies don’t separate from gray;
+   * Raise slightly if tame-red feels flat or skies don't separate from gray;
    * lower if blue skies clip or feel neon after outdoor testing.
    */
   greenBlueSaturationMultiplier: number;

@@ -1,4 +1,5 @@
-import { createObskuraLensPaint } from '@features/Lens/Obskura/createObskuraLensPaint';
+import { buildObskuraLensPaintFromPipeline } from '@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline';
+import { OBSKURA_LENS_PIPELINE } from '@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig';
 import { type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { useEffect, useMemo } from 'react';
 
@@ -38,7 +39,10 @@ export const ObskuraCameraSurface = ({
   );
   const format = useCameraFormat(device, formatFilters);
 
-  const lensPaint = useMemo(() => createObskuraLensPaint(colorMode), [colorMode]);
+  const lensPaint = useMemo(
+    () => buildObskuraLensPaintFromPipeline(OBSKURA_LENS_PIPELINE, { colorMode }),
+    [colorMode]
+  );
 
   useEffect(() => {
     return () => {
