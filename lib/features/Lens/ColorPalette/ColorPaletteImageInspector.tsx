@@ -10,6 +10,7 @@ import type { InspectionAsset, LensPalette } from './types';
 
 interface ColorPaletteImageInspectorProps {
   image: InspectionAsset;
+  onOverlayOpenChange?: (isOpen: boolean) => void;
 }
 
 interface SwatchButtonProps {
@@ -28,6 +29,7 @@ const SwatchButton = memo(function SwatchButton({ swatch, onSelect }: SwatchButt
 
 export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspector({
   image,
+  onOverlayOpenChange,
 }: ColorPaletteImageInspectorProps) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
@@ -91,7 +93,9 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
         stiffness: 200,
       });
     }
-  }, [overlayHeight, isOverlayOpen]);
+
+    onOverlayOpenChange?.(isOverlayOpen);
+  }, [isOverlayOpen, onOverlayOpenChange, overlayHeight]);
 
   // Handle color changes for smooth blending - moved to onPress handler
   // No useEffect needed since we update animatedColor directly when swatchColor changes

@@ -1,11 +1,12 @@
 import { Modal } from '@components/Modal';
 import { ThemedText } from '@components/shared/ThemedText';
 import { ColorPaletteImage } from '@features/Lens/ColorPalette/ColorPaletteImage';
-import type { InspectionAsset, LensPalette } from '@features/Lens/ColorPalette/types';
+import type { LensPalette } from '@features/Lens/ColorPalette/types';
 import {
   CAMERA_ROLL_GRID_CELL_SIZE,
   CAMERA_ROLL_NUM_COLUMNS,
 } from '@features/Lens/Camera/cameraRollPhotos/cameraRollGridLayout';
+import { toInspectionAsset } from '@features/Lens/Camera/cameraRollPhotos/toInspectionAsset';
 import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCameraRollPhotos';
 import { useLens } from '@platform';
 import { Routes } from '@routes/routes';
@@ -18,14 +19,7 @@ import { memo, useCallback, useMemo } from 'react';
 import { FlatList, Pressable, StyleSheet } from 'react-native';
 
 const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) => {
-  const item: InspectionAsset = {
-    height: asset.height,
-    width: asset.width,
-    uri: asset.uri,
-    mediaType: asset.mediaType,
-    id: asset.id,
-    palette: lensPalette?.palette,
-  };
+  const item = toInspectionAsset(asset, lensPalette);
   router.push({
     pathname: Routes.subRoutes.cameraRollInspector.routePathname,
     params: { asset: JSON.stringify(item) },
@@ -36,16 +30,18 @@ type LensCameraRollProps = ScreenContainerProps;
 
 interface PhotoGridItemProps {
   item: Asset;
+  lensPalette?: LensPalette;
 }
 
 const arePhotoGridItemPropsEqual = (prev: PhotoGridItemProps, next: PhotoGridItemProps) => {
-  return prev.item.id === next.item.id && prev.item.uri === next.item.uri;
+  return (
+    prev.item.id === next.item.id &&
+    prev.item.uri === next.item.uri &&
+    prev.lensPalette === next.lensPalette
+  );
 };
 
-const PhotoGridItem = memo(function PhotoGridItem({ item }: PhotoGridItemProps) {
-  const { lensPalettesMap } = useLens();
-  const lensPalette: LensPalette | undefined = lensPalettesMap[item.id];
-
+const PhotoGridItem = memo(function PhotoGridItem({ item, lensPalette }: PhotoGridItemProps) {
   const handlePress = useCallback(() => {
     handlePhotoPress(item, lensPalette);
   }, [item, lensPalette]);
@@ -63,13 +59,17 @@ const PhotoGridItem = memo(function PhotoGridItem({ item }: PhotoGridItemProps) 
 
 export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRollProps) {
   const { photos, loading, error, loadMore } = useLensCameraRollPhotos();
+  const { lensPalettesMap } = useLens();
   const borderColor = useThemeColor({}, 'background');
 
   const contentContainerStyle = useMemo(() => ({ borderColor }), [borderColor]);
 
-  const renderPhoto = useCallback(({ item }: { item: Asset }) => {
-    return <PhotoGridItem item={item} />;
-  }, []);
+  const renderPhoto = useCallback(
+    ({ item }: { item: Asset }) => (
+      <PhotoGridItem item={item} lensPalette={lensPalettesMap[item.id]} />
+    ),
+    [lensPalettesMap]
+  );
 
   const keyExtractor = useCallback((item: Asset) => item.id, []);
 

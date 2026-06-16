@@ -54,7 +54,7 @@ flowchart LR
 |-------|-----------|------|
 | `app/(tabs)/lens-screen.tsx` | `Lens` | Full-screen camera tab |
 | `/(modals)/lens-camera-roll-modal` | `LensCameraRoll` | 3-column grid of library photos |
-| `.../camera-roll-inspector` | `CameraRollInspector` | Single asset; palette overlay experiment |
+| `.../camera-roll-inspector` | `CameraRollInspector` | Single asset with horizontal swipe between cached photos; palette overlay experiment |
 
 The Lens tab is registered in the tab navigator but **hides the tab bar** while that screen is focused (`app/(tabs)/_layout.tsx` sets `tabBarStyle.display: 'none'` for the lens route). Users leave via the back chevron in `Camera.tsx` (`router.back()`).
 
