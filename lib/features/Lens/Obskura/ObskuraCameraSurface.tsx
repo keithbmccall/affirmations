@@ -1,6 +1,7 @@
 import { buildObskuraLensPaintFromPipeline } from '@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline';
 import { OBSKURA_LENS_PIPELINE } from '@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig';
 import { type ObskuraColorMode } from '@features/Lens/Obskura/options';
+import { scheduleDeferredSkPaintDispose } from '@features/Lens/Obskura/scheduleDeferredSkPaintDispose';
 import { memo, useEffect, useMemo } from 'react';
 
 import { StyleSheet } from 'react-native';
@@ -45,8 +46,10 @@ export const ObskuraCameraSurface = memo(function ObskuraCameraSurface({
   );
 
   useEffect(() => {
+    const paint = lensPaint;
+
     return () => {
-      lensPaint.dispose();
+      scheduleDeferredSkPaintDispose(paint);
     };
   }, [lensPaint]);
 

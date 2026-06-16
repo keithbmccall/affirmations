@@ -31,12 +31,29 @@ import { Camera as VisionCamera } from 'react-native-vision-camera';
 
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
 
+function flushDeferredSkPaintDispose() {
+  jest.runOnlyPendingTimers();
+  jest.runOnlyPendingTimers();
+}
+
 describe('ObskuraCameraSurface', () => {
   beforeEach(() => {
     resetObskuraVisionCameraMockState();
     mockDispose.mockClear();
     mockBuildObskuraLensPaintFromPipeline.mockClear();
     jest.clearAllMocks();
+    jest.useFakeTimers();
+    jest.spyOn(global, 'requestAnimationFrame').mockImplementation(callback => {
+      return setTimeout(() => callback(0), 0) as unknown as number;
+    });
+    jest.spyOn(global, 'cancelAnimationFrame').mockImplementation(timerId => {
+      clearTimeout(timerId);
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   it('creates paint for color mode and passes frameProcessor when active', () => {
@@ -82,7 +99,7 @@ describe('ObskuraCameraSurface', () => {
     expect(obskuraVisionCameraMockState.lastCameraProps?.frameProcessor).toBeUndefined();
   });
 
-  it('disposes previous paint when color mode changes', () => {
+  it('defers disposing previous paint when color mode changes', () => {
     const cameraRef = createRef<VisionCamera | null>();
 
     const { rerender } = render(
@@ -105,6 +122,8 @@ describe('ObskuraCameraSurface', () => {
       />
     );
 
+    expect(mockDispose).not.toHaveBeenCalled();
+    flushDeferredSkPaintDispose();
     expect(mockDispose).toHaveBeenCalledTimes(1);
     expect(mockBuildObskuraLensPaintFromPipeline).toHaveBeenCalledWith(
       [{ action: 'blur', settings: { sigma: 60 } }],
@@ -112,7 +131,7 @@ describe('ObskuraCameraSurface', () => {
     );
   });
 
-  it('disposes paint on unmount', () => {
+  it('defers paint dispose on unmount', () => {
     const cameraRef = createRef<VisionCamera | null>();
 
     const { unmount } = render(
@@ -127,6 +146,8 @@ describe('ObskuraCameraSurface', () => {
 
     unmount();
 
+    expect(mockDispose).not.toHaveBeenCalled();
+    flushDeferredSkPaintDispose();
     expect(mockDispose).toHaveBeenCalledTimes(1);
   });
 });

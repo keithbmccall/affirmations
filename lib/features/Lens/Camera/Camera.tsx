@@ -1,12 +1,12 @@
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { ThemedText } from '@components/shared/ThemedText';
-import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
 import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead';
-import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
-import { ObskuraCameraSurface } from '@features/Lens/Obskura/ObskuraCameraSurface';
 import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
+import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
+import { ObskuraCameraSurface } from '@features/Lens/Obskura/ObskuraCameraSurface';
+import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { useLens } from '@platform';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
@@ -40,12 +40,11 @@ import {
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
-/** Obskura blur is GPU-heavy; lower FPS reduces memory pressure and thermal crashes. */
+
 const OBSKURA_FPS = 15;
 const COLOR_LENS_FPS = 15;
 const DEFAULT_FPS = 30;
-/** Swatch blend duration (ms); larger = slower transitions vs camera FPS */
-const COLOR_SWATCH_BLEND_MS = 350;
+
 export const Camera = memo(function Camera() {
   const { onAddLensPalette } = useLens();
   const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
@@ -202,9 +201,7 @@ export const Camera = memo(function Camera() {
 
   const handleObskuraColorModeToggle = useCallback(() => {
     setObskuraColorMode(prev =>
-      prev === OBSKURA_COLOR_MODE.DEFAULT
-        ? OBSKURA_COLOR_MODE.TAME_RED
-        : OBSKURA_COLOR_MODE.DEFAULT
+      prev === OBSKURA_COLOR_MODE.DEFAULT ? OBSKURA_COLOR_MODE.TAME_RED : OBSKURA_COLOR_MODE.DEFAULT
     );
   }, []);
 
@@ -421,9 +418,7 @@ export const Camera = memo(function Camera() {
             <IconSymbol
               size={globalStyles.symbolSize}
               color={colors.human.white}
-              name={
-                obskuraColorMode === OBSKURA_COLOR_MODE.DEFAULT ? 'sun.max.fill' : 'moon.fill'
-              }
+              name={obskuraColorMode === OBSKURA_COLOR_MODE.DEFAULT ? 'sun.max.fill' : 'moon.fill'}
             />
           </TouchableOpacity>
         )}
