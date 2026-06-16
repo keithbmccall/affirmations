@@ -12,17 +12,43 @@ const { width } = Dimensions.get('window');
 interface ColorPaletteImageProps {
   image: Asset;
   lensPalette?: LensPalette;
+  cellSize?: number;
 }
 
 export const ColorPaletteImage = memo(function ColorPaletteImage({
   image,
   lensPalette,
+  cellSize,
 }: ColorPaletteImageProps) {
-  console.log({ item: image, lensPalette });
   const source = useMemo(() => ({ uri: image.uri }), [image.uri]);
+
+  const cellDimensionsStyle = useMemo(() => {
+    const size = cellSize ?? width / 3;
+
+    return { width: size, height: size };
+  }, [cellSize]);
+
+  const containerStyle = useMemo(
+    () => [styles.container, cellDimensionsStyle],
+    [cellDimensionsStyle]
+  );
+
+  const imageStyle = useMemo(
+    () => [styles.photoItem, cellDimensionsStyle],
+    [cellDimensionsStyle]
+  );
+
   return (
-    <View style={styles.container}>
-      <Image source={source} style={styles.photoItem} contentFit="cover" />
+    <View style={containerStyle}>
+      <Image
+        recyclingKey={image.id}
+        source={source}
+        style={imageStyle}
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        transition={0}
+        priority="high"
+      />
       {lensPalette && (
         <View style={styles.palette}>
           {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
@@ -57,8 +83,6 @@ const styles = StyleSheet.create({
     ...globalStyles.flex1,
   },
   photoItem: {
-    width: width / 3, // Subtract 2 for the border width
-    height: width / 3, // Subtract 2 for the border width
     borderWidth: 1,
   },
   loadingText: {

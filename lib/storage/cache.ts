@@ -1,15 +1,40 @@
-import { Asset } from 'expo-media-library';
+export class Cache<T> {
+  private snapshot: T | null = null;
+  private readonly subscribers = new Set<() => void>();
 
-const photosCache = new Map<'cache', Asset[]>();
+  constructor(private readonly emptySnapshot: T) {}
 
-export const setCameraRollPhotosCache = (photos: Asset[]) => {
-  photosCache.set('cache', photos);
-};
+  /** Returns the current snapshot or the shared empty default — do not mutate. */
+  get(): T {
+    return this.snapshot ?? this.emptySnapshot;
+  }
 
-export const getCameraRollPhotosCache = () => {
-  return photosCache.get('cache') || [];
-};
+  set(snapshot: T): void {
+    if (snapshot === this.snapshot) {
+      return;
+    }
+    this.snapshot = snapshot;
+    this.notify();
+  }
 
-export const resetCameraRollPhotosCache = () => {
-  photosCache.delete('cache');
-};
+  subscribe(listener: () => void): () => void {
+    this.subscribers.add(listener);
+    return () => {
+      this.subscribers.delete(listener);
+    };
+  }
+
+  reset(): void {
+    if (this.snapshot === null) {
+      return;
+    }
+    this.snapshot = null;
+    this.notify();
+  }
+
+  private notify(): void {
+    this.subscribers.forEach(listener => {
+      listener();
+    });
+  }
+}

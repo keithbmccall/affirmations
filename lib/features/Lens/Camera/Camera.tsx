@@ -1,6 +1,7 @@
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { ThemedText } from '@components/shared/ThemedText';
 import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
+import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead';
 import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { ObskuraCameraSurface } from '@features/Lens/Obskura/ObskuraCameraSurface';
 import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
@@ -99,6 +100,7 @@ export const Camera = memo(function Camera() {
         onRecordingFinished: async video => {
           await createAssetAsync(video.path);
           await fetchRecentMedia();
+          requestCameraRollHeadRefresh();
         },
         onRecordingError: error => {
           Alert.alert('Recording error', error.message);
@@ -153,6 +155,7 @@ export const Camera = memo(function Camera() {
       }
 
       fetchRecentMedia();
+      requestCameraRollHeadRefresh();
     } catch {
       Alert.alert('Error', 'Failed to capture');
     }
