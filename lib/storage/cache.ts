@@ -1,46 +1,40 @@
-import { Asset } from 'expo-media-library';
+export class Cache<T> {
+  private snapshot: T | null = null;
+  private readonly subscribers = new Set<() => void>();
 
-export type CameraRollPhotosCache = {
-  photos: Asset[];
-  endCursor: string | null;
-  hasMore: boolean;
-  prefetchComplete: boolean;
-};
+  constructor(private readonly emptySnapshot: T) {}
 
-const EMPTY_CAMERA_ROLL_PHOTOS_CACHE: CameraRollPhotosCache = {
-  photos: [],
-  endCursor: null,
-  hasMore: true,
-  prefetchComplete: false,
-};
+  /** Returns the current snapshot or the shared empty default — do not mutate. */
+  get(): T {
+    return this.snapshot ?? this.emptySnapshot;
+  }
 
-let photosCache: CameraRollPhotosCache | null = null;
+  set(snapshot: T): void {
+    if (snapshot === this.snapshot) {
+      return;
+    }
+    this.snapshot = snapshot;
+    this.notify();
+  }
 
-const cacheSubscribers = new Set<() => void>();
+  subscribe(listener: () => void): () => void {
+    this.subscribers.add(listener);
+    return () => {
+      this.subscribers.delete(listener);
+    };
+  }
 
-const notifyCameraRollPhotosCacheSubscribers = () => {
-  cacheSubscribers.forEach(listener => {
-    listener();
-  });
-};
+  reset(): void {
+    if (this.snapshot === null) {
+      return;
+    }
+    this.snapshot = null;
+    this.notify();
+  }
 
-export const getCameraRollPhotosCache = (): CameraRollPhotosCache => {
-  return photosCache ?? EMPTY_CAMERA_ROLL_PHOTOS_CACHE;
-};
-
-export const setCameraRollPhotosCache = (snapshot: CameraRollPhotosCache) => {
-  photosCache = snapshot;
-  notifyCameraRollPhotosCacheSubscribers();
-};
-
-export const subscribeCameraRollPhotosCache = (listener: () => void) => {
-  cacheSubscribers.add(listener);
-  return () => {
-    cacheSubscribers.delete(listener);
-  };
-};
-
-export const resetCameraRollPhotosCache = () => {
-  photosCache = null;
-  notifyCameraRollPhotosCacheSubscribers();
-};
+  private notify(): void {
+    this.subscribers.forEach(listener => {
+      listener();
+    });
+  }
+}

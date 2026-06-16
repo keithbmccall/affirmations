@@ -1,6 +1,9 @@
 import { LensCameraRoll } from '@features/Lens/LensCameraRoll';
 import { PREFETCH_COUNT } from '@features/Lens/Camera/cameraRollPhotos/constants';
-import { resetCameraRollPhotosCache, setCameraRollPhotosCache } from '@storage/cache';
+import {
+  resetCameraRollPhotosCache,
+  setCameraRollPhotosCache,
+} from '@features/Lens/Camera/cameraRollPhotos/cameraRollPhotosCache';
 import { renderWithContext } from '@testing/renderWithContext';
 import { fireEvent, screen } from '@testing-library/react-native';
 

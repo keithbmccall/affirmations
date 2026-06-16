@@ -112,12 +112,20 @@ See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens
 
 ## Camera roll modal
 
-`LensCameraRoll.tsx`:
+**Prefetch (Lens mount):** `useCameraRollPrefetch` in `Lens.tsx` calls `prefetchCameraRollPhotos` when media-library permission is granted. That fetches up to 300 photos into `cameraRollPhotosCache` (`@features/Lens/Camera/cameraRollPhotos/cameraRollPhotosCache` — `CameraRollPhotosCache`: `photos`, `endCursor`, `hasMore`, `prefetchComplete`) and warms thumbnails via `prefetchCameraRollThumbnails` (`Image.prefetch`, bounded concurrency).
 
-- Loads photos via `expo-media-library` `getAssetsAsync` (paginated with `endCursor` / `onEndReached`).
-- Seeds from `getCameraRollPhotosCache()` / updates `setCameraRollPhotosCache()` in `@storage/cache` for faster reopen.
-- Each cell: `PhotoGridItem` → `ColorPaletteImage` (photo + palette strip if `lensPalettesMap[item.id]`).
-- Tap navigates to inspector with `asset` serialized as JSON in route params.
+**Data modules** (`Camera/cameraRollPhotos/`):
+
+| Module | Role |
+|--------|------|
+| `prefetchCameraRollPhotos.ts` | Bulk catalog prefetch; in-flight dedup |
+| `loadMoreCameraRollPhotos.ts` | Tail pagination (`onEndReached`) |
+| `refreshCameraRollHead.ts` | Merge newest photos at head (modal open + after capture via `requestCameraRollHeadRefresh` from `Camera.tsx`) |
+| `mergePhotosAtHead.ts` | Deduped head merge |
+| `prefetchCameraRollThumbnails.ts` | Thumbnail byte warmup |
+| `cameraRollGridLayout.ts` | Shared 3-column grid cell size (`CAMERA_ROLL_GRID_CELL_SIZE`) |
+
+**Modal UI:** `LensCameraRoll.tsx` uses `useLensCameraRollPhotos` (subscribes to cache) and always mounts a `FlatList` with `ListEmptyComponent` for loading/error. Each cell: `PhotoGridItem` → `ColorPaletteImage` with `cellSize={CAMERA_ROLL_GRID_CELL_SIZE}` (photo + palette strip when `lensPalettesMap[item.id]`). Tap navigates to inspector with `asset` serialized as JSON in route params.
 
 `CameraRollInspector.tsx` parses that JSON into `InspectionAsset` and renders `ColorPaletteImageInspector`.
 

@@ -2,6 +2,10 @@ import { Modal } from '@components/Modal';
 import { ThemedText } from '@components/shared/ThemedText';
 import { ColorPaletteImage } from '@features/Lens/ColorPalette/ColorPaletteImage';
 import type { InspectionAsset, LensPalette } from '@features/Lens/ColorPalette/types';
+import {
+  CAMERA_ROLL_GRID_CELL_SIZE,
+  CAMERA_ROLL_NUM_COLUMNS,
+} from '@features/Lens/Camera/cameraRollPhotos/cameraRollGridLayout';
 import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCameraRollPhotos';
 import { useLens } from '@platform';
 import { Routes } from '@routes/routes';
@@ -11,11 +15,7 @@ import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import type { Asset } from 'expo-media-library';
 import { router } from 'expo-router';
 import { memo, useCallback, useMemo } from 'react';
-import { Dimensions, FlatList, Pressable, StyleSheet } from 'react-native';
-
-const { width: windowWidth } = Dimensions.get('window');
-const NUM_COLUMNS = 3;
-const CELL_SIZE = Math.floor(windowWidth / NUM_COLUMNS);
+import { FlatList, Pressable, StyleSheet } from 'react-native';
 
 const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) => {
   const item: InspectionAsset = {
@@ -52,7 +52,11 @@ const PhotoGridItem = memo(function PhotoGridItem({ item }: PhotoGridItemProps) 
 
   return (
     <Pressable testID={`lens-photo-grid-${item.id}`} onPress={handlePress}>
-      <ColorPaletteImage image={item} lensPalette={lensPalette} />
+      <ColorPaletteImage
+        image={item}
+        lensPalette={lensPalette}
+        cellSize={CAMERA_ROLL_GRID_CELL_SIZE}
+      />
     </Pressable>
   );
 }, arePhotoGridItemPropsEqual);
@@ -68,15 +72,6 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
   }, []);
 
   const keyExtractor = useCallback((item: Asset) => item.id, []);
-
-  const getItemLayout = useCallback(
-    (_data: ArrayLike<Asset> | null | undefined, index: number) => ({
-      length: CELL_SIZE,
-      offset: CELL_SIZE * Math.floor(index / NUM_COLUMNS),
-      index,
-    }),
-    []
-  );
 
   const handleEndReached = useCallback(() => {
     loadMore();
@@ -117,12 +112,11 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
         data={photos}
         renderItem={renderPhoto}
         keyExtractor={keyExtractor}
-        numColumns={NUM_COLUMNS}
+        numColumns={CAMERA_ROLL_NUM_COLUMNS}
         contentContainerStyle={contentContainerStyle}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={listEmptyComponent}
-        getItemLayout={getItemLayout}
         initialNumToRender={18}
         maxToRenderPerBatch={12}
         windowSize={7}

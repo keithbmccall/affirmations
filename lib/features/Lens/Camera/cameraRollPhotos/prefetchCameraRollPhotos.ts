@@ -1,7 +1,7 @@
 import {
   getCameraRollPhotosCache,
   setCameraRollPhotosCache,
-} from '@storage/cache';
+} from './cameraRollPhotosCache';
 import { getAssetsAsync } from 'expo-media-library';
 import { PREFETCH_COUNT } from './constants';
 import { prefetchCameraRollThumbnails } from './prefetchCameraRollThumbnails';

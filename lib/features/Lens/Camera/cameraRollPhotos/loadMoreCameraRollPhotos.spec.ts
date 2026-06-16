@@ -7,7 +7,7 @@ import {
   getCameraRollPhotosCache,
   resetCameraRollPhotosCache,
   setCameraRollPhotosCache,
-} from '@storage/cache';
+} from './cameraRollPhotosCache';
 import { getAssetsAsync, type Asset } from 'expo-media-library';
 
 jest.mock('expo-media-library', () => ({

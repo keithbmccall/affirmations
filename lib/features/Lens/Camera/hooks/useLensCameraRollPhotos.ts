@@ -7,7 +7,7 @@ import { refreshCameraRollHead } from '@features/Lens/Camera/cameraRollPhotos/re
 import {
   getCameraRollPhotosCache,
   subscribeCameraRollPhotosCache,
-} from '@storage/cache';
+} from '@features/Lens/Camera/cameraRollPhotos/cameraRollPhotosCache';
 import { useCallback, useEffect, useState } from 'react';
 
 const CATALOG_ERROR_MESSAGE = 'Failed to load photos from camera roll';

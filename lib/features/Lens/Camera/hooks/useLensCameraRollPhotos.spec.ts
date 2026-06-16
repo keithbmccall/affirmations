@@ -10,7 +10,7 @@ import {
   getCameraRollPhotosCache,
   resetCameraRollPhotosCache,
   setCameraRollPhotosCache,
-} from '@storage/cache';
+} from '@features/Lens/Camera/cameraRollPhotos/cameraRollPhotosCache';
 import { act, renderHook } from '@testing-library/react-native';
 import { getAssetsAsync, type Asset } from 'expo-media-library';
 

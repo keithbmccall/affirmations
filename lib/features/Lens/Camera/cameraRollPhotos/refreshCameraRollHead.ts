@@ -1,10 +1,6 @@
-import {
-  getCameraRollPhotosCache,
-  setCameraRollPhotosCache,
-} from '@storage/cache';
 import { getAssetsAsync } from 'expo-media-library';
+import { cameraRollPhotosCache } from './cameraRollPhotosCache';
 import { HEAD_REFRESH_COUNT } from './constants';
-import { mergePhotosAtHead } from './mergePhotosAtHead';
 import { prefetchCameraRollThumbnails } from './prefetchCameraRollThumbnails';
 
 export const refreshCameraRollHead = async (): Promise<void> => {
@@ -15,12 +11,7 @@ export const refreshCameraRollHead = async (): Promise<void> => {
       sortBy: ['creationTime'],
     });
 
-    const latest = getCameraRollPhotosCache();
-
-    setCameraRollPhotosCache({
-      ...latest,
-      photos: mergePhotosAtHead(latest.photos, result.assets),
-    });
+    cameraRollPhotosCache.mergeHeadPhotos(result.assets);
 
     void prefetchCameraRollThumbnails(result.assets);
   } catch (error) {

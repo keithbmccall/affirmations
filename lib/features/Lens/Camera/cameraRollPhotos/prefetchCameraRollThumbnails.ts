@@ -25,21 +25,27 @@ const prefetchUriBatch = async (uris: string[]): Promise<void> => {
   }
 };
 
-const getUrisToPrefetch = (assets: Asset[]): string[] => {
-  return assets
-    .map(asset => asset.uri)
-    .filter(uri => uri.length > 0 && !prefetchedUris.has(uri));
-};
-
 export const prefetchCameraRollThumbnails = async (assets: Asset[]): Promise<void> => {
-  const urisToPrefetch = getUrisToPrefetch(assets);
+  const priorityUris: string[] = [];
+  const remainingUris: string[] = [];
 
-  if (urisToPrefetch.length === 0) {
-    return;
+  for (const asset of assets) {
+    const { uri } = asset;
+
+    if (uri.length === 0 || prefetchedUris.has(uri)) {
+      continue;
+    }
+
+    if (priorityUris.length < THUMBNAIL_PREFETCH_PRIORITY_COUNT) {
+      priorityUris.push(uri);
+    } else {
+      remainingUris.push(uri);
+    }
   }
 
-  const priorityUris = urisToPrefetch.slice(0, THUMBNAIL_PREFETCH_PRIORITY_COUNT);
-  const remainingUris = urisToPrefetch.slice(THUMBNAIL_PREFETCH_PRIORITY_COUNT);
+  if (priorityUris.length === 0) {
+    return;
+  }
 
   await prefetchUriBatch(priorityUris);
 
