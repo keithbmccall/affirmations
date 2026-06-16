@@ -18,11 +18,18 @@ export const ColorPaletteImage = memo(function ColorPaletteImage({
   image,
   lensPalette,
 }: ColorPaletteImageProps) {
-  console.log({ item: image, lensPalette });
   const source = useMemo(() => ({ uri: image.uri }), [image.uri]);
   return (
     <View style={styles.container}>
-      <Image source={source} style={styles.photoItem} contentFit="cover" />
+      <Image
+        recyclingKey={image.id}
+        source={source}
+        style={styles.photoItem}
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        transition={0}
+        priority="high"
+      />
       {lensPalette && (
         <View style={styles.palette}>
           {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
