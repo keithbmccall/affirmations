@@ -36,7 +36,6 @@ import {
   gridModeOptions,
   type CameraViewMode,
 } from './options';
-import { saveVideoRecording } from './saveVideoRecording';
 
 const flashModeOptionsLength = flashModeOptions.length;
 const cameraDeviceOptionsLength = cameraDeviceOptions.length;
@@ -97,7 +96,10 @@ export const Camera = memo(function Camera() {
 
     try {
       camera.current.startRecording({
-        onRecordingFinished: video => saveVideoRecording(video, fetchRecentMedia),
+        onRecordingFinished: async video => {
+          await createAssetAsync(video.path);
+          await fetchRecentMedia();
+        },
         onRecordingError: error => {
           Alert.alert('Recording error', error.message);
         },

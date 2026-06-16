@@ -104,7 +104,7 @@ Live palette keys are defined in `lensPaletteConfig.colorPaletteKeys` (eight swa
 | Permissions | `useLensPermissions` — camera, mic, media library on mount |
 | Grid overlay | `CameraGrid` — rule-of-thirds `Divider` lines when grid mode on |
 | Recent thumbnail | `useCameraRoll` — latest library asset URI + fade/scale animation; opens roll modal |
-| Video | `startRecording` / `stopRecording`; `saveVideoRecording` → `createAssetAsync` (no Obskura post-process) |
+| Video | `startRecording` / `stopRecording`; `createAssetAsync` on finish (no Obskura post-process) |
 | Photo | `takePhoto` → Obskura post-process in Obskura mode, or direct save / palette attach in Lens mode |
 | Top bar | View mode, grid, flash, flip, multi-camera device, color lens toggle, Obskura color mode, live `ColorPalette` |
 
@@ -287,7 +287,6 @@ These must be correct for Lens to build and run on device:
 | `Camera.tsx` | Main UI, capture, recording, mode toggles |
 | `LensCameraSurface.tsx` | Lens view + color frame processor |
 | `CameraGrid.tsx` | Composition grid overlay |
-| `saveVideoRecording.ts` | `createAssetAsync` for video path |
 | `options.ts` | Modes, flash, grid, device, view mode |
 | `hooks/useLensPermissions.ts` | Permission requests |
 | `hooks/useCameraRoll.ts` | Thumbnail + open roll modal |
