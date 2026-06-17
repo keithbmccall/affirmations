@@ -1,4 +1,6 @@
 import { buildObskuraLensPaintFromPipeline } from '@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline';
+import { buildTameRedSaturationColorMatrix } from '@features/Lens/Obskura/pipeline/matrices/buildTameRedSaturationColorMatrix';
+import { buildUniformSaturationColorMatrix } from '@features/Lens/Obskura/pipeline/matrices/buildUniformSaturationColorMatrix';
 import { OBSKURA_LENS_PIPELINE } from '@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig';
 import { OBSKURA_COLOR_MODE } from '@features/Lens/Obskura/options';
 
@@ -78,9 +80,6 @@ jest.mock('@features/Lens/Obskura/pipeline/matrices/buildTameRedSaturationColorM
 jest.mock('@features/Lens/Obskura/pipeline/matrices/buildUniformSaturationColorMatrix', () => ({
   buildUniformSaturationColorMatrix: jest.fn(() => [2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0]),
 }));
-
-import { buildTameRedSaturationColorMatrix } from '@features/Lens/Obskura/pipeline/matrices/buildTameRedSaturationColorMatrix';
-import { buildUniformSaturationColorMatrix } from '@features/Lens/Obskura/pipeline/matrices/buildUniformSaturationColorMatrix';
 
 const mockBuildTameRedSaturationColorMatrix = buildTameRedSaturationColorMatrix as jest.MockedFunction<
   typeof buildTameRedSaturationColorMatrix

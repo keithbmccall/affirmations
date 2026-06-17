@@ -1,9 +1,15 @@
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { ThemedText } from '@components/shared/ThemedText';
 import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead';
+import {
+  isColorLensActive,
+  isColorLensDominant,
+  nextColorLensMode,
+} from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
+import { useColorLensRegion } from '@features/Lens/ColorPalette/useColorLensRegion';
 import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
 import { ObskuraCameraSurface } from '@features/Lens/Obskura/ObskuraCameraSurface';
 import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
@@ -78,15 +84,16 @@ export const Camera = memo(function Camera() {
     fetchRecentMedia: fetchRecentMedia,
     recentMedia: recentPhoto,
   } = useCameraRoll(hasAllPermissions);
-  const { isColorLensEnabled, setIsColorLensEnabled, palette, getColorLensPaletteWorklet } =
+  const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
+  const { getColorLensRegionWorklet } = useColorLensRegion();
 
   const showGrid = gridModeOptions[gridMode].value === 'on';
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
   const isObskuraMode = cameraViewMode === CAMERA_VIEW_MODE.OBSKURA;
-  const isVideoNotAllowed = isColorLensEnabled || isObskuraMode;
+  const isVideoNotAllowed = isColorLensActive(colorLensMode) || isObskuraMode;
 
-  const fps = isCameraActive && isColorLensEnabled ? COLOR_LENS_FPS : DEFAULT_FPS;
+  const fps = isCameraActive && isColorLensActive(colorLensMode) ? COLOR_LENS_FPS : DEFAULT_FPS;
 
   const colorAnimationDuration = 500;
 
@@ -141,7 +148,7 @@ export const Camera = memo(function Camera() {
       } else {
         const asset = await createAssetAsync(photo.path);
 
-        if (isColorLensEnabled) {
+        if (isColorLensDominant(colorLensMode)) {
           const lensPalette: LensPalette = {
             id: asset.id,
             uri: asset.uri,
@@ -163,7 +170,7 @@ export const Camera = memo(function Camera() {
     flashMode,
     onAddLensPalette,
     fetchRecentMedia,
-    isColorLensEnabled,
+    colorLensMode,
     isObskuraMode,
     obskuraColorMode,
   ]);
@@ -205,7 +212,10 @@ export const Camera = memo(function Camera() {
     );
   }, []);
 
-  const handleEnableColorLensToggle = useCallback(() => setIsColorLensEnabled(prev => !prev), []);
+  const handleColorLensModeToggle = useCallback(
+    () => setColorLensMode(prev => nextColorLensMode(prev)),
+    [setColorLensMode]
+  );
 
   const handleBackPress = useCallback(() => router.back(), []);
 
@@ -285,8 +295,9 @@ export const Camera = memo(function Camera() {
                   device={device}
                   isActive={isCameraActive}
                   fps={fps}
-                  isColorLensEnabled={isColorLensEnabled}
+                  colorLensMode={colorLensMode}
                   getColorLensPaletteWorklet={getColorLensPaletteWorklet}
+                  getColorLensRegionWorklet={getColorLensRegionWorklet}
                 />
               ) : (
                 <ObskuraCameraSurface
@@ -391,7 +402,7 @@ export const Camera = memo(function Camera() {
             <TouchableOpacity
               testID="lens-toggle-color-lens"
               style={styles.topButton}
-              onPress={handleEnableColorLensToggle}
+              onPress={handleColorLensModeToggle}
             >
               <IconSymbol
                 size={globalStyles.symbolSize}
@@ -399,7 +410,7 @@ export const Camera = memo(function Camera() {
                 name="swatchpalette.fill"
               />
             </TouchableOpacity>
-            {isColorLensEnabled && (
+            {isColorLensDominant(colorLensMode) && (
               <ColorPalette
                 palette={palette}
                 animationDuration={colorAnimationDuration}

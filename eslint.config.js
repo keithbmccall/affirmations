@@ -29,7 +29,9 @@ module.exports = defineConfig([
     rules: {
       // Example recommended rules, you can adjust as needed
       'import/no-unresolved': 'error',
+      'import/first': 'error',
       '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-require-imports': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
     },
   },

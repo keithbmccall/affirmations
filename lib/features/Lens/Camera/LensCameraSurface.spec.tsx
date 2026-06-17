@@ -1,3 +1,4 @@
+import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { render } from '@testing-library/react-native';
 import React, { createRef } from 'react';
 import type { CameraDevice } from 'react-native-vision-camera';
@@ -10,7 +11,10 @@ let lastCameraProps: Record<string, unknown> | null = null;
 jest.mock('react-native-vision-camera', () => {
   const React = jest.requireActual('react');
   const RN = jest.requireActual('react-native');
-  const MockCamera = React.forwardRef((props: Record<string, unknown>, _ref: unknown) => {
+  const MockCamera = React.forwardRef(function MockLensCamera(
+    props: Record<string, unknown>,
+    _ref: unknown
+  ) {
     lastCameraProps = props;
     return <RN.View testID="mock-lens-camera" />;
   });
@@ -45,7 +49,7 @@ describe('LensCameraSurface', () => {
         device={mockDevice}
         isActive
         fps={30}
-        isColorLensEnabled={false}
+        colorLensMode={COLOR_LENS_MODE.DISABLED}
         getColorLensPaletteWorklet={getColorLensPaletteWorklet}
       />
     );
@@ -66,7 +70,7 @@ describe('LensCameraSurface', () => {
         device={mockDevice}
         isActive={false}
         fps={15}
-        isColorLensEnabled
+        colorLensMode={COLOR_LENS_MODE.LENS_DOMINANT}
         getColorLensPaletteWorklet={getColorLensPaletteWorklet}
       />
     );
@@ -88,7 +92,7 @@ describe('LensCameraSurface', () => {
         device={mockDevice}
         isActive
         fps={30}
-        isColorLensEnabled
+        colorLensMode={COLOR_LENS_MODE.LENS_DOMINANT}
         getColorLensPaletteWorklet={getColorLensPaletteWorklet}
       />
     );
@@ -120,5 +124,71 @@ describe('LensCameraSurface', () => {
     expect(getColorLensPaletteWorklet).toHaveBeenCalledTimes(2);
 
     dateNowSpy.mockRestore();
+  });
+
+  it('does not call color lens worklets when color lens mode is disabled', () => {
+    const cameraRef = createRef<VisionCamera | null>();
+    const getColorLensPaletteWorklet = jest.fn();
+    const getColorLensRegionWorklet = jest.fn();
+
+    render(
+      <LensCameraSurface
+        cameraRef={cameraRef}
+        device={mockDevice}
+        isActive
+        fps={30}
+        colorLensMode={COLOR_LENS_MODE.DISABLED}
+        getColorLensPaletteWorklet={getColorLensPaletteWorklet}
+        getColorLensRegionWorklet={getColorLensRegionWorklet}
+      />
+    );
+
+    expect(getColorLensPaletteWorklet).not.toHaveBeenCalled();
+    expect(getColorLensRegionWorklet).not.toHaveBeenCalled();
+  });
+
+  it('does not call getColorLensRegionWorklet in lens-dominant mode', () => {
+    const cameraRef = createRef<VisionCamera | null>();
+    const getColorLensPaletteWorklet = jest.fn();
+    const getColorLensRegionWorklet = jest.fn();
+
+    render(
+      <LensCameraSurface
+        cameraRef={cameraRef}
+        device={mockDevice}
+        isActive
+        fps={30}
+        colorLensMode={COLOR_LENS_MODE.LENS_DOMINANT}
+        getColorLensPaletteWorklet={getColorLensPaletteWorklet}
+        getColorLensRegionWorklet={getColorLensRegionWorklet}
+      />
+    );
+
+    expect(getColorLensPaletteWorklet).toHaveBeenCalledTimes(1);
+    expect(getColorLensRegionWorklet).not.toHaveBeenCalled();
+  });
+
+  it('calls getColorLensRegionWorklet in lens-point mode', () => {
+    const cameraRef = createRef<VisionCamera | null>();
+    const getColorLensPaletteWorklet = jest.fn();
+    const getColorLensRegionWorklet = jest.fn();
+
+    render(
+      <LensCameraSurface
+        cameraRef={cameraRef}
+        device={mockDevice}
+        isActive
+        fps={30}
+        colorLensMode={COLOR_LENS_MODE.LENS_POINT}
+        getColorLensPaletteWorklet={getColorLensPaletteWorklet}
+        getColorLensRegionWorklet={getColorLensRegionWorklet}
+      />
+    );
+
+    expect(getColorLensPaletteWorklet).not.toHaveBeenCalled();
+    expect(getColorLensRegionWorklet).toHaveBeenCalledWith(
+      {},
+      { centerX: 0.5, centerY: 0.5, radius: 0.15 }
+    );
   });
 });

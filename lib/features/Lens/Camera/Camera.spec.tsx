@@ -1,3 +1,4 @@
+import { COLOR_LENS_MODE, type ColorLensMode } from '@features/Lens/ColorPalette/colorLensMode';
 import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { createAssetAsync } from 'expo-media-library';
@@ -12,6 +13,7 @@ const mockOnAddLensPalette = jest.fn();
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
+const mockGetColorLensRegionWorklet = jest.fn();
 
 const mockPalette = {
   primaryColor: { value: '#111111' },
@@ -24,15 +26,20 @@ const mockPalette = {
   detailColor: { value: '#888888' },
 };
 
-const mockSetIsColorLensEnabled = jest.fn((updater: boolean | ((prev: boolean) => boolean)) => {
+const mockSetColorLensMode = jest.fn((updater: ColorLensMode | ((prev: ColorLensMode) => ColorLensMode)) => {
   if (typeof updater === 'function') {
-    updater(false);
+    updater(COLOR_LENS_MODE.DISABLED);
   }
 });
 
-const mockUseColorLensPalette = jest.fn(() => ({
-  isColorLensEnabled: false,
-  setIsColorLensEnabled: mockSetIsColorLensEnabled,
+const mockUseColorLensPalette = jest.fn((): {
+  colorLensMode: ColorLensMode;
+  setColorLensMode: typeof mockSetColorLensMode;
+  palette: typeof mockPalette;
+  getColorLensPaletteWorklet: typeof mockGetColorLensPaletteWorklet;
+} => ({
+  colorLensMode: COLOR_LENS_MODE.DISABLED,
+  setColorLensMode: mockSetColorLensMode,
   palette: mockPalette,
   getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
 }));
@@ -43,6 +50,12 @@ jest.mock('@platform', () => ({
 
 jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
   useColorLensPalette: () => mockUseColorLensPalette(),
+}));
+
+jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
+  useColorLensRegion: () => ({
+    getColorLensRegionWorklet: mockGetColorLensRegionWorklet,
+  }),
 }));
 
 jest.mock('@features/Lens/ColorPalette/ColorPalette', () => ({
@@ -76,7 +89,10 @@ const mockStopRecording = jest.fn(() => Promise.resolve());
 jest.mock('react-native-vision-camera', () => {
   const React = jest.requireActual('react');
   const RN = jest.requireActual('react-native');
-  const VisionCamera = React.forwardRef((props: { testID?: string }, ref: unknown) => {
+  const VisionCamera = React.forwardRef(function VisionCameraMock(
+    props: { testID?: string },
+    ref: unknown
+  ) {
     React.useImperativeHandle(ref, () => ({
       takePhoto: mockTakePhoto,
       startRecording: mockStartRecording,
@@ -204,8 +220,8 @@ describe('Camera', () => {
     }));
     mockFocusCleanup = undefined;
     mockUseColorLensPalette.mockReturnValue({
-      isColorLensEnabled: false,
-      setIsColorLensEnabled: mockSetIsColorLensEnabled,
+      colorLensMode: COLOR_LENS_MODE.DISABLED,
+      setColorLensMode: mockSetColorLensMode,
       palette: mockPalette,
       getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
     });
@@ -315,10 +331,10 @@ describe('Camera', () => {
     expect(await screen.findByTestId('camera-grid-mock')).toBeTruthy();
   });
 
-  it('shows color palette when color lens is enabled', async () => {
+  it('shows color palette when color lens is in lens-dominant mode', async () => {
     mockUseColorLensPalette.mockReturnValue({
-      isColorLensEnabled: true,
-      setIsColorLensEnabled: mockSetIsColorLensEnabled,
+      colorLensMode: COLOR_LENS_MODE.LENS_DOMINANT,
+      setColorLensMode: mockSetColorLensMode,
       palette: mockPalette,
       getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
     });
@@ -340,10 +356,10 @@ describe('Camera', () => {
     });
   });
 
-  it('captures photo in lens mode with color lens and notifies palette', async () => {
+  it('captures photo in lens mode with lens-dominant color lens and notifies palette', async () => {
     mockUseColorLensPalette.mockReturnValue({
-      isColorLensEnabled: true,
-      setIsColorLensEnabled: mockSetIsColorLensEnabled,
+      colorLensMode: COLOR_LENS_MODE.LENS_DOMINANT,
+      setColorLensMode: mockSetColorLensMode,
       palette: mockPalette,
       getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
     });
@@ -501,6 +517,20 @@ describe('Camera', () => {
     renderCamera(<Camera />);
 
     expect(await screen.findByTestId('expo-image')).toBeTruthy();
+  });
+
+  it('cycles color lens mode when palette toggle is pressed', async () => {
+    renderCamera(<Camera />);
+
+    fireEvent.press(await screen.findByTestId('lens-toggle-color-lens'));
+
+    expect(mockSetColorLensMode).toHaveBeenCalled();
+    const updater = mockSetColorLensMode.mock.calls[0][0] as (
+      prev: ColorLensMode
+    ) => ColorLensMode;
+    expect(updater(COLOR_LENS_MODE.DISABLED)).toBe(COLOR_LENS_MODE.LENS_DOMINANT);
+    expect(updater(COLOR_LENS_MODE.LENS_DOMINANT)).toBe(COLOR_LENS_MODE.LENS_POINT);
+    expect(updater(COLOR_LENS_MODE.LENS_POINT)).toBe(COLOR_LENS_MODE.DISABLED);
   });
 
   it('cycles flash, flip, lens device, color lens toggle, and Obskura color mode', async () => {
