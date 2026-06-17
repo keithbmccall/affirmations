@@ -1,12 +1,13 @@
+import { COLOR_LENS_MODE, type ColorLensMode } from './colorLensMode';
+import { ColorLensPaletteType, getColorLensPalette } from './getColorLensPalette';
+import { lensPaletteConfig } from './lensPaletteConfig';
 import { useSharedValue } from 'react-native-reanimated';
 import { Frame } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
 import { useCallback, useMemo, useState } from 'react';
-import { ColorLensPaletteType, getColorLensPalette } from './getColorLensPalette';
-import { lensPaletteConfig } from './lensPaletteConfig';
 
 export const useColorLensPalette = () => {
-  const [isColorLensEnabled, setIsColorLensEnabled] = useState(false);
+  const [colorLensMode, setColorLensMode] = useState<ColorLensMode>(COLOR_LENS_MODE.DISABLED);
 
   const primaryColor = useSharedValue(lensPaletteConfig.defaultColor);
   const secondaryColor = useSharedValue(lensPaletteConfig.defaultColor);
@@ -77,8 +78,8 @@ export const useColorLensPalette = () => {
   );
 
   return {
-    isColorLensEnabled,
-    setIsColorLensEnabled,
+    colorLensMode,
+    setColorLensMode,
     palette,
     getColorLensPaletteWorklet,
   };

@@ -30,6 +30,28 @@ alwaysApply: false
 - **`jest.requireActual`** when partially overriding a module.
 - Reset **`mockClear`** / relevant mocks in **`beforeEach`**.
 
+## Imports in tests
+
+**Never use `require()` to load the module under test** (or app code). ESLint forbids it (`@typescript-eslint/no-require-imports`). Do not use dynamic patterns such as `require('./foo') as typeof import('./foo')` or `jest.resetModules()` + `require()` to work around mock order.
+
+Use hoisted **`jest.mock(...)`** at the top of the file, then a normal **`import`**:
+
+```typescript
+const mockRegionPluginCall = jest.fn();
+
+jest.mock('./colorLensRegionFrameProcessorPlugin', () => ({
+  colorLensRegionFrameProcessorPlugin: {
+    call: (...args: unknown[]) => mockRegionPluginCall(...args),
+  },
+}));
+
+import { getColorLensRegion } from './getColorLensRegion';
+```
+
+When a module binds native/plugin state at import time, extract that binding into a small sibling module (e.g. `colorLensRegionFrameProcessorPlugin.ts`) and **`jest.mock` the sibling** — not `require()` on the module under test.
+
+Do not use `jest.resetModules()` + `require()` to reorder mocks.
+
 ## Shared utilities
 
 Use **`@testing/renderWithContext`**, **`@testing/dateTimePickerMock`** (and similar) when they already exist for the pattern you need.
