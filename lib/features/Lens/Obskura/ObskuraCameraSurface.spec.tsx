@@ -1,3 +1,13 @@
+import {
+  mockObskuraFrameProcessingFormat,
+  resetObskuraVisionCameraMockState,
+  obskuraVisionCameraMockState,
+} from '@testing/getObskuraVisionCameraJestMock';
+import { render } from '@testing-library/react-native';
+import React, { createRef } from 'react';
+import type { CameraDevice } from 'react-native-vision-camera';
+import { Camera as VisionCamera } from 'react-native-vision-camera';
+
 import { ObskuraCameraSurface } from './ObskuraCameraSurface';
 import { OBSKURA_COLOR_MODE } from './options';
 
@@ -18,16 +28,6 @@ jest.mock('@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig', () => ({
 jest.mock('react-native-vision-camera', () =>
   jest.requireActual('@testing/getObskuraVisionCameraJestMock').getObskuraVisionCameraJestMock()
 );
-
-import {
-  mockObskuraFrameProcessingFormat,
-  resetObskuraVisionCameraMockState,
-  obskuraVisionCameraMockState,
-} from '@testing/getObskuraVisionCameraJestMock';
-import { render } from '@testing-library/react-native';
-import React, { createRef } from 'react';
-import type { CameraDevice } from 'react-native-vision-camera';
-import { Camera as VisionCamera } from 'react-native-vision-camera';
 
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
 

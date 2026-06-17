@@ -9,7 +9,10 @@ export function resetObskuraVisionCameraMockState() {
   obskuraVisionCameraMockState.lastCameraProps = null;
 }
 
-const MockCamera = forwardRef<unknown, Record<string, unknown>>((props, _ref) => {
+const MockCamera = forwardRef<unknown, Record<string, unknown>>(function MockObskuraCamera(
+  props,
+  _ref
+) {
   obskuraVisionCameraMockState.lastCameraProps = props;
   return React.createElement(View, { testID: 'mock-obskura-camera' });
 });

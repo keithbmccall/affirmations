@@ -1,14 +1,17 @@
 import { ColorPaletteImage } from '@features/Lens/ColorPalette/ColorPaletteImage';
 import { renderWithContext } from '@testing/renderWithContext';
 import { screen } from '@testing-library/react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import type { Asset } from 'expo-media-library';
 
-jest.mock('expo-image', () => ({
-  Image: ({ style }: { style?: unknown }) => {
-    const { View } = require('react-native');
-    return <View testID="color-palette-image" style={style} />;
-  },
-}));
+jest.mock('expo-image', () => {
+  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    Image: ({ style }: { style?: StyleProp<ViewStyle> }) => (
+      <View testID="color-palette-image" style={style} />
+    ),
+  };
+});
 
 const createAsset = (id: string): Asset =>
   ({

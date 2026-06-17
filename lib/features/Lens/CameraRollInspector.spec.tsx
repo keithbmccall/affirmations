@@ -6,34 +6,35 @@ import {
 import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCameraRollPhotos';
 import { renderWithContext } from '@testing/renderWithContext';
 import { fireEvent, screen } from '@testing-library/react-native';
+import React from 'react';
 import type { Asset } from 'expo-media-library';
 
-jest.mock('@components/Modal', () => ({
-  Modal: ({ children, title }: { children: React.ReactNode; title: string }) => {
-    const { View, Text } = require('react-native');
-    return (
+jest.mock('@components/Modal', () => {
+  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    Modal: ({ children, title }: { children: React.ReactNode; title: string }) => (
       <View>
         <Text>{title}</Text>
         {children}
       </View>
-    );
-  },
-}));
+    ),
+  };
+});
 
 jest.mock('@features/Lens/Camera/hooks/useLensCameraRollPhotos', () => ({
   useLensCameraRollPhotos: jest.fn(),
 }));
 
-jest.mock('@features/Lens/ColorPalette/ColorPaletteImageInspector', () => ({
-  ColorPaletteImageInspector: ({
-    image,
-    onOverlayOpenChange,
-  }: {
-    image: { id: string };
-    onOverlayOpenChange?: (isOpen: boolean) => void;
-  }) => {
-    const { View, Pressable, Text } = require('react-native');
-    return (
+jest.mock('@features/Lens/ColorPalette/ColorPaletteImageInspector', () => {
+  const { View, Pressable, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    ColorPaletteImageInspector: ({
+      image,
+      onOverlayOpenChange,
+    }: {
+      image: { id: string };
+      onOverlayOpenChange?: (isOpen: boolean) => void;
+    }) => (
       <View testID={`inspector-mock-${image.id}`}>
         <Text>{image.id}</Text>
         {onOverlayOpenChange ? (
@@ -49,9 +50,9 @@ jest.mock('@features/Lens/ColorPalette/ColorPaletteImageInspector', () => ({
           </>
         ) : null}
       </View>
-    );
-  },
-}));
+    ),
+  };
+});
 
 const mockedUseLensCameraRollPhotos = useLensCameraRollPhotos as jest.MockedFunction<
   typeof useLensCameraRollPhotos

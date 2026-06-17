@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react-native';
 const mockPrefetchCameraRollPhotos = jest.fn(() => Promise.resolve());
 
 jest.mock('@features/Lens/Camera/cameraRollPhotos/prefetchCameraRollPhotos', () => ({
-  prefetchCameraRollPhotos: (...args: unknown[]) => mockPrefetchCameraRollPhotos(...args),
+  prefetchCameraRollPhotos: mockPrefetchCameraRollPhotos,
 }));
 
 let mockMediaLibraryPermission = false;

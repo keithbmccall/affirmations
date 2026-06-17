@@ -11,7 +11,10 @@ let lastCameraProps: Record<string, unknown> | null = null;
 jest.mock('react-native-vision-camera', () => {
   const React = jest.requireActual('react');
   const RN = jest.requireActual('react-native');
-  const MockCamera = React.forwardRef((props: Record<string, unknown>, _ref: unknown) => {
+  const MockCamera = React.forwardRef(function MockLensCamera(
+    props: Record<string, unknown>,
+    _ref: unknown
+  ) {
     lastCameraProps = props;
     return <RN.View testID="mock-lens-camera" />;
   });

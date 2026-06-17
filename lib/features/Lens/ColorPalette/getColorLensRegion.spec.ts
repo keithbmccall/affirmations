@@ -1,3 +1,6 @@
+import type { Frame } from 'react-native-vision-camera';
+import { getColorLensRegion } from './getColorLensRegion';
+
 const mockRegionPluginCall = jest.fn();
 
 jest.mock('./colorLensRegionFrameProcessorPlugin', () => ({
@@ -5,9 +8,6 @@ jest.mock('./colorLensRegionFrameProcessorPlugin', () => ({
     call: (...args: unknown[]) => mockRegionPluginCall(...args),
   },
 }));
-
-import type { Frame } from 'react-native-vision-camera';
-import { getColorLensRegion } from './getColorLensRegion';
 
 const mockFrame = {} as Frame;
 

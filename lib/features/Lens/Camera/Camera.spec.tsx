@@ -32,7 +32,12 @@ const mockSetColorLensMode = jest.fn((updater: ColorLensMode | ((prev: ColorLens
   }
 });
 
-const mockUseColorLensPalette = jest.fn(() => ({
+const mockUseColorLensPalette = jest.fn((): {
+  colorLensMode: ColorLensMode;
+  setColorLensMode: typeof mockSetColorLensMode;
+  palette: typeof mockPalette;
+  getColorLensPaletteWorklet: typeof mockGetColorLensPaletteWorklet;
+} => ({
   colorLensMode: COLOR_LENS_MODE.DISABLED,
   setColorLensMode: mockSetColorLensMode,
   palette: mockPalette,
@@ -84,7 +89,10 @@ const mockStopRecording = jest.fn(() => Promise.resolve());
 jest.mock('react-native-vision-camera', () => {
   const React = jest.requireActual('react');
   const RN = jest.requireActual('react-native');
-  const VisionCamera = React.forwardRef((props: { testID?: string }, ref: unknown) => {
+  const VisionCamera = React.forwardRef(function VisionCameraMock(
+    props: { testID?: string },
+    ref: unknown
+  ) {
     React.useImperativeHandle(ref, () => ({
       takePhoto: mockTakePhoto,
       startRecording: mockStartRecording,

@@ -6,18 +6,20 @@ import {
 } from '@features/Lens/Camera/cameraRollPhotos/cameraRollPhotosCache';
 import { renderWithContext } from '@testing/renderWithContext';
 import { fireEvent, screen } from '@testing-library/react-native';
+import { type Asset, getAssetsAsync } from 'expo-media-library';
+import React from 'react';
 
-jest.mock('@components/Modal', () => ({
-  Modal: ({ children, title }: { children: React.ReactNode; title: string }) => {
-    const { View, Text } = require('react-native');
-    return (
+jest.mock('@components/Modal', () => {
+  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    Modal: ({ children, title }: { children: React.ReactNode; title: string }) => (
       <View>
         <Text>{title}</Text>
         {children}
       </View>
-    );
-  },
-}));
+    ),
+  };
+});
 
 jest.mock('expo-router', () => ({
   router: {
@@ -25,12 +27,12 @@ jest.mock('expo-router', () => ({
   },
 }));
 
-jest.mock('@features/Lens/ColorPalette/ColorPaletteImage', () => ({
-  ColorPaletteImage: () => {
-    const { View } = require('react-native');
-    return <View testID="color-palette-image" />;
-  },
-}));
+jest.mock('@features/Lens/ColorPalette/ColorPaletteImage', () => {
+  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    ColorPaletteImage: () => <View testID="color-palette-image" />,
+  };
+});
 
 jest.mock('expo-media-library', () => ({
   getAssetsAsync: jest.fn().mockResolvedValue({
@@ -40,8 +42,6 @@ jest.mock('expo-media-library', () => ({
     totalCount: 0,
   }),
 }));
-
-import { type Asset } from 'expo-media-library';
 
 const createAsset = (id: string): Asset =>
   ({
@@ -63,8 +63,8 @@ describe('LensCameraRoll', () => {
   });
 
   it('keeps FlatList mounted while loading with an empty cache', async () => {
-    const { getAssetsAsync } = require('expo-media-library');
-    getAssetsAsync.mockReturnValue(new Promise(() => {}));
+    const mockedGetAssetsAsync = jest.mocked(getAssetsAsync);
+    mockedGetAssetsAsync.mockReturnValue(new Promise(() => {}));
 
     renderWithContext(<LensCameraRoll />);
 
@@ -112,10 +112,10 @@ describe('LensCameraRoll', () => {
       prefetchComplete: true,
     });
 
-    const { getAssetsAsync } = require('expo-media-library');
-    getAssetsAsync.mockResolvedValueOnce({
+    const mockedGetAssetsAsync = jest.mocked(getAssetsAsync);
+    mockedGetAssetsAsync.mockResolvedValueOnce({
       assets: [createAsset('photo-301')],
-      endCursor: null,
+      endCursor: '',
       hasNextPage: false,
       totalCount: PREFETCH_COUNT + 1,
     });

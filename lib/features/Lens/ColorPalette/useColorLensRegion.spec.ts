@@ -1,4 +1,8 @@
 import { act, renderHook } from '@testing-library/react-native';
+import type { Frame } from 'react-native-vision-camera';
+
+import { lensPaletteConfig } from './lensPaletteConfig';
+import { useColorLensRegion } from './useColorLensRegion';
 
 const mockGetColorLensRegion = jest.fn();
 
@@ -11,10 +15,6 @@ jest.mock('react-native-worklets-core', () => ({
     createRunOnJS: (fn: (color: string | null) => void) => fn,
   },
 }));
-
-import type { Frame } from 'react-native-vision-camera';
-import { lensPaletteConfig } from './lensPaletteConfig';
-import { useColorLensRegion } from './useColorLensRegion';
 
 const mockFrame = {} as Frame;
 
