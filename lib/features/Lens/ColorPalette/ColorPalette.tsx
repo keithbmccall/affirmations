@@ -2,9 +2,32 @@ import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import React, { memo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { ColorSwatch } from './ColorSwatch';
+import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { useAnimatedColor } from './useAnimatedColor';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import { useColorLensPalette } from './useColorLensPalette';
+
+type ColorSwatchProps = {
+  color: SharedValue<string>;
+  animationDuration: number;
+  animatedStyle?: ViewStyle;
+};
+
+const ColorSwatch = memo(function ColorSwatch({
+  color,
+  animationDuration,
+  animatedStyle,
+}: ColorSwatchProps) {
+  const animatedColor = useAnimatedColor(color, animationDuration);
+  const animatedBackgroundStyle = useAnimatedStyle(
+    () => ({
+      backgroundColor: animatedColor.value as string,
+    }),
+    [animatedColor]
+  );
+
+  return <Reanimated.View style={[styles.tile, animatedBackgroundStyle, animatedStyle]} />;
+});
 
 interface ColorPaletteProps {
   palette: ReturnType<typeof useColorLensPalette>['palette'];
@@ -32,6 +55,12 @@ export const ColorPalette = memo(function ColorPalette({
 });
 
 const styles = StyleSheet.create({
+  tile: {
+    padding: 3,
+    minWidth: 35,
+    minHeight: 35,
+    borderRadius: spacing.sm,
+  },
   colorPaletteGrid: {
     ...globalStyles.justifyCenter,
     ...globalStyles.alignCenter,

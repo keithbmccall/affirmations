@@ -29,16 +29,10 @@ export const useColorLensPalette = () => {
       backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
       detailColor.value = colorPalette?.detail ?? detailColor.value;
     },
-    [
-      primaryColor,
-      secondaryColor,
-      tertiaryColor,
-      quaternaryColor,
-      quinaryColor,
-      senaryColor,
-      backgroundColor,
-      detailColor,
-    ]
+    // SharedValues from useSharedValue have stable identity — their object reference
+    // never changes across renders, only .value mutates. Empty deps is correct here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   const applyColorPaletteWorklet = useMemo(
@@ -65,16 +59,9 @@ export const useColorLensPalette = () => {
       backgroundColor,
       detailColor,
     }),
-    [
-      primaryColor,
-      secondaryColor,
-      tertiaryColor,
-      quaternaryColor,
-      quinaryColor,
-      senaryColor,
-      backgroundColor,
-      detailColor,
-    ]
+    // SharedValues are stable refs — this object is computed once at mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   return {

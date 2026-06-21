@@ -50,6 +50,7 @@ const cameraDeviceOptionsLength = cameraDeviceOptions.length;
 const OBSKURA_FPS = 15;
 const COLOR_LENS_FPS = 15;
 const DEFAULT_FPS = 30;
+const COLOR_ANIMATION_DURATION = 500;
 
 export const Camera = memo(function Camera() {
   const { onAddLensPalette } = useLens();
@@ -94,8 +95,6 @@ export const Camera = memo(function Camera() {
   const isVideoNotAllowed = isColorLensActive(colorLensMode) || isObskuraMode;
 
   const fps = isCameraActive && isColorLensActive(colorLensMode) ? COLOR_LENS_FPS : DEFAULT_FPS;
-
-  const colorAnimationDuration = 500;
 
   const handleVideoCapture = useCallback(async () => {
     /* istanbul ignore next -- ref is set when capture is reachable in production */
@@ -413,7 +412,7 @@ export const Camera = memo(function Camera() {
             {isColorLensDominant(colorLensMode) && (
               <ColorPalette
                 palette={palette}
-                animationDuration={colorAnimationDuration}
+                animationDuration={COLOR_ANIMATION_DURATION}
                 style={styles.colorPaletteContainer}
               />
             )}
