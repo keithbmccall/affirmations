@@ -9,9 +9,13 @@ const path = require('path');
 
 const MARKER = '# __fmt_xcode26_podfile_workaround__';
 
-const SNIPPET = `
+const WORKAROUND_BLOCK =
+  /\n\s*(?:#\s*__fmt_xcode26_podfile_workaround__|#\s*\{MARKER\})\s*\n\s*# Xcode 26\+.*?CLANG_CXX_LANGUAGE_STANDARD.*?c\+\+17'\s*\n\s*end\s*\n\s*end\s*\n\s*end/g;
 
-    #{MARKER}
+function buildSnippet() {
+  return `
+
+    ${MARKER}
     # Xcode 26+ / Apple Clang: fmt 11.x FMT_STRING consteval fails (React Native third-party pod).
     installer.pods_project.targets.each do |target|
       if target.name == 'fmt'
@@ -20,6 +24,7 @@ const SNIPPET = `
         end
       end
     end`;
+}
 
 function withFmtXcode26Podfile(config) {
   return withDangerousMod(config, [
@@ -27,9 +32,14 @@ function withFmtXcode26Podfile(config) {
     async (cfg) => {
       const podfilePath = path.join(cfg.modRequest.platformProjectRoot, 'Podfile');
       let contents = fs.readFileSync(podfilePath, 'utf8');
+
+      contents = contents.replace(WORKAROUND_BLOCK, '');
+
       if (contents.includes(MARKER)) {
+        fs.writeFileSync(podfilePath, contents);
         return cfg;
       }
+
       // Expo template: resource bundle signing block, then post_install / target `end`.
       const anchor = `      end
     end
@@ -43,7 +53,7 @@ end`;
       contents = contents.replace(
         anchor,
         `      end
-    end${SNIPPET}
+    end${buildSnippet()}
   end
 end`,
       );
