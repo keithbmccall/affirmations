@@ -73,10 +73,6 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
 
   const keyExtractor = useCallback((item: Asset) => item.id, []);
 
-  const handleEndReached = useCallback(() => {
-    loadMore();
-  }, [loadMore]);
-
   const listEmptyComponent = useMemo(() => {
     if (error && photos.length === 0) {
       return (
@@ -114,7 +110,7 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
         keyExtractor={keyExtractor}
         numColumns={CAMERA_ROLL_NUM_COLUMNS}
         contentContainerStyle={contentContainerStyle}
-        onEndReached={handleEndReached}
+        onEndReached={loadMore}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={listEmptyComponent}
         initialNumToRender={18}
