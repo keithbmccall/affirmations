@@ -62,7 +62,7 @@ describe('LensCameraRoll', () => {
     resetCameraRollPhotosCache();
   });
 
-  it('keeps FlatList mounted while loading with an empty cache', async () => {
+  it('keeps FlashList mounted while loading with an empty cache', async () => {
     const mockedGetAssetsAsync = jest.mocked(getAssetsAsync);
     mockedGetAssetsAsync.mockReturnValue(new Promise(() => {}));
 

@@ -10,13 +10,14 @@ import { toInspectionAsset } from '@features/Lens/Camera/cameraRollPhotos/toInsp
 import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCameraRollPhotos';
 import { useLens } from '@platform';
 import { Routes } from '@routes/routes';
-import { useThemeColor } from '@styles/hooks/useThemeColor';
+import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import type { Asset } from 'expo-media-library';
+import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { memo, useCallback, useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) => {
   const item = toInspectionAsset(asset, lensPalette);
@@ -60,9 +61,6 @@ const PhotoGridItem = memo(function PhotoGridItem({ item, lensPalette }: PhotoGr
 export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRollProps) {
   const { photos, loading, error, loadMore } = useLensCameraRollPhotos();
   const { lensPalettesMap } = useLens();
-  const borderColor = useThemeColor({}, 'background');
-
-  const contentContainerStyle = useMemo(() => ({ borderColor }), [borderColor]);
 
   const renderPhoto = useCallback(
     ({ item }: { item: Asset }) => (
@@ -103,20 +101,17 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
 
   return (
     <Modal title="Camera Roll" testID="lens-camera-roll-title">
-      <FlatList
+      <FlashList
         testID="lens-camera-roll-list"
         data={photos}
         renderItem={renderPhoto}
         keyExtractor={keyExtractor}
         numColumns={CAMERA_ROLL_NUM_COLUMNS}
-        contentContainerStyle={contentContainerStyle}
+        estimatedItemSize={CAMERA_ROLL_GRID_CELL_SIZE}
         onEndReached={loadMore}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={listEmptyComponent}
-        initialNumToRender={18}
-        maxToRenderPerBatch={12}
-        windowSize={7}
-        removeClippedSubviews
+        style={globalStyles.flex1}
       />
     </Modal>
   );

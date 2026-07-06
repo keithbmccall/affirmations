@@ -15,10 +15,13 @@ import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { NotificationRow } from './NotificationRow';
+
+const NOTIFICATION_ROW_ESTIMATED_HEIGHT = spacing.sm * 2 + spacing['2xl'] * 2 + spacing.lg;
 
 export const ScheduleHistory = memo(function ScheduleHistory() {
   const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
@@ -102,7 +105,7 @@ export const ScheduleHistory = memo(function ScheduleHistory() {
   // console.log({ historyNotifications, pendingNotifications });
 
   return (
-    <ThemedView>
+    <ThemedView style={styles.container}>
       <ThemedView style={styles.pillContainer}>
         <ThemedButton
           onPress={handlePendingPagePress}
@@ -118,17 +121,22 @@ export const ScheduleHistory = memo(function ScheduleHistory() {
         </ThemedButton>
       </ThemedView>
 
-      <FlatList
+      <FlashList
         data={notificationsByDate}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        estimatedItemSize={NOTIFICATION_ROW_ESTIMATED_HEIGHT}
         contentContainerStyle={contentContainerStyle}
+        style={globalStyles.flex1}
       />
     </ThemedView>
   );
 });
 
 const styles = StyleSheet.create({
+  container: {
+    ...globalStyles.flex1,
+  },
   pillContainer: {
     ...globalStyles.flexRow,
     ...globalStyles.justifyAround,

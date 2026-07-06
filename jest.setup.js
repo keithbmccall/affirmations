@@ -44,6 +44,13 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
+jest.mock('@shopify/flash-list', () => {
+  const { FlatList } = require('react-native');
+  return {
+    FlashList: FlatList,
+  };
+});
+
 beforeAll(() => {
   const originalPush = router.push.bind(router);
   router.push = to => {

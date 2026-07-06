@@ -6,13 +6,13 @@ import { toInspectionAsset } from '@features/Lens/Camera/cameraRollPhotos/toInsp
 import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCameraRollPhotos';
 import { useLens } from '@platform';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
+import { globalStyles } from '@styles/globalStyles';
 import type { Asset } from 'expo-media-library';
+import { FlashList, type ListRenderItem } from '@shopify/flash-list';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dimensions,
-  FlatList,
   type LayoutChangeEvent,
-  type ListRenderItem,
   type ViewToken,
   StyleSheet,
   View,
@@ -108,12 +108,10 @@ export const CameraRollInspector = memo(function CameraRollInspector({
     }
   }, [pageWidth]);
 
-  const getItemLayout = useCallback(
-    (_data: ArrayLike<Asset> | null | undefined, index: number) => ({
-      length: pageWidth,
-      offset: pageWidth * index,
-      index,
-    }),
+  const overrideItemLayout = useCallback(
+    (layout: { span?: number; size?: number }) => {
+      layout.size = pageWidth;
+    },
     [pageWidth]
   );
 
@@ -171,7 +169,7 @@ export const CameraRollInspector = memo(function CameraRollInspector({
   return (
     <Modal title="Camera Roll Inspector" testID="camera-roll-inspector-title" enableBackButton>
       <View style={styles.pagerContainer} onLayout={handlePageLayout}>
-        <FlatList
+        <FlashList
           testID="camera-roll-inspector-pager"
           data={photos}
           renderItem={renderItem}
@@ -181,13 +179,13 @@ export const CameraRollInspector = memo(function CameraRollInspector({
           showsHorizontalScrollIndicator={false}
           scrollEnabled={isPagerScrollEnabled}
           initialScrollIndex={initialIndex}
-          getItemLayout={getItemLayout}
+          estimatedItemSize={pageWidth}
+          overrideItemLayout={overrideItemLayout}
+          disableHorizontalListHeightMeasurement
           viewabilityConfig={viewabilityConfig}
           onViewableItemsChanged={onViewableItemsChanged}
           extraData={pagerExtraData}
-          initialNumToRender={1}
-          maxToRenderPerBatch={1}
-          windowSize={3}
+          style={globalStyles.flex1}
         />
       </View>
     </Modal>
