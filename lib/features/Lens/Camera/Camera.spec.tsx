@@ -45,6 +45,13 @@ const mockUseColorLensPalette = jest.fn((): {
   getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
 }));
 
+jest.mock('@components/shared/icon-symbol/IconSymbol', () => ({
+  IconSymbol: ({ name }: { name: string }) => {
+    const RN = jest.requireActual('react-native');
+    return <RN.View testID={`icon-${name}`} />;
+  },
+}));
+
 jest.mock('@platform', () => ({
   useLens: () => ({ onAddLensPalette: mockOnAddLensPalette }),
 }));
@@ -351,6 +358,22 @@ describe('Camera', () => {
     renderCamera(<Camera />);
 
     expect(await screen.findByTestId('color-palette-mock')).toBeTruthy();
+    expect(await screen.findByTestId('icon-swatchpalette.fill')).toBeTruthy();
+    expect(screen.queryByTestId('icon-scope')).toBeNull();
+  });
+
+  it('shows scope icon on the color lens toggle in lens-point mode', async () => {
+    mockUseColorLensPalette.mockReturnValue({
+      colorLensMode: COLOR_LENS_MODE.LENS_POINT,
+      setColorLensMode: mockSetColorLensMode,
+      palette: mockPalette,
+      getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
+    });
+
+    renderCamera(<Camera />);
+
+    expect(await screen.findByTestId('icon-scope')).toBeTruthy();
+    expect(screen.queryByTestId('icon-swatchpalette.fill')).toBeNull();
   });
 
   it('shows color region indicator when color lens is in lens-point mode', async () => {

@@ -12,6 +12,7 @@ export const iconMapping = {
   'arrowshape.backward.fill': 'arrow-back',
   'camera.fill': 'camera-alt',
   'camera.aperture': 'blur-circular',
+  scope: 'center-focus-strong',
   'note.text': 'note',
   'person.fill': 'person',
   gear: 'settings',

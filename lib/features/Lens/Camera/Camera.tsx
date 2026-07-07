@@ -416,7 +416,7 @@ export const Camera = memo(function Camera() {
               <IconSymbol
                 size={globalStyles.symbolSize}
                 color={colors.human.white}
-                name="swatchpalette.fill"
+                name={isColorLensPoint(colorLensMode) ? 'scope' : 'swatchpalette.fill'}
               />
             </TouchableOpacity>
             {isColorLensDominant(colorLensMode) && (
