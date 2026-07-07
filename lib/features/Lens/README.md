@@ -1,6 +1,6 @@
 # Lens
 
-Developer guide for the Affirmations **Lens** feature: camera capture (Vision Camera + Skia + worklets), live color palette extraction, saved palettes, and camera-roll browsing. For upstream library APIs, use the links in [Installed versions](#installed-versions) and [Further reading](#further-reading).
+Developer guide for the Affirmations **Lens** feature: camera capture (Vision Camera + Skia + worklets), live color palette extraction, saved palettes, and camera-roll browsing. For upstream library APIs, use the links in [Installed versions](#installed-versions) and [Further reading](#further-reading). For a planned Vision Camera v5 upgrade, see [`VISION_CAMERA_V5_MIGRATION.md`](VISION_CAMERA_V5_MIGRATION.md).
 
 This document is affirmations-specific and describes **what the code in `lib/features/Lens/` does today**.
 
@@ -125,7 +125,7 @@ See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens
 | `prefetchCameraRollThumbnails.ts` | Thumbnail byte warmup |
 | `cameraRollGridLayout.ts` | Shared 3-column grid cell size (`CAMERA_ROLL_GRID_CELL_SIZE`) |
 
-**Modal UI:** `LensCameraRoll.tsx` uses `useLensCameraRollPhotos` (subscribes to cache) and always mounts a `FlatList` with `ListEmptyComponent` for loading/error. Each cell: `PhotoGridItem` → `ColorPaletteImage` with `cellSize={CAMERA_ROLL_GRID_CELL_SIZE}` (photo + palette strip when `lensPalettesMap[item.id]`). Tap navigates to inspector with `asset` serialized as JSON in route params.
+**Modal UI:** `LensCameraRoll.tsx` uses `useLensCameraRollPhotos` (subscribes to cache) and always mounts a `FlashList` with `ListEmptyComponent` for loading/error. Each cell: `PhotoGridItem` → `ColorPaletteImage` with `cellSize={CAMERA_ROLL_GRID_CELL_SIZE}` (photo + palette strip when `lensPalettesMap[item.id]`). Tap navigates to inspector with `asset` serialized as JSON in route params.
 
 `CameraRollInspector.tsx` parses that JSON into `InspectionAsset` and renders `ColorPaletteImageInspector`.
 
@@ -133,11 +133,16 @@ See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens
 
 | Package | Version in `package.json` | Notes |
 |---------|---------------------------|--------|
-| `react-native-vision-camera` | 4.7.0 | v5 is current upstream; this app uses the v4 API |
+| `@shopify/flash-list` | 1.7.6 | **Pinned by Expo SDK 53.** v2 requires a newer SDK; keep `estimatedItemSize` on v1 |
+| `react-native-vision-camera` | 4.7.0 | v5 is current upstream; see [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md) and [`VISION_CAMERA_V5_MIGRATION.md`](VISION_CAMERA_V5_MIGRATION.md) |
 | `react-native-worklets-core` | 1.5.0 | Babel plugin required for frame worklets |
-| `@shopify/react-native-skia` | v2.0.0-next.4 | Requires RN ≥0.79, React ≥19 (matches this app) |
+| `@shopify/react-native-skia` | v2.0.0-next.4 | **Pinned by Expo SDK 53.** Stable 2.6.x requires Reanimated ≥3.19.1; defer until SDK bump |
 
 Peer dependencies for frame processors and Skia preview are satisfied in `package.json`.
+
+### Skia stable evaluation (SDK 53)
+
+Attempted `@shopify/react-native-skia@2.6.9` — **blocked** by peer dependency `react-native-reanimated@>=3.19.1` while Expo SDK 53 ships Reanimated ~3.17.x. Re-run after upgrading Expo and Reanimated; then `npm run test:coverage:lens` on device + CI.
 
 ## The three libraries (roles in this app)
 

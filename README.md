@@ -23,7 +23,7 @@ A React Native / Expo app for scheduling and managing affirmations with local no
 | **Shared controls** | Grid, flash, physical device selection, front/back flip, tap-to-focus, camera roll thumbnail with modal and inspector |
 | **Platform** | **Obskura** on iOS and Android; **color lens** requires the local iOS plugin — not shipped for Android yet |
 
-Full Lens architecture, platform matrix, and debugging: [`lib/features/Lens/README.md`](lib/features/Lens/README.md).
+Full Lens architecture, platform matrix, and debugging: [`lib/features/Lens/README.md`](lib/features/Lens/README.md). Vision Camera: [v4 vs v5 features](lib/features/Lens/VISION_CAMERA_V4_VS_V5.md) · [v5 migration plan](lib/features/Lens/VISION_CAMERA_V5_MIGRATION.md).
 
 ### Technical features
 
@@ -56,6 +56,10 @@ Full Lens architecture, platform matrix, and debugging: [`lib/features/Lens/READ
 
 - **expo-notifications** 0.31.5
 - **@react-native-async-storage/async-storage** 2.1.2
+
+### Lists
+
+- **@shopify/flash-list** 1.7.6 (Expo SDK 53 pin; v2 deferred until SDK bump)
 
 ### UI and platform
 
