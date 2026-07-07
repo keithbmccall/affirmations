@@ -1,11 +1,14 @@
 import { useCameraRollPrefetch } from '@features/Lens/Camera/hooks/useCameraRollPrefetch';
+import { prefetchCameraRollPhotos } from '@features/Lens/Camera/cameraRollPhotos/prefetchCameraRollPhotos';
 import { renderHook } from '@testing-library/react-native';
 
-const mockPrefetchCameraRollPhotos = jest.fn(() => Promise.resolve());
-
 jest.mock('@features/Lens/Camera/cameraRollPhotos/prefetchCameraRollPhotos', () => ({
-  prefetchCameraRollPhotos: mockPrefetchCameraRollPhotos,
+  prefetchCameraRollPhotos: jest.fn(() => Promise.resolve()),
 }));
+
+const mockPrefetchCameraRollPhotos = prefetchCameraRollPhotos as jest.MockedFunction<
+  typeof prefetchCameraRollPhotos
+>;
 
 let mockMediaLibraryPermission = false;
 
