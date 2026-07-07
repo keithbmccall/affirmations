@@ -1,7 +1,7 @@
+import { useCallback, useMemo } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 import { Frame } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
-import { useCallback, useMemo } from 'react';
 import { ColorLensRegionOptions, getColorLensRegion } from './getColorLensRegion';
 import { lensPaletteConfig } from './lensPaletteConfig';
 
@@ -11,9 +11,8 @@ export const useColorLensRegion = () => {
   const applyRegionColor = useCallback(
     (color: string | null) => {
       if (color !== null) {
-        console.log('[ColorLensRegion]', color);
+        regionColor.value = color ?? regionColor.value;
       }
-      regionColor.value = color ?? regionColor.value;
     },
     [regionColor]
   );

@@ -27,11 +27,6 @@ const regionOptions = {
 describe('useColorLensRegion', () => {
   beforeEach(() => {
     mockGetColorLensRegion.mockReset();
-    jest.spyOn(console, 'log').mockImplementation(() => undefined);
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   it('returns regionColor initialized to the default palette color', () => {
@@ -51,7 +46,6 @@ describe('useColorLensRegion', () => {
 
     expect(mockGetColorLensRegion).toHaveBeenCalledWith(mockFrame, regionOptions);
     expect(result.current.regionColor.value).toBe('#AABBCC');
-    expect(console.log).toHaveBeenCalledWith('[ColorLensRegion]', '#AABBCC');
   });
 
   it('keeps the previous regionColor when getColorLensRegion returns null', () => {

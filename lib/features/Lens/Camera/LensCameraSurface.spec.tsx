@@ -188,7 +188,7 @@ describe('LensCameraSurface', () => {
     expect(getColorLensPaletteWorklet).not.toHaveBeenCalled();
     expect(getColorLensRegionWorklet).toHaveBeenCalledWith(
       {},
-      { centerX: 0.5, centerY: 0.5, radius: 0.15 }
+      { centerX: 0.5, centerY: 0.5, radius: 0.08 }
     );
   });
 });

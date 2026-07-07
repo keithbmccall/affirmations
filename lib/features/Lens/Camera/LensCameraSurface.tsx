@@ -5,13 +5,13 @@ import {
   isColorLensPoint,
 } from '@features/Lens/ColorPalette/colorLensMode';
 import type { ColorLensRegionOptions } from '@features/Lens/ColorPalette/getColorLensRegion';
-import Reanimated, { useSharedValue } from 'react-native-reanimated';
 import {
   CameraDevice,
   Frame,
   useFrameProcessor,
   Camera as VisionCamera,
 } from 'react-native-vision-camera';
+import Reanimated, { useSharedValue } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
@@ -21,7 +21,7 @@ Reanimated.addWhitelistedNativeProps({
 
 export const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000;
 
-const LENS_POINT_SAMPLE_RADIUS = 0.15;
+export const LENS_POINT_SAMPLE_RADIUS = 0.08;
 
 interface LensCameraSurfaceProps {
   cameraRef: React.RefObject<VisionCamera | null>;

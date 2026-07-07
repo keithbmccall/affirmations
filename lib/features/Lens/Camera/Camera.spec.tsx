@@ -14,6 +14,7 @@ const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
 const mockGetColorLensRegionWorklet = jest.fn();
+const mockRegionColor = { value: '#AABBCC' };
 
 const mockPalette = {
   primaryColor: { value: '#111111' },
@@ -55,6 +56,7 @@ jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
 jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
   useColorLensRegion: () => ({
     getColorLensRegionWorklet: mockGetColorLensRegionWorklet,
+    regionColor: mockRegionColor,
   }),
 }));
 
@@ -62,6 +64,13 @@ jest.mock('@features/Lens/ColorPalette/ColorPalette', () => ({
   ColorPalette: () => {
     const RN = jest.requireActual('react-native');
     return <RN.View testID="color-palette-mock" />;
+  },
+}));
+
+jest.mock('./LensColorRegionIndicator', () => ({
+  LensColorRegionIndicator: () => {
+    const RN = jest.requireActual('react-native');
+    return <RN.View testID="lens-color-region-indicator" />;
   },
 }));
 
@@ -342,6 +351,20 @@ describe('Camera', () => {
     renderCamera(<Camera />);
 
     expect(await screen.findByTestId('color-palette-mock')).toBeTruthy();
+  });
+
+  it('shows color region indicator when color lens is in lens-point mode', async () => {
+    mockUseColorLensPalette.mockReturnValue({
+      colorLensMode: COLOR_LENS_MODE.LENS_POINT,
+      setColorLensMode: mockSetColorLensMode,
+      palette: mockPalette,
+      getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
+    });
+
+    renderCamera(<Camera />);
+
+    expect(await screen.findByTestId('lens-color-region-indicator')).toBeTruthy();
+    expect(screen.queryByTestId('color-palette-mock')).toBeNull();
   });
 
   it('saves a plain photo in lens mode when color lens is disabled', async () => {

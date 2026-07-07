@@ -4,6 +4,7 @@ import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPh
 import {
   isColorLensActive,
   isColorLensDominant,
+  isColorLensPoint,
   nextColorLensMode,
 } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
@@ -34,7 +35,8 @@ import { CameraGrid } from './CameraGrid';
 import { useCameraFocus } from './hooks/useCameraFocus';
 import { useCameraRoll } from './hooks/useCameraRoll';
 import { useLensPermissions } from './hooks/useLensPermissions';
-import { LensCameraSurface } from './LensCameraSurface';
+import { LensCameraSurface, LENS_POINT_SAMPLE_RADIUS } from './LensCameraSurface';
+import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import {
   CAMERA_POSITION,
   CAMERA_VIEW_MODE,
@@ -87,7 +89,7 @@ export const Camera = memo(function Camera() {
   } = useCameraRoll(hasAllPermissions);
   const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
-  const { getColorLensRegionWorklet } = useColorLensRegion();
+  const { regionColor, getColorLensRegionWorklet } = useColorLensRegion();
 
   const showGrid = gridModeOptions[gridMode].value === 'on';
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
@@ -321,6 +323,14 @@ export const Camera = memo(function Camera() {
           </View>
         )}
 
+        {device && hasAllPermissions && isLensMode && isColorLensPoint(colorLensMode) && (
+          <LensColorRegionIndicator
+            color={regionColor}
+            radius={LENS_POINT_SAMPLE_RADIUS}
+            animationDuration={COLOR_ANIMATION_DURATION}
+          />
+        )}
+
         {/* ===== BACK BUTTON SECTION ===== */}
         <TouchableOpacity
           testID="lens-back-button"
@@ -473,6 +483,7 @@ const styles = StyleSheet.create({
   },
   cameraInnerContainer: {
     ...globalStyles.flex1,
+    ...globalStyles.relative,
   },
   errorText: {
     ...globalStyles.flexCenter,
