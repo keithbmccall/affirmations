@@ -17,7 +17,7 @@ import type { Asset } from 'expo-media-library';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { memo, useCallback, useMemo } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) => {
   const item = toInspectionAsset(asset, lensPalette);
@@ -101,18 +101,19 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
 
   return (
     <Modal title="Camera Roll" testID="lens-camera-roll-title">
-      <FlashList
-        testID="lens-camera-roll-list"
-        data={photos}
-        renderItem={renderPhoto}
-        keyExtractor={keyExtractor}
-        numColumns={CAMERA_ROLL_NUM_COLUMNS}
-        estimatedItemSize={CAMERA_ROLL_GRID_CELL_SIZE}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.1}
-        ListEmptyComponent={listEmptyComponent}
-        style={globalStyles.flex1}
-      />
+      <View style={globalStyles.flex1}>
+        <FlashList
+          testID="lens-camera-roll-list"
+          data={photos}
+          renderItem={renderPhoto}
+          keyExtractor={keyExtractor}
+          numColumns={CAMERA_ROLL_NUM_COLUMNS}
+          estimatedItemSize={CAMERA_ROLL_GRID_CELL_SIZE}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.1}
+          ListEmptyComponent={listEmptyComponent}
+        />
+      </View>
     </Modal>
   );
 });

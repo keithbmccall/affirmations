@@ -102,6 +102,16 @@ const mockTakePhoto = jest.fn(() => Promise.resolve({ path: '/tmp/photo.jpg' }))
 const mockStartRecording = jest.fn();
 const mockStopRecording = jest.fn(() => Promise.resolve());
 
+let pendingRecordingFinished: ((video: { path: string }) => void) | undefined;
+
+jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', () => ({
+  buildObskuraLensPaintFromPipeline: jest.fn(() => ({ dispose: jest.fn() })),
+}));
+
+jest.mock('@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig', () => ({
+  OBSKURA_LENS_PIPELINE: [{ action: 'blur', settings: { sigma: 60 } }],
+}));
+
 jest.mock('react-native-vision-camera', () => {
   const React = jest.requireActual('react');
   const RN = jest.requireActual('react-native');
@@ -118,7 +128,16 @@ jest.mock('react-native-vision-camera', () => {
   });
   return {
     Camera: VisionCamera,
+    Templates: {
+      FrameProcessing: [{ videoResolution: { width: 1080, height: 720 } }],
+    },
     useCameraDevice: jest.fn(() => ({ id: 'mock-device' })),
+    useCameraFormat: jest.fn(() => ({
+      videoWidth: 1080,
+      videoHeight: 720,
+      photoWidth: 4032,
+      photoHeight: 3024,
+    })),
     useFrameProcessor: jest.fn((processor: (f: unknown) => void) => {
       try {
         processor({});
@@ -135,15 +154,6 @@ jest.mock('react-native-vision-camera', () => {
       }
       return processor;
     }),
-  };
-});
-
-jest.mock('@features/Lens/Obskura/ObskuraCameraSurface', () => {
-  const { Camera } = jest.requireMock('react-native-vision-camera');
-  return {
-    ObskuraCameraSurface: (props: { cameraRef: React.MutableRefObject<unknown> }) => (
-      <Camera ref={props.cameraRef} testID="obskura-surface-mock" />
-    ),
   };
 });
 
@@ -251,9 +261,14 @@ describe('Camera', () => {
     });
     mockStartRecording.mockImplementation(
       ({ onRecordingFinished }: { onRecordingFinished?: (v: { path: string }) => void }) => {
-        onRecordingFinished?.({ path: '/tmp/video.mp4' });
+        pendingRecordingFinished = onRecordingFinished;
       }
     );
+    mockStopRecording.mockImplementation(() => {
+      pendingRecordingFinished?.({ path: '/tmp/video.mp4' });
+      return Promise.resolve();
+    });
+    pendingRecordingFinished = undefined;
     mockTakePhoto.mockResolvedValue({ path: '/tmp/photo.jpg' });
     mockedCreateAssetAsync.mockResolvedValue({
       id: 'asset-1',
@@ -335,8 +350,8 @@ describe('Camera', () => {
 
     fireEvent.press(await screen.findByTestId('lens-control-view-mode'));
 
-    expect(await screen.findByTestId('obskura-surface-mock')).toBeTruthy();
-    expect(screen.getByTestId('lens-control-obskura-color-mode')).toBeTruthy();
+    expect(await screen.findByTestId('lens-control-obskura-color-mode')).toBeTruthy();
+    expect(screen.queryByTestId('lens-toggle-color-lens')).toBeNull();
   });
 
   it('toggles grid overlay', async () => {
@@ -426,7 +441,7 @@ describe('Camera', () => {
 
     fireEvent.press(await screen.findByTestId('lens-control-view-mode'));
     await waitFor(() => {
-      expect(screen.getByTestId('obskura-surface-mock')).toBeTruthy();
+      expect(screen.getByTestId('lens-control-obskura-color-mode')).toBeTruthy();
     });
 
     fireEvent.press(await screen.findByTestId('lens-capture-button'));

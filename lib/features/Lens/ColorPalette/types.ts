@@ -18,6 +18,10 @@ export type LensPalette = {
 
 export type LensPalettesMap = Record<LensPalette['id'], LensPalette>;
 
+export type LensPhotoCaptureContext = {
+  paletteSnapshot: LensPalette['palette'];
+};
+
 export type InspectionAsset = Omit<LensPalette, 'palette'> & {
   palette?: LensPalette['palette'];
   height: Asset['height'];

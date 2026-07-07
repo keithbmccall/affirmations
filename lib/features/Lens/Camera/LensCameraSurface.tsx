@@ -1,18 +1,24 @@
+import { CameraBottomControls, type PhotoCaptureContext } from './CameraBottomControls';
+import { useCameraSurface } from './CameraSurfaceContext';
+import { LensCameraTopControls } from './LensCameraTopControls';
+import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import {
-  ColorLensMode,
   isColorLensActive,
   isColorLensDominant,
   isColorLensPoint,
+  nextColorLensMode,
 } from '@features/Lens/ColorPalette/colorLensMode';
-import type { ColorLensRegionOptions } from '@features/Lens/ColorPalette/getColorLensRegion';
-import {
-  CameraDevice,
-  Frame,
-  useFrameProcessor,
-  Camera as VisionCamera,
-} from 'react-native-vision-camera';
+import { snapshotPalette } from '@features/Lens/ColorPalette/snapshotPalette';
+import type { LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
+import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
+import { useColorLensRegion } from '@features/Lens/ColorPalette/useColorLensRegion';
+import { useLens } from '@platform';
+import { globalStyles } from '@styles/globalStyles';
+import type { Asset } from 'expo-media-library';
+import { memo, useCallback } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Reanimated, { useSharedValue } from 'react-native-reanimated';
-import { StyleSheet } from 'react-native';
+import { useFrameProcessor, Camera as VisionCamera } from 'react-native-vision-camera';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
 Reanimated.addWhitelistedNativeProps({
@@ -23,29 +29,48 @@ export const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000;
 
 export const LENS_POINT_SAMPLE_RADIUS = 0.08;
 
-interface LensCameraSurfaceProps {
-  cameraRef: React.RefObject<VisionCamera | null>;
-  device: CameraDevice;
-  isActive: boolean;
-  fps: number;
-  colorLensMode: ColorLensMode;
-  getColorLensPaletteWorklet: (frame: Frame) => void;
-  getColorLensRegionWorklet?: (frame: Frame, options: ColorLensRegionOptions) => void;
-}
+const COLOR_ANIMATION_DURATION = 500;
+const COLOR_LENS_FPS = 15;
+const DEFAULT_FPS = 30;
 
-export const LensCameraSurface = ({
-  cameraRef,
-  device,
-  isActive,
-  fps,
-  colorLensMode,
-  getColorLensPaletteWorklet,
-  getColorLensRegionWorklet,
-}: LensCameraSurfaceProps) => {
+export const LensCameraSurface = memo(function LensCameraSurface() {
+  const { cameraRef, showPreview, isActive, device } = useCameraSurface();
+  const { onAddLensPalette } = useLens();
+  const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
+    useColorLensPalette();
+  const { regionColor, getColorLensRegionWorklet } = useColorLensRegion();
+
   const lastColorLensPaletteSampleMs = useSharedValue(0);
   const shouldSampleDominant = isColorLensDominant(colorLensMode);
   const shouldSamplePoint = isColorLensPoint(colorLensMode);
   const isColorLensModeActive = isColorLensActive(colorLensMode);
+
+  const fps = isActive && isColorLensModeActive ? COLOR_LENS_FPS : DEFAULT_FPS;
+
+  const handleColorLensModeToggle = useCallback(
+    () => setColorLensMode(prev => nextColorLensMode(prev)),
+    [setColorLensMode]
+  );
+
+  const onPhotoCaptureStart = useCallback(
+    (): LensPhotoCaptureContext => ({ paletteSnapshot: snapshotPalette(palette) }),
+    [palette]
+  );
+
+  const onPhotoAssetSaved = useCallback(
+    async (asset: Asset, context?: PhotoCaptureContext) => {
+      if (!isColorLensDominant(colorLensMode)) return;
+      const paletteSnapshot = (context as LensPhotoCaptureContext | undefined)?.paletteSnapshot;
+      if (paletteSnapshot === undefined) return;
+      onAddLensPalette({
+        id: asset.id,
+        uri: asset.uri,
+        mediaType: asset.mediaType,
+        palette: paletteSnapshot,
+      });
+    },
+    [colorLensMode, onAddLensPalette]
+  );
 
   const frameProcessor = useFrameProcessor(
     frame => {
@@ -61,7 +86,7 @@ export const LensCameraSurface = ({
             getColorLensPaletteWorklet(frame);
           }
 
-          if (shouldSamplePoint && getColorLensRegionWorklet !== undefined) {
+          if (shouldSamplePoint) {
             getColorLensRegionWorklet(frame, {
               centerX: 0.5,
               centerY: 0.5,
@@ -82,16 +107,45 @@ export const LensCameraSurface = ({
   );
 
   return (
-    <ReanimatedCamera
-      ref={cameraRef}
-      style={StyleSheet.absoluteFill}
-      device={device}
-      isActive={isActive}
-      photo
-      video
-      audio
-      frameProcessor={isActive ? frameProcessor : undefined}
-      fps={fps}
-    />
+    <View style={styles.surface}>
+      {showPreview && device !== undefined && (
+        <ReanimatedCamera
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={isActive}
+          photo
+          video
+          audio
+          frameProcessor={isActive ? frameProcessor : undefined}
+          fps={fps}
+        />
+      )}
+      <LensCameraTopControls
+        colorLensMode={colorLensMode}
+        palette={palette}
+        colorAnimationDuration={COLOR_ANIMATION_DURATION}
+        onColorLensModeToggle={handleColorLensModeToggle}
+      />
+      <CameraBottomControls
+        enableVideoLongPress={!isColorLensModeActive}
+        onPhotoCaptureStart={onPhotoCaptureStart}
+        onPhotoAssetSaved={onPhotoAssetSaved}
+      />
+      {isColorLensPoint(colorLensMode) && (
+        <LensColorRegionIndicator
+          color={regionColor}
+          radius={LENS_POINT_SAMPLE_RADIUS}
+          animationDuration={COLOR_ANIMATION_DURATION}
+        />
+      )}
+    </View>
   );
-};
+});
+
+const styles = StyleSheet.create({
+  surface: {
+    ...globalStyles.flex1,
+    ...globalStyles.relative,
+  },
+});
