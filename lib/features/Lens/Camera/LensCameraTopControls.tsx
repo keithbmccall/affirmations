@@ -52,11 +52,7 @@ export const LensCameraTopControls = memo(function LensCameraTopControls({
         style={styles.topButton}
         onPress={onViewModeToggle}
       >
-        <IconSymbol
-          size={globalStyles.symbolSize}
-          color={colors.human.white}
-          name="drop.fill"
-        />
+        <IconSymbol size={globalStyles.symbolSize} color={colors.human.white} name="drop.fill" />
       </TouchableOpacity>
       <TouchableOpacity testID="lens-control-grid" style={styles.topButton} onPress={onGridToggle}>
         <IconSymbol
@@ -65,7 +61,11 @@ export const LensCameraTopControls = memo(function LensCameraTopControls({
           name={gridModeOptions[gridMode].icon}
         />
       </TouchableOpacity>
-      <TouchableOpacity testID="lens-control-flash" style={styles.topButton} onPress={onFlashToggle}>
+      <TouchableOpacity
+        testID="lens-control-flash"
+        style={styles.topButton}
+        onPress={onFlashToggle}
+      >
         <IconSymbol
           size={globalStyles.symbolSize}
           color={colors.human.white}
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     ...globalStyles.absolute,
     right: 0,
     ...globalStyles.flex1,
-    gap: spacing.lg,
+    gap: spacing.sm,
     marginHorizontal: spacing['2xl'],
     backgroundColor: colors.human.semiTransparent,
     borderRadius: 20,
