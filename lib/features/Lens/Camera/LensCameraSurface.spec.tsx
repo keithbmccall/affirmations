@@ -8,7 +8,11 @@ import {
   CameraSurfaceContextForTesting,
   type CameraSurfaceContextValue,
 } from './CameraSurfaceContext';
-import { COLOR_LENS_PALETTE_MIN_INTERVAL_MS, LensCameraSurface } from './LensCameraSurface';
+import {
+  COLOR_LENS_PALETTE_MIN_INTERVAL_MS,
+  COLOR_LENS_REGION_MIN_INTERVAL_MS,
+  LensCameraSurface,
+} from './LensCameraSurface';
 import { LENS_POINT_SAMPLE_RADIUS } from './lensPointSampleRegion';
 import { CAMERA_VIEW_MODE } from './options';
 
@@ -202,5 +206,42 @@ describe('LensCameraSurface', () => {
       {},
       { centerX: 0.5, centerY: 0.5, radius: LENS_POINT_SAMPLE_RADIUS }
     );
+  });
+
+  it('throttles getColorLensRegionWorklet when at least COLOR_LENS_REGION_MIN_INTERVAL_MS have elapsed', () => {
+    mockColorLensMode = COLOR_LENS_MODE.LENS_POINT;
+    const baseTimeMs = 1_700_000_000_000;
+    let nowMs = baseTimeMs;
+    const dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => nowMs);
+
+    renderLensSurface();
+
+    expect(mockGetColorLensRegionWorklet).toHaveBeenCalledTimes(1);
+
+    const frameProcessor = lastCameraProps?.frameProcessor as (frame: unknown) => void;
+    try {
+      frameProcessor({});
+    } catch {
+      /* worklet body may throw outside native runtime */
+    }
+    expect(mockGetColorLensRegionWorklet).toHaveBeenCalledTimes(1);
+
+    nowMs = baseTimeMs + COLOR_LENS_REGION_MIN_INTERVAL_MS - 1;
+    try {
+      frameProcessor({});
+    } catch {
+      /* worklet body may throw outside native runtime */
+    }
+    expect(mockGetColorLensRegionWorklet).toHaveBeenCalledTimes(1);
+
+    nowMs = baseTimeMs + COLOR_LENS_REGION_MIN_INTERVAL_MS;
+    try {
+      frameProcessor({});
+    } catch {
+      /* worklet body may throw outside native runtime */
+    }
+    expect(mockGetColorLensRegionWorklet).toHaveBeenCalledTimes(2);
+
+    dateNowSpy.mockRestore();
   });
 });

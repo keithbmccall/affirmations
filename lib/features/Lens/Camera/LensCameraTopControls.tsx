@@ -1,7 +1,7 @@
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import {
+  colorLensModeOptions,
   isColorLensDominant,
-  isColorLensPoint,
   type ColorLensMode,
 } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
@@ -9,7 +9,7 @@ import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPal
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCameraSurface } from './CameraSurfaceContext';
@@ -40,13 +40,8 @@ export const LensCameraTopControls = memo(function LensCameraTopControls({
   } = useCameraSurface();
   const showCameraDeviceToggle = cameraDeviceOptions.length > 1;
 
-  const containerStyle = useMemo(
-    () => [styles.topControls, { top: insets.top + 60 }],
-    [insets.top]
-  );
-
   return (
-    <View style={containerStyle}>
+    <View style={[styles.topControls, { top: insets.top + 60 }]}>
       <TouchableOpacity
         testID="lens-control-view-mode"
         style={styles.topButton}
@@ -105,7 +100,7 @@ export const LensCameraTopControls = memo(function LensCameraTopControls({
         <IconSymbol
           size={globalStyles.symbolSize}
           color={colors.human.white}
-          name={isColorLensPoint(colorLensMode) ? 'scope' : 'swatchpalette.fill'}
+          name={colorLensModeOptions[colorLensMode].icon}
         />
       </TouchableOpacity>
       {isColorLensDominant(colorLensMode) && (

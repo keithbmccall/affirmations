@@ -362,6 +362,14 @@ describe('Camera', () => {
     expect(await screen.findByTestId('camera-grid-mock')).toBeTruthy();
   });
 
+  it('shows outline palette icon on the color lens toggle when disabled', async () => {
+    renderCamera(<Camera />);
+
+    expect(await screen.findByTestId('icon-swatchpalette')).toBeTruthy();
+    expect(screen.queryByTestId('icon-swatchpalette.fill')).toBeNull();
+    expect(screen.queryByTestId('icon-scope')).toBeNull();
+  });
+
   it('shows color palette when color lens is in lens-dominant mode', async () => {
     mockUseColorLensPalette.mockReturnValue({
       colorLensMode: COLOR_LENS_MODE.LENS_DOMINANT,
@@ -375,6 +383,7 @@ describe('Camera', () => {
     expect(await screen.findByTestId('color-palette-mock')).toBeTruthy();
     expect(await screen.findByTestId('icon-swatchpalette.fill')).toBeTruthy();
     expect(screen.queryByTestId('icon-scope')).toBeNull();
+    expect(screen.queryByTestId('icon-swatchpalette')).toBeNull();
   });
 
   it('shows scope icon on the color lens toggle in lens-point mode', async () => {
@@ -389,6 +398,7 @@ describe('Camera', () => {
 
     expect(await screen.findByTestId('icon-scope')).toBeTruthy();
     expect(screen.queryByTestId('icon-swatchpalette.fill')).toBeNull();
+    expect(screen.queryByTestId('icon-swatchpalette')).toBeNull();
   });
 
   it('shows color region indicator when color lens is in lens-point mode', async () => {

@@ -30,6 +30,7 @@ export const iconMapping = {
   'arrow.down': 'arrow-downward',
   'arrow.trianglehead.2.clockwise.rotate.90.circle': 'cameraswitch',
   'swatchpalette.fill': 'palette',
+  swatchpalette: 'palette',
   magnifyingglass: 'search',
   'envelope.fill': 'email',
   'phone.fill': 'phone',

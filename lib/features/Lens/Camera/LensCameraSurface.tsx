@@ -27,6 +27,7 @@ Reanimated.addWhitelistedNativeProps({
 });
 
 export const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000;
+export const COLOR_LENS_REGION_MIN_INTERVAL_MS = 500;
 
 const COLOR_ANIMATION_DURATION = 500;
 const COLOR_LENS_FPS = 15;
@@ -40,6 +41,7 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
   const { regionColor, getColorLensRegionWorklet } = useColorLensRegion();
 
   const lastColorLensPaletteSampleMs = useSharedValue(0);
+  const lastColorLensRegionSampleMs = useSharedValue(0);
   const shouldSampleDominant = isColorLensDominant(colorLensMode);
   const shouldSamplePoint = isColorLensPoint(colorLensMode);
   const isColorLensModeActive = isColorLensActive(colorLensMode);
@@ -78,20 +80,25 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
 
       if (isColorLensModeActive) {
         const now = Date.now();
-        if (now - lastColorLensPaletteSampleMs.value >= COLOR_LENS_PALETTE_MIN_INTERVAL_MS) {
+
+        if (
+          shouldSampleDominant &&
+          now - lastColorLensPaletteSampleMs.value >= COLOR_LENS_PALETTE_MIN_INTERVAL_MS
+        ) {
           lastColorLensPaletteSampleMs.value = now;
+          getColorLensPaletteWorklet(frame);
+        }
 
-          if (shouldSampleDominant) {
-            getColorLensPaletteWorklet(frame);
-          }
-
-          if (shouldSamplePoint) {
-            getColorLensRegionWorklet(frame, {
-              centerX: 0.5,
-              centerY: 0.5,
-              radius: LENS_POINT_SAMPLE_RADIUS,
-            });
-          }
+        if (
+          shouldSamplePoint &&
+          now - lastColorLensRegionSampleMs.value >= COLOR_LENS_REGION_MIN_INTERVAL_MS
+        ) {
+          lastColorLensRegionSampleMs.value = now;
+          getColorLensRegionWorklet(frame, {
+            centerX: 0.5,
+            centerY: 0.5,
+            radius: LENS_POINT_SAMPLE_RADIUS,
+          });
         }
       }
     },

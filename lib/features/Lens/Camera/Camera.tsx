@@ -57,7 +57,9 @@ const CameraContent = memo(function CameraContent() {
       <View style={styles.cameraContainer}>
         {showPreview ? (
           <GestureDetector gesture={gesture}>
-            <CameraViewport />
+            <View collapsable={false} style={globalStyles.flex1}>
+              <CameraViewport />
+            </View>
           </GestureDetector>
         ) : (
           <CameraViewport />
