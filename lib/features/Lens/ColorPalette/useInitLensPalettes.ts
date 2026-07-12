@@ -10,7 +10,6 @@ export const useInitLensPalettes = () => {
 
   useEffect(() => {
     void loadData(StorageDevice.LENS_PALETTES).then((_lensPalettes: LensPalettesMap) => {
-      console.log('lensPalettes: ', _lensPalettes);
       if (_lensPalettes) {
         onSetLensPalettesMap(_lensPalettes);
       }
@@ -19,7 +18,6 @@ export const useInitLensPalettes = () => {
   }, [onSetLensPalettesMap]);
 
   useEffect(() => {
-    console.log('lensPalettes: ', isLensPalettesInited, lensPalettesMap);
     if (isLensPalettesInited && Object.keys(lensPalettesMap).length) {
       saveData(StorageDevice.LENS_PALETTES, lensPalettesMap);
     }

@@ -97,7 +97,6 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       setIsCameraActive(true);
 
       return () => {
-        console.log('camera suspended');
         setIsCameraActive(false);
       };
     }, [])
