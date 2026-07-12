@@ -9,6 +9,7 @@ import {
   type CameraSurfaceContextValue,
 } from './CameraSurfaceContext';
 import { COLOR_LENS_PALETTE_MIN_INTERVAL_MS, LensCameraSurface } from './LensCameraSurface';
+import { LENS_POINT_SAMPLE_RADIUS } from './lensPointSampleRegion';
 import { CAMERA_VIEW_MODE } from './options';
 
 const mockPalette = {
@@ -199,7 +200,7 @@ describe('LensCameraSurface', () => {
     expect(mockGetColorLensPaletteWorklet).not.toHaveBeenCalled();
     expect(mockGetColorLensRegionWorklet).toHaveBeenCalledWith(
       {},
-      { centerX: 0.5, centerY: 0.5, radius: 0.08 }
+      { centerX: 0.5, centerY: 0.5, radius: LENS_POINT_SAMPLE_RADIUS }
     );
   });
 });

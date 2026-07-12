@@ -1,34 +1,30 @@
 import { useAnimatedColor } from '@features/Lens/ColorPalette/useAnimatedColor';
 import { globalStyles } from '@styles/globalStyles';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import { LayoutChangeEvent, LayoutRectangle, StyleSheet, View } from 'react-native';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+
+import { getRegionDiameter } from './lensPointSampleRegion';
 
 interface LensColorRegionIndicatorProps {
   color: SharedValue<string>;
-  radius: number;
   animationDuration: number;
 }
 
+const HAIR_THICKNESS = 0.5;
+const INITIAL_LAYOUT: LayoutRectangle = { x: 0, y: 0, width: 0, height: 0 };
+
 export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
   color,
-  radius,
   animationDuration,
 }: LensColorRegionIndicatorProps) {
-  const [layoutSize, setLayoutSize] = useState({ width: 0, height: 0 });
+  const [layoutSize, setLayoutSize] = useState<LayoutRectangle>(INITIAL_LAYOUT);
 
   const handleLayout = useCallback((event: LayoutChangeEvent) => {
-    const { width, height } = event.nativeEvent.layout;
-    setLayoutSize({ width, height });
+    setLayoutSize(event.nativeEvent.layout);
   }, []);
 
-  const diameter = useMemo(() => {
-    const shortSide = Math.min(layoutSize.width, layoutSize.height);
-    if (shortSide <= 0) {
-      return 0;
-    }
-    return 2 * radius * shortSide;
-  }, [layoutSize.height, layoutSize.width, radius]);
+  const diameter = getRegionDiameter(layoutSize);
 
   const circleStyle = useMemo(
     () => ({
@@ -40,7 +36,13 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
   );
 
   const animatedColor = useAnimatedColor(color, animationDuration);
-  const animatedBackgroundStyle = useAnimatedStyle(
+  const animatedBorderStyle = useAnimatedStyle(
+    () => ({
+      borderColor: animatedColor.value as string,
+    }),
+    [animatedColor]
+  );
+  const animatedHairStyle = useAnimatedStyle(
     () => ({
       backgroundColor: animatedColor.value as string,
     }),
@@ -57,8 +59,17 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
       {diameter > 0 ? (
         <Reanimated.View
           testID="lens-color-region-indicator"
-          style={[styles.circle, circleStyle, animatedBackgroundStyle]}
-        />
+          style={[styles.circle, circleStyle, animatedBorderStyle]}
+        >
+          <Reanimated.View
+            testID="lens-color-region-hair-h"
+            style={[styles.hairHorizontal, animatedHairStyle]}
+          />
+          <Reanimated.View
+            testID="lens-color-region-hair-v"
+            style={[styles.hairVertical, animatedHairStyle]}
+          />
+        </Reanimated.View>
       ) : null}
     </View>
   );
@@ -71,7 +82,19 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   circle: {
-    ...globalStyles.alignCenter,
-    ...globalStyles.justifyCenter,
+    ...globalStyles.flexCenter,
+    backgroundColor: 'transparent',
+    borderWidth: 7,
+    overflow: 'hidden',
+  },
+  hairHorizontal: {
+    ...globalStyles.absolute,
+    width: '100%',
+    height: HAIR_THICKNESS,
+  },
+  hairVertical: {
+    ...globalStyles.absolute,
+    height: '100%',
+    width: HAIR_THICKNESS,
   },
 });

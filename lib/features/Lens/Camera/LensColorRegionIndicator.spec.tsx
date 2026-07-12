@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 
+import { getRegionDiameter } from './lensPointSampleRegion';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 
 jest.mock('@features/Lens/ColorPalette/useAnimatedColor', () => ({
@@ -19,7 +20,7 @@ describe('LensColorRegionIndicator', () => {
   it('uses absolute fill positioning on the overlay container', () => {
     const color = useSharedValue('#112233');
 
-    render(<LensColorRegionIndicator color={color} radius={0.08} animationDuration={500} />);
+    render(<LensColorRegionIndicator color={color} animationDuration={500} />);
 
     const container = screen.getByTestId('lens-color-region-indicator-container');
     const flattenedStyle = Array.isArray(container.props.style)
@@ -40,12 +41,10 @@ describe('LensColorRegionIndicator', () => {
     );
   });
 
-  it('sizes the circle from the short layout side and normalized radius', () => {
+  it('sizes the circle from the short layout side and sample radius', () => {
     const color = useSharedValue('#112233');
 
-    render(
-      <LensColorRegionIndicator color={color} radius={0.15} animationDuration={500} />
-    );
+    render(<LensColorRegionIndicator color={color} animationDuration={500} />);
 
     fireEvent(screen.getByTestId('lens-color-region-indicator-container'), 'layout', {
       nativeEvent: { layout: { width: 400, height: 800, x: 0, y: 0 } },
@@ -56,23 +55,29 @@ describe('LensColorRegionIndicator', () => {
       ? Object.assign({}, ...indicator.props.style.filter(Boolean))
       : indicator.props.style;
 
+    const expectedDiameter = getRegionDiameter({ x: 0, y: 0, width: 400, height: 800 });
+
     expect(flattenedStyle).toEqual(
       expect.objectContaining({
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: expectedDiameter,
+        height: expectedDiameter,
+        borderRadius: expectedDiameter / 2,
+        borderWidth: 7,
+        backgroundColor: 'transparent',
       })
     );
+    expect(screen.getByTestId('lens-color-region-hair-h')).toBeTruthy();
+    expect(screen.getByTestId('lens-color-region-hair-v')).toBeTruthy();
     expect(mockUseAnimatedColor).toHaveBeenCalledWith(color, 500);
   });
 
   it('does not render the circle until layout is measured', () => {
     const color = useSharedValue('#112233');
 
-    render(
-      <LensColorRegionIndicator color={color} radius={0.15} animationDuration={500} />
-    );
+    render(<LensColorRegionIndicator color={color} animationDuration={500} />);
 
     expect(screen.queryByTestId('lens-color-region-indicator')).toBeNull();
+    expect(screen.queryByTestId('lens-color-region-hair-h')).toBeNull();
+    expect(screen.queryByTestId('lens-color-region-hair-v')).toBeNull();
   });
 });

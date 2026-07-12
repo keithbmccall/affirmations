@@ -21,7 +21,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ScheduledAffirmations/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ScheduledAffirmations/Info.plist; sourceTree = "<group>"; };
 		167B7ACF56EC1F850AFC9692 /* Pods-ScheduledAffirmations.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.release.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.release.xcconfig"; sourceTree = "<group>"; };
-		2D2C4A2BCB034F9DA123F4DF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ScheduledAffirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2D2C4A2BCB034F9DA123F4DF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ScheduledAffirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6FC47CCC96F933404BB59BBF /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		865EB44354244B6F2E65378C /* libPods-ScheduledAffirmations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScheduledAffirmations.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ScheduledAffirmations/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -128,7 +128,6 @@
 				E0E9F2258294A0A095804567 /* Pods-ScheduledAffirmations.debug.xcconfig */,
 				167B7ACF56EC1F850AFC9692 /* Pods-ScheduledAffirmations.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -346,6 +345,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ScheduledAffirmations/ScheduledAffirmations.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UA4DD67N85;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -382,6 +382,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ScheduledAffirmations/ScheduledAffirmations.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UA4DD67N85;
 				INFOPLIST_FILE = ScheduledAffirmations/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

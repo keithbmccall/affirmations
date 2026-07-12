@@ -1,7 +1,3 @@
-import { CameraBottomControls, type PhotoCaptureContext } from './CameraBottomControls';
-import { useCameraSurface } from './CameraSurfaceContext';
-import { LensCameraTopControls } from './LensCameraTopControls';
-import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import {
   isColorLensActive,
   isColorLensDominant,
@@ -19,6 +15,11 @@ import { memo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Reanimated, { useSharedValue } from 'react-native-reanimated';
 import { useFrameProcessor, Camera as VisionCamera } from 'react-native-vision-camera';
+import { CameraBottomControls, type PhotoCaptureContext } from './CameraBottomControls';
+import { useCameraSurface } from './CameraSurfaceContext';
+import { LENS_POINT_SAMPLE_RADIUS } from './lensPointSampleRegion';
+import { LensCameraTopControls } from './LensCameraTopControls';
+import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
 Reanimated.addWhitelistedNativeProps({
@@ -26,8 +27,6 @@ Reanimated.addWhitelistedNativeProps({
 });
 
 export const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000;
-
-export const LENS_POINT_SAMPLE_RADIUS = 0.08;
 
 const COLOR_ANIMATION_DURATION = 500;
 const COLOR_LENS_FPS = 15;
@@ -135,7 +134,6 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       {isColorLensPoint(colorLensMode) && (
         <LensColorRegionIndicator
           color={regionColor}
-          radius={LENS_POINT_SAMPLE_RADIUS}
           animationDuration={COLOR_ANIMATION_DURATION}
         />
       )}
