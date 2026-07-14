@@ -1,4 +1,3 @@
-import { useLensPermissions } from '@features/Lens/Camera/hooks/useLensPermissions';
 import {
   CAMERA_POSITION,
   CAMERA_VIEW_MODE,
@@ -25,6 +24,9 @@ import {
 
 const flashModeOptionsLength = flashModeOptions.length;
 
+/** Ignore rapid view-mode taps while the previous camera session settles. */
+export const VIEW_MODE_SWITCH_SETTLE_MS = 300;
+
 export interface CameraSurfaceContextValue {
   cameraRef: React.RefObject<VisionCamera | null>;
   showPreview: boolean;
@@ -50,8 +52,6 @@ interface CameraSurfaceProviderProps {
 }
 
 export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) => {
-  const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
-
   const [cameraDevice, setCameraDevice] = useState<number>(0);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
   const [cameraViewMode, setCameraViewMode] = useState<CameraViewMode>(CAMERA_VIEW_MODE.LENS);
@@ -64,9 +64,11 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
   });
 
   const cameraRef = useRef<VisionCamera>(null);
+  const isViewModeSwitchingRef = useRef(false);
+  const viewModeSwitchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
-  const showPreview = Boolean(device && hasAllPermissions);
+  // Permissions are hard-gated in Lens.tsx before Camera mounts.
+  const showPreview = Boolean(device);
 
   const handleFlashToggle = useCallback(() => {
     setFlashMode(prev => (prev + 1) % flashModeOptionsLength);
@@ -87,9 +89,19 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
   }, []);
 
   const handleCameraViewModeToggle = useCallback(() => {
+    if (isViewModeSwitchingRef.current) {
+      return;
+    }
+
+    isViewModeSwitchingRef.current = true;
     setCameraViewMode(prev =>
       prev === CAMERA_VIEW_MODE.LENS ? CAMERA_VIEW_MODE.OBSKURA : CAMERA_VIEW_MODE.LENS
     );
+
+    viewModeSwitchTimeoutRef.current = setTimeout(() => {
+      viewModeSwitchTimeoutRef.current = null;
+      isViewModeSwitchingRef.current = false;
+    }, VIEW_MODE_SWITCH_SETTLE_MS);
   }, []);
 
   useFocusEffect(
@@ -98,6 +110,11 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
 
       return () => {
         setIsCameraActive(false);
+        if (viewModeSwitchTimeoutRef.current !== null) {
+          clearTimeout(viewModeSwitchTimeoutRef.current);
+          viewModeSwitchTimeoutRef.current = null;
+        }
+        isViewModeSwitchingRef.current = false;
       };
     }, [])
   );

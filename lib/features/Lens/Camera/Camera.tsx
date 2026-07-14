@@ -17,7 +17,7 @@ import { LensCameraSurface } from './LensCameraSurface';
 import { CAMERA_VIEW_MODE, gridModeOptions } from './options';
 
 const CameraViewport = memo(function CameraViewport() {
-  const { showPreview, device, gridMode, cameraViewMode } = useCameraSurface();
+  const { showPreview, gridMode, cameraViewMode } = useCameraSurface();
   const showGrid = gridModeOptions[gridMode].value === 'on';
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
 
@@ -26,7 +26,7 @@ const CameraViewport = memo(function CameraViewport() {
       {isLensMode ? <LensCameraSurface /> : <ObskuraCameraSurface />}
       {!showPreview && (
         <ThemedText style={styles.errorOverlay} accessibilityRole="text">
-          {!device ? 'No camera available' : 'Camera permission required'}
+          No camera available
         </ThemedText>
       )}
       {showGrid && <CameraGrid />}

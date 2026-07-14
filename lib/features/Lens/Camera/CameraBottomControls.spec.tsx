@@ -16,20 +16,7 @@ const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockRequestCameraRollHeadRefresh = jest.fn();
 
-const mockUseLensPermissions = jest.fn(() => ({
-  cameraPermission: true,
-  mediaLibraryPermission: true,
-  microphonePermission: true,
-  requestCameraPermission: jest.fn(),
-  requestMediaLibraryPermission: jest.fn(),
-  requestMicrophonePermission: jest.fn(),
-}));
-
-jest.mock('@features/Lens/Camera/hooks/useLensPermissions', () => ({
-  useLensPermissions: () => mockUseLensPermissions(),
-}));
-
-const mockUseCameraRollImpl = jest.fn((_hasAllPermissions: boolean) => ({
+const mockUseCameraRollImpl = jest.fn(() => ({
   animatedPhotoStyle: {},
   handleCameraRollPress: mockHandleCameraRollPress,
   fetchRecentMedia: mockFetchRecentMedia,
@@ -37,7 +24,7 @@ const mockUseCameraRollImpl = jest.fn((_hasAllPermissions: boolean) => ({
 }));
 
 jest.mock('@features/Lens/Camera/hooks/useCameraRoll', () => ({
-  useCameraRoll: (hasAllPermissions: boolean) => mockUseCameraRollImpl(hasAllPermissions),
+  useCameraRoll: () => mockUseCameraRollImpl(),
 }));
 
 jest.mock('@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead', () => ({
@@ -127,20 +114,12 @@ describe('CameraBottomControls', () => {
   beforeEach(() => {
     alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
     jest.clearAllMocks();
-    mockUseCameraRollImpl.mockImplementation((_hasAllPermissions: boolean) => ({
+    mockUseCameraRollImpl.mockImplementation(() => ({
       animatedPhotoStyle: {},
       handleCameraRollPress: mockHandleCameraRollPress,
       fetchRecentMedia: mockFetchRecentMedia,
       recentMedia: null,
     }));
-    mockUseLensPermissions.mockReturnValue({
-      cameraPermission: true,
-      mediaLibraryPermission: true,
-      microphonePermission: true,
-      requestCameraPermission: jest.fn(),
-      requestMediaLibraryPermission: jest.fn(),
-      requestMicrophonePermission: jest.fn(),
-    });
     mockedCreateAssetAsync.mockResolvedValue({
       id: 'asset-1',
       uri: 'file:///asset',
@@ -162,31 +141,12 @@ describe('CameraBottomControls', () => {
     alertSpy.mockRestore();
   });
 
-  it('fetches recent media on mount when media library permission is granted', async () => {
+  it('fetches recent media on mount', async () => {
     renderBottomControls();
 
     await waitFor(() => {
       expect(mockFetchRecentMedia).toHaveBeenCalled();
     });
-  });
-
-  it('does not fetch recent media on mount when media library permission is false', async () => {
-    mockUseLensPermissions.mockReturnValue({
-      cameraPermission: true,
-      mediaLibraryPermission: false,
-      microphonePermission: true,
-      requestCameraPermission: jest.fn(),
-      requestMediaLibraryPermission: jest.fn(),
-      requestMicrophonePermission: jest.fn(),
-    });
-
-    renderBottomControls();
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    expect(mockFetchRecentMedia).not.toHaveBeenCalled();
   });
 
   it('calls onPhotoCaptureStart before takePhoto when capturing a photo', async () => {

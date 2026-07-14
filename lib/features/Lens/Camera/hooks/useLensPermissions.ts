@@ -1,7 +1,7 @@
 import { usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
-import { useCameraPermission, useMicrophonePermission } from 'react-native-vision-camera';
 import { useEffect } from 'react';
 import { Alert } from 'react-native';
+import { useCameraPermission, useMicrophonePermission } from 'react-native-vision-camera';
 
 export const useLensPermissions = () => {
   const { hasPermission: cameraPermission, requestPermission: requestCameraPermission } =
@@ -42,8 +42,10 @@ export const useLensPermissions = () => {
     requestPermissions();
   }, [
     cameraPermission,
+    mediaLibraryPermission,
     microphonePermission,
     requestCameraPermission,
+    requestMediaLibraryPermission,
     requestMicrophonePermission,
   ]);
 

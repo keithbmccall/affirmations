@@ -5,7 +5,8 @@ import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reani
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 
-export const useCameraRoll = (hasAllPermissions: boolean) => {
+/** Assumes media-library access was granted at the Lens hallway before mount. */
+export const useCameraRoll = () => {
   const [recentMedia, setRecentMedia] = useState<string | null>(null);
 
   // Animation values for photo transition
@@ -28,32 +29,30 @@ export const useCameraRoll = (hasAllPermissions: boolean) => {
   // Fetch most recent photo from library
   const fetchRecentMedia = useCallback(async () => {
     try {
-      if (hasAllPermissions) {
-        const result = await getAssetsAsync({
-          first: 1,
-          mediaType: ['photo', 'video'],
-          sortBy: ['creationTime'],
-        });
+      const result = await getAssetsAsync({
+        first: 1,
+        mediaType: ['photo', 'video'],
+        sortBy: ['creationTime'],
+      });
 
-        if (result.assets.length > 0) {
-          const newMediaUri = result.assets[0].uri;
-          if (recentMedia && newMediaUri !== recentMedia) {
-            mediaOpacity.value = 0;
-            mediaScale.value = 0.8;
+      if (result.assets.length > 0) {
+        const newMediaUri = result.assets[0].uri;
+        if (recentMedia && newMediaUri !== recentMedia) {
+          mediaOpacity.value = 0;
+          mediaScale.value = 0.8;
 
-            setRecentMedia(newMediaUri);
+          setRecentMedia(newMediaUri);
 
-            mediaOpacity.value = withTiming(1, { duration: 400 });
-            mediaScale.value = withTiming(1, { duration: 400 });
-          } else {
-            setRecentMedia(newMediaUri);
-          }
+          mediaOpacity.value = withTiming(1, { duration: 400 });
+          mediaScale.value = withTiming(1, { duration: 400 });
+        } else {
+          setRecentMedia(newMediaUri);
         }
       }
     } catch (error) {
       console.error('Error fetching recent photo:', error);
     }
-  }, [hasAllPermissions, recentMedia, mediaOpacity, mediaScale]);
+  }, [recentMedia, mediaOpacity, mediaScale]);
   return {
     animatedPhotoStyle,
     handleCameraRollPress,

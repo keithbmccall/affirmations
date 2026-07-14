@@ -1,12 +1,12 @@
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
+import { cameraTopControlsStyles as styles } from '@features/Lens/Camera/cameraTopControlsStyles';
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
 import { cameraDeviceOptions, flashModeOptions, gridModeOptions } from '@features/Lens/Camera/options';
 import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
-import { spacing } from '@styles/spacing';
 import { memo, useMemo } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ObskuraCameraTopControlsProps {
@@ -100,24 +100,4 @@ export const ObskuraCameraTopControls = memo(function ObskuraCameraTopControls({
       </TouchableOpacity>
     </View>
   );
-});
-
-const styles = StyleSheet.create({
-  topControls: {
-    ...globalStyles.absolute,
-    right: 0,
-    ...globalStyles.flex1,
-    gap: spacing.lg,
-    marginHorizontal: spacing['2xl'],
-    backgroundColor: colors.human.semiTransparent,
-    borderRadius: 20,
-    zIndex: 10,
-  },
-  topButton: {
-    ...globalStyles.justifyCenter,
-    ...globalStyles.alignCenter,
-    padding: spacing.md,
-    borderRadius: 20,
-    height: 50,
-  },
 });

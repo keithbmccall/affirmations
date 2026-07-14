@@ -10,29 +10,12 @@ const mockPrefetchCameraRollPhotos = prefetchCameraRollPhotos as jest.MockedFunc
   typeof prefetchCameraRollPhotos
 >;
 
-let mockMediaLibraryPermission = false;
-
-jest.mock('@features/Lens/Camera/hooks/useLensPermissions', () => ({
-  useLensPermissions: () => ({
-    mediaLibraryPermission: mockMediaLibraryPermission,
-  }),
-}));
-
 describe('useCameraRollPrefetch', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockMediaLibraryPermission = false;
   });
 
-  it('does not prefetch when media library permission is not granted', () => {
-    renderHook(() => useCameraRollPrefetch());
-
-    expect(mockPrefetchCameraRollPhotos).not.toHaveBeenCalled();
-  });
-
-  it('prefetches camera roll photos when media library permission is granted', () => {
-    mockMediaLibraryPermission = true;
-
+  it('prefetches camera roll photos on mount', () => {
     renderHook(() => useCameraRollPrefetch());
 
     expect(mockPrefetchCameraRollPhotos).toHaveBeenCalledTimes(1);

@@ -8,10 +8,10 @@ import { ColorPalette } from '@features/Lens/ColorPalette/ColorPalette';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
-import { spacing } from '@styles/spacing';
 import { memo } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { cameraTopControlsStyles as styles } from './cameraTopControlsStyles';
 import { useCameraSurface } from './CameraSurfaceContext';
 import { cameraDeviceOptions, flashModeOptions, gridModeOptions } from './options';
 
@@ -112,27 +112,4 @@ export const LensCameraTopControls = memo(function LensCameraTopControls({
       )}
     </View>
   );
-});
-
-const styles = StyleSheet.create({
-  topControls: {
-    ...globalStyles.absolute,
-    right: 0,
-    ...globalStyles.flex1,
-    gap: spacing.sm,
-    marginHorizontal: spacing['2xl'],
-    backgroundColor: colors.human.semiTransparent,
-    borderRadius: 20,
-    zIndex: 10,
-  },
-  topButton: {
-    ...globalStyles.justifyCenter,
-    ...globalStyles.alignCenter,
-    padding: spacing.md,
-    borderRadius: 20,
-    height: 50,
-  },
-  colorPaletteContainer: {
-    paddingBottom: spacing.md,
-  },
 });

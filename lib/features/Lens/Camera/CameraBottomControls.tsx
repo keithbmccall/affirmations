@@ -1,7 +1,6 @@
 import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead';
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
 import { useCameraRoll } from '@features/Lens/Camera/hooks/useCameraRoll';
-import { useLensPermissions } from '@features/Lens/Camera/hooks/useLensPermissions';
 import { flashModeOptions } from '@features/Lens/Camera/options';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
@@ -34,15 +33,13 @@ export const CameraBottomControls = memo(function CameraBottomControls({
 }: CameraBottomControlsProps) {
   const insets = useSafeAreaInsets();
   const { cameraRef, flashMode } = useCameraSurface();
-  const { cameraPermission, mediaLibraryPermission, microphonePermission } = useLensPermissions();
-  const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
 
   const {
     animatedPhotoStyle,
     handleCameraRollPress,
     fetchRecentMedia,
     recentMedia: recentPhoto,
-  } = useCameraRoll(hasAllPermissions);
+  } = useCameraRoll();
 
   const [isRecording, setIsRecording] = useState(false);
 
@@ -52,10 +49,8 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   }, [fetchRecentMedia]);
 
   useEffect(() => {
-    if (mediaLibraryPermission) {
-      fetchRecentMedia();
-    }
-  }, [fetchRecentMedia, mediaLibraryPermission]);
+    fetchRecentMedia();
+  }, [fetchRecentMedia]);
 
   const handlePhotoCapture = useCallback(async () => {
     /* istanbul ignore next -- ref is set when capture is reachable in production */
