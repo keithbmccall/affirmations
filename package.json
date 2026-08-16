@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "ts": "tsc --noEmit",
+    "check": "npm run ts && npm run lint && npm test",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "nuke": "rm -rf node_modules .jest-cache coverage && watchman watch-del '/Users/keithmccall/WebstormProjects/affirmations' ; watchman watch-project '/Users/keithmccall/WebstormProjects/affirmations' && npm i",
@@ -63,7 +64,6 @@
     "react-native-screens": "4.11.1",
     "react-native-vision-camera": "4.7.0",
     "react-native-web": "0.20.0",
-    "react-native-webview": "13.13.5",
     "react-native-worklets-core": "1.5.0"
   },
   "devDependencies": {

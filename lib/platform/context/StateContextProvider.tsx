@@ -12,6 +12,7 @@ import {
   setNotificationToken,
   setPendingNotifications,
   StateContextActions,
+  updateLensPaletteNamedColors,
 } from '../actions';
 import { affirmationsReducer, lensReducer, settingsReducer } from '../reducers';
 import { initialState, StateType } from '../state';
@@ -46,6 +47,7 @@ export const StateContextProvider: FC<PropsWithChildren> = ({ children }) => {
       lens: {
         onAddLensPalette: addLensPalette(dispatch),
         onSetLensPalettesMap: setLensPalettesMap(dispatch),
+        onUpdateLensPaletteNamedColors: updateLensPaletteNamedColors(dispatch),
       },
     }),
     []

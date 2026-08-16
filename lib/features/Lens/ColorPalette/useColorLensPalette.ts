@@ -18,26 +18,21 @@ export const useColorLensPalette = () => {
   const backgroundColor = useSharedValue(lensPaletteConfig.defaultColor);
   const detailColor = useSharedValue(lensPaletteConfig.defaultColor);
 
-  const applyColorPalette = useCallback(
-    (colorPalette: ColorLensPaletteType | null) => {
-      primaryColor.value = colorPalette?.primary ?? primaryColor.value;
-      secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
-      tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
-      quaternaryColor.value = colorPalette?.quaternary ?? quaternaryColor.value;
-      quinaryColor.value = colorPalette?.quinary ?? quinaryColor.value;
-      senaryColor.value = colorPalette?.senary ?? senaryColor.value;
-      backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
-      detailColor.value = colorPalette?.detail ?? detailColor.value;
-    },
-    // SharedValues from useSharedValue have stable identity — their object reference
-    // never changes across renders, only .value mutates. Empty deps is correct here.
+  // SharedValues from useSharedValue have stable identity — empty deps is correct.
+  const applyColorPaletteWorklet = useMemo(
+    () =>
+      Worklets.createRunOnJS((colorPalette: ColorLensPaletteType | null) => {
+        primaryColor.value = colorPalette?.primary ?? primaryColor.value;
+        secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
+        tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
+        quaternaryColor.value = colorPalette?.quaternary ?? quaternaryColor.value;
+        quinaryColor.value = colorPalette?.quinary ?? quinaryColor.value;
+        senaryColor.value = colorPalette?.senary ?? senaryColor.value;
+        backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
+        detailColor.value = colorPalette?.detail ?? detailColor.value;
+      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
-  );
-
-  const applyColorPaletteWorklet = useMemo(
-    () => Worklets.createRunOnJS(applyColorPalette),
-    [applyColorPalette]
   );
 
   const getColorLensPaletteWorklet = useCallback(

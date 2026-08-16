@@ -80,6 +80,22 @@ const toAssetParam = (asset: Asset) =>
     height: asset.height,
   });
 
+const MEASURED_PAGER_SIZE = { width: 390, height: 700 };
+
+const layoutPagerContainer = () => {
+  const container = screen.getByTestId('camera-roll-inspector-pager-container');
+  fireEvent(container, 'layout', {
+    nativeEvent: {
+      layout: {
+        width: MEASURED_PAGER_SIZE.width,
+        height: MEASURED_PAGER_SIZE.height,
+        x: 0,
+        y: 0,
+      },
+    },
+  });
+};
+
 describe('CameraRollInspector', () => {
   const mockLoadMore = jest.fn();
 
@@ -102,10 +118,17 @@ describe('CameraRollInspector', () => {
       <CameraRollInspector asset={toAssetParam(photos[1])} />
     );
 
+    layoutPagerContainer();
+
     const pager = await screen.findByTestId('camera-roll-inspector-pager');
 
     expect(pager.props.data).toHaveLength(3);
-    expect(screen.getByTestId('camera-roll-inspector-page-photo-2')).toBeOnTheScreen();
+    expect(pager.props.estimatedListSize).toEqual(MEASURED_PAGER_SIZE);
+    const page = screen.getByTestId('camera-roll-inspector-page-photo-2');
+    const flattenedPageStyle = Array.isArray(page.props.style)
+      ? Object.assign({}, ...page.props.style)
+      : page.props.style;
+    expect(flattenedPageStyle).toMatchObject(MEASURED_PAGER_SIZE);
     expect(pager.props.initialScrollIndex).toBe(1);
   });
 
@@ -149,6 +172,8 @@ describe('CameraRollInspector', () => {
       <CameraRollInspector asset={toAssetParam(photos[0])} />
     );
 
+    layoutPagerContainer();
+
     const pager = await screen.findByTestId('camera-roll-inspector-pager');
 
     fireEvent(pager, 'onViewableItemsChanged', {
@@ -179,6 +204,8 @@ describe('CameraRollInspector', () => {
       <CameraRollInspector asset={toAssetParam(photos[0])} />
     );
 
+    layoutPagerContainer();
+
     const pager = await screen.findByTestId('camera-roll-inspector-pager');
     expect(pager.props.scrollEnabled).toBe(true);
 
@@ -204,6 +231,8 @@ describe('CameraRollInspector', () => {
     renderWithContext(
       <CameraRollInspector asset={toAssetParam(photos[0])} />
     );
+
+    layoutPagerContainer();
 
     const pager = await screen.findByTestId('camera-roll-inspector-pager');
 

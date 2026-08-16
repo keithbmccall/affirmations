@@ -44,7 +44,7 @@ export const ColorPalette = memo(function ColorPalette({
   return (
     <View style={[styles.colorPaletteGrid, style]}>
       {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
-        const swatch = palette[paletteKey as keyof typeof palette];
+        const swatch = palette[paletteKey];
 
         return (
           <ColorSwatch key={paletteKey} color={swatch} animationDuration={animationDuration} />

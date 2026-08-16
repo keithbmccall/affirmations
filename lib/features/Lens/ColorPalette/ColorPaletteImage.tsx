@@ -1,3 +1,4 @@
+import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
@@ -38,6 +39,37 @@ export const ColorPaletteImage = memo(function ColorPaletteImage({
     [cellDimensionsStyle]
   );
 
+  const paletteStrip = useMemo(() => {
+    if (lensPalette === undefined) return null;
+
+    if (lensPalette.type === COLOR_LENS_MODE.LENS_POINT) {
+      return (
+        <View style={styles.palette}>
+          <View
+            testID="lens-point-swatch"
+            style={[styles.swatch, { backgroundColor: lensPalette.lensPointColor.hex }]}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.palette}>
+        {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
+          const swatch = lensPalette.palette[paletteKey];
+
+          return (
+            <View
+              key={paletteKey}
+              testID="lens-dominant-swatch"
+              style={[styles.swatch, { backgroundColor: swatch.hex }]}
+            />
+          );
+        })}
+      </View>
+    );
+  }, [lensPalette]);
+
   return (
     <View style={containerStyle}>
       <Image
@@ -49,20 +81,7 @@ export const ColorPaletteImage = memo(function ColorPaletteImage({
         transition={0}
         priority="high"
       />
-      {lensPalette && (
-        <View style={styles.palette}>
-          {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
-            const swatch = lensPalette.palette[paletteKey as keyof typeof lensPalette.palette];
-
-            return (
-              <View
-                key={paletteKey}
-                style={[styles.swatch, { backgroundColor: swatch as string }]}
-              />
-            );
-          })}
-        </View>
-      )}
+      {paletteStrip}
     </View>
   );
 });

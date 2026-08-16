@@ -6,7 +6,6 @@ import { toInspectionAsset } from '@features/Lens/Camera/cameraRollPhotos/toInsp
 import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCameraRollPhotos';
 import { useLens } from '@platform';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
-import { globalStyles } from '@styles/globalStyles';
 import type { Asset } from 'expo-media-library';
 import { FlashList, type ListRenderItem } from '@shopify/flash-list';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -21,6 +20,16 @@ import {
 const LOAD_MORE_THRESHOLD_FROM_END = 3;
 const windowWidth = Dimensions.get('window').width;
 
+interface PagerSize {
+  width: number;
+  height: number;
+}
+
+const initialPagerSize: PagerSize = {
+  width: windowWidth,
+  height: 0,
+};
+
 interface CameraRollInspectorProps extends ScreenContainerProps {
   asset: string;
 }
@@ -30,6 +39,7 @@ interface InspectorPagerItemProps {
   lensPalette: LensPalette | undefined;
   isActive: boolean;
   pageWidth: number;
+  pageHeight: number;
   onOverlayOpenChange: (isOpen: boolean) => void;
 }
 
@@ -38,6 +48,7 @@ const InspectorPagerItem = memo(function InspectorPagerItem({
   lensPalette,
   isActive,
   pageWidth,
+  pageHeight,
   onOverlayOpenChange,
 }: InspectorPagerItemProps) {
   const inspectionAsset = useMemo(
@@ -54,7 +65,10 @@ const InspectorPagerItem = memo(function InspectorPagerItem({
     [isActive, onOverlayOpenChange]
   );
 
-  const pageStyle = useMemo(() => ({ width: pageWidth, flex: 1 }), [pageWidth]);
+  const pageStyle = useMemo(
+    () => ({ width: pageWidth, height: pageHeight }),
+    [pageWidth, pageHeight]
+  );
 
   return (
     <View style={pageStyle} testID={`camera-roll-inspector-page-${asset.id}`}>
@@ -79,7 +93,7 @@ export const CameraRollInspector = memo(function CameraRollInspector({
   loadMoreRef.current = loadMore;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPagerScrollEnabled, setIsPagerScrollEnabled] = useState(true);
-  const [pageWidth, setPageWidth] = useState(windowWidth);
+  const [pagerSize, setPagerSize] = useState<PagerSize>(initialPagerSize);
 
   const initialIndex = useMemo(() => {
     const index = photos.findIndex(photo => photo.id === parsedAsset.id);
@@ -101,18 +115,34 @@ export const CameraRollInspector = memo(function CameraRollInspector({
   }, []);
 
   const handlePageLayout = useCallback((event: LayoutChangeEvent) => {
-    const measuredWidth = event.nativeEvent.layout.width;
+    const { width, height } = event.nativeEvent.layout;
 
-    if (measuredWidth > 0 && measuredWidth !== pageWidth) {
-      setPageWidth(measuredWidth);
+    if (width <= 0 || height <= 0) {
+      return;
     }
-  }, [pageWidth]);
+
+    setPagerSize(prev => {
+      if (prev.width === width && prev.height === height) {
+        return prev;
+      }
+
+      return { width, height };
+    });
+  }, []);
 
   const overrideItemLayout = useCallback(
     (layout: { span?: number; size?: number }) => {
-      layout.size = pageWidth;
+      layout.size = pagerSize.width;
     },
-    [pageWidth]
+    [pagerSize.width]
+  );
+
+  const estimatedListSize = useMemo(
+    () => ({
+      width: pagerSize.width,
+      height: pagerSize.height,
+    }),
+    [pagerSize.height, pagerSize.width]
   );
 
   const viewabilityConfig = useRef({
@@ -149,11 +179,12 @@ export const CameraRollInspector = memo(function CameraRollInspector({
         asset={item}
         lensPalette={lensPalettesMap[item.id]}
         isActive={index === currentIndex}
-        pageWidth={pageWidth}
+        pageWidth={pagerSize.width}
+        pageHeight={pagerSize.height}
         onOverlayOpenChange={handleOverlayOpenChange}
       />
     ),
-    [currentIndex, handleOverlayOpenChange, lensPalettesMap, pageWidth]
+    [currentIndex, handleOverlayOpenChange, lensPalettesMap, pagerSize.height, pagerSize.width]
   );
 
   const pagerExtraData = useMemo(() => currentIndex, [currentIndex]);
@@ -168,25 +199,30 @@ export const CameraRollInspector = memo(function CameraRollInspector({
 
   return (
     <Modal title="Camera Roll Inspector" testID="camera-roll-inspector-title" enableBackButton>
-      <View style={styles.pagerContainer} onLayout={handlePageLayout}>
-        <FlashList
-          testID="camera-roll-inspector-pager"
-          data={photos}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          scrollEnabled={isPagerScrollEnabled}
-          initialScrollIndex={initialIndex}
-          estimatedItemSize={pageWidth}
-          overrideItemLayout={overrideItemLayout}
-          disableHorizontalListHeightMeasurement
-          viewabilityConfig={viewabilityConfig}
-          onViewableItemsChanged={onViewableItemsChanged}
-          extraData={pagerExtraData}
-          style={globalStyles.flex1}
-        />
+      <View
+        testID="camera-roll-inspector-pager-container"
+        style={styles.pagerContainer}
+        onLayout={handlePageLayout}
+      >
+        {pagerSize.height > 0 ? (
+          <FlashList
+            testID="camera-roll-inspector-pager"
+            data={photos}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled={isPagerScrollEnabled}
+            initialScrollIndex={initialIndex}
+            estimatedItemSize={pagerSize.width}
+            estimatedListSize={estimatedListSize}
+            overrideItemLayout={overrideItemLayout}
+            viewabilityConfig={viewabilityConfig}
+            onViewableItemsChanged={onViewableItemsChanged}
+            extraData={pagerExtraData}
+          />
+        ) : null}
       </View>
     </Modal>
   );

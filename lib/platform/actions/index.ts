@@ -24,6 +24,7 @@ export const initialActions: StateContextActions = {
   lens: {
     onAddLensPalette: noop,
     onSetLensPalettesMap: noop,
+    onUpdateLensPaletteNamedColors: noop,
   },
 };
 

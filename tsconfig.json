@@ -3,6 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+      "@api/*": ["./lib/api/*"],
       "@app/*": ["./lib/app/*"],
       "@components/Modal": ["./lib/components/Modal"],
       "@components/shared/*": ["./lib/components/shared/*"],

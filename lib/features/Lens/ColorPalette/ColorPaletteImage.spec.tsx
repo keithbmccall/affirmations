@@ -1,4 +1,6 @@
+import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPaletteImage } from '@features/Lens/ColorPalette/ColorPaletteImage';
+import type { LensPalette } from '@features/Lens/ColorPalette/types';
 import { renderWithContext } from '@testing/renderWithContext';
 import { screen } from '@testing-library/react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
@@ -26,6 +28,31 @@ const createAsset = (id: string): Asset =>
     duration: 0,
   }) as Asset;
 
+const dominantPalette: LensPalette = {
+  id: 'photo-1',
+  uri: 'file:///photo-1.jpg',
+  mediaType: 'photo',
+  type: COLOR_LENS_MODE.LENS_DOMINANT,
+  palette: {
+    primaryColor: { hex: '#111111' },
+    secondaryColor: { hex: '#222222' },
+    tertiaryColor: { hex: '#333333' },
+    quaternaryColor: { hex: '#444444' },
+    quinaryColor: { hex: '#555555' },
+    senaryColor: { hex: '#666666' },
+    backgroundColor: { hex: '#777777' },
+    detailColor: { hex: '#888888' },
+  },
+};
+
+const pointPalette: LensPalette = {
+  id: 'photo-2',
+  uri: 'file:///photo-2.jpg',
+  mediaType: 'photo',
+  type: COLOR_LENS_MODE.LENS_POINT,
+  lensPointColor: { hex: '#AABBCC' },
+};
+
 describe('ColorPaletteImage', () => {
   it('applies cellSize to the image dimensions when provided', async () => {
     renderWithContext(<ColorPaletteImage image={createAsset('photo-1')} cellSize={120} />);
@@ -36,5 +63,23 @@ describe('ColorPaletteImage', () => {
       : image.props.style;
 
     expect(flattenedStyle).toMatchObject({ width: 120, height: 120 });
+  });
+
+  it('renders eight dominant swatches for lens-dominant entries', async () => {
+    renderWithContext(
+      <ColorPaletteImage image={createAsset('photo-1')} lensPalette={dominantPalette} />
+    );
+
+    expect(await screen.findAllByTestId('lens-dominant-swatch')).toHaveLength(8);
+    expect(screen.queryByTestId('lens-point-swatch')).toBeNull();
+  });
+
+  it('renders a single swatch for lens-point entries', async () => {
+    renderWithContext(
+      <ColorPaletteImage image={createAsset('photo-2')} lensPalette={pointPalette} />
+    );
+
+    expect(await screen.findByTestId('lens-point-swatch')).toBeTruthy();
+    expect(screen.queryAllByTestId('lens-dominant-swatch')).toHaveLength(0);
   });
 });

@@ -24,7 +24,7 @@ describe('useCameraRoll', () => {
   });
 
   it('opens camera roll route on press', async () => {
-    const { result } = renderHook(() => useCameraRoll(true));
+    const { result } = renderHook(() => useCameraRoll());
 
     await act(async () => {
       await result.current.handleCameraRollPress();
@@ -39,7 +39,7 @@ describe('useCameraRoll', () => {
       throw new Error('nav fail');
     });
 
-    const { result } = renderHook(() => useCameraRoll(true));
+    const { result } = renderHook(() => useCameraRoll());
 
     await act(async () => {
       await result.current.handleCameraRollPress();
@@ -50,16 +50,6 @@ describe('useCameraRoll', () => {
     mockedRouterPush.mockImplementation(() => {});
   });
 
-  it('does not fetch when permissions are false', async () => {
-    const { result } = renderHook(() => useCameraRoll(false));
-
-    await act(async () => {
-      await result.current.fetchRecentMedia();
-    });
-
-    expect(mockedGetAssetsAsync).not.toHaveBeenCalled();
-  });
-
   it('sets recent media when assets are returned', async () => {
     mockedGetAssetsAsync.mockResolvedValue({
       assets: [{ uri: 'file:///photo-1.jpg' }],
@@ -67,7 +57,7 @@ describe('useCameraRoll', () => {
       hasNextPage: false,
     } as never);
 
-    const { result } = renderHook(() => useCameraRoll(true));
+    const { result } = renderHook(() => useCameraRoll());
 
     await act(async () => {
       await result.current.fetchRecentMedia();
@@ -83,7 +73,7 @@ describe('useCameraRoll', () => {
       hasNextPage: false,
     } as never);
 
-    const { result } = renderHook(() => useCameraRoll(true));
+    const { result } = renderHook(() => useCameraRoll());
 
     await act(async () => {
       await result.current.fetchRecentMedia();
@@ -105,7 +95,7 @@ describe('useCameraRoll', () => {
         hasNextPage: false,
       } as never);
 
-    const { result } = renderHook(() => useCameraRoll(true));
+    const { result } = renderHook(() => useCameraRoll());
 
     await act(async () => {
       await result.current.fetchRecentMedia();
@@ -125,7 +115,7 @@ describe('useCameraRoll', () => {
       hasNextPage: false,
     } as never);
 
-    const { result } = renderHook(() => useCameraRoll(true));
+    const { result } = renderHook(() => useCameraRoll());
 
     await act(async () => {
       await result.current.fetchRecentMedia();
@@ -142,7 +132,7 @@ describe('useCameraRoll', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockedGetAssetsAsync.mockRejectedValue(new Error('library error'));
 
-    const { result } = renderHook(() => useCameraRoll(true));
+    const { result } = renderHook(() => useCameraRoll());
 
     await act(async () => {
       await result.current.fetchRecentMedia();

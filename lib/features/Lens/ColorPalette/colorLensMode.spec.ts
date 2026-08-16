@@ -1,6 +1,6 @@
 import {
   COLOR_LENS_MODE,
-  colorLensModeOptions,
+  colorLensModeOrder,
   isColorLensActive,
   isColorLensDominant,
   isColorLensPoint,
@@ -33,7 +33,7 @@ describe('colorLensMode', () => {
   });
 
   describe('nextColorLensMode', () => {
-    it('cycles through colorLensModeOptions in order', () => {
+    it('cycles through colorLensModeOrder in order', () => {
       expect(nextColorLensMode(COLOR_LENS_MODE.DISABLED)).toBe(COLOR_LENS_MODE.LENS_DOMINANT);
       expect(nextColorLensMode(COLOR_LENS_MODE.LENS_DOMINANT)).toBe(COLOR_LENS_MODE.LENS_POINT);
       expect(nextColorLensMode(COLOR_LENS_MODE.LENS_POINT)).toBe(COLOR_LENS_MODE.DISABLED);
@@ -41,7 +41,7 @@ describe('colorLensMode', () => {
 
     it('returns the first option when mode is unknown', () => {
       expect(nextColorLensMode('unknown' as typeof COLOR_LENS_MODE.DISABLED)).toBe(
-        colorLensModeOptions[0]
+        colorLensModeOrder[0]
       );
     });
   });

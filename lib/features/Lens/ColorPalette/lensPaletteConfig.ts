@@ -1,3 +1,5 @@
+import type { LensDominantPaletteColors } from '@features/Lens/ColorPalette/types';
+
 export const lensPaletteConfig = {
   defaultColor: '#000000',
   colorPaletteKeys: [
@@ -9,5 +11,5 @@ export const lensPaletteConfig = {
     'senaryColor',
     'backgroundColor',
     'detailColor',
-  ],
+  ] as const satisfies readonly (keyof LensDominantPaletteColors)[],
 };

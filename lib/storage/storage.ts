@@ -28,4 +28,6 @@ export const loadData: LoadData = async (key: string) => {
 export const StorageDevice = {
   HISTORY_NOTIFICATIONS: 'HISTORY_NOTIFICATIONS',
   LENS_PALETTES: 'LENS_PALETTES',
+  /** Disposable: remove after LensNamedColor backfill is complete for all users. */
+  LENS_PALETTES_NAMED_MIGRATED: 'LENS_PALETTES_NAMED_MIGRATED',
 } as const;
