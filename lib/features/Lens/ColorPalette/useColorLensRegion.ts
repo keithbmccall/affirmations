@@ -8,18 +8,16 @@ import { lensPaletteConfig } from './lensPaletteConfig';
 export const useColorLensRegion = () => {
   const regionColor = useSharedValue(lensPaletteConfig.defaultColor);
 
-  const applyRegionColor = useCallback(
-    (color: string | null) => {
-      if (color !== null) {
-        regionColor.value = color ?? regionColor.value;
-      }
-    },
-    [regionColor]
-  );
-
+  // SharedValues from useSharedValue have stable identity — empty deps is correct.
   const applyRegionColorWorklet = useMemo(
-    () => Worklets.createRunOnJS(applyRegionColor),
-    [applyRegionColor]
+    () =>
+      Worklets.createRunOnJS((color: string | null) => {
+        if (color !== null) {
+          regionColor.value = color ?? regionColor.value;
+        }
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   const getColorLensRegionWorklet = useCallback(

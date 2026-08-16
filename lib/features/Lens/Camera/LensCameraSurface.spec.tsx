@@ -9,8 +9,8 @@ import {
   type CameraSurfaceContextValue,
 } from './CameraSurfaceContext';
 import {
-  COLOR_LENS_PALETTE_MIN_INTERVAL_MS,
-  COLOR_LENS_REGION_MIN_INTERVAL_MS,
+  COLOR_LENS_PALETTE_TARGET_FPS,
+  COLOR_LENS_REGION_TARGET_FPS,
   LensCameraSurface,
 } from './LensCameraSurface';
 import { LENS_POINT_SAMPLE_RADIUS } from './lensPointSampleRegion';
@@ -32,6 +32,9 @@ const mockGetColorLensPaletteWorklet = jest.fn();
 const mockGetColorLensRegionWorklet = jest.fn();
 const mockRegionColor = { value: '#AABBCC' };
 let mockColorLensMode: ColorLensMode = COLOR_LENS_MODE.DISABLED;
+
+const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000 / COLOR_LENS_PALETTE_TARGET_FPS;
+const COLOR_LENS_REGION_MIN_INTERVAL_MS = 1000 / COLOR_LENS_REGION_TARGET_FPS;
 
 jest.mock('@platform', () => ({
   useLens: () => ({ onAddLensPalette: mockOnAddLensPalette }),
@@ -106,8 +109,24 @@ jest.mock('react-native-vision-camera', () => {
     lastCameraProps = props;
     return <RN.View testID="mock-lens-camera" />;
   });
+  // Mirrors Vision Camera runAtTargetFps (performance.now + global last-call map)
+  const runAtTargetFps = <T,>(fps: number, func: () => T): T | undefined => {
+    const funcId = (func as { __workletHash?: string }).__workletHash ?? '1';
+    const targetIntervalMs = 1000 / fps;
+    const now = performance.now();
+    const lastCall = global.__frameProcessorRunAtTargetFpsMap?.[funcId] ?? 0;
+    if (now - lastCall >= targetIntervalMs) {
+      if (global.__frameProcessorRunAtTargetFpsMap == null) {
+        global.__frameProcessorRunAtTargetFpsMap = {};
+      }
+      global.__frameProcessorRunAtTargetFpsMap[funcId] = now;
+      return func();
+    }
+    return undefined;
+  };
   return {
     Camera: MockCamera,
+    runAtTargetFps,
     useFrameProcessor: jest.fn((processor: (frame: unknown) => void) => {
       try {
         processor({});
@@ -123,7 +142,14 @@ describe('LensCameraSurface', () => {
   beforeEach(() => {
     lastCameraProps = null;
     mockColorLensMode = COLOR_LENS_MODE.DISABLED;
+    global.__frameProcessorRunAtTargetFpsMap = undefined;
+    // runAtTargetFps uses performance.now(); keep it past the 1 FPS interval so first samples run
+    jest.spyOn(performance, 'now').mockReturnValue(10_000);
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('passes frameProcessor when active', () => {
@@ -143,11 +169,11 @@ describe('LensCameraSurface', () => {
     expect(lastCameraProps?.frameProcessor).toBeUndefined();
   });
 
-  it('throttles getColorLensPaletteWorklet when at least COLOR_LENS_PALETTE_MIN_INTERVAL_MS have elapsed', () => {
+  it('throttles getColorLensPaletteWorklet to COLOR_LENS_PALETTE_TARGET_FPS', () => {
     mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
     const baseTimeMs = 1_700_000_000_000;
     let nowMs = baseTimeMs;
-    const dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => nowMs);
+    const performanceNowSpy = jest.spyOn(performance, 'now').mockImplementation(() => nowMs);
 
     renderLensSurface();
 
@@ -177,7 +203,7 @@ describe('LensCameraSurface', () => {
     }
     expect(mockGetColorLensPaletteWorklet).toHaveBeenCalledTimes(2);
 
-    dateNowSpy.mockRestore();
+    performanceNowSpy.mockRestore();
   });
 
   it('does not call color lens worklets when color lens mode is disabled', () => {
@@ -208,11 +234,11 @@ describe('LensCameraSurface', () => {
     );
   });
 
-  it('throttles getColorLensRegionWorklet when at least COLOR_LENS_REGION_MIN_INTERVAL_MS have elapsed', () => {
+  it('throttles getColorLensRegionWorklet to COLOR_LENS_REGION_TARGET_FPS', () => {
     mockColorLensMode = COLOR_LENS_MODE.LENS_POINT;
     const baseTimeMs = 1_700_000_000_000;
     let nowMs = baseTimeMs;
-    const dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => nowMs);
+    const performanceNowSpy = jest.spyOn(performance, 'now').mockImplementation(() => nowMs);
 
     renderLensSurface();
 
@@ -242,6 +268,6 @@ describe('LensCameraSurface', () => {
     }
     expect(mockGetColorLensRegionWorklet).toHaveBeenCalledTimes(2);
 
-    dateNowSpy.mockRestore();
+    performanceNowSpy.mockRestore();
   });
 });

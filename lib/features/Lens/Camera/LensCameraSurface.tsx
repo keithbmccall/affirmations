@@ -13,8 +13,12 @@ import { globalStyles } from '@styles/globalStyles';
 import type { Asset } from 'expo-media-library';
 import { memo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Reanimated, { useSharedValue } from 'react-native-reanimated';
-import { useFrameProcessor, Camera as VisionCamera } from 'react-native-vision-camera';
+import Reanimated from 'react-native-reanimated';
+import {
+  runAtTargetFps,
+  useFrameProcessor,
+  Camera as VisionCamera,
+} from 'react-native-vision-camera';
 import { CameraBottomControls, type PhotoCaptureContext } from './CameraBottomControls';
 import { useCameraSurface } from './CameraSurfaceContext';
 import { LENS_POINT_SAMPLE_RADIUS } from './lensPointSampleRegion';
@@ -26,8 +30,8 @@ Reanimated.addWhitelistedNativeProps({
   isActive: true,
 });
 
-export const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000;
-export const COLOR_LENS_REGION_MIN_INTERVAL_MS = 500;
+export const COLOR_LENS_PALETTE_TARGET_FPS = 1;
+export const COLOR_LENS_REGION_TARGET_FPS = 2;
 
 const COLOR_ANIMATION_DURATION = 500;
 const COLOR_LENS_FPS = 15;
@@ -40,8 +44,6 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     useColorLensPalette();
   const { regionColor, getColorLensRegionWorklet } = useColorLensRegion();
 
-  const lastColorLensPaletteSampleMs = useSharedValue(0);
-  const lastColorLensRegionSampleMs = useSharedValue(0);
   const shouldSampleDominant = isColorLensDominant(colorLensMode);
   const shouldSamplePoint = isColorLensPoint(colorLensMode);
   const isColorLensModeActive = isColorLensActive(colorLensMode);
@@ -77,29 +79,24 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     frame => {
       'worklet';
       if (!isActive) return;
+      if (!isColorLensModeActive) return;
 
-      if (isColorLensModeActive) {
-        const now = Date.now();
-
-        if (
-          shouldSampleDominant &&
-          now - lastColorLensPaletteSampleMs.value >= COLOR_LENS_PALETTE_MIN_INTERVAL_MS
-        ) {
-          lastColorLensPaletteSampleMs.value = now;
+      if (shouldSampleDominant) {
+        runAtTargetFps(COLOR_LENS_PALETTE_TARGET_FPS, () => {
+          'worklet';
           getColorLensPaletteWorklet(frame);
-        }
+        });
+      }
 
-        if (
-          shouldSamplePoint &&
-          now - lastColorLensRegionSampleMs.value >= COLOR_LENS_REGION_MIN_INTERVAL_MS
-        ) {
-          lastColorLensRegionSampleMs.value = now;
+      if (shouldSamplePoint) {
+        runAtTargetFps(COLOR_LENS_REGION_TARGET_FPS, () => {
+          'worklet';
           getColorLensRegionWorklet(frame, {
             centerX: 0.5,
             centerY: 0.5,
             radius: LENS_POINT_SAMPLE_RADIUS,
           });
-        }
+        });
       }
     },
     [

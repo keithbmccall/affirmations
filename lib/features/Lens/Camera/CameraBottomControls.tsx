@@ -64,6 +64,7 @@ export const CameraBottomControls = memo(function CameraBottomControls({
       });
       const savePath = await processPhotoPath(photo.path);
       const asset = await createAssetAsync(savePath);
+      console.log('keith::', { asset, captureContext });
       await onPhotoAssetSaved?.(asset, captureContext);
       notifyAfterMediaCapture();
     } catch {

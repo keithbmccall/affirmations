@@ -200,7 +200,7 @@ Used when `cameraViewMode === CAMERA_VIEW_MODE.LENS`.
 
 1. **`LensCameraSurface`** mounts `ReanimatedCamera` with `useFrameProcessor` whenever the screen is active (even when color lens is off—the worklet runs each frame but skips palette work until color lens is enabled).
 2. Each frame, the worklet runs on the camera thread (`'worklet'` directive required).
-3. If color lens is enabled and at least **1000 ms** have passed since the last sample (`COLOR_LENS_PALETTE_MIN_INTERVAL_MS`), it calls `getColorLensPaletteWorklet(frame)`.
+3. If color lens is enabled, palette sampling is throttled with Vision Camera `runAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (1 FPS / ~1000 ms)**; point-region sampling uses **`COLOR_LENS_REGION_TARGET_FPS` (2 FPS / ~500 ms)**. When the interval allows, it calls `getColorLensPaletteWorklet(frame)` (dominant mode) or `getColorLensRegionWorklet(frame, …)` (point mode).
 4. **`getColorLensPaletteWorklet`** (`useColorLensPalette.ts`) calls native **`getColorLensPalette`** (`getColorLensPalette.ts`):
    - `VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette')`
    - Plugin implemented in `modules/expo-color-lens-frame-processor` (iOS only).
