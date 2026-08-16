@@ -55,7 +55,5 @@ export const getLensPaletteCaptureHexes = (palette: LensPalette): string[] => {
     return [palette.lensPointColor.hex];
   }
 
-  return lensPaletteConfig.colorPaletteKeys.map(
-    key => palette.palette[key as keyof typeof palette.palette].hex
-  );
+  return lensPaletteConfig.colorPaletteKeys.map(key => palette.palette[key].hex);
 };

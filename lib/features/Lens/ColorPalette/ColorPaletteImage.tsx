@@ -56,7 +56,7 @@ export const ColorPaletteImage = memo(function ColorPaletteImage({
     return (
       <View style={styles.palette}>
         {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
-          const swatch = lensPalette.palette[paletteKey as keyof typeof lensPalette.palette];
+          const swatch = lensPalette.palette[paletteKey];
 
           return (
             <View

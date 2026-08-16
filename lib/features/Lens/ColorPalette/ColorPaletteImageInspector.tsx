@@ -9,7 +9,6 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import { lensPaletteConfig } from './lensPaletteConfig';
 import type {
   InspectionAsset,
-  LensDominantPaletteColors,
   LensNamedColor,
 } from './types';
 
@@ -114,7 +113,7 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
     return (
       <View style={styles.palette}>
         {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
-          const swatch = dominantPalette[paletteKey as keyof LensDominantPaletteColors];
+          const swatch = dominantPalette[paletteKey];
 
           if (!swatch) return null;
 

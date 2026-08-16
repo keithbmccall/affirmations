@@ -1,5 +1,4 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
-import { lensPaletteConfig } from '@features/Lens/ColorPalette/lensPaletteConfig';
 import type {
   LensDominantPaletteColors,
   LensNamedColor,
@@ -26,14 +25,13 @@ export const toLensNamedColor = (
 export const toLensDominantPaletteColors = (
   context: LensDominantCaptureContext,
   namedColors: LensNamedColor[]
-): LensDominantPaletteColors => {
-  const palette = {} as LensDominantPaletteColors;
-
-  lensPaletteConfig.colorPaletteKeys.forEach((key, index) => {
-    const slotKey = key as keyof LensDominantPaletteColors;
-    palette[slotKey] =
-      namedColors[index] ?? { hex: context.paletteSnapshot[slotKey] };
-  });
-
-  return palette;
-};
+): LensDominantPaletteColors => ({
+  primaryColor: namedColors[0] ?? { hex: context.paletteSnapshot.primaryColor },
+  secondaryColor: namedColors[1] ?? { hex: context.paletteSnapshot.secondaryColor },
+  tertiaryColor: namedColors[2] ?? { hex: context.paletteSnapshot.tertiaryColor },
+  quaternaryColor: namedColors[3] ?? { hex: context.paletteSnapshot.quaternaryColor },
+  quinaryColor: namedColors[4] ?? { hex: context.paletteSnapshot.quinaryColor },
+  senaryColor: namedColors[5] ?? { hex: context.paletteSnapshot.senaryColor },
+  backgroundColor: namedColors[6] ?? { hex: context.paletteSnapshot.backgroundColor },
+  detailColor: namedColors[7] ?? { hex: context.paletteSnapshot.detailColor },
+});

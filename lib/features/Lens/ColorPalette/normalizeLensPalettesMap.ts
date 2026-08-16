@@ -1,5 +1,4 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
-import { lensPaletteConfig } from '@features/Lens/ColorPalette/lensPaletteConfig';
 import type {
   LensDominantPaletteColors,
   LensNamedColor,
@@ -38,13 +37,38 @@ const normalizeDominantPaletteColors = (
 ): LensDominantPaletteColors | undefined => {
   if (!isRecord(value)) return undefined;
 
-  const normalized = {} as LensDominantPaletteColors;
-  for (const key of lensPaletteConfig.colorPaletteKeys) {
-    const color = normalizeLensNamedColor(value[key]);
-    if (color === undefined) return undefined;
-    normalized[key as keyof LensDominantPaletteColors] = color;
+  const primaryColor = normalizeLensNamedColor(value.primaryColor);
+  const secondaryColor = normalizeLensNamedColor(value.secondaryColor);
+  const tertiaryColor = normalizeLensNamedColor(value.tertiaryColor);
+  const quaternaryColor = normalizeLensNamedColor(value.quaternaryColor);
+  const quinaryColor = normalizeLensNamedColor(value.quinaryColor);
+  const senaryColor = normalizeLensNamedColor(value.senaryColor);
+  const backgroundColor = normalizeLensNamedColor(value.backgroundColor);
+  const detailColor = normalizeLensNamedColor(value.detailColor);
+
+  if (
+    primaryColor === undefined ||
+    secondaryColor === undefined ||
+    tertiaryColor === undefined ||
+    quaternaryColor === undefined ||
+    quinaryColor === undefined ||
+    senaryColor === undefined ||
+    backgroundColor === undefined ||
+    detailColor === undefined
+  ) {
+    return undefined;
   }
-  return normalized;
+
+  return {
+    primaryColor,
+    secondaryColor,
+    tertiaryColor,
+    quaternaryColor,
+    quinaryColor,
+    senaryColor,
+    backgroundColor,
+    detailColor,
+  };
 };
 
 const normalizeLensPaletteEntry = (value: unknown): LensPalette | undefined => {

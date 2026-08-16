@@ -48,9 +48,7 @@ const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
     return [context.lensPointColor];
   }
 
-  return lensPaletteConfig.colorPaletteKeys.map(
-    key => context.paletteSnapshot[key as keyof typeof context.paletteSnapshot]
-  );
+  return lensPaletteConfig.colorPaletteKeys.map(key => context.paletteSnapshot[key]);
 };
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
