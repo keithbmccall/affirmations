@@ -1,7 +1,7 @@
 import { useLens } from '@platform';
 import { loadData, saveData, StorageDevice } from '@storage/storage';
 import { useEffect, useState } from 'react';
-import { LensPalettesMap } from './types';
+import { normalizeLensPalettesMap } from './normalizeLensPalettesMap';
 
 // TODO: fnish installing
 export const useInitLensPalettes = () => {
@@ -9,9 +9,9 @@ export const useInitLensPalettes = () => {
   const { lensPalettesMap, onSetLensPalettesMap } = useLens();
 
   useEffect(() => {
-    void loadData(StorageDevice.LENS_PALETTES).then((_lensPalettes: LensPalettesMap) => {
-      if (_lensPalettes) {
-        onSetLensPalettesMap(_lensPalettes);
+    void loadData(StorageDevice.LENS_PALETTES).then(rawLensPalettes => {
+      if (rawLensPalettes) {
+        onSetLensPalettesMap(normalizeLensPalettesMap(rawLensPalettes));
       }
       setIsLensPalettesInited(true);
     });

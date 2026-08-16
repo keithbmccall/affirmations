@@ -390,7 +390,47 @@ describe('Camera', () => {
     await waitFor(() => {
       expect(mockTakePhoto).toHaveBeenCalled();
       expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
-      expect(mockOnAddLensPalette).toHaveBeenCalled();
+      expect(mockOnAddLensPalette).toHaveBeenCalledWith({
+        id: 'asset-1',
+        uri: 'file:///asset',
+        mediaType: 'photo',
+        type: COLOR_LENS_MODE.LENS_DOMINANT,
+        palette: {
+          primaryColor: '#111111',
+          secondaryColor: '#222222',
+          tertiaryColor: '#333333',
+          quaternaryColor: '#444444',
+          quinaryColor: '#555555',
+          senaryColor: '#666666',
+          backgroundColor: '#777777',
+          detailColor: '#888888',
+        },
+      });
+    });
+  });
+
+  it('captures photo in lens-point mode and saves lensPointColor', async () => {
+    mockUseColorLensPalette.mockReturnValue({
+      colorLensMode: COLOR_LENS_MODE.LENS_POINT,
+      setColorLensMode: mockSetColorLensMode,
+      palette: mockPalette,
+      getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
+    });
+
+    renderCamera(<Camera />);
+
+    fireEvent.press(await screen.findByTestId('lens-capture-button'));
+
+    await waitFor(() => {
+      expect(mockTakePhoto).toHaveBeenCalled();
+      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockOnAddLensPalette).toHaveBeenCalledWith({
+        id: 'asset-1',
+        uri: 'file:///asset',
+        mediaType: 'photo',
+        type: COLOR_LENS_MODE.LENS_POINT,
+        lensPointColor: '#AABBCC',
+      });
     });
   });
 

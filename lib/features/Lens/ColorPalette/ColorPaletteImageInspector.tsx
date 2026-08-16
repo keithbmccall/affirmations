@@ -1,4 +1,5 @@
 import { ThemedText } from '@components/shared/ThemedText';
+import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
@@ -6,7 +7,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { lensPaletteConfig } from './lensPaletteConfig';
-import type { InspectionAsset, LensPalette } from './types';
+import type { InspectionAsset, LensDominantPaletteColors } from './types';
 
 interface ColorPaletteImageInspectorProps {
   image: InspectionAsset;
@@ -64,20 +65,35 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
   );
 
   const palette = useMemo(() => {
-    return (
-      image.palette && (
+    if (image.type === COLOR_LENS_MODE.LENS_POINT) {
+      return (
         <View style={styles.palette}>
-          {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
-            const swatch = image.palette?.[paletteKey as keyof LensPalette['palette']];
-
-            if (!swatch) return null;
-
-            return <SwatchButton key={paletteKey} swatch={swatch} onSelect={handleSwatchPress} />;
-          })}
+          <SwatchButton swatch={image.lensPointColor} onSelect={handleSwatchPress} />
         </View>
-      )
+      );
+    }
+
+    const dominantPalette =
+      image.type === COLOR_LENS_MODE.LENS_DOMINANT
+        ? image.palette
+        : 'palette' in image
+          ? image.palette
+          : undefined;
+
+    if (dominantPalette === undefined) return null;
+
+    return (
+      <View style={styles.palette}>
+        {lensPaletteConfig.colorPaletteKeys.map(paletteKey => {
+          const swatch = dominantPalette[paletteKey as keyof LensDominantPaletteColors];
+
+          if (!swatch) return null;
+
+          return <SwatchButton key={paletteKey} swatch={swatch} onSelect={handleSwatchPress} />;
+        })}
+      </View>
     );
-  }, [handleSwatchPress, image.palette]);
+  }, [handleSwatchPress, image]);
 
   // Trigger animation when swatch state changes
   useEffect(() => {

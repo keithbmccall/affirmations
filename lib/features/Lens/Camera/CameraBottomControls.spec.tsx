@@ -1,3 +1,4 @@
+import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { createAssetAsync } from 'expo-media-library';
 import React, { createRef } from 'react';
@@ -153,7 +154,19 @@ describe('CameraBottomControls', () => {
     const callOrder: string[] = [];
     const onPhotoCaptureStart = jest.fn(() => {
       callOrder.push('onPhotoCaptureStart');
-      return { paletteSnapshot: {} };
+      return {
+        type: COLOR_LENS_MODE.LENS_DOMINANT,
+        paletteSnapshot: {
+          primaryColor: '#111111',
+          secondaryColor: '#222222',
+          tertiaryColor: '#333333',
+          quaternaryColor: '#444444',
+          quinaryColor: '#555555',
+          senaryColor: '#666666',
+          backgroundColor: '#777777',
+          detailColor: '#888888',
+        },
+      } as const;
     });
     mockTakePhoto.mockImplementation(async () => {
       callOrder.push('takePhoto');

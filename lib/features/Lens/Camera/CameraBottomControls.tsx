@@ -2,6 +2,7 @@ import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPh
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
 import { useCameraRoll } from '@features/Lens/Camera/hooks/useCameraRoll';
 import { flashModeOptions } from '@features/Lens/Camera/options';
+import type { LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
@@ -12,13 +13,11 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export type PhotoCaptureContext = unknown;
-
 interface CameraBottomControlsProps {
   enableVideoLongPress?: boolean;
-  onPhotoCaptureStart?: () => PhotoCaptureContext;
+  onPhotoCaptureStart?: () => LensPhotoCaptureContext | undefined;
   processPhotoPath?: (inputPath: string) => Promise<string>;
-  onPhotoAssetSaved?: (asset: Asset, context?: PhotoCaptureContext) => Promise<void>;
+  onPhotoAssetSaved?: (asset: Asset, context?: LensPhotoCaptureContext) => Promise<void>;
   onVideoAssetSaved?: (asset: Asset) => Promise<void>;
 }
 

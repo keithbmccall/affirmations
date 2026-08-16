@@ -1,3 +1,4 @@
+import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPaletteImageInspector } from '@features/Lens/ColorPalette/ColorPaletteImageInspector';
 import type { InspectionAsset } from '@features/Lens/ColorPalette/types';
 import { renderWithContext } from '@testing/renderWithContext';
@@ -21,6 +22,16 @@ const createInspectionAsset = (id: string): InspectionAsset => ({
   height: 100,
 });
 
+const createPointInspectionAsset = (id: string): InspectionAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'photo',
+  width: 100,
+  height: 100,
+  type: COLOR_LENS_MODE.LENS_POINT,
+  lensPointColor: '#AABBCC',
+});
+
 describe('ColorPaletteImageInspector', () => {
   it('fills the palette curtain with an absolute-fill image', async () => {
     renderWithContext(<ColorPaletteImageInspector image={createInspectionAsset('photo-1')} />);
@@ -37,5 +48,13 @@ describe('ColorPaletteImageInspector', () => {
       right: 0,
       bottom: 0,
     });
+  });
+
+  it('renders one swatch for lens-point inspection assets', async () => {
+    renderWithContext(
+      <ColorPaletteImageInspector image={createPointInspectionAsset('photo-2')} />
+    );
+
+    expect(await screen.findAllByTestId('lens-inspector-swatch')).toHaveLength(1);
   });
 });
