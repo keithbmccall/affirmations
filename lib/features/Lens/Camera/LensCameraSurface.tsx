@@ -4,8 +4,14 @@ import {
   isColorLensPoint,
   nextColorLensMode,
 } from '@features/Lens/ColorPalette/colorLensMode';
+import { lensPaletteConfig } from '@features/Lens/ColorPalette/lensPaletteConfig';
+import { requestColorNames } from '@features/Lens/ColorPalette/requestColorNames';
 import { snapshotPalette } from '@features/Lens/ColorPalette/snapshotPalette';
-import type { LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
+import {
+  toLensDominantPaletteColors,
+  toLensNamedColor,
+} from '@features/Lens/ColorPalette/toLensNamedColor';
+import type { LensNamedColor, LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
 import { useColorLensRegion } from '@features/Lens/ColorPalette/useColorLensRegion';
 import { useLens } from '@platform';
@@ -36,6 +42,16 @@ export const COLOR_LENS_REGION_TARGET_FPS = 2;
 const COLOR_ANIMATION_DURATION = 500;
 const COLOR_LENS_FPS = 15;
 const DEFAULT_FPS = 30;
+
+const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
+  if (context.type === COLOR_LENS_MODE.LENS_POINT) {
+    return [context.lensPointColor];
+  }
+
+  return lensPaletteConfig.colorPaletteKeys.map(
+    key => context.paletteSnapshot[key as keyof typeof context.paletteSnapshot]
+  );
+};
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
   const { cameraRef, showPreview, isActive, device } = useCameraSurface();
@@ -75,25 +91,21 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     async (asset: Asset, context?: LensPhotoCaptureContext) => {
       if (context === undefined) return;
 
-      console.log('::::', {
-        id: asset.id,
-        uri: asset.uri,
-        mediaType: asset.mediaType,
-        type: COLOR_LENS_MODE.LENS_POINT,
-        context,
-      });
-
       const base = {
         id: asset.id,
         uri: asset.uri,
         mediaType: asset.mediaType,
       };
 
+      const namedColors: LensNamedColor[] = await requestColorNames(
+        getCaptureHexes(context)
+      );
+
       if (context.type === COLOR_LENS_MODE.LENS_DOMINANT) {
         onAddLensPalette({
           ...base,
           type: COLOR_LENS_MODE.LENS_DOMINANT,
-          palette: context.paletteSnapshot,
+          palette: toLensDominantPaletteColors(context, namedColors),
         });
         return;
       }
@@ -102,7 +114,7 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
         onAddLensPalette({
           ...base,
           type: COLOR_LENS_MODE.LENS_POINT,
-          lensPointColor: context.lensPointColor,
+          lensPointColor: toLensNamedColor(context, namedColors),
         });
       }
     },

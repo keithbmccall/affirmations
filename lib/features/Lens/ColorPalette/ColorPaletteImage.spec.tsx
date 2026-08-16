@@ -34,14 +34,14 @@ const dominantPalette: LensPalette = {
   mediaType: 'photo',
   type: COLOR_LENS_MODE.LENS_DOMINANT,
   palette: {
-    primaryColor: '#111111',
-    secondaryColor: '#222222',
-    tertiaryColor: '#333333',
-    quaternaryColor: '#444444',
-    quinaryColor: '#555555',
-    senaryColor: '#666666',
-    backgroundColor: '#777777',
-    detailColor: '#888888',
+    primaryColor: { hex: '#111111' },
+    secondaryColor: { hex: '#222222' },
+    tertiaryColor: { hex: '#333333' },
+    quaternaryColor: { hex: '#444444' },
+    quinaryColor: { hex: '#555555' },
+    senaryColor: { hex: '#666666' },
+    backgroundColor: { hex: '#777777' },
+    detailColor: { hex: '#888888' },
   },
 };
 
@@ -50,7 +50,7 @@ const pointPalette: LensPalette = {
   uri: 'file:///photo-2.jpg',
   mediaType: 'photo',
   type: COLOR_LENS_MODE.LENS_POINT,
-  lensPointColor: '#AABBCC',
+  lensPointColor: { hex: '#AABBCC' },
 };
 
 describe('ColorPaletteImage', () => {

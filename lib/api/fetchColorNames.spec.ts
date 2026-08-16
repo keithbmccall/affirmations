@@ -35,6 +35,8 @@ describe('fetchColorNames', () => {
           hex: '#ff0000',
           requestedHex: '#ff0000',
           distance: 0,
+          luminance: 54.213,
+          rgb: { r: 255, g: 0, b: 0 },
         },
       ],
     };

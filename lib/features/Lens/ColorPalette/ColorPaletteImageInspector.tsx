@@ -7,7 +7,11 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { lensPaletteConfig } from './lensPaletteConfig';
-import type { InspectionAsset, LensDominantPaletteColors } from './types';
+import type {
+  InspectionAsset,
+  LensDominantPaletteColors,
+  LensNamedColor,
+} from './types';
 
 interface ColorPaletteImageInspectorProps {
   image: InspectionAsset;
@@ -15,15 +19,40 @@ interface ColorPaletteImageInspectorProps {
 }
 
 interface SwatchButtonProps {
-  swatch: string;
-  onSelect: (swatch: string) => void;
+  swatch: LensNamedColor;
+  onSelect: (swatch: LensNamedColor) => void;
 }
+
+const toDisplayName = (name: string): string =>
+  name
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+
+const formatPantoneLabel = (swatch: LensNamedColor): string | undefined => {
+  if (swatch.pantoneCode === undefined && swatch.pantoneName === undefined) {
+    return undefined;
+  }
+
+  const details = [
+    swatch.pantoneCode,
+    swatch.pantoneName !== undefined ? toDisplayName(swatch.pantoneName) : undefined,
+  ]
+    .filter((part): part is string => part !== undefined && part !== '')
+    .join(' ');
+
+  return `Pantone ${details}`;
+};
 
 const SwatchButton = memo(function SwatchButton({ swatch, onSelect }: SwatchButtonProps) {
   const handlePress = useCallback(() => {
     onSelect(swatch);
   }, [onSelect, swatch]);
-  const swatchStyle = useMemo(() => [styles.swatch, { backgroundColor: swatch }], [swatch]);
+  const swatchStyle = useMemo(
+    () => [styles.swatch, { backgroundColor: swatch.hex }],
+    [swatch.hex]
+  );
 
   return <Pressable testID="lens-inspector-swatch" onPress={handlePress} style={swatchStyle} />;
 });
@@ -33,35 +62,35 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
   onOverlayOpenChange,
 }: ColorPaletteImageInspectorProps) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [selectedSwatch, setSelectedSwatch] = useState<LensNamedColor | null>(null);
 
   const overlayHeight = useSharedValue(0);
-  // Shared value to store the current swatch color
-  const swatchColor = useSharedValue<string | null>(null);
-  // Shared value to store the current animated color
   const animatedColor = useSharedValue('transparent');
 
   const handleSwatchPress = useCallback(
-    (_swatch: string) => {
+    (swatch: LensNamedColor) => {
       if (isOverlayOpen) {
-        if (swatchColor.value === _swatch) {
+        if (selectedSwatch?.hex === swatch.hex) {
           setIsOverlayOpen(false);
-        } else {
-          swatchColor.value = _swatch;
-          animatedColor.value = withSpring(_swatch, {
-            damping: 20,
-            stiffness: 300,
-          });
+          setSelectedSwatch(null);
+          return;
         }
-      } else {
-        swatchColor.value = _swatch;
-        animatedColor.value = withSpring(_swatch, {
+        setSelectedSwatch(swatch);
+        animatedColor.value = withSpring(swatch.hex, {
           damping: 20,
           stiffness: 300,
         });
-        setIsOverlayOpen(true);
+        return;
       }
+
+      setSelectedSwatch(swatch);
+      animatedColor.value = withSpring(swatch.hex, {
+        damping: 20,
+        stiffness: 300,
+      });
+      setIsOverlayOpen(true);
     },
-    [animatedColor, isOverlayOpen, swatchColor]
+    [animatedColor, isOverlayOpen, selectedSwatch?.hex]
   );
 
   const palette = useMemo(() => {
@@ -95,10 +124,8 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
     );
   }, [handleSwatchPress, image]);
 
-  // Trigger animation when swatch state changes
   useEffect(() => {
     if (isOverlayOpen) {
-      // Animate to full height when swatch is selected
       overlayHeight.value = withSpring(1, {
         damping: 12,
         stiffness: 180,
@@ -113,10 +140,6 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
     onOverlayOpenChange?.(isOverlayOpen);
   }, [isOverlayOpen, onOverlayOpenChange, overlayHeight]);
 
-  // Handle color changes for smooth blending - moved to onPress handler
-  // No useEffect needed since we update animatedColor directly when swatchColor changes
-
-  // Animated style for the growing overlay effect with color interpolation
   const animatedOverlayStyle = useAnimatedStyle(() => {
     return {
       ...globalStyles.absolute,
@@ -129,31 +152,52 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
     };
   });
 
-  // Animated text style that shows/hides text based on swatch value
-  const animatedTextStyle = useAnimatedStyle(() => {
-    return {
-      color: '#ffffff',
-      fontSize: 18,
-      fontWeight: '600',
-      ...globalStyles.absolute,
-      top: 30,
-      left: 30,
-      opacity: swatchColor.value ? 1 : 0,
-    };
-  });
-
   const closeOverlay = useCallback(() => {
     setIsOverlayOpen(false);
+    setSelectedSwatch(null);
   }, []);
 
   const source = useMemo(() => ({ uri: image.uri }), [image.uri]);
+
+  const pantoneLabel = selectedSwatch !== null ? formatPantoneLabel(selectedSwatch) : undefined;
 
   return (
     <View style={styles.container}>
       <View style={styles.paletteCurtain}>
         <Image source={source} style={styles.photoItem} contentFit="cover" />
         <Animated.View style={animatedOverlayStyle}>
-          <Animated.Text style={animatedTextStyle}>{swatchColor.value}</Animated.Text>
+          {selectedSwatch !== null && (
+            <View style={styles.overlayLabels} testID="lens-inspector-overlay-labels">
+              {selectedSwatch.name !== undefined ? (
+                <ThemedText
+                  testID="lens-inspector-color-name"
+                  style={styles.overlayPrimaryText}
+                  lightColor="#ffffff"
+                  darkColor="#ffffff"
+                >
+                  {selectedSwatch.name}
+                </ThemedText>
+              ) : null}
+              <ThemedText
+                testID="lens-inspector-color-hex"
+                style={styles.overlaySecondaryText}
+                lightColor="#ffffff"
+                darkColor="#ffffff"
+              >
+                {selectedSwatch.hex}
+              </ThemedText>
+              {pantoneLabel !== undefined ? (
+                <ThemedText
+                  testID="lens-inspector-color-pantone"
+                  style={styles.overlaySecondaryText}
+                  lightColor="#ffffff"
+                  darkColor="#ffffff"
+                >
+                  {pantoneLabel}
+                </ThemedText>
+              ) : null}
+            </View>
+          )}
           <Pressable onPress={closeOverlay} style={styles.closeOverlayButton}>
             <ThemedText>Close</ThemedText>
           </Pressable>
@@ -185,11 +229,23 @@ const styles = StyleSheet.create({
   swatch: {
     ...globalStyles.flex1,
   },
-  swatchText: {
-    color: '#ffffff',
+  overlayLabels: {
+    ...globalStyles.absolute,
+    top: 30,
+    left: 30,
+    right: 80,
+  },
+  overlayPrimaryText: {
     fontSize: 18,
     fontWeight: '600',
-    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  overlaySecondaryText: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: spacing.xs,
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,

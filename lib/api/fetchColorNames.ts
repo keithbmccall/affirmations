@@ -8,6 +8,12 @@ export type ColorPizzaColor = {
   hex: string;
   requestedHex: string;
   distance: number;
+  luminance: number;
+  rgb: {
+    r: number;
+    g: number;
+    b: number;
+  };
 };
 
 export type ColorPizzaResponse = {

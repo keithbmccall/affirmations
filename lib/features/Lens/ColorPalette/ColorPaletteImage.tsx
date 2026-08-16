@@ -47,7 +47,7 @@ export const ColorPaletteImage = memo(function ColorPaletteImage({
         <View style={styles.palette}>
           <View
             testID="lens-point-swatch"
-            style={[styles.swatch, { backgroundColor: lensPalette.lensPointColor }]}
+            style={[styles.swatch, { backgroundColor: lensPalette.lensPointColor.hex }]}
           />
         </View>
       );
@@ -62,7 +62,7 @@ export const ColorPaletteImage = memo(function ColorPaletteImage({
             <View
               key={paletteKey}
               testID="lens-dominant-swatch"
-              style={[styles.swatch, { backgroundColor: swatch }]}
+              style={[styles.swatch, { backgroundColor: swatch.hex }]}
             />
           );
         })}

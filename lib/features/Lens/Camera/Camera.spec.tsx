@@ -11,10 +11,15 @@ import { Camera } from './Camera';
 import { VIEW_MODE_SWITCH_SETTLE_MS } from './CameraSurfaceContext';
 
 const mockOnAddLensPalette = jest.fn();
+const mockOnUpdateLensPaletteNamedColors = jest.fn();
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
 const mockGetColorLensRegionWorklet = jest.fn();
+const mockFetchColorNames = jest.fn(() =>
+  Promise.resolve({ paletteTitle: 'Test', colors: [] })
+);
+const mockMatchPantoneColors = jest.fn(() => ({ colors: [] }));
 const mockRegionColor = { value: '#AABBCC' };
 
 const mockPalette = {
@@ -54,7 +59,18 @@ jest.mock('@components/shared/icon-symbol/IconSymbol', () => ({
 }));
 
 jest.mock('@platform', () => ({
-  useLens: () => ({ onAddLensPalette: mockOnAddLensPalette }),
+  useLens: () => ({
+    onAddLensPalette: mockOnAddLensPalette,
+    onUpdateLensPaletteNamedColors: mockOnUpdateLensPaletteNamedColors,
+  }),
+}));
+
+jest.mock('@api/fetchColorNames', () => ({
+  fetchColorNames: (...args: unknown[]) => mockFetchColorNames(...args),
+}));
+
+jest.mock('@features/Lens/ColorPalette/matchPantoneColors', () => ({
+  matchPantoneColors: (...args: unknown[]) => mockMatchPantoneColors(...args),
 }));
 
 jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
@@ -396,16 +412,36 @@ describe('Camera', () => {
         mediaType: 'photo',
         type: COLOR_LENS_MODE.LENS_DOMINANT,
         palette: {
-          primaryColor: '#111111',
-          secondaryColor: '#222222',
-          tertiaryColor: '#333333',
-          quaternaryColor: '#444444',
-          quinaryColor: '#555555',
-          senaryColor: '#666666',
-          backgroundColor: '#777777',
-          detailColor: '#888888',
+          primaryColor: { hex: '#111111' },
+          secondaryColor: { hex: '#222222' },
+          tertiaryColor: { hex: '#333333' },
+          quaternaryColor: { hex: '#444444' },
+          quinaryColor: { hex: '#555555' },
+          senaryColor: { hex: '#666666' },
+          backgroundColor: { hex: '#777777' },
+          detailColor: { hex: '#888888' },
         },
       });
+      expect(mockFetchColorNames).toHaveBeenCalledWith([
+        '#111111',
+        '#222222',
+        '#333333',
+        '#444444',
+        '#555555',
+        '#666666',
+        '#777777',
+        '#888888',
+      ]);
+      expect(mockMatchPantoneColors).toHaveBeenCalledWith([
+        '#111111',
+        '#222222',
+        '#333333',
+        '#444444',
+        '#555555',
+        '#666666',
+        '#777777',
+        '#888888',
+      ]);
     });
   });
 
@@ -429,8 +465,10 @@ describe('Camera', () => {
         uri: 'file:///asset',
         mediaType: 'photo',
         type: COLOR_LENS_MODE.LENS_POINT,
-        lensPointColor: '#AABBCC',
+        lensPointColor: { hex: '#AABBCC' },
       });
+      expect(mockFetchColorNames).toHaveBeenCalledWith(['#AABBCC']);
+      expect(mockMatchPantoneColors).toHaveBeenCalledWith(['#AABBCC']);
     });
   });
 

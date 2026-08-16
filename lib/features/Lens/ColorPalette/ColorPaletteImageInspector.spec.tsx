@@ -2,7 +2,7 @@ import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPaletteImageInspector } from '@features/Lens/ColorPalette/ColorPaletteImageInspector';
 import type { InspectionAsset } from '@features/Lens/ColorPalette/types';
 import { renderWithContext } from '@testing/renderWithContext';
-import { screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 jest.mock('expo-image', () => {
@@ -29,7 +29,22 @@ const createPointInspectionAsset = (id: string): InspectionAsset => ({
   width: 100,
   height: 100,
   type: COLOR_LENS_MODE.LENS_POINT,
-  lensPointColor: '#AABBCC',
+  lensPointColor: { hex: '#AABBCC' },
+});
+
+const createNamedPointInspectionAsset = (id: string): InspectionAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'photo',
+  width: 100,
+  height: 100,
+  type: COLOR_LENS_MODE.LENS_POINT,
+  lensPointColor: {
+    hex: '#AABBCC',
+    name: 'Ice',
+    pantoneCode: '15-4020',
+    pantoneName: 'cerulean',
+  },
 });
 
 describe('ColorPaletteImageInspector', () => {
@@ -56,5 +71,31 @@ describe('ColorPaletteImageInspector', () => {
     );
 
     expect(await screen.findAllByTestId('lens-inspector-swatch')).toHaveLength(1);
+  });
+
+  it('shows name, hex, and pantone in order when a named swatch is selected', async () => {
+    renderWithContext(
+      <ColorPaletteImageInspector image={createNamedPointInspectionAsset('photo-3')} />
+    );
+
+    fireEvent.press(await screen.findByTestId('lens-inspector-swatch'));
+
+    expect(await screen.findByTestId('lens-inspector-color-name')).toHaveTextContent('Ice');
+    expect(screen.getByTestId('lens-inspector-color-hex')).toHaveTextContent('#AABBCC');
+    expect(screen.getByTestId('lens-inspector-color-pantone')).toHaveTextContent(
+      'Pantone 15-4020 Cerulean'
+    );
+  });
+
+  it('shows only hex when enrichment is missing', async () => {
+    renderWithContext(
+      <ColorPaletteImageInspector image={createPointInspectionAsset('photo-4')} />
+    );
+
+    fireEvent.press(await screen.findByTestId('lens-inspector-swatch'));
+
+    expect(await screen.findByTestId('lens-inspector-color-hex')).toHaveTextContent('#AABBCC');
+    expect(screen.queryByTestId('lens-inspector-color-name')).toBeNull();
+    expect(screen.queryByTestId('lens-inspector-color-pantone')).toBeNull();
   });
 });
