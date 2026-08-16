@@ -1,4 +1,5 @@
 import {
+  COLOR_LENS_MODE,
   isColorLensActive,
   isColorLensDominant,
   isColorLensPoint,
@@ -44,8 +45,6 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     useColorLensPalette();
   const { regionColor, getColorLensRegionWorklet } = useColorLensRegion();
 
-  const shouldSampleDominant = isColorLensDominant(colorLensMode);
-  const shouldSamplePoint = isColorLensPoint(colorLensMode);
   const isColorLensModeActive = isColorLensActive(colorLensMode);
 
   const fps = isActive && isColorLensModeActive ? COLOR_LENS_FPS : DEFAULT_FPS;
@@ -79,34 +78,30 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     frame => {
       'worklet';
       if (!isActive) return;
-      if (!isColorLensModeActive) return;
 
-      if (shouldSampleDominant) {
-        runAtTargetFps(COLOR_LENS_PALETTE_TARGET_FPS, () => {
-          'worklet';
-          getColorLensPaletteWorklet(frame);
-        });
-      }
-
-      if (shouldSamplePoint) {
-        runAtTargetFps(COLOR_LENS_REGION_TARGET_FPS, () => {
-          'worklet';
-          getColorLensRegionWorklet(frame, {
-            centerX: 0.5,
-            centerY: 0.5,
-            radius: LENS_POINT_SAMPLE_RADIUS,
+      switch (colorLensMode) {
+        case COLOR_LENS_MODE.LENS_DOMINANT:
+          runAtTargetFps(COLOR_LENS_PALETTE_TARGET_FPS, () => {
+            'worklet';
+            getColorLensPaletteWorklet(frame);
           });
-        });
+          break;
+        case COLOR_LENS_MODE.LENS_POINT:
+          runAtTargetFps(COLOR_LENS_REGION_TARGET_FPS, () => {
+            'worklet';
+            getColorLensRegionWorklet(frame, {
+              centerX: 0.5,
+              centerY: 0.5,
+              radius: LENS_POINT_SAMPLE_RADIUS,
+            });
+          });
+          break;
+        case COLOR_LENS_MODE.DISABLED:
+        default:
+          break;
       }
     },
-    [
-      isActive,
-      isColorLensModeActive,
-      shouldSampleDominant,
-      shouldSamplePoint,
-      getColorLensPaletteWorklet,
-      getColorLensRegionWorklet,
-    ]
+    [isActive, colorLensMode, getColorLensPaletteWorklet, getColorLensRegionWorklet]
   );
 
   return (
