@@ -5,6 +5,12 @@ import { router } from 'expo-router';
 import { Alert } from 'react-native';
 import { useCameraRoll } from './useCameraRoll';
 
+jest.mock('@platform', () => ({
+  useLens: () => ({
+    lensPalettesMap: {},
+  }),
+}));
+
 jest.mock('expo-media-library', () => ({
   getAssetsAsync: jest.fn(),
 }));
@@ -17,6 +23,14 @@ jest.mock('expo-router', () => ({
 
 const mockedGetAssetsAsync = getAssetsAsync as jest.MockedFunction<typeof getAssetsAsync>;
 const mockedRouterPush = router.push as jest.Mock;
+
+const createAsset = (id: string, uri: string) => ({
+  id,
+  uri,
+  mediaType: 'photo' as const,
+  width: 100,
+  height: 100,
+});
 
 describe('useCameraRoll', () => {
   beforeEach(() => {
@@ -46,6 +60,67 @@ describe('useCameraRoll', () => {
     });
 
     expect(alertSpy).toHaveBeenCalledWith('Error', 'Failed to open camera roll');
+    alertSpy.mockRestore();
+    mockedRouterPush.mockImplementation(() => {});
+  });
+
+  it('opens camera roll inspector with most recent photo on long press', async () => {
+    mockedGetAssetsAsync.mockResolvedValue({
+      assets: [createAsset('photo-1', 'file:///photo-1.jpg')],
+      totalCount: 1,
+      hasNextPage: false,
+    } as never);
+
+    const { result } = renderHook(() => useCameraRoll());
+
+    await act(async () => {
+      await result.current.fetchRecentMedia();
+    });
+
+    await act(async () => {
+      await result.current.handleCameraRollLongPress();
+    });
+
+    expect(mockedRouterPush).toHaveBeenCalledWith({
+      pathname: Routes.subRoutes.cameraRollInspector.routePathname,
+      params: {
+        asset: expect.stringContaining('"id":"photo-1"'),
+      },
+    });
+  });
+
+  it('does nothing on long press when no recent photo exists', async () => {
+    const { result } = renderHook(() => useCameraRoll());
+
+    await act(async () => {
+      await result.current.handleCameraRollLongPress();
+    });
+
+    expect(mockedRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('alerts when inspector navigation throws', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    mockedGetAssetsAsync.mockResolvedValue({
+      assets: [createAsset('photo-1', 'file:///photo-1.jpg')],
+      totalCount: 1,
+      hasNextPage: false,
+    } as never);
+    mockedRouterPush.mockImplementationOnce(() => {
+      throw new Error('nav fail');
+    });
+
+    const { result } = renderHook(() => useCameraRoll());
+
+    await act(async () => {
+      await result.current.fetchRecentMedia();
+    });
+
+    await act(async () => {
+      await result.current.handleCameraRollLongPress();
+    });
+
+    expect(alertSpy).toHaveBeenCalledWith('Error', 'Failed to open photo');
     alertSpy.mockRestore();
     mockedRouterPush.mockImplementation(() => {});
   });

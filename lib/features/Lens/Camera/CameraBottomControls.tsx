@@ -36,6 +36,7 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   const {
     animatedPhotoStyle,
     handleCameraRollPress,
+    handleCameraRollLongPress,
     fetchRecentMedia,
     recentMedia: recentPhoto,
   } = useCameraRoll();
@@ -153,6 +154,7 @@ export const CameraBottomControls = memo(function CameraBottomControls({
         testID="lens-camera-roll-open"
         style={styles.cameraRollButton}
         onPress={handleCameraRollPress}
+        onLongPress={recentPhoto ? handleCameraRollLongPress : undefined}
       >
         {recentPhoto ? (
           <Reanimated.View key={recentPhoto} style={cameraRollPreviewContainerStyle}>

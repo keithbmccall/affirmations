@@ -184,6 +184,7 @@ jest.mock('@features/Lens/Camera/CameraGrid', () => ({
 const mockUseCameraRollImpl = jest.fn(() => ({
   animatedPhotoStyle: {},
   handleCameraRollPress: mockHandleCameraRollPress,
+  handleCameraRollLongPress: jest.fn(),
   fetchRecentMedia: mockFetchRecentMedia,
   recentMedia: null as string | null,
 }));

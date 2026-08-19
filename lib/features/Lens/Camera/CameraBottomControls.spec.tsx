@@ -15,11 +15,13 @@ import { CAMERA_VIEW_MODE } from './options';
 
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
+const mockHandleCameraRollLongPress = jest.fn();
 const mockRequestCameraRollHeadRefresh = jest.fn();
 
 const mockUseCameraRollImpl = jest.fn(() => ({
   animatedPhotoStyle: {},
   handleCameraRollPress: mockHandleCameraRollPress,
+  handleCameraRollLongPress: mockHandleCameraRollLongPress,
   fetchRecentMedia: mockFetchRecentMedia,
   recentMedia: null as string | null,
 }));
@@ -118,6 +120,7 @@ describe('CameraBottomControls', () => {
     mockUseCameraRollImpl.mockImplementation(() => ({
       animatedPhotoStyle: {},
       handleCameraRollPress: mockHandleCameraRollPress,
+      handleCameraRollLongPress: mockHandleCameraRollLongPress,
       fetchRecentMedia: mockFetchRecentMedia,
       recentMedia: null,
     }));
@@ -299,10 +302,33 @@ describe('CameraBottomControls', () => {
     expect(mockHandleCameraRollPress).toHaveBeenCalled();
   });
 
+  it('opens camera roll inspector from thumbnail long press when recent media exists', async () => {
+    mockUseCameraRollImpl.mockImplementation(() => ({
+      animatedPhotoStyle: {},
+      handleCameraRollPress: mockHandleCameraRollPress,
+      handleCameraRollLongPress: mockHandleCameraRollLongPress,
+      fetchRecentMedia: mockFetchRecentMedia,
+      recentMedia: 'file:///roll-thumb.jpg',
+    }));
+
+    const { getByTestId } = renderBottomControls();
+
+    fireEvent(getByTestId('lens-camera-roll-open'), 'longPress');
+
+    expect(mockHandleCameraRollLongPress).toHaveBeenCalled();
+  });
+
+  it('does not wire long press when no recent media exists', () => {
+    const { getByTestId } = renderBottomControls();
+
+    expect(getByTestId('lens-camera-roll-open').props.onLongPress).toBeUndefined();
+  });
+
   it('renders camera roll thumbnail when recent media exists', async () => {
     mockUseCameraRollImpl.mockImplementation(() => ({
       animatedPhotoStyle: {},
       handleCameraRollPress: mockHandleCameraRollPress,
+      handleCameraRollLongPress: mockHandleCameraRollLongPress,
       fetchRecentMedia: mockFetchRecentMedia,
       recentMedia: 'file:///roll-thumb.jpg',
     }));
