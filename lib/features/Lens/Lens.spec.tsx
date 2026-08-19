@@ -7,6 +7,8 @@ import { Lens } from './Lens';
 
 const mockUseLensPermissions = jest.fn(() => ({
   cameraPermission: true,
+  hasCameraAccess: true,
+  isPermissionsReady: true,
   mediaLibraryPermission: true,
   microphonePermission: true,
   requestCameraPermission: jest.fn(),
@@ -21,7 +23,7 @@ jest.mock('@features/Lens/Camera/hooks/useLensPermissions', () => ({
 const mockUseCameraRollPrefetch = jest.fn();
 
 jest.mock('@features/Lens/Camera/hooks/useCameraRollPrefetch', () => ({
-  useCameraRollPrefetch: () => mockUseCameraRollPrefetch(),
+  useCameraRollPrefetch: (...args: unknown[]) => mockUseCameraRollPrefetch(...args),
 }));
 
 jest.mock('@features/Lens/ColorPalette/useInitLensPalettes', () => ({
@@ -63,6 +65,8 @@ describe('Lens', () => {
     jest.clearAllMocks();
     mockUseLensPermissions.mockReturnValue({
       cameraPermission: true,
+      hasCameraAccess: true,
+      isPermissionsReady: true,
       mediaLibraryPermission: true,
       microphonePermission: true,
       requestCameraPermission: jest.fn(),
@@ -75,13 +79,15 @@ describe('Lens', () => {
     renderLens();
 
     expect(await screen.findByTestId('lens-camera-mock')).toBeTruthy();
-    expect(mockUseCameraRollPrefetch).toHaveBeenCalled();
+    expect(mockUseCameraRollPrefetch).toHaveBeenCalledWith(true);
     expect(screen.queryByTestId('lens-permissions-required')).toBeNull();
   });
 
-  it('shows permissions shell and does not mount Camera when a permission is missing', async () => {
+  it('shows permissions shell and does not mount Camera when camera access is denied', async () => {
     mockUseLensPermissions.mockReturnValue({
       cameraPermission: false,
+      hasCameraAccess: false,
+      isPermissionsReady: true,
       mediaLibraryPermission: true,
       microphonePermission: true,
       requestCameraPermission: jest.fn(),
@@ -97,9 +103,48 @@ describe('Lens', () => {
     expect(mockUseCameraRollPrefetch).not.toHaveBeenCalled();
   });
 
-  it('navigates back from the permissions shell', async () => {
+  it('mounts Camera while permissions are still resolving', async () => {
     mockUseLensPermissions.mockReturnValue({
       cameraPermission: true,
+      hasCameraAccess: true,
+      isPermissionsReady: false,
+      mediaLibraryPermission: false,
+      microphonePermission: true,
+      requestCameraPermission: jest.fn(),
+      requestMediaLibraryPermission: jest.fn(),
+      requestMicrophonePermission: jest.fn(),
+    });
+
+    renderLens();
+
+    expect(await screen.findByTestId('lens-camera-mock')).toBeTruthy();
+    expect(screen.queryByTestId('lens-permissions-required')).toBeNull();
+  });
+
+  it('shows a blank shell while permissions are resolving and access is not granted yet', async () => {
+    mockUseLensPermissions.mockReturnValue({
+      cameraPermission: false,
+      hasCameraAccess: false,
+      isPermissionsReady: false,
+      mediaLibraryPermission: false,
+      microphonePermission: false,
+      requestCameraPermission: jest.fn(),
+      requestMediaLibraryPermission: jest.fn(),
+      requestMicrophonePermission: jest.fn(),
+    });
+
+    renderLens();
+
+    expect(await screen.findByTestId('lens-back-button')).toBeTruthy();
+    expect(screen.queryByTestId('lens-permissions-required')).toBeNull();
+    expect(screen.queryByTestId('lens-camera-mock')).toBeNull();
+  });
+
+  it('navigates back from the permissions shell', async () => {
+    mockUseLensPermissions.mockReturnValue({
+      cameraPermission: false,
+      hasCameraAccess: false,
+      isPermissionsReady: true,
       mediaLibraryPermission: false,
       microphonePermission: true,
       requestCameraPermission: jest.fn(),

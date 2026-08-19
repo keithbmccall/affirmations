@@ -2,10 +2,9 @@ import { renderHook, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import { useLensPermissions } from './useLensPermissions';
 
-const mockRequestCamera = jest.fn(() => Promise.resolve());
-const mockRequestMic = jest.fn(() => Promise.resolve());
-const mockRequestMedia = jest.fn(() => Promise.resolve());
-
+const mockRequestCamera = jest.fn(() => Promise.resolve(true));
+const mockRequestMic = jest.fn(() => Promise.resolve(true));
+const mockRequestMedia = jest.fn(() => Promise.resolve({ granted: true }));
 let mockCameraHasPermission = false;
 let mockMicHasPermission = false;
 let mockMediaGranted = false;
@@ -34,6 +33,8 @@ describe('useLensPermissions', () => {
     mockCameraHasPermission = false;
     mockMicHasPermission = false;
     mockMediaGranted = false;
+    mockRequestCamera.mockImplementation(() => Promise.resolve(true));
+    mockRequestMic.mockImplementation(() => Promise.resolve(true));
   });
 
   it('returns permission flags from hooks', () => {
@@ -46,6 +47,19 @@ describe('useLensPermissions', () => {
     expect(result.current.cameraPermission).toBe(true);
     expect(result.current.microphonePermission).toBe(true);
     expect(result.current.mediaLibraryPermission).toBe(true);
+    expect(result.current.hasCameraAccess).toBe(true);
+  });
+
+  it('marks permissions ready after the initial request cycle', async () => {
+    mockCameraHasPermission = true;
+    mockMicHasPermission = true;
+    mockMediaGranted = true;
+
+    const { result } = renderHook(() => useLensPermissions());
+
+    await waitFor(() => {
+      expect(result.current.isPermissionsReady).toBe(true);
+    });
   });
 
   it('requests missing permissions on mount', async () => {
@@ -55,11 +69,23 @@ describe('useLensPermissions', () => {
       expect(mockRequestCamera).toHaveBeenCalled();
       expect(mockRequestMic).toHaveBeenCalled();
       expect(mockRequestMedia).toHaveBeenCalled();
+      expect(result.current.isPermissionsReady).toBe(true);
     });
 
     expect(result.current.requestCameraPermission).toBe(mockRequestCamera);
     expect(result.current.requestMicrophonePermission).toBe(mockRequestMic);
     expect(result.current.requestMediaLibraryPermission).toBe(mockRequestMedia);
+  });
+
+  it('uses resolved request results for camera access before hook flags update', async () => {
+    mockRequestCamera.mockResolvedValueOnce(true);
+    mockRequestMic.mockResolvedValueOnce(true);
+
+    const { result } = renderHook(() => useLensPermissions());
+
+    await waitFor(() => {
+      expect(result.current.hasCameraAccess).toBe(true);
+    });
   });
 
   it('alerts when permission request throws', async () => {
@@ -77,6 +103,5 @@ describe('useLensPermissions', () => {
     });
 
     alertSpy.mockRestore();
-    mockRequestCamera.mockImplementation(() => Promise.resolve());
   });
 });

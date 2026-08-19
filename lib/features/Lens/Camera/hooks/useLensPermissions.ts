@@ -1,9 +1,12 @@
 import { usePermissions as useMediaLibraryPermissions } from 'expo-media-library';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useCameraPermission, useMicrophonePermission } from 'react-native-vision-camera';
 
 export const useLensPermissions = () => {
+  const [isPermissionsReady, setIsPermissionsReady] = useState(false);
+  const [resolvedCameraAccess, setResolvedCameraAccess] = useState<boolean | undefined>();
+  const [resolvedMicAccess, setResolvedMicAccess] = useState<boolean | undefined>();
   const { hasPermission: cameraPermission, requestPermission: requestCameraPermission } =
     useCameraPermission();
   const [mediaLibraryPermissionStatus, requestMediaLibraryPermission] =
@@ -14,20 +17,20 @@ export const useLensPermissions = () => {
 
   // Request permissions on mount
   useEffect(() => {
+    let isMounted = true;
+
     const requestPermissions = async () => {
       try {
-        // Request camera permission if not granted
-        if (!cameraPermission) {
-          await requestCameraPermission();
-        }
-
-        // Request microphone permission if not granted
-        if (!microphonePermission) {
-          await requestMicrophonePermission();
-        }
+        const cameraGranted = cameraPermission || (await requestCameraPermission());
+        const micGranted = microphonePermission || (await requestMicrophonePermission());
 
         if (!mediaLibraryPermission) {
           await requestMediaLibraryPermission();
+        }
+
+        if (isMounted) {
+          setResolvedCameraAccess(cameraGranted);
+          setResolvedMicAccess(micGranted);
         }
       } catch (error) {
         console.error('Permission request failed:', error);
@@ -36,10 +39,18 @@ export const useLensPermissions = () => {
           'Camera and microphone and media library permissions are required to use this feature.',
           [{ text: 'OK' }]
         );
+      } finally {
+        if (isMounted) {
+          setIsPermissionsReady(true);
+        }
       }
     };
 
-    requestPermissions();
+    void requestPermissions();
+
+    return () => {
+      isMounted = false;
+    };
   }, [
     cameraPermission,
     mediaLibraryPermission,
@@ -49,8 +60,13 @@ export const useLensPermissions = () => {
     requestMicrophonePermission,
   ]);
 
+  const hasCameraAccess =
+    (cameraPermission || resolvedCameraAccess) && (microphonePermission || resolvedMicAccess);
+
   return {
     cameraPermission,
+    hasCameraAccess,
+    isPermissionsReady,
     mediaLibraryPermission,
     requestCameraPermission,
     requestMediaLibraryPermission,
