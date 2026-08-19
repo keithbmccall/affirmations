@@ -27,7 +27,7 @@ import {
 } from 'react-native-vision-camera';
 import { CameraBottomControls } from './CameraBottomControls';
 import { useCameraSurface } from './CameraSurfaceContext';
-import { LensCameraTopControls } from './LensCameraTopControls';
+import { CameraTopControls } from './CameraTopControls';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import { LENS_POINT_SAMPLE_RADIUS } from './lensPointSampleRegion';
 
@@ -164,7 +164,7 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
           fps={fps}
         />
       )}
-      <LensCameraTopControls
+      <CameraTopControls
         colorLensMode={colorLensMode}
         palette={palette}
         colorAnimationDuration={COLOR_ANIMATION_DURATION}

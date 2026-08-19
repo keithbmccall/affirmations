@@ -56,10 +56,10 @@ jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
   }),
 }));
 
-jest.mock('./LensCameraTopControls', () => {
+jest.mock('./CameraTopControls', () => {
   const RN = jest.requireActual('react-native');
   return {
-    LensCameraTopControls: () => <RN.View testID="mock-lens-top-controls" />,
+    CameraTopControls: () => <RN.View testID="mock-lens-top-controls" />,
   };
 });
 

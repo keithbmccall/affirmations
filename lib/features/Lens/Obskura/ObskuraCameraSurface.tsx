@@ -1,10 +1,10 @@
 import { CameraBottomControls } from '@features/Lens/Camera/CameraBottomControls';
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
+import { CameraTopControls } from '@features/Lens/Camera/CameraTopControls';
 import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
+import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { buildObskuraLensPaintFromPipeline } from '@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline';
 import { OBSKURA_LENS_PIPELINE } from '@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig';
-import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
-import { ObskuraCameraTopControls } from '@features/Lens/Obskura/ObskuraCameraTopControls';
 import { scheduleDeferredSkPaintDispose } from '@features/Lens/Obskura/scheduleDeferredSkPaintDispose';
 import { globalStyles } from '@styles/globalStyles';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -111,7 +111,7 @@ export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
           colorMode={obskuraColorMode}
         />
       )}
-      <ObskuraCameraTopControls
+      <CameraTopControls
         obskuraColorMode={obskuraColorMode}
         onObskuraColorModeToggle={handleObskuraColorModeToggle}
       />

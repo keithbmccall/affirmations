@@ -17,11 +17,10 @@ jest.mock('@features/Lens/Obskura/applyObskuraLensToPhotoFile', () => ({
   applyObskuraLensToPhotoFile: jest.fn(() => Promise.resolve('file:///painted.jpg')),
 }));
 
-jest.mock('@features/Lens/Obskura/ObskuraCameraTopControls', () => {
-  const React = jest.requireActual('react');
+jest.mock('@features/Lens/Camera/CameraTopControls', () => {
   const RN = jest.requireActual('react-native');
   return {
-    ObskuraCameraTopControls: ({
+    CameraTopControls: ({
       onObskuraColorModeToggle,
     }: {
       onObskuraColorModeToggle: () => void;
