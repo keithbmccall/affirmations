@@ -5,10 +5,10 @@ import { Camera } from '@features/Lens/Camera/Camera';
 import { useCameraRollPrefetch } from '@features/Lens/Camera/hooks/useCameraRollPrefetch';
 import { useLensPermissions } from '@features/Lens/Camera/hooks/useLensPermissions';
 import { useInitLensPalettes } from '@features/Lens/ColorPalette/useInitLensPalettes';
+import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
-import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { memo, useCallback, useMemo } from 'react';
@@ -33,39 +33,36 @@ export const Lens = memo(function Lens({ statusBarProps }: LensProps) {
   const handleBackPress = useCallback(() => router.back(), []);
   const backButtonStyle = useMemo(() => [styles.backButton, { top: insets.top }], [insets.top]);
 
-  const permissionsShell = useMemo(
-    () => (
-      <View style={styles.permissionsShell}>
-        {isPermissionsReady && !hasCameraAccess ? (
-          <ThemedText
-            style={styles.permissionsMessage}
-            accessibilityRole="text"
-            testID="lens-permissions-required"
-          >
-            Camera permission required
-          </ThemedText>
-        ) : null}
-        <TouchableOpacity
-          testID="lens-back-button"
-          style={backButtonStyle}
-          onPress={handleBackPress}
-        >
-          <IconSymbol
-            size={globalStyles.symbolSize}
-            color={colors.human.white}
-            name="chevron.left"
-          />
-        </TouchableOpacity>
-      </View>
-    ),
-    [backButtonStyle, handleBackPress, hasCameraAccess, isPermissionsReady]
-  );
-
   // TODO: wrap with lens provider
   return (
     <ThemedView style={styles.container}>
       <StatusBar {...statusBarProps} />
-      {hasCameraAccess ? <LensGrantedContent /> : permissionsShell}
+      {hasCameraAccess ? (
+        <LensGrantedContent />
+      ) : (
+        <View style={styles.permissionsShell}>
+          {isPermissionsReady && !hasCameraAccess ? (
+            <ThemedText
+              style={styles.permissionsMessage}
+              accessibilityRole="text"
+              testID="lens-permissions-required"
+            >
+              Camera permission required
+            </ThemedText>
+          ) : null}
+          <TouchableOpacity
+            testID="lens-back-button"
+            style={backButtonStyle}
+            onPress={handleBackPress}
+          >
+            <IconSymbol
+              size={globalStyles.symbolSize}
+              color={colors.human.white}
+              name="chevron.left"
+            />
+          </TouchableOpacity>
+        </View>
+      )}
     </ThemedView>
   );
 });
