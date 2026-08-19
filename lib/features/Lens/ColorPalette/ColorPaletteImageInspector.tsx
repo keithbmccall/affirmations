@@ -7,10 +7,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { lensPaletteConfig } from './lensPaletteConfig';
-import type {
-  InspectionAsset,
-  LensNamedColor,
-} from './types';
+import type { InspectionAsset, LensNamedColor } from './types';
 
 interface ColorPaletteImageInspectorProps {
   image: InspectionAsset;
@@ -48,10 +45,7 @@ const SwatchButton = memo(function SwatchButton({ swatch, onSelect }: SwatchButt
   const handlePress = useCallback(() => {
     onSelect(swatch);
   }, [onSelect, swatch]);
-  const swatchStyle = useMemo(
-    () => [styles.swatch, { backgroundColor: swatch.hex }],
-    [swatch.hex]
-  );
+  const swatchStyle = useMemo(() => [styles.swatch, { backgroundColor: swatch.hex }], [swatch.hex]);
 
   return <Pressable testID="lens-inspector-swatch" onPress={handlePress} style={swatchStyle} />;
 });
@@ -167,14 +161,14 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
         <Animated.View style={animatedOverlayStyle}>
           {selectedSwatch !== null && (
             <View style={styles.overlayLabels} testID="lens-inspector-overlay-labels">
-              {selectedSwatch.name !== undefined ? (
+              {pantoneLabel !== undefined ? (
                 <ThemedText
-                  testID="lens-inspector-color-name"
+                  testID="lens-inspector-color-pantone"
                   style={styles.overlayPrimaryText}
                   lightColor="#ffffff"
                   darkColor="#ffffff"
                 >
-                  {selectedSwatch.name}
+                  {pantoneLabel}
                 </ThemedText>
               ) : null}
               <ThemedText
@@ -185,14 +179,14 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
               >
                 {selectedSwatch.hex}
               </ThemedText>
-              {pantoneLabel !== undefined ? (
+              {selectedSwatch.name !== undefined ? (
                 <ThemedText
-                  testID="lens-inspector-color-pantone"
+                  testID="lens-inspector-color-name"
                   style={styles.overlaySecondaryText}
                   lightColor="#ffffff"
                   darkColor="#ffffff"
                 >
-                  {pantoneLabel}
+                  {selectedSwatch.name}
                 </ThemedText>
               ) : null}
             </View>

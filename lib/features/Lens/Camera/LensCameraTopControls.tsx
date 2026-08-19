@@ -11,8 +11,8 @@ import { globalStyles } from '@styles/globalStyles';
 import { memo } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { cameraTopControlsStyles as styles } from './cameraTopControlsStyles';
 import { useCameraSurface } from './CameraSurfaceContext';
+import { cameraTopControlsStyles as styles } from './cameraTopControlsStyles';
 import { cameraDeviceOptions, flashModeOptions, gridModeOptions } from './options';
 
 interface LensCameraTopControlsProps {
@@ -78,7 +78,7 @@ export const LensCameraTopControls = memo(function LensCameraTopControls({
           name="arrow.trianglehead.2.clockwise.rotate.90.circle"
         />
       </TouchableOpacity>
-      {showCameraDeviceToggle && (
+      {/* {showCameraDeviceToggle && (
         <TouchableOpacity
           testID="lens-control-lens-device"
           style={styles.topButton}
@@ -91,7 +91,7 @@ export const LensCameraTopControls = memo(function LensCameraTopControls({
             name="camera.aperture"
           />
         </TouchableOpacity>
-      )}
+      )} */}
       <TouchableOpacity
         testID="lens-toggle-color-lens"
         style={styles.topButton}
