@@ -1,126 +1,248 @@
 # Vision Camera v5 migration plan
 
-This document plans the upgrade from **react-native-vision-camera 4.7.0** (current) to **v5.x**. Pair this work with an Expo SDK bump, Skia stable pin, and the Android color-lens frame processor roadmap.
+This document plans the upgrade from **react-native-vision-camera 4.7.0** (current) to **v5.x**, including the **lens-point coordinate alignment** fix. Pair with feature comparison: [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md).
 
-**Official reference:** [Vision Camera v5 docs](https://visioncamera.margelo.com) — read the v5 migration guide before starting. Feature comparison vs our v4.7 usage: [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md).
+**Official reference:** [Vision Camera v5 docs](https://visioncamera.margelo.com) — read upstream migration guidance before starting.
 
-## Why migrate
+**Current app stack (verify at branch open):**
+
+| Package                      | Version       |
+| ---------------------------- | ------------- |
+| `expo`                       | 53.0.27       |
+| `react-native`               | 0.79.6        |
+| `react-native-vision-camera` | 4.7.0         |
+| `react-native-reanimated`    | 3.17.5        |
+| `react-native-worklets-core` | 1.5.0         |
+| `@shopify/react-native-skia` | v2.0.0-next.4 |
+
+---
+
+## Sequencing vs lens-point alignment
+
+**Preferred order:** fix lens-point view→frame alignment on **v4.7 first** with a cover-mode mapper (see active plan). Only then attempt this v5 upgrade.
+
+v5’s native coordinate APIs can later replace the hand-rolled mapper; they are not required to ship the alignment fix.
+
+## Why migrate (later)
 
 - v5 is the actively maintained upstream line; v4 receives fewer fixes.
-- Better alignment with New Architecture, Reanimated 3.19+, and Skia stable.
-- Unblocks coordinated upgrades (Skia 2.6.x requires Reanimated ≥3.19.1; Expo SDK 54+ is the natural window).
+- Native preview ↔ frame conversion can replace the v4 cover mapper.
+- Better alignment with New Architecture (already enabled: `newArchEnabled: true` in `app.json`).
+- Unblocks modular Skia/worklets packages and Nitro-typed frame processor plugins.
+
+## Do we need to bump Expo SDK?
+
+**No.** Stay on **Expo 53.0.27 / React Native 0.79.6**. Vision Camera 5 is not an Expo SDK package and does not require Expo 54+.
+
+Evidence:
+
+- v5 peers are `react`, `react-native`, `react-native-nitro-modules`, `react-native-nitro-image` — **not** a minimum Expo SDK.
+- Official install path is `npm i` + `npx expo prebuild` + a **dev client** rebuild (Expo Go never works).
+- Upstream issue [#3966](https://github.com/mrousavy/react-native-vision-camera/issues/3966) is an Expo-managed **RN 0.79.5** project that ran v5 after removing the leftover v4 config plugin — the failure was the plugin, not Expo 53.
+- [#3743](https://github.com/mrousavy/react-native-vision-camera/issues/3743): **downgrading to Expo 53** made v5 compile on EAS (Xcode 16.2). SDK 54 is the riskier path because EAS auto-assigns Xcode 26 beta.
+
+What _does_ need updating is **`expo-color-lens-frame-processor`**, but that is **not** an Expo SDK bump. It is a local native module whose iOS pod currently depends on `ExpoModulesCore` **and** `VisionCamera` (`FrameProcessorPluginRegistry`). For v5 those plugins must be rewritten as **Nitro** modules. The `expo-*` folder name is leftover packaging; the hard dependency is Vision Camera’s plugin API, not a newer `expo` package.
+
+Leave `expo` at 53.0.27 for this migration. Treat SDK 54 as a later, separate project.
+
+---
 
 ## Dependency matrix (verify before merge)
 
-| Package | Current | Target (verify at migration time) |
-|---------|---------|-----------------------------------|
-| `react-native-vision-camera` | 4.7.0 | 5.x per Expo / Vision Camera compatibility table |
-| `react-native-worklets-core` | 1.5.0 | Version required by Vision Camera v5 release notes |
-| `react-native-reanimated` | ~3.17.x | ≥3.19.1 (required by Skia stable; likely bundled with newer Expo) |
-| `@shopify/react-native-skia` | v2.0.0-next.4 | Stable 2.6.x after Reanimated bump |
-| `expo-color-lens-frame-processor` | local module | Rebuild Swift/Kotlin plugins against v5 JSI API |
+| Package                               | Current          | Target                                                                                            |
+| ------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------- |
+| `expo`                                | 53.0.27          | **Keep 53.0.27** — do not bump for Vision Camera 5                                                |
+| `react-native`                        | 0.79.6           | **Keep 0.79.6** (comes with SDK 53)                                                               |
+| `react-native-vision-camera`          | 4.7.0            | **5.2.x** (or latest 5.x stable)                                                                  |
+| `react-native-nitro-modules`          | —                | **Required** (core peer)                                                                          |
+| `react-native-nitro-image`            | —                | **Required** (core peer)                                                                          |
+| `react-native-vision-camera-worklets` | —                | **Required** for frame processors                                                                 |
+| `react-native-worklets`               | —                | **Required** (v5 default worklets runtime)                                                        |
+| `react-native-worklets-core`          | 1.5.0            | **Remove or keep only if a dependency still requires it** — v5 default is `react-native-worklets` |
+| `react-native-vision-camera-skia`     | —                | **Required** if v5 removes core `useSkiaFrameProcessor` (expected for Obskura)                    |
+| `react-native-reanimated`             | 3.17.5           | Keep on 3.17.x for SDK 53 path; **≥3.19.1** if bumping Skia stable + SDK 54                       |
+| `@shopify/react-native-skia`          | v2.0.0-next.4    | Optional bump with SDK 54 (stable 2.6.x); not strictly required for v5 alone                      |
+| `expo-color-lens-frame-processor`     | local iOS module | **Rewrite as v5 Nitro frame processor plugin**                                                    |
 
-Run `npx expo install react-native-vision-camera react-native-reanimated @shopify/react-native-skia react-native-worklets-core` on the target SDK and resolve peer conflicts before touching app code.
+Install sequence (upstream v5.0.0 release):
+
+```bash
+npm i react-native-nitro-modules react-native-nitro-image
+npm i react-native-vision-camera@5
+npm i react-native-vision-camera-worklets react-native-worklets
+# Obskura path (when migrating Skia preview):
+npm i react-native-vision-camera-skia
+```
+
+Then `npx expo prebuild` + `pod install` + **new dev client build** (Expo Go will not work).
+
+---
+
+## Critical config change: remove v4 Expo plugin
+
+v5 **does not ship** an Expo config plugin. **Keeping the v4 plugin breaks startup** ([issue #3966](https://github.com/mrousavy/react-native-vision-camera/issues/3966)).
+
+| File                            | Action                                                                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`app.json`](../../../app.json) | **Delete** the `"react-native-vision-camera"` entry from `expo.plugins`                                                                                 |
+| [`app.json`](../../../app.json) | **Keep** `NSCameraUsageDescription`, `NSMicrophoneUsageDescription`, Android `CAMERA` / `RECORD_AUDIO` permissions (already present outside the plugin) |
+
+Do **not** rely on the plugin for permission strings after removal — they must remain in `infoPlist` / Android permissions.
+
+---
 
 ## Files to update (app code)
 
 ### Camera orchestration
 
-| File | v4 usage today | Migration focus |
-|------|----------------|-----------------|
-| [`Camera/Camera.tsx`](Camera/Camera.tsx) | `VisionCamera` ref, `takePhoto`, `startRecording`, device/format selection, permissions | Ref types, capture APIs, format props — follow v5 breaking changes |
-| [`Camera/options.ts`](Camera/options.ts) | `PhysicalCameraDeviceType` | Confirm enum / type re-exports |
-| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx) | `useFrameProcessor`, `Reanimated.createAnimatedComponent(VisionCamera)` | Frame processor deps array, animated camera wrapper |
-| [`Obskura/ObskuraCameraSurface.tsx`](Obskura/ObskuraCameraSurface.tsx) | `useSkiaFrameProcessor`, FPS cap, format templates | Skia frame processor API changes |
-| [`Camera/hooks/useCameraFocus.ts`](Camera/hooks/useCameraFocus.ts) | `Camera` ref, `focus()` | Ref / method signatures |
-| [`Camera/hooks/useLensPermissions.ts`](Camera/hooks/useLensPermissions.ts) | `Camera.getCameraPermissionStatus()` etc. | Permission API renames if any |
+| File                                                                       | v4 usage today                                           | Migration focus                                                                           |
+| -------------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`Camera/Camera.tsx`](Camera/Camera.tsx)                                   | Viewport tap gesture → `useCameraFocus`                  | May use v5 `focusTo` / preview metering APIs later; keep tap-to-focus behavior            |
+| [`Camera/CameraBottomControls.tsx`](Camera/CameraBottomControls.tsx)       | `cameraRef.takePhoto`, `startRecording`, `stopRecording` | **`usePhotoOutput` / `useVideoOutput`**; write `Photo` to cache before `createAssetAsync` |
+| [`Camera/CameraSurfaceContext.tsx`](Camera/CameraSurfaceContext.tsx)       | `cameraRef`, `useCameraDevice`                           | Hold output refs; expose photo/video outputs to bottom controls                           |
+| [`Camera/options.ts`](Camera/options.ts)                                   | `PhysicalCameraDeviceType`                               | Confirm type re-exports on v5 `CameraDevice`                                              |
+| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)             | `useFrameProcessor`, draggable lens-point shared values  | **`useFrameOutput`**; **view → frame coordinate conversion** before region plugin call    |
+| [`Obskura/ObskuraCameraSurface.tsx`](Obskura/ObskuraCameraSurface.tsx)     | `useSkiaFrameProcessor`, `useCameraFormat`, `Templates`  | **`react-native-vision-camera-skia`** + **Constraints API**                               |
+| [`Camera/hooks/useCameraFocus.ts`](Camera/hooks/useCameraFocus.ts)         | `cameraRef.focus({ x, y })`                              | Verify v5 focus API on preview ref / controller                                           |
+| [`Camera/hooks/useLensPermissions.ts`](Camera/hooks/useLensPermissions.ts) | `useCameraPermission`, `useMicrophonePermission`         | Hooks unchanged in spirit — **not** `Camera.getCameraPermissionStatus()`                  |
+
+### Lens point coordinate fix (within v5 migration)
+
+**Problem:** Indicator uses view-normalized coords; plugin samples full frame buffer under `resizeMode="cover"`.
+
+**Fix (after v5):** In the lens-point frame output handler ([`LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)):
+
+1. Read view point from shared values: `{ x: centerX * viewportWidth, y: centerY * viewportHeight }`
+2. `cameraPoint = preview.convertViewPointToCameraPoint(viewPoint)`
+3. `framePoint = frame.convertCameraPointToFramePoint(cameraPoint)`
+4. Pass `framePoint.x / frame.width`, `framePoint.y / frame.height` to `getColorLensRegionWorklet`
+
+**Shared viewport size:** lift `viewportWidth` / `viewportHeight` shared values to `LensCameraSurface` (single source for indicator + frame handler).
+
+**Worklet callability:** If preview conversion is not callable from the frame worklet, cache `cameraPoint` on drag/layout via `runOnJS` and only run step 3 inside the frame handler.
+
+**v4 interim (if v5 blocked):** implement cover-mode mapper in [`lensPointSampleRegion.ts`](Camera/lensPointSampleRegion.ts) — fixes alignment without full migration.
 
 ### Color lens frame processors
 
-| File | Role |
-|------|------|
-| [`ColorPalette/getColorLensPalette.ts`](ColorPalette/getColorLensPalette.ts) | `VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette')` |
-| [`ColorPalette/colorLensRegionFrameProcessorPlugin.ts`](ColorPalette/colorLensRegionFrameProcessorPlugin.ts) | Region plugin init |
-| [`ColorPalette/getColorLensRegion.ts`](ColorPalette/getColorLensRegion.ts) | Region worklet entry |
-| [`ColorPalette/useColorLensPalette.ts`](ColorPalette/useColorLensPalette.ts) | `Worklets.createRunOnJS` bridge from frame thread |
-| [`ColorPalette/useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts) | Region state + worklet |
+| File                                                                                                         | Role                                                                   |
+| ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| [`ColorPalette/getColorLensPalette.ts`](ColorPalette/getColorLensPalette.ts)                                 | v4 `VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette')` |
+| [`ColorPalette/colorLensRegionFrameProcessorPlugin.ts`](ColorPalette/colorLensRegionFrameProcessorPlugin.ts) | Region plugin init                                                     |
+| [`ColorPalette/getColorLensRegion.ts`](ColorPalette/getColorLensRegion.ts)                                   | Region worklet entry                                                   |
+| [`ColorPalette/useColorLensPalette.ts`](ColorPalette/useColorLensPalette.ts)                                 | `Worklets.createRunOnJS` bridge                                        |
+| [`ColorPalette/useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts)                                   | Region color shared value                                              |
 
-Re-run all ColorPalette and `LensCameraSurface` specs after plugin registration changes.
+Re-run all ColorPalette and Lens camera specs after plugin registration changes.
 
 ### Native local module
 
-| Path | Action |
-|------|--------|
-| [`modules/expo-color-lens-frame-processor/`](../../../modules/expo-color-lens-frame-processor/) | Update iOS Swift frame processor to v5 plugin API; add Android implementation (roadmap item) |
-| [`modules/expo-color-lens-frame-processor/package.json`](../../../modules/expo-color-lens-frame-processor/package.json) | Tighten `peerDependencies` to tested Vision Camera range |
+| Path                                                                                                                    | Action                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| [`modules/expo-color-lens-frame-processor/`](../../../modules/expo-color-lens-frame-processor/)                         | Rewrite iOS plugins as **v5 Nitro** frame processor modules (replace `FrameProcessorPluginRegistry` in `.m` files) |
+| [`modules/expo-color-lens-frame-processor/package.json`](../../../modules/expo-color-lens-frame-processor/package.json) | Add `react-native-nitro-modules` peer; tighten Vision Camera peer to `>=5`                                         |
+| Android                                                                                                                 | Still **out of scope** unless adding Kotlin plugin in same effort                                                  |
 
-After native changes: `npm run recharge` (prebuild + pods).
+After native changes: `npm run recharge` (prebuild + pods) + rebuild dev client.
 
-### Config
+### Babel / worklets
 
-| File | Action |
-|------|--------|
-| [`app.json`](../../../app.json) | Vision Camera config plugin block — permission strings, microphone |
-| [`babel.config.js`](../../../babel.config.js) | Confirm worklets-core + reanimated plugins order unchanged |
+| File                                          | Action                                                                                                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`babel.config.js`](../../../babel.config.js) | Replace `react-native-worklets-core/plugin` with **`react-native-worklets/plugin`** per v5 install docs; keep **`react-native-reanimated/plugin` last** |
+
+---
 
 ## Test and mock updates
 
-| File | Action |
-|------|--------|
-| [`lib/testing/getObskuraVisionCameraJestMock.ts`](../../testing/getObskuraVisionCameraJestMock.ts) | Mirror v5 exports: `Camera`, `useCameraFormat`, `useSkiaFrameProcessor`, `Templates` |
-| [`Camera/Camera.spec.tsx`](Camera/Camera.spec.tsx) | Full capture / navigation / alert flows |
-| [`Camera/LensCameraSurface.spec.tsx`](Camera/LensCameraSurface.spec.tsx) | Frame processor throttle, plugin wiring |
-| [`Obskura/ObskuraCameraSurface.spec.tsx`](Obskura/ObskuraCameraSurface.spec.tsx) | FPS, format, Skia processor mount |
-| [`Camera/hooks/useCameraFocus.spec.ts`](Camera/hooks/useCameraFocus.spec.ts) | Focus animation + `runOnJS` |
-| [`Camera/hooks/useLensPermissions.spec.ts`](Camera/hooks/useLensPermissions.spec.ts) | Permission alerts |
+| File                                                                                               | Action                                                                                                                              |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| [`lib/testing/getObskuraVisionCameraJestMock.ts`](../../testing/getObskuraVisionCameraJestMock.ts) | Mirror v5: `usePhotoOutput`, `useVideoOutput`, `useFrameOutput`, `constraints`; drop `useCameraFormat` / `Templates` unless shimmed |
+| [`Camera/Camera.spec.tsx`](Camera/Camera.spec.tsx)                                                 | Capture via photo/video outputs; mock coordinate conversion if tested                                                               |
+| [`Camera/CameraBottomControls.spec.tsx`](Camera/CameraBottomControls.spec.tsx)                     | `capturePhoto` instead of `takePhoto`                                                                                               |
+| [`Camera/LensCameraSurface.spec.tsx`](Camera/LensCameraSurface.spec.tsx)                           | Frame output handler; assert region plugin receives **converted** frame coords                                                      |
+| [`Obskura/ObskuraCameraSurface.spec.tsx`](Obskura/ObskuraCameraSurface.spec.tsx)                   | Skia package + constraints                                                                                                          |
+| [`Camera/hooks/useCameraFocus.spec.ts`](Camera/hooks/useCameraFocus.spec.ts)                       | Focus API signatures                                                                                                                |
+| [`Camera/hooks/useLensPermissions.spec.ts`](Camera/hooks/useLensPermissions.spec.ts)               | Permission hooks                                                                                                                    |
 
-**Coverage gate:** `npm run test:coverage:lens` must stay at 100% on the configured Lens files.
+**Coverage gate:** `npm run test:coverage:lens` must stay at 100% on configured Lens files.
+
+---
 
 ## Suggested migration sequence
 
 ```mermaid
 flowchart TD
-  A[Expo SDK bump branch] --> B[expo install camera stack]
-  B --> C[Native module plugin rebuild]
-  C --> D[Update Camera surfaces + hooks]
-  D --> E[Update Jest mocks]
-  E --> F[test:coverage:lens + manual QA]
-  F --> G{iOS color lens OK?}
-  G -->|yes| H[Android color lens plugin]
-  G -->|no| D
-  H --> I[Ship dev client + EAS build]
+  A[Branch: vision-camera-v5] --> B[Remove app.json v4 plugin]
+  B --> C[Add nitro + worklets deps]
+  C --> D[Update babel.config.js]
+  D --> E[Rebuild expo-color-lens-frame-processor Nitro plugins]
+  E --> F[prebuild + pod install + dev client]
+  F --> G[Migrate outputs + constraints in surfaces]
+  G --> H[Migrate CameraBottomControls capture]
+  H --> I[Wire lens-point coord conversion]
+  I --> J[Update Jest mocks + specs]
+  J --> K[test:coverage:lens + device QA]
+  K --> L{v5 stable on device?}
+  L -->|no| M[v4 cover mapper interim OR fix blockers]
+  L -->|yes| N[EAS build + SDK 54 evaluation]
 ```
 
-1. Create branch from planned Expo SDK upgrade (do not mix with unrelated features).
-2. Bump Vision Camera, Reanimated, worklets-core, Skia via `expo install`.
-3. Rebuild `expo-color-lens-frame-processor` native code; run on iOS device (simulator may not exercise frame processors fully).
-4. Fix TypeScript and test failures file-by-file (orchestration → surfaces → plugins).
-5. Manual QA checklist:
-   - Lens mode: live palette, photo capture with palette save, video long-press (Lens only, color lens off).
-   - Obskura: live preview at reduced FPS, still export via Skia pipeline.
-   - Tap-to-focus, flash, grid, device flip, camera roll thumbnail refresh.
-6. Run `npm run test:coverage:affirmations` if notification paths touched.
+### Phase checklist
+
+1. **Prep** — Remove v4 Expo plugin; add Nitro/worklets packages; update Babel.
+2. **Native plugins** — Rewrite `getColorLensPalette` + `getColorLensRegion` as Nitro modules; device-test on iOS.
+3. **Camera surfaces** — Constraints + outputs on Lens and Obskura surfaces; migrate Skia to optional package.
+4. **Capture path** — `CameraBottomControls` uses photo/video outputs; persist `Photo` to file for `createAssetAsync`.
+5. **Lens point coords** — View → camera → frame conversion in frame output handler; verify indicator tracks sampled color at center and corners.
+6. **Tests** — Mocks + 100% Lens coverage gate.
+7. **QA** — Manual device checklist (below).
+8. **Follow-ups** — Android color lens plugin; SDK 54/EAS when Xcode image stable.
+
+### Manual QA checklist
+
+- Lens mode, color lens off: photo + video long-press capture.
+- Lens dominant mode: live palette + photo saves palette.
+- Lens point mode: draggable indicator; **sampled color matches ring position** at center, edges, corners; tap elsewhere focuses without moving indicator.
+- Obskura: live filtered preview at reduced FPS; still export via Skia pipeline.
+- Tap-to-focus, flash, grid, flip, lens device toggle, camera roll thumbnail refresh.
+- Lens ↔ Obskura view mode toggle (no crash; Skia paint dispose).
+
+---
 
 ## Risks and mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Frame processor closure deps | Audit `useFrameProcessor` / `useSkiaFrameProcessor` dependency arrays per Vision Camera v5 guidance (known Lens README item) |
-| Skia paint lifecycle | Keep [`scheduleDeferredSkPaintDispose.ts`](Obskura/scheduleDeferredSkPaintDispose.ts) behavior; retest mode toggles Lens ↔ Obskura |
-| Plugin name drift | Grep for `initFrameProcessorPlugin` strings; match native registrar names exactly |
-| Dev client required | Document in PR; Expo Go will not validate this path |
+| Risk                                        | Mitigation                                                                                                                 |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| v4 Expo plugin left in `app.json`           | Delete plugin block first; document in PR                                                                                  |
+| Nitro plugin rewrite blocks entire upgrade  | Time-box native work; fall back to v4 cover mapper for coords only                                                         |
+| EAS SDK 54 + Xcode 26 beta compile failures | Stay on SDK 53 for first v5 merge; track [issue #3743](https://github.com/mrousavy/react-native-vision-camera/issues/3743) |
+| Frame processor closure deps                | Audit frame output handler deps per v5 guidance                                                                            |
+| Skia paint lifecycle                        | Keep [`scheduleDeferredSkPaintDispose.ts`](Obskura/scheduleDeferredSkPaintDispose.ts); retest mode toggles                 |
+| Preview conversion not in worklet           | Split: JS updates cameraPoint shared value; worklet only converts camera → frame                                           |
+| Plugin name drift                           | Grep `initFrameProcessorPlugin` / Nitro registrar names; match exactly                                                     |
+| Dev client required                         | Document in PR; Expo Go invalid                                                                                            |
+
+---
 
 ## Out of scope for this migration
 
+- Android `getColorLensRegion` / `getColorLensPalette` native plugins (track separately).
 - Replacing Context + reducers with Zustand.
-- MMKV / SQLite (see [`lib/storage/storage.ts`](../../storage/storage.ts) persistence note).
-- FlashList changes (already on v2).
+- MMKV / SQLite storage migration.
+- FlashList changes.
+
+---
 
 ## Definition of done
 
-- [ ] `react-native-vision-camera` at 5.x on target Expo SDK
+- [ ] `react-native-vision-camera` at 5.x; Nitro + worklets deps installed
+- [ ] v4 Expo config plugin **removed** from `app.json`
+- [ ] `expo-color-lens-frame-processor` rebuilt as v5 Nitro plugins (iOS)
+- [ ] Lens + Obskura surfaces use outputs + constraints
+- [ ] Capture/recording migrated off `cameraRef.takePhoto` / `startRecording`
+- [ ] Lens point indicator aligned with sampled region (coordinate conversion wired)
 - [ ] All Lens unit tests + `test:coverage:lens` pass
-- [ ] iOS color lens frame processor works on device
-- [ ] Obskura live preview + still export on iOS and Android
+- [ ] iOS device QA passes manual checklist
 - [ ] [`lib/features/Lens/README.md`](README.md) Installed versions table updated
 - [ ] Android color lens plugin tracked as follow-up if not in same PR
