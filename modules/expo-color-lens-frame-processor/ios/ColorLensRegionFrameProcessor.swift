@@ -35,43 +35,6 @@ public class ColorLensRegionFrameProcessorPlugin: FrameProcessorPlugin {
     histogram = Array(repeating: 0, count: MMCQ.histogramSize)
   }
 
-  private func cropToRegion(
-    _ ciImage: CIImage,
-    centerX: CGFloat,
-    centerY: CGFloat,
-    radius: CGFloat
-  ) -> CIImage {
-    let extent = ciImage.extent
-    let shortSide = min(extent.width, extent.height)
-    let radiusPx = radius * shortSide
-    let cropRect = CGRect(
-      x: centerX * extent.width - radiusPx,
-      y: centerY * extent.height - radiusPx,
-      width: radiusPx * 2,
-      height: radiusPx * 2
-    ).intersection(extent)
-
-    guard !cropRect.isNull, cropRect.width > 0, cropRect.height > 0 else {
-      return ciImage
-    }
-
-    return ciImage.cropped(to: cropRect)
-  }
-
-  private func downsampleImage(_ ciImage: CIImage) -> CIImage {
-    let extent = ciImage.extent
-    let width = extent.width
-    let height = extent.height
-
-    if width <= maxImageSize && height <= maxImageSize {
-      return ciImage
-    }
-
-    let scale = min(maxImageSize / width, maxImageSize / height)
-    let transform = CGAffineTransform(scaleX: scale, y: scale)
-    return ciImage.transformed(by: transform)
-  }
-
   @discardableResult
   private func makeBytesOptimized(from image: UIImage) -> Bool {
     guard let cgImage = image.cgImage else { return false }
@@ -158,27 +121,16 @@ public class ColorLensRegionFrameProcessorPlugin: FrameProcessorPlugin {
   }
 
   private func normalizedCGFloat(from value: Any?) -> CGFloat? {
-    if let number = value as? NSNumber {
-      return CGFloat(number.doubleValue)
-    }
-    if let doubleValue = value as? Double {
-      return CGFloat(doubleValue)
-    }
-    if let floatValue = value as? Float {
-      return CGFloat(floatValue)
-    }
-    if let intValue = value as? Int {
-      return CGFloat(intValue)
-    }
-    return nil
+    ColorLensImagePipeline.normalizedCGFloat(from: value)
   }
 
   @objc
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) -> Any? {
     guard let centerX = normalizedCGFloat(from: arguments?["centerX"]),
           let centerY = normalizedCGFloat(from: arguments?["centerY"]),
-          let radius = normalizedCGFloat(from: arguments?["radius"]) else {
-      return nil
+          let radius = normalizedCGFloat(from: arguments?["radius"]),
+          let previewContext = ColorLensPreviewContext(frame: frame, arguments: arguments) else {
+      return previousColor
     }
 
     let currentTime = CACurrentMediaTime()
@@ -192,8 +144,21 @@ public class ColorLensRegionFrameProcessorPlugin: FrameProcessorPlugin {
     }
 
     let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-    let croppedImage = cropToRegion(ciImage, centerX: centerX, centerY: centerY, radius: radius)
-    let downsampledImage = downsampleImage(croppedImage)
+
+    guard let previewAlignedImage = ColorLensImagePipeline.makePreviewAlignedImage(
+      from: ciImage,
+      context: previewContext
+    ),
+      let croppedImage = ColorLensImagePipeline.cropPointRegion(
+        on: previewAlignedImage,
+        centerX: centerX,
+        centerY: centerY,
+        radius: radius
+      ) else {
+      return previousColor
+    }
+
+    let downsampledImage = ColorLensImagePipeline.downsampleForMMCQ(croppedImage, maxSide: maxImageSize)
 
     guard let cgImage = Self.context.createCGImage(downsampledImage, from: downsampledImage.extent) else {
       return previousColor

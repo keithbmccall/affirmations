@@ -19,14 +19,14 @@ This document plans the upgrade from **react-native-vision-camera 4.7.0** (curre
 
 ## Sequencing vs lens-point alignment
 
-**Preferred order:** fix lens-point view→frame alignment on **v4.7 first** with a cover-mode mapper (see active plan). Only then attempt this v5 upgrade.
+**Preferred order:** fix preview-aligned sampling on **v4.7 first** with shared native **`ColorLensImagePipeline`** (cover, orientation, mirror in Swift). Only then attempt this v5 upgrade.
 
-v5’s native coordinate APIs can later replace the hand-rolled mapper; they are not required to ship the alignment fix.
+v5’s native coordinate APIs can later replace the Swift cover math; they are not required to ship the alignment fix.
 
 ## Why migrate (later)
 
 - v5 is the actively maintained upstream line; v4 receives fewer fixes.
-- Native preview ↔ frame conversion can replace the v4 cover mapper.
+- Native preview ↔ frame conversion can replace the v4 Swift cover pipeline.
 - Better alignment with New Architecture (already enabled: `newArchEnabled: true` in `app.json`).
 - Unblocks modular Skia/worklets packages and Nitro-typed frame processor plugins.
 
@@ -101,7 +101,7 @@ Do **not** rely on the plugin for permission strings after removal — they must
 | [`Camera/CameraBottomControls.tsx`](Camera/CameraBottomControls.tsx)       | `cameraRef.takePhoto`, `startRecording`, `stopRecording` | **`usePhotoOutput` / `useVideoOutput`**; write `Photo` to cache before `createAssetAsync` |
 | [`Camera/CameraSurfaceContext.tsx`](Camera/CameraSurfaceContext.tsx)       | `cameraRef`, `useCameraDevice`                           | Hold output refs; expose photo/video outputs to bottom controls                           |
 | [`Camera/options.ts`](Camera/options.ts)                                   | `PhysicalCameraDeviceType`                               | Confirm type re-exports on v5 `CameraDevice`                                              |
-| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)             | `useFrameProcessor`, draggable lens-point shared values  | **`useFrameOutput`**; **view → frame coordinate conversion** before region plugin call    |
+| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)             | `useFrameProcessor`, fixed-center lens-point sampling  | **`useFrameOutput`**; viewport size + native preview-aligned pipeline (v5 coord APIs optional later)    |
 | [`Obskura/ObskuraCameraSurface.tsx`](Obskura/ObskuraCameraSurface.tsx)     | `useSkiaFrameProcessor`, `useCameraFormat`, `Templates`  | **`react-native-vision-camera-skia`** + **Constraints API**                               |
 | [`Camera/hooks/useCameraFocus.ts`](Camera/hooks/useCameraFocus.ts)         | `cameraRef.focus({ x, y })`                              | Verify v5 focus API on preview ref / controller                                           |
 | [`Camera/hooks/useLensPermissions.ts`](Camera/hooks/useLensPermissions.ts) | `useCameraPermission`, `useMicrophonePermission`         | Hooks unchanged in spirit — **not** `Camera.getCameraPermissionStatus()`                  |
@@ -121,7 +121,7 @@ Do **not** rely on the plugin for permission strings after removal — they must
 
 **Worklet callability:** If preview conversion is not callable from the frame worklet, cache `cameraPoint` on drag/layout via `runOnJS` and only run step 3 inside the frame handler.
 
-**v4 interim (if v5 blocked):** implement cover-mode mapper in [`lensPointSampleRegion.ts`](Camera/lensPointSampleRegion.ts) — fixes alignment without full migration.
+**v4 (current):** shared native [`ColorLensImagePipeline`](../../../modules/expo-color-lens-frame-processor/ios/ColorLensImagePipeline.swift) — preview-visible crop before MMCQ; JS passes viewport dimensions only.
 
 ### Color lens frame processors
 
@@ -184,7 +184,7 @@ flowchart TD
   I --> J[Update Jest mocks + specs]
   J --> K[test:coverage:lens + device QA]
   K --> L{v5 stable on device?}
-  L -->|no| M[v4 cover mapper interim OR fix blockers]
+  L -->|no| M[v4 native pipeline fixes OR fix blockers]
   L -->|yes| N[EAS build + SDK 54 evaluation]
 ```
 
@@ -203,7 +203,7 @@ flowchart TD
 
 - Lens mode, color lens off: photo + video long-press capture.
 - Lens dominant mode: live palette + photo saves palette.
-- Lens point mode: draggable indicator; **sampled color matches ring position** at center, edges, corners; tap elsewhere focuses without moving indicator.
+- Lens point mode: fixed-center indicator; **sampled color matches object at screen center** (back + front camera); movable drag deferred to a later project.
 - Obskura: live filtered preview at reduced FPS; still export via Skia pipeline.
 - Tap-to-focus, flash, grid, flip, lens device toggle, camera roll thumbnail refresh.
 - Lens ↔ Obskura view mode toggle (no crash; Skia paint dispose).
@@ -215,7 +215,7 @@ flowchart TD
 | Risk                                        | Mitigation                                                                                                                 |
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | v4 Expo plugin left in `app.json`           | Delete plugin block first; document in PR                                                                                  |
-| Nitro plugin rewrite blocks entire upgrade  | Time-box native work; fall back to v4 cover mapper for coords only                                                         |
+| Nitro plugin rewrite blocks entire upgrade  | Time-box native work; v4 Swift pipeline already handles preview alignment                                                  |
 | EAS SDK 54 + Xcode 26 beta compile failures | Stay on SDK 53 for first v5 merge; track [issue #3743](https://github.com/mrousavy/react-native-vision-camera/issues/3743) |
 | Frame processor closure deps                | Audit frame output handler deps per v5 guidance                                                                            |
 | Skia paint lifecycle                        | Keep [`scheduleDeferredSkPaintDispose.ts`](Obskura/scheduleDeferredSkPaintDispose.ts); retest mode toggles                 |

@@ -13,7 +13,7 @@ import {
   COLOR_LENS_REGION_TARGET_FPS,
   LensCameraSurface,
 } from './LensCameraSurface';
-import { LENS_POINT_SAMPLE_RADIUS } from './lensPointSampleRegion';
+import { LENS_POINT_REGION } from './lensPointSampleRegion';
 import { CAMERA_VIEW_MODE } from './options';
 
 const mockPalette = {
@@ -213,6 +213,20 @@ describe('LensCameraSurface', () => {
     expect(mockGetColorLensRegionWorklet).not.toHaveBeenCalled();
   });
 
+  it('passes resizeMode cover to the camera', () => {
+    renderLensSurface();
+
+    expect(lastCameraProps?.resizeMode).toBe('cover');
+  });
+
+  it('calls getColorLensPaletteWorklet in lens-dominant mode with viewport dimensions', () => {
+    mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
+
+    renderLensSurface();
+
+    expect(mockGetColorLensPaletteWorklet).toHaveBeenCalledWith({}, { viewportWidth: 0, viewportHeight: 0 });
+  });
+
   it('does not call getColorLensRegionWorklet in lens-dominant mode', () => {
     mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
 
@@ -230,7 +244,13 @@ describe('LensCameraSurface', () => {
     expect(mockGetColorLensPaletteWorklet).not.toHaveBeenCalled();
     expect(mockGetColorLensRegionWorklet).toHaveBeenCalledWith(
       {},
-      { centerX: 0.5, centerY: 0.5, radius: LENS_POINT_SAMPLE_RADIUS }
+      {
+        centerX: 0.5,
+        centerY: 0.5,
+        radius: LENS_POINT_REGION.sampleRadius,
+        viewportWidth: 0,
+        viewportHeight: 0,
+      }
     );
   });
 

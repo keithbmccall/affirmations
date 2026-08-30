@@ -12,12 +12,20 @@ export interface ColorLensPaletteType {
   detail: string;
 }
 
+export interface ColorLensPaletteOptions {
+  viewportWidth: number;
+  viewportHeight: number;
+}
+
 const plugin = VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette', {});
 
-export function getColorLensPalette(frame: Frame): ColorLensPaletteType | null {
+export function getColorLensPalette(
+  frame: Frame,
+  options: ColorLensPaletteOptions
+): ColorLensPaletteType | null {
   'worklet';
   if (plugin === null || plugin === undefined) {
     throw new Error('Failed to load Frame Processor Plugin!');
   }
-  return plugin.call(frame) as unknown as ColorLensPaletteType | null;
+  return plugin.call(frame, options as unknown as Record<string, number>) as unknown as ColorLensPaletteType | null;
 }

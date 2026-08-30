@@ -161,21 +161,7 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
   
   // Downsample image for better performance
   private func downsampleImage(_ ciImage: CIImage) -> CIImage {
-    let extent = ciImage.extent
-    let width = extent.width
-    let height = extent.height
-    
-    // Only downsample if image is larger than max size
-    if width <= maxImageSize && height <= maxImageSize {
-      return ciImage
-    }
-    
-    // Calculate scale factor
-    let scale = min(maxImageSize / width, maxImageSize / height)
-    
-    // Create transform for downsampling
-    let transform = CGAffineTransform(scaleX: scale, y: scale)
-    return ciImage.transformed(by: transform)
+    ColorLensImagePipeline.downsampleForMMCQ(ciImage, maxSide: maxImageSize)
   }
   
   @objc
@@ -186,6 +172,10 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
       return previousColors.isEmpty ? nil : previousColors // Return cached result
     }
     lastProcessTime = currentTime
+
+    guard let previewContext = ColorLensPreviewContext(frame: frame, arguments: arguments) else {
+      return previousColors.isEmpty ? nil : previousColors
+    }
     
     // Extract image buffer from frame
     guard let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer) else {
@@ -194,9 +184,16 @@ public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
     
     // Create CIImage from buffer - this is lightweight
     let ciImage = CIImage(cvPixelBuffer: imageBuffer)
+
+    guard let previewAlignedImage = ColorLensImagePipeline.makePreviewAlignedImage(
+      from: ciImage,
+      context: previewContext
+    ) else {
+      return previousColors.isEmpty ? nil : previousColors
+    }
     
     // Downsample image for better performance
-    let downsampledImage = downsampleImage(ciImage)
+    let downsampledImage = downsampleImage(previewAlignedImage)
     
     // Convert to CGImage for processing
     guard let cgImage = Self.context.createCGImage(downsampledImage, from: downsampledImage.extent) else {

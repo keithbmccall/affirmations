@@ -15,6 +15,8 @@ const regionOptions = {
   centerX: 0.5,
   centerY: 0.5,
   radius: 0.15,
+  viewportWidth: 390,
+  viewportHeight: 844,
 };
 
 describe('getColorLensRegion', () => {

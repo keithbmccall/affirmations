@@ -5,6 +5,8 @@ export interface ColorLensRegionOptions {
   centerX: number;
   centerY: number;
   radius: number;
+  viewportWidth: number;
+  viewportHeight: number;
 }
 
 export function getColorLensRegion(

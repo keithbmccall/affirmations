@@ -1,17 +1,21 @@
 import { useAnimatedColor } from '@features/Lens/ColorPalette/useAnimatedColor';
+import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { LayoutChangeEvent, LayoutRectangle, StyleSheet, View } from 'react-native';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
-import { getRegionDiameter } from './lensPointSampleRegion';
+import {
+  getRegionDiameter,
+  getRegionHaloDiameter,
+  LENS_POINT_REGION,
+} from './lensPointSampleRegion';
 
 interface LensColorRegionIndicatorProps {
   color: SharedValue<string>;
   animationDuration: number;
 }
 
-const HAIR_THICKNESS = 0.5;
 const INITIAL_LAYOUT: LayoutRectangle = { x: 0, y: 0, width: 0, height: 0 };
 
 export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
@@ -25,14 +29,33 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
   }, []);
 
   const diameter = getRegionDiameter(layoutSize);
+  const haloDiameter = getRegionHaloDiameter(layoutSize);
 
   const circleStyle = useMemo(
     () => ({
       width: diameter,
       height: diameter,
       borderRadius: diameter / 2,
+      borderWidth: LENS_POINT_REGION.innerBorderWidth,
     }),
     [diameter]
+  );
+
+  const haloStyle = useMemo(
+    () => ({
+      borderRadius: haloDiameter / 2,
+      borderWidth: LENS_POINT_REGION.haloBorderWidth,
+      opacity: LENS_POINT_REGION.haloBorderOpacity,
+    }),
+    [haloDiameter]
+  );
+
+  const ringsHostStyle = useMemo(
+    () => ({
+      width: haloDiameter,
+      height: haloDiameter,
+    }),
+    [haloDiameter]
   );
 
   const animatedColor = useAnimatedColor(color, animationDuration);
@@ -42,11 +65,20 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
     }),
     [animatedColor]
   );
-  const animatedHairStyle = useAnimatedStyle(
-    () => ({
-      backgroundColor: animatedColor.value as string,
-    }),
-    [animatedColor]
+
+  const ringsHostCombinedStyle = useMemo(
+    () => [styles.ringsHost, ringsHostStyle],
+    [ringsHostStyle]
+  );
+
+  const haloCombinedStyle = useMemo(
+    () => [styles.haloRing, StyleSheet.absoluteFillObject, haloStyle, animatedBorderStyle],
+    [animatedBorderStyle, haloStyle]
+  );
+
+  const innerCombinedStyle = useMemo(
+    () => [styles.circle, circleStyle, animatedBorderStyle],
+    [animatedBorderStyle, circleStyle]
   );
 
   return (
@@ -57,19 +89,16 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
       onLayout={handleLayout}
     >
       {diameter > 0 ? (
-        <Reanimated.View
-          testID="lens-color-region-indicator"
-          style={[styles.circle, circleStyle, animatedBorderStyle]}
-        >
+        <View testID="lens-color-region-rings-host" style={ringsHostCombinedStyle}>
           <Reanimated.View
-            testID="lens-color-region-hair-h"
-            style={[styles.hairHorizontal, animatedHairStyle]}
+            testID="lens-color-region-halo"
+            style={haloCombinedStyle}
           />
           <Reanimated.View
-            testID="lens-color-region-hair-v"
-            style={[styles.hairVertical, animatedHairStyle]}
+            testID="lens-color-region-indicator"
+            style={innerCombinedStyle}
           />
-        </Reanimated.View>
+        </View>
       ) : null}
     </View>
   );
@@ -81,20 +110,14 @@ const styles = StyleSheet.create({
     ...globalStyles.flexCenter,
     zIndex: 5,
   },
-  circle: {
+  ringsHost: {
+    ...globalStyles.relative,
     ...globalStyles.flexCenter,
-    backgroundColor: 'transparent',
-    borderWidth: 7,
-    overflow: 'hidden',
   },
-  hairHorizontal: {
-    ...globalStyles.absolute,
-    width: '100%',
-    height: HAIR_THICKNESS,
+  haloRing: {
+    backgroundColor: colors.human.transparent,
   },
-  hairVertical: {
-    ...globalStyles.absolute,
-    height: '100%',
-    width: HAIR_THICKNESS,
+  circle: {
+    backgroundColor: colors.human.transparent,
   },
 });
