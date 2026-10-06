@@ -9,27 +9,24 @@ import { scheduleDeferredSkPaintDispose } from '@features/Lens/Obskura/scheduleD
 import { globalStyles } from '@styles/globalStyles';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Reanimated from 'react-native-reanimated';
 import {
-  CameraDevice,
-  Templates,
-  useCameraFormat,
-  useSkiaFrameProcessor,
-  Camera as VisionCamera,
+  CommonResolutions,
+  type CameraDevice,
+  type CameraPhotoOutput,
+  type CameraRef,
+  type Constraint,
+  type Frame,
 } from 'react-native-vision-camera';
-
-const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
-Reanimated.addWhitelistedNativeProps({
-  isActive: true,
-});
+import { SkiaCamera, type SkiaCameraRef, type SkiaOnFrameState } from 'react-native-vision-camera-skia';
 
 const OBSKURA_FPS = 15;
 
 interface ObskuraCameraPreviewProps {
-  cameraRef: React.RefObject<VisionCamera | null>;
+  cameraRef: React.RefObject<CameraRef | null>;
   device: CameraDevice;
   isActive: boolean;
   colorMode: ObskuraColorMode;
+  photoOutput: CameraPhotoOutput;
 }
 
 const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
@@ -37,13 +34,8 @@ const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
   device,
   isActive,
   colorMode,
+  photoOutput,
 }: ObskuraCameraPreviewProps) {
-  const formatFilters = useMemo(
-    () => [{ fps: OBSKURA_FPS }, ...Templates.FrameProcessing, { photoResolution: 'max' as const }],
-    []
-  );
-  const format = useCameraFormat(device, formatFilters);
-
   const lensPaint = useMemo(
     () => buildObskuraLensPaintFromPipeline(OBSKURA_LENS_PIPELINE, { colorMode }),
     [colorMode]
@@ -57,31 +49,41 @@ const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
     };
   }, [lensPaint]);
 
-  const frameProcessor = useSkiaFrameProcessor(
-    frame => {
+  const constraints = useMemo(
+    (): Constraint[] => [{ fps: OBSKURA_FPS }, { resolutionBias: photoOutput }],
+    [photoOutput]
+  );
+
+  const outputs = useMemo(() => [photoOutput], [photoOutput]);
+
+  const onFrame = useCallback(
+    (frame: Frame, render: (onDraw: (state: SkiaOnFrameState) => void) => void) => {
       'worklet';
-      /* istanbul ignore next -- frame.render runs on device only */
-      frame.render(lensPaint);
+      /* istanbul ignore next -- Skia render runs on device only */
+      render(({ canvas, frameTexture }) => {
+        canvas.drawImage(frameTexture, 0, 0, lensPaint);
+      });
+      frame.dispose();
     },
     [lensPaint]
   );
 
   return (
-    <ReanimatedCamera
-      ref={cameraRef}
+    <SkiaCamera
+      ref={cameraRef as React.RefObject<SkiaCameraRef | null>}
       style={StyleSheet.absoluteFill}
       device={device}
       isActive={isActive}
-      format={format}
-      photo
-      frameProcessor={isActive ? frameProcessor : undefined}
-      fps={OBSKURA_FPS}
+      outputs={outputs}
+      constraints={constraints}
+      targetResolution={CommonResolutions.FHD_16_9}
+      onFrame={onFrame}
     />
   );
 });
 
 export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
-  const { cameraRef, showPreview, isActive, device } = useCameraSurface();
+  const { cameraRef, photoOutput, showPreview, isActive, device } = useCameraSurface();
   const [obskuraColorMode, setObskuraColorMode] = useState<ObskuraColorMode>(
     OBSKURA_COLOR_MODE.DEFAULT
   );
@@ -109,6 +111,7 @@ export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
           device={device}
           isActive={isActive}
           colorMode={obskuraColorMode}
+          photoOutput={photoOutput}
         />
       )}
       <CameraTopControls

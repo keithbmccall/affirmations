@@ -17,24 +17,20 @@ import { useColorLensRegion } from '@features/Lens/ColorPalette/useColorLensRegi
 import { useLens } from '@platform';
 import { globalStyles } from '@styles/globalStyles';
 import type { Asset } from 'expo-media-library';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Reanimated, { useSharedValue } from 'react-native-reanimated';
+import { useSharedValue } from 'react-native-reanimated';
 import {
-  runAtTargetFps,
-  useFrameProcessor,
   Camera as VisionCamera,
+  useFrameOutput,
+  type Frame,
 } from 'react-native-vision-camera';
 import { CameraBottomControls } from './CameraBottomControls';
 import { useCameraSurface } from './CameraSurfaceContext';
 import { CameraTopControls } from './CameraTopControls';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import { LENS_POINT_REGION } from './lensPointSampleRegion';
-
-const ReanimatedCamera = Reanimated.createAnimatedComponent(VisionCamera);
-Reanimated.addWhitelistedNativeProps({
-  isActive: true,
-});
+import { runAtTargetFps } from './runAtTargetFps';
 
 export const COLOR_LENS_PALETTE_TARGET_FPS = 1;
 export const COLOR_LENS_REGION_TARGET_FPS = 2;
@@ -52,7 +48,7 @@ const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
 };
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
-  const { cameraRef, showPreview, isActive, device } = useCameraSurface();
+  const { cameraRef, photoOutput, videoOutput, showPreview, isActive, device } = useCameraSurface();
   const { onAddLensPalette } = useLens();
   const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
@@ -119,47 +115,51 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
         return;
       }
 
-      if (context.type === COLOR_LENS_MODE.LENS_POINT) {
-        onAddLensPalette({
-          ...base,
-          type: COLOR_LENS_MODE.LENS_POINT,
-          lensPointColor: toLensNamedColor(context, namedColors),
-        });
-      }
+      onAddLensPalette({
+        ...base,
+        type: COLOR_LENS_MODE.LENS_POINT,
+        lensPointColor: toLensNamedColor(context, namedColors),
+      });
     },
     [onAddLensPalette]
   );
 
-  const frameProcessor = useFrameProcessor(
-    frame => {
+  const onFrame = useCallback(
+    (frame: Frame) => {
       'worklet';
-      if (!isActive) return;
+      try {
+        if (!isActive) {
+          return;
+        }
 
-      switch (colorLensMode) {
-        case COLOR_LENS_MODE.LENS_DOMINANT:
-          runAtTargetFps(COLOR_LENS_PALETTE_TARGET_FPS, () => {
-            'worklet';
-            getColorLensPaletteWorklet(frame, {
-              viewportWidth: viewportWidth.value,
-              viewportHeight: viewportHeight.value,
+        switch (colorLensMode) {
+          case COLOR_LENS_MODE.LENS_DOMINANT:
+            runAtTargetFps(COLOR_LENS_PALETTE_TARGET_FPS, () => {
+              'worklet';
+              getColorLensPaletteWorklet(frame, {
+                viewportWidth: viewportWidth.value,
+                viewportHeight: viewportHeight.value,
+              });
             });
-          });
-          break;
-        case COLOR_LENS_MODE.LENS_POINT:
-          runAtTargetFps(COLOR_LENS_REGION_TARGET_FPS, () => {
-            'worklet';
-            getColorLensRegionWorklet(frame, {
-              centerX: 0.5,
-              centerY: 0.5,
-              radius: LENS_POINT_REGION.sampleRadius,
-              viewportWidth: viewportWidth.value,
-              viewportHeight: viewportHeight.value,
+            break;
+          case COLOR_LENS_MODE.LENS_POINT:
+            runAtTargetFps(COLOR_LENS_REGION_TARGET_FPS, () => {
+              'worklet';
+              getColorLensRegionWorklet(frame, {
+                centerX: 0.5,
+                centerY: 0.5,
+                radius: LENS_POINT_REGION.sampleRadius,
+                viewportWidth: viewportWidth.value,
+                viewportHeight: viewportHeight.value,
+              });
             });
-          });
-          break;
-        case COLOR_LENS_MODE.DISABLED:
-        default:
-          break;
+            break;
+          case COLOR_LENS_MODE.DISABLED:
+          default:
+            break;
+        }
+      } finally {
+        frame.dispose();
       }
     },
     [
@@ -172,20 +172,28 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     ]
   );
 
+  const frameOutput = useFrameOutput({
+    onFrame,
+  });
+
+  const outputs = useMemo(
+    () => [photoOutput, videoOutput, frameOutput],
+    [photoOutput, videoOutput, frameOutput]
+  );
+
+  const constraints = useMemo(() => [{ fps }], [fps]);
+
   return (
-    <View style={styles.surface} onLayout={handleSurfaceLayout}>
+    <View testID="lens-camera-surface" style={styles.surface} onLayout={handleSurfaceLayout}>
       {showPreview && device !== undefined && (
-        <ReanimatedCamera
+        <VisionCamera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
           device={device}
           isActive={isActive}
-          photo
-          video
-          audio
+          outputs={outputs}
+          constraints={constraints}
           resizeMode="cover"
-          frameProcessor={isActive ? frameProcessor : undefined}
-          fps={fps}
         />
       )}
       <CameraTopControls

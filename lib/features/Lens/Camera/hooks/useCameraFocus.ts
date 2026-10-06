@@ -6,13 +6,13 @@ import {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { Camera as VisionCamera } from 'react-native-vision-camera';
+import type { CameraRef } from 'react-native-vision-camera';
 import { useCallback } from 'react';
 import { Dimensions } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => {
+export const useCameraFocus = (camera: React.RefObject<CameraRef | null>) => {
   const focusX = useSharedValue(0);
   const focusY = useSharedValue(0);
   const focusScale = useSharedValue(0);
@@ -40,8 +40,8 @@ export const useCameraFocus = (camera: React.RefObject<VisionCamera | null>) => 
       withDelay(1000, withTiming(0, { duration: 300 }))
     );
 
-    // Focus the camera
-    camera.current?.focus({ x, y });
+    // Focus the camera (v5: focusTo on CameraRef / SkiaCameraRef)
+    void camera.current?.focusTo({ x, y });
   }, []);
   // Animated style for focus indicator
   const focusIndicatorAnimatedStyle = useAnimatedStyle(() => ({

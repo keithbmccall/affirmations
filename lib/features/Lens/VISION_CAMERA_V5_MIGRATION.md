@@ -1,19 +1,26 @@
 # Vision Camera v5 migration plan
 
-This document plans the upgrade from **react-native-vision-camera 4.7.0** (current) to **v5.x**, including the **lens-point coordinate alignment** fix. Pair with feature comparison: [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md).
+This document tracked the upgrade from **react-native-vision-camera 4.7.0** to **v5.x**, including the **lens-point coordinate alignment** fix. Pair with feature comparison: [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md).
 
-**Official reference:** [Vision Camera v5 docs](https://visioncamera.margelo.com) — read upstream migration guidance before starting.
+**Official reference:** [Vision Camera v5 docs](https://visioncamera.margelo.com).
 
-**Current app stack (verify at branch open):**
+**Status:** migrated on **Expo 57** (see table below). Historical “stay on Expo 53” notes below are stale context from the original plan.
 
-| Package                      | Version       |
-| ---------------------------- | ------------- |
-| `expo`                       | 53.0.27       |
-| `react-native`               | 0.79.6        |
-| `react-native-vision-camera` | 4.7.0         |
-| `react-native-reanimated`    | 3.17.5        |
-| `react-native-worklets-core` | 1.5.0         |
-| `@shopify/react-native-skia` | v2.0.0-next.4 |
+**Current app stack:**
+
+| Package                               | Version   |
+| ------------------------------------- | --------- |
+| `expo`                                | 57.x      |
+| `react-native`                        | 0.86.3    |
+| `react-native-vision-camera`          | 5.2.3     |
+| `react-native-vision-camera-worklets` | 5.2.3     |
+| `react-native-vision-camera-skia`     | 5.2.3     |
+| `react-native-nitro-modules`          | 0.37.x    |
+| `react-native-nitro-image`            | 0.15.x    |
+| `react-native-reanimated`             | 4.5.1     |
+| `react-native-worklets`               | 0.10.1    |
+| `@shopify/react-native-skia`          | 2.6.4+    |
+| `expo-color-lens-frame-processor`     | Nitro iOS |
 
 ---
 
@@ -47,22 +54,22 @@ Leave `expo` at 53.0.27 for this migration. Treat SDK 54 as a later, separate pr
 
 ---
 
-## Dependency matrix (verify before merge)
+## Dependency matrix (as shipped)
 
-| Package                               | Current          | Target                                                                                            |
+| Package                               | Pre-migration    | Shipped                                                                                           |
 | ------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------- |
-| `expo`                                | 53.0.27          | **Keep 53.0.27** — do not bump for Vision Camera 5                                                |
-| `react-native`                        | 0.79.6           | **Keep 0.79.6** (comes with SDK 53)                                                               |
-| `react-native-vision-camera`          | 4.7.0            | **5.2.x** (or latest 5.x stable)                                                                  |
-| `react-native-nitro-modules`          | —                | **Required** (core peer)                                                                          |
-| `react-native-nitro-image`            | —                | **Required** (core peer)                                                                          |
-| `react-native-vision-camera-worklets` | —                | **Required** for frame processors                                                                 |
-| `react-native-worklets`               | —                | **Required** (v5 default worklets runtime)                                                        |
-| `react-native-worklets-core`          | 1.5.0            | **Remove or keep only if a dependency still requires it** — v5 default is `react-native-worklets` |
-| `react-native-vision-camera-skia`     | —                | **Required** if v5 removes core `useSkiaFrameProcessor` (expected for Obskura)                    |
-| `react-native-reanimated`             | 3.17.5           | Keep on 3.17.x for SDK 53 path; **≥3.19.1** if bumping Skia stable + SDK 54                       |
-| `@shopify/react-native-skia`          | v2.0.0-next.4    | Optional bump with SDK 54 (stable 2.6.x); not strictly required for v5 alone                      |
-| `expo-color-lens-frame-processor`     | local iOS module | **Rewrite as v5 Nitro frame processor plugin**                                                    |
+| `expo`                                | 53 → 57          | **57.x** (SDK upgraded separately from the original “keep 53” plan)                               |
+| `react-native`                        | 0.79.6           | **0.86.3** (SDK 57)                                                                               |
+| `react-native-vision-camera`          | 4.7.0            | **5.2.3**                                                                                         |
+| `react-native-nitro-modules`          | —                | **0.37.x**                                                                                        |
+| `react-native-nitro-image`            | —                | **0.15.x**                                                                                        |
+| `react-native-vision-camera-worklets` | —                | **5.2.3**                                                                                         |
+| `react-native-worklets`               | —                | **0.10.1**                                                                                        |
+| `react-native-worklets-core`          | 1.5.0            | **Removed**                                                                                       |
+| `react-native-vision-camera-skia`     | —                | **5.2.3** (Obskura)                                                                               |
+| `react-native-reanimated`             | 3.17.5           | **4.5.1**                                                                                         |
+| `@shopify/react-native-skia`          | v2.0.0-next.4    | **2.6.4+**                                                                                        |
+| `expo-color-lens-frame-processor`     | v4 FP registry   | **Nitro HybridObjects** (`ColorLensPalettePlugin` / `ColorLensRegionPlugin`); podspec at pkg root |
 
 Install sequence (upstream v5.0.0 release):
 

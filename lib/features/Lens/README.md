@@ -133,26 +133,26 @@ See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens
 
 | Package | Version in `package.json` | Notes |
 |---------|---------------------------|--------|
-| `@shopify/flash-list` | 1.7.6 | **Pinned by Expo SDK 53.** v2 requires a newer SDK; keep `estimatedItemSize` on v1 |
-| `react-native-vision-camera` | 4.7.0 | v5 is current upstream; see [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md) and [`VISION_CAMERA_V5_MIGRATION.md`](VISION_CAMERA_V5_MIGRATION.md) |
-| `react-native-worklets-core` | 1.5.0 | Babel plugin required for frame worklets |
-| `@shopify/react-native-skia` | v2.0.0-next.4 | **Pinned by Expo SDK 53.** Stable 2.6.x requires Reanimated ≥3.19.1; defer until SDK bump |
+| `expo` | 57.x | SDK 57 / RN 0.86.3 |
+| `@shopify/flash-list` | 2.0.2 | SDK 57 pin |
+| `react-native-vision-camera` | 5.2.3 | Outputs + constraints; see [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md) |
+| `react-native-vision-camera-worklets` | 5.2.3 | Frame output worklets |
+| `react-native-vision-camera-skia` | 5.2.3 | Obskura `SkiaCamera` |
+| `react-native-nitro-modules` / `nitro-image` | 0.37.x / 0.15.x | VC5 peers + color-lens Nitro plugins |
+| `react-native-worklets` | 0.10.1 | Reanimated 4 re-exports this Babel plugin |
+| `@shopify/react-native-skia` | 2.6.4+ | Live Obskura paint + still export |
 
-Peer dependencies for frame processors and Skia preview are satisfied in `package.json`.
-
-### Skia stable evaluation (SDK 53)
-
-Attempted `@shopify/react-native-skia@2.6.9` — **blocked** by peer dependency `react-native-reanimated@>=3.19.1` while Expo SDK 53 ships Reanimated ~3.17.x. Re-run after upgrading Expo and Reanimated; then `npm run test:coverage:lens` on device + CI.
+Peer dependencies for frame processors and Skia preview are satisfied in `package.json`. After Nitro/native module changes, rebuild the **dev client** (`npx expo run:ios`) — Expo Go will not load `expo-color-lens-frame-processor`.
 
 ## The three libraries (roles in this app)
 
 | Library | Role here | Official docs |
 |---------|-----------|---------------|
-| **Vision Camera** | Camera device selection, preview, `takePhoto` / video recording, hosts `useFrameProcessor` and `useSkiaFrameProcessor` | [visioncamera.margelo.com](https://react-native-vision-camera.com/) · [GitHub](https://github.com/mrousavy/react-native-vision-camera) |
-| **react-native-worklets-core** | Compiles functions marked with `'worklet'`; `Worklets.createRunOnJS` bridges from the camera frame thread back to React/Reanimated | [GitHub](https://github.com/margelo/react-native-worklets-core) |
-| **React Native Skia** | GPU image filters on the live preview (`useSkiaFrameProcessor`) and offscreen still export (`applyObskuraLensToPhotoFile`) | [Installation](https://shopify.github.io/react-native-skia/docs/getting-started/installation) |
+| **Vision Camera** | Device selection, preview, `usePhotoOutput` / `useVideoOutput` / `useFrameOutput`, constraints | [visioncamera.margelo.com](https://visioncamera.margelo.com) · [GitHub](https://github.com/mrousavy/react-native-vision-camera) |
+| **react-native-worklets** | Compiles `'worklet'` functions for frame outputs (via `react-native-vision-camera-worklets`) | [docs](https://docs.swmansion.com/react-native-worklets/) |
+| **React Native Skia** | Obskura live preview (`SkiaCamera` / `react-native-vision-camera-skia`) and still export (`applyObskuraLensToPhotoFile`) | [Installation](https://shopify.github.io/react-native-skia/docs/getting-started/installation) |
 
-**Reanimated** is not part of the frame pipeline, but it is required on this screen for `Reanimated.createAnimatedComponent(VisionCamera)`, tap-to-focus (`runOnJS`), palette UI, and camera-roll preview animations. Reanimated worklets and worklets-core are **different systems**—see [Reanimated's role](#reanimateds-role).
+**Reanimated** drives tap-to-focus (`runOnJS`), palette UI SharedValues, and camera-roll preview animations. Frame SharedValues are mutated directly on the frame thread under VC5.
 
 ## Runtime picture
 
@@ -161,12 +161,11 @@ flowchart TB
   Camera[Camera.tsx] --> mode{CAMERA_VIEW_MODE}
   mode -->|LENS| LensSurface[LensCameraSurface]
   mode -->|OBSKURA| ObskuraSurface[ObskuraCameraSurface]
-  LensSurface --> useFP[useFrameProcessor worklet]
-  useFP --> plugin[getColorLensPalette via VisionCameraProxy]
+  LensSurface --> useFO[useFrameOutput worklet]
+  useFO --> plugin[Nitro ColorLensPalettePlugin / RegionPlugin]
   plugin --> ios[ExpoColorLensFrameProcessor Swift iOS]
-  useFP --> runOnJS[Worklets.createRunOnJS]
-  runOnJS --> paletteUI[Reanimated SharedValues + ColorPalette]
-  ObskuraSurface --> useSkia[useSkiaFrameProcessor]
+  useFO --> paletteUI[Reanimated SharedValues + ColorPalette]
+  ObskuraSurface --> useSkia[SkiaCamera from vision-camera-skia]
   useSkia --> render[frame.render lensPaint]
   lensPaint --> buildPaint[buildObskuraLensPaintFromPipeline]
   capture[takePhoto] --> applyStill[applyObskuraLensToPhotoFile when Obskura mode]
@@ -250,8 +249,8 @@ These must be correct for Lens to build and run on device:
 
 | Item | Location |
 |------|----------|
-| Dependencies | `package.json`: vision-camera, worklets-core, skia, `expo-color-lens-frame-processor` (local module) |
-| Worklets Babel plugin | `babel.config.js`: `react-native-worklets-core/plugin` **before** `react-native-reanimated/plugin` (Reanimated must be last) |
+| Dependencies | `package.json`: vision-camera 5.2.x + worklets/skia companions, nitro, `expo-color-lens-frame-processor` (local Nitro module; **podspec at package root**) |
+| Worklets Babel plugin | `babel.config.js`: `react-native-reanimated/plugin` last (Reanimated 4 re-exports `react-native-worklets/plugin`) |
 | Vision Camera Expo plugin | `app.json`: camera + microphone permission strings |
 | Media library plugin | `app.json`: save/read photos permissions |
 | iOS usage strings | `app.json` → `ios.infoPlist` NSCameraUsageDescription, NSMicrophoneUsageDescription |

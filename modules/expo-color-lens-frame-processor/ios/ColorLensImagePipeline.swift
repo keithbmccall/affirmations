@@ -1,3 +1,4 @@
+import AVFoundation
 import CoreImage
 import UIKit
 import VisionCamera
@@ -7,19 +8,20 @@ struct ColorLensPreviewContext {
   let viewportHeight: CGFloat
   let bufferWidth: CGFloat
   let bufferHeight: CGFloat
-  let orientation: UIImage.Orientation
+  let orientation: CameraOrientation
   let isMirrored: Bool
 
-  init?(frame: Frame, arguments: [AnyHashable: Any]?) {
-    guard let viewportWidth = ColorLensImagePipeline.normalizedCGFloat(from: arguments?["viewportWidth"]),
-          let viewportHeight = ColorLensImagePipeline.normalizedCGFloat(from: arguments?["viewportHeight"]),
-          viewportWidth > 0,
-          viewportHeight > 0 else {
+  init?(
+    frame: any HybridFrameSpec,
+    viewportWidth: Double,
+    viewportHeight: Double
+  ) {
+    guard viewportWidth > 0, viewportHeight > 0 else {
       return nil
     }
 
-    self.viewportWidth = viewportWidth
-    self.viewportHeight = viewportHeight
+    self.viewportWidth = CGFloat(viewportWidth)
+    self.viewportHeight = CGFloat(viewportHeight)
     self.bufferWidth = CGFloat(frame.width)
     self.bufferHeight = CGFloat(frame.height)
     self.orientation = frame.orientation
@@ -28,22 +30,6 @@ struct ColorLensPreviewContext {
 }
 
 enum ColorLensImagePipeline {
-  static func normalizedCGFloat(from value: Any?) -> CGFloat? {
-    if let number = value as? NSNumber {
-      return CGFloat(number.doubleValue)
-    }
-    if let doubleValue = value as? Double {
-      return CGFloat(doubleValue)
-    }
-    if let floatValue = value as? Float {
-      return CGFloat(floatValue)
-    }
-    if let intValue = value as? Int {
-      return CGFloat(intValue)
-    }
-    return nil
-  }
-
   static func makePreviewAlignedImage(from ciImage: CIImage, context: ColorLensPreviewContext) -> CIImage? {
     guard context.bufferWidth > 0, context.bufferHeight > 0 else {
       return nil
@@ -144,7 +130,7 @@ enum ColorLensImagePipeline {
 
   private static func applyOrientationAndMirror(
     to image: CIImage,
-    orientation: UIImage.Orientation,
+    orientation: CameraOrientation,
     isMirrored: Bool
   ) -> CIImage {
     let extent = image.extent
@@ -165,30 +151,11 @@ enum ColorLensImagePipeline {
       orientedImage = image.transformed(
         by: CGAffineTransform(translationX: extent.height, y: 0).rotated(by: .pi / 2)
       )
-    case .upMirrored:
-      orientedImage = image.transformed(
-        by: CGAffineTransform(translationX: extent.width, y: 0).scaledBy(x: -1, y: 1)
-      )
-    case .downMirrored:
-      orientedImage = image.transformed(
-        by: CGAffineTransform(translationX: 0, y: extent.height).scaledBy(x: 1, y: -1)
-      )
-    case .leftMirrored:
-      orientedImage = image.transformed(
-        by: CGAffineTransform(translationX: extent.height, y: extent.width)
-          .scaledBy(x: -1, y: 1)
-          .rotated(by: -.pi / 2)
-      )
-    case .rightMirrored:
-      orientedImage = image.transformed(
-        by: CGAffineTransform(scaleX: -1, y: 1).rotated(by: .pi / 2)
-          .translatedBy(x: 0, y: -extent.width)
-      )
     @unknown default:
       orientedImage = image
     }
 
-    if isMirrored && !orientation.isMirroredVariant {
+    if isMirrored {
       let mirroredExtent = orientedImage.extent
       orientedImage = orientedImage.transformed(
         by: CGAffineTransform(translationX: mirroredExtent.width, y: 0).scaledBy(x: -1, y: 1)
@@ -212,16 +179,5 @@ enum ColorLensImagePipeline {
       return image
     }
     return image.transformed(by: CGAffineTransform(translationX: -origin.x, y: -origin.y))
-  }
-}
-
-private extension UIImage.Orientation {
-  var isMirroredVariant: Bool {
-    switch self {
-    case .upMirrored, .downMirrored, .leftMirrored, .rightMirrored:
-      return true
-    default:
-      return false
-    }
   }
 }

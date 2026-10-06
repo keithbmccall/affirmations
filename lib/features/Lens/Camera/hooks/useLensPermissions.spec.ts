@@ -104,4 +104,23 @@ describe('useLensPermissions', () => {
 
     alertSpy.mockRestore();
   });
+
+  it('ignores permission resolution after unmount', async () => {
+    let resolveCamera: ((value: boolean) => void) | undefined;
+    mockRequestCamera.mockImplementation(
+      () =>
+        new Promise<boolean>(resolve => {
+          resolveCamera = resolve;
+        })
+    );
+
+    const { unmount } = renderHook(() => useLensPermissions());
+    unmount();
+
+    resolveCamera?.(true);
+
+    // Allow the suspended request to settle without updating unmounted state.
+    await Promise.resolve();
+    expect(mockRequestCamera).toHaveBeenCalled();
+  });
 });

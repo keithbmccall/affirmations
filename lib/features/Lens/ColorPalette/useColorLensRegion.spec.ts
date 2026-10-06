@@ -10,12 +10,6 @@ jest.mock('./getColorLensRegion', () => ({
   getColorLensRegion: (...args: unknown[]) => mockGetColorLensRegion(...args),
 }));
 
-jest.mock('react-native-worklets-core', () => ({
-  Worklets: {
-    createRunOnJS: (fn: (color: string | null) => void) => fn,
-  },
-}));
-
 const mockFrame = {} as Frame;
 
 const regionOptions = {

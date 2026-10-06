@@ -1,0 +1,26 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": ["colorlens"],
+  "ios": {
+    "iosModuleName": "ExpoColorLensFrameProcessor"
+  },
+  "android": {
+    "androidNamespace": ["colorlens"],
+    "androidCxxLibName": "ExpoColorLensFrameProcessor"
+  },
+  "autolinking": {
+    "ColorLensPalettePlugin": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridColorLensPalettePlugin"
+      }
+    },
+    "ColorLensRegionPlugin": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridColorLensRegionPlugin"
+      }
+    }
+  },
+  "ignorePaths": ["**/node_modules"]
+}

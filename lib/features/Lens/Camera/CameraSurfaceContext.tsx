@@ -3,6 +3,7 @@ import {
   CAMERA_VIEW_MODE,
   cameraDeviceOptions,
   flashModeOptions,
+  type CameraPosition,
   type CameraViewMode,
 } from '@features/Lens/Camera/options';
 import { useFocusEffect } from 'expo-router';
@@ -16,10 +17,13 @@ import {
   type ReactNode,
 } from 'react';
 import {
-  CameraPosition,
-  useCameraDevice,
-  Camera as VisionCamera,
   type CameraDevice,
+  type CameraPhotoOutput,
+  type CameraRef,
+  type CameraVideoOutput,
+  useCameraDevice,
+  usePhotoOutput,
+  useVideoOutput,
 } from 'react-native-vision-camera';
 
 const flashModeOptionsLength = flashModeOptions.length;
@@ -28,7 +32,9 @@ const flashModeOptionsLength = flashModeOptions.length;
 export const VIEW_MODE_SWITCH_SETTLE_MS = 300;
 
 export interface CameraSurfaceContextValue {
-  cameraRef: React.RefObject<VisionCamera | null>;
+  cameraRef: React.RefObject<CameraRef | null>;
+  photoOutput: CameraPhotoOutput;
+  videoOutput: CameraVideoOutput;
   showPreview: boolean;
   isActive: boolean;
   flashMode: number;
@@ -63,7 +69,10 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
   });
 
-  const cameraRef = useRef<VisionCamera>(null);
+  const photoOutput = usePhotoOutput();
+  const videoOutput = useVideoOutput({ enableAudio: true });
+
+  const cameraRef = useRef<CameraRef>(null);
   const isViewModeSwitchingRef = useRef(false);
   const viewModeSwitchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -122,6 +131,8 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
   const value = useMemo(
     () => ({
       cameraRef,
+      photoOutput,
+      videoOutput,
       showPreview,
       isActive: isCameraActive,
       flashMode,
@@ -135,6 +146,8 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       onCameraDeviceToggle: handleCameraDeviceToggle,
     }),
     [
+      photoOutput,
+      videoOutput,
       showPreview,
       isCameraActive,
       flashMode,

@@ -1,14 +1,16 @@
 import {
-  mockObskuraFrameProcessingFormat,
+  mockObskuraPhotoOutput,
   resetObskuraVisionCameraMockState,
   obskuraVisionCameraMockState,
 } from '@testing/getObskuraVisionCameraJestMock';
-import { CameraSurfaceContextForTesting, type CameraSurfaceContextValue } from '@features/Lens/Camera/CameraSurfaceContext';
+import {
+  CameraSurfaceContextForTesting,
+  type CameraSurfaceContextValue,
+} from '@features/Lens/Camera/CameraSurfaceContext';
 import { CAMERA_VIEW_MODE } from '@features/Lens/Camera/options';
 import { fireEvent, render } from '@testing-library/react-native';
 import React, { createRef } from 'react';
-import type { CameraDevice } from 'react-native-vision-camera';
-import { Camera as VisionCamera } from 'react-native-vision-camera';
+import type { CameraDevice, CameraPhotoOutput, CameraRef, CameraVideoOutput } from 'react-native-vision-camera';
 
 import { ObskuraCameraSurface } from './ObskuraCameraSurface';
 import { OBSKURA_COLOR_MODE } from './options';
@@ -41,11 +43,14 @@ jest.mock('@features/Lens/Camera/CameraBottomControls', () => {
 });
 
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
+const mockVideoOutput = { id: 'video' } as unknown as CameraVideoOutput;
 
 const createMockSurfaceContext = (
   overrides: Partial<CameraSurfaceContextValue> = {}
 ): CameraSurfaceContextValue => ({
-  cameraRef: createRef<VisionCamera | null>(),
+  cameraRef: createRef<CameraRef | null>(),
+  photoOutput: mockObskuraPhotoOutput as unknown as CameraPhotoOutput,
+  videoOutput: mockVideoOutput,
   showPreview: true,
   isActive: true,
   flashMode: 0,
@@ -85,6 +90,10 @@ jest.mock('react-native-vision-camera', () =>
   jest.requireActual('@testing/getObskuraVisionCameraJestMock').getObskuraVisionCameraJestMock()
 );
 
+jest.mock('react-native-vision-camera-skia', () =>
+  jest.requireActual('@testing/getObskuraVisionCameraJestMock').getObskuraSkiaCameraJestMock()
+);
+
 function flushDeferredSkPaintDispose() {
   jest.runOnlyPendingTimers();
   jest.runOnlyPendingTimers();
@@ -110,27 +119,29 @@ describe('ObskuraCameraSurface', () => {
     jest.restoreAllMocks();
   });
 
-  it('creates paint for color mode and passes frameProcessor when active', () => {
+  it('creates paint for color mode and passes SkiaCamera outputs/constraints when active', () => {
     renderObskuraSurface();
 
     expect(mockBuildObskuraLensPaintFromPipeline).toHaveBeenCalledWith(
       [{ action: 'blur', settings: { sigma: 60 } }],
       { colorMode: OBSKURA_COLOR_MODE.DEFAULT }
     );
-    expect(obskuraVisionCameraMockState.lastCameraProps?.frameProcessor).toBeDefined();
-    expect(obskuraVisionCameraMockState.lastCameraProps?.fps).toBe(15);
-    expect(obskuraVisionCameraMockState.lastCameraProps?.format).toBe(
-      mockObskuraFrameProcessingFormat
-    );
-    expect(obskuraVisionCameraMockState.lastCameraProps?.photo).toBe(true);
-    expect(obskuraVisionCameraMockState.lastCameraProps?.video).toBeUndefined();
-    expect(obskuraVisionCameraMockState.lastCameraProps?.audio).toBeUndefined();
+    expect(obskuraVisionCameraMockState.lastCameraProps?.onFrame).toBeDefined();
+    expect(obskuraVisionCameraMockState.lastCameraProps?.constraints).toEqual([
+      { fps: 15 },
+      { resolutionBias: mockObskuraPhotoOutput },
+    ]);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.outputs).toEqual([
+      mockObskuraPhotoOutput,
+    ]);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.isActive).toBe(true);
   });
 
-  it('omits frameProcessor when inactive', () => {
+  it('keeps onFrame when inactive (session gated by isActive)', () => {
     renderObskuraSurface({ isActive: false });
 
-    expect(obskuraVisionCameraMockState.lastCameraProps?.frameProcessor).toBeUndefined();
+    expect(obskuraVisionCameraMockState.lastCameraProps?.isActive).toBe(false);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.onFrame).toBeDefined();
   });
 
   it('defers disposing previous paint when color mode changes', () => {

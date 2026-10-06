@@ -3,11 +3,9 @@ import { getColorLensPalette } from './getColorLensPalette';
 
 const mockPalettePluginCall = jest.fn();
 
-jest.mock('react-native-vision-camera', () => ({
-  VisionCameraProxy: {
-    initFrameProcessorPlugin: jest.fn(() => ({
-      call: (...args: unknown[]) => mockPalettePluginCall(...args),
-    })),
+jest.mock('expo-color-lens-frame-processor', () => ({
+  colorLensPalettePlugin: {
+    call: (...args: unknown[]) => mockPalettePluginCall(...args),
   },
 }));
 
@@ -39,7 +37,11 @@ describe('getColorLensPalette', () => {
 
     const result = getColorLensPalette(mockFrame, paletteOptions);
 
-    expect(mockPalettePluginCall).toHaveBeenCalledWith(mockFrame, paletteOptions);
+    expect(mockPalettePluginCall).toHaveBeenCalledWith(
+      mockFrame,
+      paletteOptions.viewportWidth,
+      paletteOptions.viewportHeight
+    );
     expect(result).toEqual(mockPalette);
   });
 

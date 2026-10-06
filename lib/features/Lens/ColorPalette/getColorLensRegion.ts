@@ -1,5 +1,5 @@
-import { Frame } from 'react-native-vision-camera';
-import { colorLensRegionFrameProcessorPlugin } from './colorLensRegionFrameProcessorPlugin';
+import { colorLensRegionPlugin } from 'expo-color-lens-frame-processor';
+import type { Frame } from 'react-native-vision-camera';
 
 export interface ColorLensRegionOptions {
   centerX: number;
@@ -14,14 +14,14 @@ export function getColorLensRegion(
   options: ColorLensRegionOptions
 ): string | null {
   'worklet';
-  if (
-    colorLensRegionFrameProcessorPlugin === null ||
-    colorLensRegionFrameProcessorPlugin === undefined
-  ) {
-    throw new Error('Failed to load getColorLensRegion plugin');
-  }
-  return colorLensRegionFrameProcessorPlugin.call(
-    frame,
-    options as unknown as Record<string, number>
-  ) as unknown as string | null;
+  return (
+    colorLensRegionPlugin.call(
+      frame,
+      options.centerX,
+      options.centerY,
+      options.radius,
+      options.viewportWidth,
+      options.viewportHeight
+    ) ?? null
+  );
 }

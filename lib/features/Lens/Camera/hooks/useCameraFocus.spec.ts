@@ -1,16 +1,15 @@
 import { renderHook, act } from '@testing-library/react-native';
 import React from 'react';
+import type { CameraRef } from 'react-native-vision-camera';
 import { useCameraFocus } from './useCameraFocus';
-import type { Camera } from 'react-native-vision-camera';
 
-
-const asCameraRef = (ref: { current: { focus: jest.Mock } | null }) =>
-  ref as unknown as React.RefObject<Camera | null>;
+const asCameraRef = (ref: { current: { focusTo: jest.Mock } | null }) =>
+  ref as unknown as React.RefObject<CameraRef | null>;
 
 describe('useCameraFocus', () => {
-  it('calls camera focus with tap coordinates', () => {
-    const focus = jest.fn();
-    const cameraRef = asCameraRef({ current: { focus } });
+  it('calls camera focusTo with tap coordinates', () => {
+    const focusTo = jest.fn();
+    const cameraRef = asCameraRef({ current: { focusTo } });
 
     const { result } = renderHook(() => useCameraFocus(cameraRef));
 
@@ -18,11 +17,11 @@ describe('useCameraFocus', () => {
       result.current.handleFocusTap(200, 400);
     });
 
-    expect(focus).toHaveBeenCalledWith({ x: 200, y: 400 });
+    expect(focusTo).toHaveBeenCalledWith({ x: 200, y: 400 });
   });
 
   it('exposes focusIndicatorAnimatedStyle', () => {
-    const cameraRef = asCameraRef({ current: { focus: jest.fn() } });
+    const cameraRef = asCameraRef({ current: { focusTo: jest.fn() } });
 
     const { result } = renderHook(() => useCameraFocus(cameraRef));
 

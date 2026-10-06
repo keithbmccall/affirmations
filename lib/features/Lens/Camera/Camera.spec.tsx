@@ -115,11 +115,22 @@ jest.mock('expo-image', () => ({
   },
 }));
 
-const mockTakePhoto = jest.fn(() => Promise.resolve({ path: '/tmp/photo.jpg' }));
+const mockCapturePhotoToFile = jest.fn(() =>
+  Promise.resolve({ filePath: '/tmp/photo.jpg' })
+);
+const mockCreateRecorder = jest.fn();
 const mockStartRecording = jest.fn();
 const mockStopRecording = jest.fn(() => Promise.resolve());
 
-let pendingRecordingFinished: ((video: { path: string }) => void) | undefined;
+let pendingRecordingFinished: ((filePath: string) => void) | undefined;
+
+const mockPhotoOutput = {
+  capturePhotoToFile: (...args: unknown[]) => mockCapturePhotoToFile(...args),
+};
+
+const mockVideoOutput = {
+  createRecorder: (...args: unknown[]) => mockCreateRecorder(...args),
+};
 
 jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', () => ({
   buildObskuraLensPaintFromPipeline: jest.fn(() => ({ dispose: jest.fn() })),
@@ -137,40 +148,56 @@ jest.mock('react-native-vision-camera', () => {
     ref: unknown
   ) {
     React.useImperativeHandle(ref, () => ({
-      takePhoto: mockTakePhoto,
-      startRecording: mockStartRecording,
-      stopRecording: mockStopRecording,
+      focusTo: jest.fn(),
     }));
     return <RN.View testID={props.testID ?? 'vision-camera-mock'} />;
   });
   return {
     Camera: VisionCamera,
-    Templates: {
-      FrameProcessing: [{ videoResolution: { width: 1080, height: 720 } }],
+    CommonResolutions: {
+      FHD_16_9: { width: 1080, height: 1920 },
+      HD_16_9: { width: 720, height: 1280 },
+      UHD_4_3: { width: 3000, height: 4000 },
     },
     useCameraDevice: jest.fn(() => ({ id: 'mock-device' })),
-    useCameraFormat: jest.fn(() => ({
-      videoWidth: 1080,
-      videoHeight: 720,
-      photoWidth: 4032,
-      photoHeight: 3024,
-    })),
-    useFrameProcessor: jest.fn((processor: (f: unknown) => void) => {
-      try {
-        processor({});
-      } catch {
-        /* worklet body may throw outside native runtime */
+    usePhotoOutput: jest.fn(() => mockPhotoOutput),
+    useVideoOutput: jest.fn(() => mockVideoOutput),
+    useFrameOutput: jest.fn(({ onFrame }: { onFrame?: (frame: { dispose: () => void }) => void }) => {
+      if (onFrame !== undefined) {
+        try {
+          onFrame({ dispose: jest.fn() });
+        } catch {
+          /* worklet body may throw outside native runtime */
+        }
       }
-      return processor;
+      return { id: 'mock-frame-output' };
     }),
-    useSkiaFrameProcessor: jest.fn((processor: (f: unknown) => void) => {
+  };
+});
+
+jest.mock('react-native-vision-camera-skia', () => {
+  const React = jest.requireActual('react');
+  const RN = jest.requireActual('react-native');
+  const SkiaCamera = React.forwardRef(function SkiaCameraMock(
+    props: { testID?: string; onFrame?: (frame: { dispose: () => void }, render: (fn: (s: unknown) => void) => void) => void },
+    ref: unknown
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      focusTo: jest.fn(),
+    }));
+    if (props.onFrame !== undefined) {
       try {
-        processor({ render: jest.fn() });
+        props.onFrame({ dispose: jest.fn() }, onDraw => {
+          onDraw({ canvas: { drawImage: jest.fn() }, frameTexture: {} });
+        });
       } catch {
         /* Skia worklet may throw outside native runtime */
       }
-      return processor;
-    }),
+    }
+    return <RN.View testID={props.testID ?? 'skia-camera-mock'} />;
+  });
+  return {
+    SkiaCamera,
   };
 });
 
@@ -256,17 +283,22 @@ describe('Camera', () => {
       palette: mockPalette,
       getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
     });
-    mockStartRecording.mockImplementation(
-      ({ onRecordingFinished }: { onRecordingFinished?: (v: { path: string }) => void }) => {
-        pendingRecordingFinished = onRecordingFinished;
-      }
-    );
-    mockStopRecording.mockImplementation(() => {
-      pendingRecordingFinished?.({ path: '/tmp/video.mp4' });
+    mockStartRecording.mockImplementation((onRecordingFinished: (filePath: string) => void) => {
+      pendingRecordingFinished = onRecordingFinished;
       return Promise.resolve();
     });
+    mockStopRecording.mockImplementation(() => {
+      pendingRecordingFinished?.('/tmp/video.mp4');
+      return Promise.resolve();
+    });
+    mockCreateRecorder.mockImplementation(() =>
+      Promise.resolve({
+        startRecording: mockStartRecording,
+        stopRecording: mockStopRecording,
+      })
+    );
     pendingRecordingFinished = undefined;
-    mockTakePhoto.mockResolvedValue({ path: '/tmp/photo.jpg' });
+    mockCapturePhotoToFile.mockResolvedValue({ filePath: '/tmp/photo.jpg' });
     mockedCreateAssetAsync.mockResolvedValue({
       id: 'asset-1',
       uri: 'file:///asset',
@@ -386,7 +418,7 @@ describe('Camera', () => {
     fireEvent.press(await screen.findByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockTakePhoto).toHaveBeenCalled();
+      expect(mockCapturePhotoToFile).toHaveBeenCalled();
       expect(mockOnAddLensPalette).not.toHaveBeenCalled();
       expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
     });
@@ -405,7 +437,7 @@ describe('Camera', () => {
     fireEvent.press(await screen.findByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockTakePhoto).toHaveBeenCalled();
+      expect(mockCapturePhotoToFile).toHaveBeenCalled();
       expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
       expect(mockOnAddLensPalette).toHaveBeenCalledWith({
         id: 'asset-1',
@@ -459,7 +491,7 @@ describe('Camera', () => {
     fireEvent.press(await screen.findByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockTakePhoto).toHaveBeenCalled();
+      expect(mockCapturePhotoToFile).toHaveBeenCalled();
       expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
       expect(mockOnAddLensPalette).toHaveBeenCalledWith({
         id: 'asset-1',
@@ -516,8 +548,8 @@ describe('Camera', () => {
     expect(mockStartRecording).not.toHaveBeenCalled();
   });
 
-  it('alerts when takePhoto fails', async () => {
-    mockTakePhoto.mockRejectedValueOnce(new Error('capture failed'));
+  it('alerts when capturePhotoToFile fails', async () => {
+    mockCapturePhotoToFile.mockRejectedValueOnce(new Error('capture failed'));
 
     renderCamera(<Camera />);
 
@@ -528,10 +560,8 @@ describe('Camera', () => {
     });
   });
 
-  it('alerts when startRecording throws', async () => {
-    mockStartRecording.mockImplementationOnce(() => {
-      throw new Error('rec fail');
-    });
+  it('alerts when createRecorder throws', async () => {
+    mockCreateRecorder.mockRejectedValueOnce(new Error('rec fail'));
 
     renderCamera(<Camera />);
 
@@ -544,8 +574,12 @@ describe('Camera', () => {
 
   it('alerts on recording error callback', async () => {
     mockStartRecording.mockImplementationOnce(
-      ({ onRecordingError }: { onRecordingError?: (e: { message: string }) => void }) => {
-        onRecordingError?.({ message: 'codec' });
+      (
+        _onFinished: (filePath: string) => void,
+        onRecordingError: (e: Error) => void
+      ) => {
+        onRecordingError(new Error('codec'));
+        return Promise.resolve();
       }
     );
 

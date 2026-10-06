@@ -1,228 +1,8 @@
-import VisionCamera
-import UIKit
-import CoreImage
-import AVFoundation
-
-@objc(ColorLensFrameProcessorPlugin)
-public class ColorLensFrameProcessorPlugin: FrameProcessorPlugin {
-  
-  // Shared CIContext for better performance - reuse across all instances
-  private static let context = CIContext(options: [
-    .useSoftwareRenderer: false,
-    .cacheIntermediates: false, // Disable caching for real-time processing
-    .highQualityDownsample: false // Disable for performance
-  ])
-  
-  // Performance optimizations
-  private var lastProcessTime: TimeInterval = 0
-  private let minProcessingInterval: TimeInterval = 0.05 // 20 FPS max for smoother updates
-  
-  // Pre-allocated data structures for performance
-  private var resultCache: [String: String] = [:]
-  private var pixelBuffer: [UInt8] = []
-  private var histogram: [Int] = []
-  
-  // Reduced image size for faster processing
-  private let maxImageSize: CGFloat = 128.0 // Smaller for better performance
-  
-  // Optimized MMCQ settings for real-time processing
-  public static let defaultQuality = 15 // Increased for faster processing
-  public static let defaultIgnoreWhite = true
-  private static let maxColors = 6 // Reduced from 8 for faster processing
-  
-  // Simplified temporal smoothing
-  private var previousColors: [String: String] = [:]
-  private let stabilityThreshold: Int = 2 // Reduced for faster response
-  
-  public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
-    super.init(proxy: proxy, options: options)
-    
-    // Pre-allocate with fixed capacities to avoid reallocations
-    resultCache.reserveCapacity(8)
-    previousColors.reserveCapacity(8)
-    
-    // Pre-allocate pixel buffer for max image size
-    let maxPixels = Int(maxImageSize * maxImageSize * 4)
-    pixelBuffer.reserveCapacity(maxPixels)
-    
-    // Pre-allocate histogram
-    histogram = Array(repeating: 0, count: MMCQ.histogramSize)
-  }
-  
-  // Color Thief MMCQ Implementation
-  // ================================
-  
-  /// Optimized color palette extraction using pre-allocated buffers
-  private func getPalette(from image: UIImage) -> [Color]? {
-    guard makeBytesOptimized(from: image),
-          let colorMap = MMCQ.quantizeOptimized(&pixelBuffer, &histogram, quality: Self.defaultQuality, ignoreWhite: Self.defaultIgnoreWhite, maxColors: Self.maxColors) else {
-      return nil
-    }
-    return colorMap.makePalette()
-  }
-  
-  /// Optimized pixel extraction using pre-allocated buffer
-  @discardableResult
-  private func makeBytesOptimized(from image: UIImage) -> Bool {
-    guard let cgImage = image.cgImage else { return false }
-    
-    let width = cgImage.width
-    let height = cgImage.height
-    let pixelCount = width * height * 4
-    
-    // Reuse existing buffer or resize if needed
-    if pixelBuffer.count != pixelCount {
-      pixelBuffer = Array(repeating: 0, count: pixelCount)
-    } else {
-      // Clear existing data efficiently
-      pixelBuffer.withUnsafeMutableBufferPointer { buffer in
-        memset(buffer.baseAddress, 0, pixelCount)
-      }
-    }
-    
-    guard let context = CGContext(
-      data: &pixelBuffer,
-      width: width,
-      height: height,
-      bitsPerComponent: 8,
-      bytesPerRow: 4 * width,
-      space: CGColorSpaceCreateDeviceRGB(),
-      bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Little.rawValue) else {
-      return false
-    }
-    
-    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-    return true
-  }
-  
-  /// Fast color extraction with minimal allocations
-  private func extractColorsUsingMMCQ(from image: UIImage) -> [String: String]? {
-    guard let palette = getPalette(from: image) else { return nil }
-    
-    // Convert directly without intermediate arrays
-    let colorCount = min(palette.count, Self.maxColors)
-    let fallbackColor = palette.isEmpty ? "#000000" : String(format: "#%02X%02X%02X", palette[0].r, palette[0].g, palette[0].b)
-    
-    // Clear and reuse result cache
-    resultCache.removeAll(keepingCapacity: true)
-    
-    resultCache["primary"] = colorCount > 0 ? String(format: "#%02X%02X%02X", palette[0].r, palette[0].g, palette[0].b) : fallbackColor
-    resultCache["secondary"] = colorCount > 1 ? String(format: "#%02X%02X%02X", palette[1].r, palette[1].g, palette[1].b) : fallbackColor
-    resultCache["tertiary"] = colorCount > 2 ? String(format: "#%02X%02X%02X", palette[2].r, palette[2].g, palette[2].b) : fallbackColor
-    resultCache["quaternary"] = colorCount > 3 ? String(format: "#%02X%02X%02X", palette[3].r, palette[3].g, palette[3].b) : fallbackColor
-    resultCache["quinary"] = colorCount > 4 ? String(format: "#%02X%02X%02X", palette[4].r, palette[4].g, palette[4].b) : fallbackColor
-    resultCache["senary"] = colorCount > 5 ? String(format: "#%02X%02X%02X", palette[5].r, palette[5].g, palette[5].b) : fallbackColor
-    resultCache["background"] = resultCache["primary"]!
-    resultCache["detail"] = resultCache["secondary"]!
-    
-    return applyTemporalSmoothingOptimized()
-  }
-  
-    /// Optimized temporal smoothing using resultCache directly
-  private func applyTemporalSmoothingOptimized() -> [String: String] {
-    // Apply simple smoothing - if previous color is similar, use it
-    for (key, newColor) in resultCache {
-      if let previousColor = previousColors[key],
-         fastColorDistance(newColor, previousColor) < 900 { // Use squared distance to avoid sqrt
-        resultCache[key] = previousColor
-      }
-    }
-    
-    // Update previous colors for next frame
-    previousColors = resultCache
-    return resultCache
-  }
-  
-  /// Fast squared distance calculation (avoids sqrt)
-  private func fastColorDistance(_ color1: String, _ color2: String) -> Int {
-    guard let rgb1 = hexToRGBFast(color1), let rgb2 = hexToRGBFast(color2) else { return 0 }
-    
-    let deltaR = rgb1.r - rgb2.r
-    let deltaG = rgb1.g - rgb2.g 
-    let deltaB = rgb1.b - rgb2.b
-    
-    return deltaR * deltaR + deltaG * deltaG + deltaB * deltaB
-  }
-  
-  /// Optimized hex to RGB conversion without string processing
-  private func hexToRGBFast(_ hex: String) -> (r: Int, g: Int, b: Int)? {
-    guard hex.count == 7, hex.first == "#" else { return nil }
-    
-    let scanner = Scanner(string: String(hex.dropFirst()))
-    var hexNumber: UInt64 = 0
-    
-    if scanner.scanHexInt64(&hexNumber) {
-      return (r: Int((hexNumber & 0xFF0000) >> 16),
-              g: Int((hexNumber & 0x00FF00) >> 8),
-              b: Int(hexNumber & 0x0000FF))
-    }
-    return nil
-  }
-  
-  // Downsample image for better performance
-  private func downsampleImage(_ ciImage: CIImage) -> CIImage {
-    ColorLensImagePipeline.downsampleForMMCQ(ciImage, maxSide: maxImageSize)
-  }
-  
-  @objc
-  public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable : Any]?) -> Any? {
-    // Frame rate limiting to prevent excessive processing
-    let currentTime = CACurrentMediaTime()
-    if currentTime - lastProcessTime < minProcessingInterval {
-      return previousColors.isEmpty ? nil : previousColors // Return cached result
-    }
-    lastProcessTime = currentTime
-
-    guard let previewContext = ColorLensPreviewContext(frame: frame, arguments: arguments) else {
-      return previousColors.isEmpty ? nil : previousColors
-    }
-    
-    // Extract image buffer from frame
-    guard let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer) else {
-      return previousColors.isEmpty ? nil : previousColors
-    }
-    
-    // Create CIImage from buffer - this is lightweight
-    let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-
-    guard let previewAlignedImage = ColorLensImagePipeline.makePreviewAlignedImage(
-      from: ciImage,
-      context: previewContext
-    ) else {
-      return previousColors.isEmpty ? nil : previousColors
-    }
-    
-    // Downsample image for better performance
-    let downsampledImage = downsampleImage(previewAlignedImage)
-    
-    // Convert to CGImage for processing
-    guard let cgImage = Self.context.createCGImage(downsampledImage, from: downsampledImage.extent) else {
-      return previousColors.isEmpty ? nil : previousColors
-    }
-    
-    // Create UIImage for color extraction
-    let image = UIImage(cgImage: cgImage)
-    
-    // Extract colors using MMCQ algorithm - this updates resultCache directly
-    guard extractColorsUsingMMCQ(from: image) != nil else {
-      return previousColors.isEmpty ? nil : previousColors
-    }
-    
-    // Return the pre-populated result cache
-    return resultCache
-  }
-  
-  // Cleanup method to release resources
-  deinit {
-    resultCache.removeAll()
-  }
-}
-
-// MARK: - Color Class
-public class Color: NSObject {
-  public var r: UInt8
-  public var g: UInt8
-  public var b: UInt8
+// MARK: - ColorLensSwatch Class
+final class ColorLensSwatch: NSObject {
+  var r: UInt8
+  var g: UInt8
+  var b: UInt8
 
   init(r: UInt8, g: UInt8, b: UInt8) {
     self.r = r
@@ -230,11 +10,11 @@ public class Color: NSObject {
     self.b = b
   }
 
-  public func getColors() -> Dictionary<String,UInt8> {
+  func getColors() -> Dictionary<String,UInt8> {
     return ["r":r , "g":g, "b":b]
   }
   
-  public func makeUIColor() -> UIColor {
+  func makeUIColor() -> UIColor {
     return UIColor(red: CGFloat(r) / CGFloat(255), green: CGFloat(g) / CGFloat(255), blue: CGFloat(b) / CGFloat(255), alpha: CGFloat(1))
   }
 }
@@ -242,7 +22,7 @@ public class Color: NSObject {
 // MARK: - MMCQ Algorithm
 /// MMCQ (modified median cut quantization) algorithm from
 /// the Leptonica library (http://www.leptonica.com/).
-open class MMCQ {
+final class MMCQ {
 
   // Use only upper 5 bits of 8 bits
   static let signalBits = 5
@@ -276,7 +56,7 @@ open class MMCQ {
 
     private let histogram: [Int]
 
-    private var average: Color?
+    private var average: ColorLensSwatch?
     private var volume: Int?
     private var count: Int?
 
@@ -342,7 +122,7 @@ open class MMCQ {
       }
     }
 
-    func getAverage(forceRecalculate force: Bool = false) -> Color {
+    func getAverage(forceRecalculate force: Bool = false) -> ColorLensSwatch {
       if let average = average, !force {
         return average
       } else {
@@ -365,17 +145,17 @@ open class MMCQ {
           }
         }
 
-        let average: Color
+        let average: ColorLensSwatch
         if ntot > 0 {
           let r = UInt8(rSum / ntot)
           let g = UInt8(gSum / ntot)
           let b = UInt8(bSum / ntot)
-          average = Color(r: r, g: g, b: b)
+          average = ColorLensSwatch(r: r, g: g, b: b)
         } else {
           let r = UInt8(min(MMCQ.multiplier * (Int(rMin) + Int(rMax) + 1) / 2, 255))
           let g = UInt8(min(MMCQ.multiplier * (Int(gMin) + Int(gMax) + 1) / 2, 255))
           let b = UInt8(min(MMCQ.multiplier * (Int(bMin) + Int(bMax) + 1) / 2, 255))
-          average = Color(r: r, g: g, b: b)
+          average = ColorLensSwatch(r: r, g: g, b: b)
         }
 
         self.average = average
@@ -398,7 +178,7 @@ open class MMCQ {
     }
   }
 
-  /// Simplified Color map
+  /// Simplified ColorLensSwatch map
   open class ColorMap {
     var vboxes = [VBox]()
 
@@ -406,7 +186,7 @@ open class MMCQ {
       vboxes.append(vbox)
     }
 
-    open func makePalette() -> [Color] {
+    func makePalette() -> [ColorLensSwatch] {
       return vboxes.map { $0.getAverage() }
     }
   }

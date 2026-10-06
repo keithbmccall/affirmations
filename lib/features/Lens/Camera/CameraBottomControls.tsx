@@ -8,10 +8,11 @@ import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
 import { createAssetAsync, type Asset } from 'expo-media-library';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { FlashMode, Recorder } from 'react-native-vision-camera';
 
 interface CameraBottomControlsProps {
   enableVideoLongPress?: boolean;
@@ -31,7 +32,8 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   onVideoAssetSaved,
 }: CameraBottomControlsProps) {
   const insets = useSafeAreaInsets();
-  const { cameraRef, flashMode } = useCameraSurface();
+  const { photoOutput, videoOutput, flashMode } = useCameraSurface();
+  const recorderRef = useRef<Recorder | null>(null);
 
   const {
     animatedPhotoStyle,
@@ -53,25 +55,24 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   }, [fetchRecentMedia]);
 
   const handlePhotoCapture = useCallback(async () => {
-    /* istanbul ignore next -- ref is set when capture is reachable in production */
-    if (!cameraRef.current) return;
-
     try {
       const captureContext = onPhotoCaptureStart?.();
-      const photo = await cameraRef.current.takePhoto({
-        flash: flashModeOptions[flashMode].value,
-        enableShutterSound: true,
-      });
-      const savePath = await processPhotoPath(photo.path);
+      const photoFile = await photoOutput.capturePhotoToFile(
+        {
+          flashMode: flashModeOptions[flashMode].value as FlashMode,
+          enableShutterSound: true,
+        },
+        {}
+      );
+      const savePath = await processPhotoPath(photoFile.filePath);
       const asset = await createAssetAsync(savePath);
-      console.log('keith::', { asset, captureContext });
       await onPhotoAssetSaved?.(asset, captureContext);
       notifyAfterMediaCapture();
     } catch {
       Alert.alert('Error', 'Failed to capture');
     }
   }, [
-    cameraRef,
+    photoOutput,
     flashMode,
     onPhotoCaptureStart,
     processPhotoPath,
@@ -80,38 +81,39 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   ]);
 
   const handleVideoCapture = useCallback(async () => {
-    /* istanbul ignore next -- ref is set when capture is reachable in production */
-    if (!cameraRef.current) return;
-
     try {
-      cameraRef.current.startRecording({
-        onRecordingFinished: async video => {
+      const recorder = await videoOutput.createRecorder({});
+      recorderRef.current = recorder;
+      await recorder.startRecording(
+        async filePath => {
           try {
-            const asset = await createAssetAsync(video.path);
+            const asset = await createAssetAsync(filePath);
             await onVideoAssetSaved?.(asset);
             notifyAfterMediaCapture();
           } catch {
             Alert.alert('Error', 'Failed to capture');
           } finally {
+            recorderRef.current = null;
             setIsRecording(false);
           }
         },
-        onRecordingError: error => {
+        error => {
           Alert.alert('Recording error', error.message);
+          recorderRef.current = null;
           setIsRecording(false);
-        },
-      });
+        }
+      );
       setIsRecording(true);
     } catch {
       Alert.alert('Error', 'Failed to record video');
     }
-  }, [cameraRef, onVideoAssetSaved, notifyAfterMediaCapture]);
+  }, [videoOutput, onVideoAssetSaved, notifyAfterMediaCapture]);
 
   const handleStopRecording = useCallback(async () => {
-    /* istanbul ignore next -- ref is always set when stop is reachable in production */
-    if (!cameraRef.current) return;
-    await cameraRef.current.stopRecording();
-  }, [cameraRef]);
+    const recorder = recorderRef.current;
+    if (recorder === null) return;
+    await recorder.stopRecording();
+  }, []);
 
   const handleCapturePress = useCallback(() => {
     if (isRecording) {

@@ -21,11 +21,16 @@ jest.mock('@components/Modal', () => {
   };
 });
 
-jest.mock('expo-router', () => ({
-  router: {
-    push: jest.fn(),
-  },
-}));
+jest.mock('expo-router', () => {
+  const actual = jest.requireActual<typeof import('expo-router')>('expo-router');
+  return {
+    ...actual,
+    router: {
+      ...actual.router,
+      push: jest.fn(),
+    },
+  };
+});
 
 jest.mock('@features/Lens/ColorPalette/ColorPaletteImage', () => {
   const { View } = jest.requireActual<typeof import('react-native')>('react-native');

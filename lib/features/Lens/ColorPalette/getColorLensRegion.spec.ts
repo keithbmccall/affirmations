@@ -3,8 +3,8 @@ import { getColorLensRegion } from './getColorLensRegion';
 
 const mockRegionPluginCall = jest.fn();
 
-jest.mock('./colorLensRegionFrameProcessorPlugin', () => ({
-  colorLensRegionFrameProcessorPlugin: {
+jest.mock('expo-color-lens-frame-processor', () => ({
+  colorLensRegionPlugin: {
     call: (...args: unknown[]) => mockRegionPluginCall(...args),
   },
 }));
@@ -29,7 +29,14 @@ describe('getColorLensRegion', () => {
 
     const result = getColorLensRegion(mockFrame, regionOptions);
 
-    expect(mockRegionPluginCall).toHaveBeenCalledWith(mockFrame, regionOptions);
+    expect(mockRegionPluginCall).toHaveBeenCalledWith(
+      mockFrame,
+      regionOptions.centerX,
+      regionOptions.centerY,
+      regionOptions.radius,
+      regionOptions.viewportWidth,
+      regionOptions.viewportHeight
+    );
     expect(result).toBe('#AABBCC');
   });
 

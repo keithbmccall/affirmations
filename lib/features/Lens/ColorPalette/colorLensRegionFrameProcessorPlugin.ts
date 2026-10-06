@@ -1,6 +1,1 @@
-import { VisionCameraProxy } from 'react-native-vision-camera';
-
-export const colorLensRegionFrameProcessorPlugin = VisionCameraProxy.initFrameProcessorPlugin(
-  'getColorLensRegion',
-  {}
-);
+export { colorLensRegionPlugin as colorLensRegionFrameProcessorPlugin } from 'expo-color-lens-frame-processor';

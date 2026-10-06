@@ -1,6 +1,6 @@
 # Vision Camera v4.7 vs v5 — Feature Comparison
 
-Reference for **react-native-vision-camera 4.7.0** (current in this app) versus **v5.x** (upstream; latest stable **5.2.x** as of Aug 2026). Sources: [v5.0.0 release notes](https://github.com/mrousavy/react-native-vision-camera/releases/tag/v5.0.0), [Margelo v5 blog](https://blog.margelo.com/whats-new-in-visioncamera-v5), [v5 docs](https://visioncamera.margelo.com).
+Reference for **react-native-vision-camera 4.7.x** versus **v5.x** (this app ships **5.2.3** on Expo **57**). Sources: [v5.0.0 release notes](https://github.com/mrousavy/react-native-vision-camera/releases/tag/v5.0.0), [Margelo v5 blog](https://blog.margelo.com/whats-new-in-visioncamera-v5), [v5 docs](https://visioncamera.margelo.com).
 
 For migration steps in this repo, see [`VISION_CAMERA_V5_MIGRATION.md`](VISION_CAMERA_V5_MIGRATION.md).
 
@@ -8,10 +8,10 @@ For migration steps in this repo, see [`VISION_CAMERA_V5_MIGRATION.md`](VISION_C
 
 ## At a glance
 
-| Area | v4.7 (today) | v5 |
-|------|----------------|-----|
+| Area | v4.7 | v5 (this app) |
+|------|------|---------------|
 | **Native bridge** | Hand-written JSI/C++ for frame processors | **Nitro Modules** — Swift/Kotlin HybridObjects |
-| **Required deps** | `react-native-worklets-core` (this app) | **`react-native-nitro-modules`**, **`react-native-nitro-image`** (core); frame processors also need **`react-native-vision-camera-worklets`** + **`react-native-worklets`** |
+| **Required deps** | `react-native-worklets-core` | **`react-native-nitro-modules`**, **`react-native-nitro-image`** (core); frame processors also need **`react-native-vision-camera-worklets`** + **`react-native-worklets`** |
 | **Expo config plugin** | Required in `app.json` for managed Expo | **Removed** — must delete plugin entry or startup fails ([issue #3966](https://github.com/mrousavy/react-native-vision-camera/issues/3966)) |
 | **Device / format config** | `CameraFormat` + `useCameraFormat` + `format` prop | **Constraints API** — intent-based negotiation |
 | **Outputs** | Boolean props: `photo`, `video`, `audio` on `<Camera>` | Separate **Output objects** (`usePhotoOutput`, `useVideoOutput`, `useFrameOutput`, …) in `outputs={[...]}` |

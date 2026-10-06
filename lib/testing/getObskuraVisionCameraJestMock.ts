@@ -17,31 +17,25 @@ const MockCamera = forwardRef<unknown, Record<string, unknown>>(function MockObs
   return React.createElement(View, { testID: 'mock-obskura-camera' });
 });
 
-export const mockObskuraFrameProcessingFormat = {
-  videoWidth: 1080,
-  videoHeight: 720,
-  photoWidth: 4032,
-  photoHeight: 3024,
-  minFps: 1,
-  maxFps: 30,
-};
+export const mockObskuraPhotoOutput = { id: 'mock-photo-output' };
 
 export function getObskuraVisionCameraJestMock() {
   return {
     Camera: MockCamera,
-    Templates: {
-      FrameProcessing: [{ videoResolution: { width: 1080, height: 720 } }],
+    CommonResolutions: {
+      FHD_16_9: { width: 1080, height: 1920 },
+      HD_16_9: { width: 720, height: 1280 },
+      UHD_4_3: { width: 3000, height: 4000 },
     },
-    useCameraFormat: jest.fn(() => mockObskuraFrameProcessingFormat),
-    useSkiaFrameProcessor: jest.fn(
-      (processor: (frame: { render: (p: unknown) => void }) => void) => {
-        try {
-          processor({ render: jest.fn() });
-        } catch {
-          /* worklet body may throw outside native runtime */
-        }
-        return processor;
-      }
-    ),
+    useCameraDevice: jest.fn(() => ({ id: 'mock-device' })),
+    usePhotoOutput: jest.fn(() => mockObskuraPhotoOutput),
+    useVideoOutput: jest.fn(() => ({ id: 'mock-video-output' })),
+    useFrameOutput: jest.fn(() => ({ id: 'mock-frame-output' })),
+  };
+}
+
+export function getObskuraSkiaCameraJestMock() {
+  return {
+    SkiaCamera: MockCamera,
   };
 }

@@ -4,7 +4,12 @@ import { createAssetAsync } from 'expo-media-library';
 import React, { createRef } from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Camera as VisionCamera } from 'react-native-vision-camera';
+import type {
+  CameraPhotoOutput,
+  CameraRef,
+  CameraVideoOutput,
+  Recorder,
+} from 'react-native-vision-camera';
 
 import {
   CameraSurfaceContextForTesting,
@@ -47,11 +52,14 @@ jest.mock('expo-image', () => ({
   },
 }));
 
-const mockTakePhoto = jest.fn(() => Promise.resolve({ path: '/tmp/photo.jpg' }));
+const mockCapturePhotoToFile = jest.fn(() =>
+  Promise.resolve({ filePath: '/tmp/photo.jpg' })
+);
+const mockCreateRecorder = jest.fn();
 const mockStartRecording = jest.fn();
 const mockStopRecording = jest.fn(() => Promise.resolve());
 
-let pendingRecordingFinished: ((video: { path: string }) => void) | undefined;
+let pendingRecordingFinished: ((filePath: string) => void) | undefined;
 
 jest.mock('react-native-vision-camera', () => {
   const RN = jest.requireActual('react-native');
@@ -61,6 +69,14 @@ jest.mock('react-native-vision-camera', () => {
 });
 
 const mockedCreateAssetAsync = createAssetAsync as jest.MockedFunction<typeof createAssetAsync>;
+
+const mockPhotoOutput = {
+  capturePhotoToFile: (...args: unknown[]) => mockCapturePhotoToFile(...args),
+} as unknown as CameraPhotoOutput;
+
+const mockVideoOutput = {
+  createRecorder: (...args: unknown[]) => mockCreateRecorder(...args),
+} as unknown as CameraVideoOutput;
 
 function TestSafeArea({ children }: { children: React.ReactNode }) {
   return (
@@ -76,10 +92,11 @@ function TestSafeArea({ children }: { children: React.ReactNode }) {
 }
 
 const createMockSurfaceContext = (
-  cameraRef: React.RefObject<VisionCamera | null>,
   overrides: Partial<CameraSurfaceContextValue> = {}
 ): CameraSurfaceContextValue => ({
-  cameraRef,
+  cameraRef: createRef<CameraRef | null>(),
+  photoOutput: mockPhotoOutput,
+  videoOutput: mockVideoOutput,
   showPreview: true,
   isActive: true,
   flashMode: 0,
@@ -98,17 +115,16 @@ const renderBottomControls = (
   props: Partial<React.ComponentProps<typeof CameraBottomControls>> = {},
   contextOverrides: Partial<CameraSurfaceContextValue> = {}
 ) => {
-  const cameraRef = createRef<VisionCamera | null>();
   const result = render(
     <TestSafeArea>
       <CameraSurfaceContextForTesting.Provider
-        value={createMockSurfaceContext(cameraRef, contextOverrides)}
+        value={createMockSurfaceContext(contextOverrides)}
       >
         <CameraBottomControls {...props} />
       </CameraSurfaceContextForTesting.Provider>
     </TestSafeArea>
   );
-  return { ...result, cameraRef };
+  return result;
 };
 
 describe('CameraBottomControls', () => {
@@ -130,15 +146,21 @@ describe('CameraBottomControls', () => {
       mediaType: 'photo',
     } as never);
     pendingRecordingFinished = undefined;
-    mockStartRecording.mockImplementation(
-      ({ onRecordingFinished }: { onRecordingFinished?: (v: { path: string }) => void }) => {
-        pendingRecordingFinished = onRecordingFinished;
-      }
-    );
-    mockStopRecording.mockImplementation(() => {
-      pendingRecordingFinished?.({ path: '/tmp/video.mp4' });
+    mockStartRecording.mockImplementation((onRecordingFinished: (filePath: string) => void) => {
+      pendingRecordingFinished = onRecordingFinished;
       return Promise.resolve();
     });
+    mockStopRecording.mockImplementation(() => {
+      pendingRecordingFinished?.('/tmp/video.mp4');
+      return Promise.resolve();
+    });
+    mockCreateRecorder.mockImplementation(() =>
+      Promise.resolve({
+        startRecording: mockStartRecording,
+        stopRecording: mockStopRecording,
+      } as unknown as Recorder)
+    );
+    mockCapturePhotoToFile.mockResolvedValue({ filePath: '/tmp/photo.jpg' });
   });
 
   afterEach(() => {
@@ -153,7 +175,7 @@ describe('CameraBottomControls', () => {
     });
   });
 
-  it('calls onPhotoCaptureStart before takePhoto when capturing a photo', async () => {
+  it('calls onPhotoCaptureStart before capturePhotoToFile when capturing a photo', async () => {
     const callOrder: string[] = [];
     const onPhotoCaptureStart = jest.fn(() => {
       callOrder.push('onPhotoCaptureStart');
@@ -171,39 +193,23 @@ describe('CameraBottomControls', () => {
         },
       } as const;
     });
-    mockTakePhoto.mockImplementation(async () => {
-      callOrder.push('takePhoto');
-      return { path: '/tmp/photo.jpg' };
+    mockCapturePhotoToFile.mockImplementation(async () => {
+      callOrder.push('capturePhotoToFile');
+      return { filePath: '/tmp/photo.jpg' };
     });
 
-    const { cameraRef, getByTestId } = renderBottomControls({ onPhotoCaptureStart });
-
-    await act(async () => {
-      cameraRef.current = {
-        takePhoto: mockTakePhoto,
-        startRecording: mockStartRecording,
-        stopRecording: mockStopRecording,
-      } as unknown as VisionCamera;
-    });
+    const { getByTestId } = renderBottomControls({ onPhotoCaptureStart });
 
     fireEvent.press(getByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(callOrder).toEqual(['onPhotoCaptureStart', 'takePhoto']);
+      expect(callOrder).toEqual(['onPhotoCaptureStart', 'capturePhotoToFile']);
     });
   });
 
   it('saves photo and refreshes camera roll head after capture', async () => {
     const onPhotoAssetSaved = jest.fn(() => Promise.resolve());
-    const { cameraRef, getByTestId } = renderBottomControls({ onPhotoAssetSaved });
-
-    await act(async () => {
-      cameraRef.current = {
-        takePhoto: mockTakePhoto,
-        startRecording: mockStartRecording,
-        stopRecording: mockStopRecording,
-      } as unknown as VisionCamera;
-    });
+    const { getByTestId } = renderBottomControls({ onPhotoAssetSaved });
 
     fireEvent.press(getByTestId('lens-capture-button'));
 
@@ -217,15 +223,7 @@ describe('CameraBottomControls', () => {
 
   it('runs processPhotoPath before createAssetAsync', async () => {
     const processPhotoPath = jest.fn(() => Promise.resolve('file:///painted.jpg'));
-    const { cameraRef, getByTestId } = renderBottomControls({ processPhotoPath });
-
-    await act(async () => {
-      cameraRef.current = {
-        takePhoto: mockTakePhoto,
-        startRecording: mockStartRecording,
-        stopRecording: mockStopRecording,
-      } as unknown as VisionCamera;
-    });
+    const { getByTestId } = renderBottomControls({ processPhotoPath });
 
     fireEvent.press(getByTestId('lens-capture-button'));
 
@@ -236,19 +234,12 @@ describe('CameraBottomControls', () => {
   });
 
   it('starts and stops video recording when video long press is enabled', async () => {
-    const { cameraRef, getByTestId } = renderBottomControls({ enableVideoLongPress: true });
-
-    await act(async () => {
-      cameraRef.current = {
-        takePhoto: mockTakePhoto,
-        startRecording: mockStartRecording,
-        stopRecording: mockStopRecording,
-      } as unknown as VisionCamera;
-    });
+    const { getByTestId } = renderBottomControls({ enableVideoLongPress: true });
 
     fireEvent(getByTestId('lens-capture-button'), 'longPress');
 
     await waitFor(() => {
+      expect(mockCreateRecorder).toHaveBeenCalled();
       expect(mockStartRecording).toHaveBeenCalled();
     });
 
@@ -260,32 +251,16 @@ describe('CameraBottomControls', () => {
   });
 
   it('does not start recording on long press when video long press is disabled', () => {
-    const { cameraRef, getByTestId } = renderBottomControls({ enableVideoLongPress: false });
-
-    act(() => {
-      cameraRef.current = {
-        takePhoto: mockTakePhoto,
-        startRecording: mockStartRecording,
-        stopRecording: mockStopRecording,
-      } as unknown as VisionCamera;
-    });
+    const { getByTestId } = renderBottomControls({ enableVideoLongPress: false });
 
     fireEvent(getByTestId('lens-capture-button'), 'longPress');
 
-    expect(mockStartRecording).not.toHaveBeenCalled();
+    expect(mockCreateRecorder).not.toHaveBeenCalled();
   });
 
-  it('alerts when takePhoto fails', async () => {
-    mockTakePhoto.mockRejectedValueOnce(new Error('capture failed'));
-    const { cameraRef, getByTestId } = renderBottomControls();
-
-    await act(async () => {
-      cameraRef.current = {
-        takePhoto: mockTakePhoto,
-        startRecording: mockStartRecording,
-        stopRecording: mockStopRecording,
-      } as unknown as VisionCamera;
-    });
+  it('alerts when capturePhotoToFile fails', async () => {
+    mockCapturePhotoToFile.mockRejectedValueOnce(new Error('capture failed'));
+    const { getByTestId } = renderBottomControls();
 
     fireEvent.press(getByTestId('lens-capture-button'));
 

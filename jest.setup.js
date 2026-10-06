@@ -5,6 +5,9 @@ import { router } from 'expo-router';
 // Jest setup file for React Native/Expo testing
 import 'react-native-gesture-handler/jestSetup';
 
+// Mock worklets before Reanimated — Reanimated 4's mock loads worklets at import time.
+jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
+
 // Mock react-native-reanimated
 jest.mock('react-native-reanimated', () => {
   const Reanimated = require('react-native-reanimated/mock');
