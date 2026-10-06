@@ -4,8 +4,7 @@ import TabBarBackground from '@components/defaults/ui/TabBarBackground';
 import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import { Routes } from '@routes/routes';
 import { useColorScheme } from '@styles/hooks/useColorScheme';
-import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
-import { Tabs } from 'expo-router';
+import { Tabs, type BottomTabNavigationOptions } from 'expo-router/js-tabs';
 import { useMemo } from 'react';
 
 const screensList = [

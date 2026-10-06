@@ -26,6 +26,22 @@ function buildSnippet() {
     end`;
 }
 
+/** @type {Array<{ name: string; pattern: RegExp; replace: (snippet: string) => string }>} */
+const FOOTER_ANCHORS = [
+  // Expo SDK 54+: post_install closes right after react_native_post_install(...)
+  {
+    name: 'sdk54-post-install',
+    pattern: /(\n    \)\n)(  end\nend\s*)$/,
+    replace: (snippet) => `$1${snippet}\n$2`,
+  },
+  // Expo SDK 53 and earlier: resource bundle signing nest, then post_install / target end
+  {
+    name: 'sdk53-resource-bundle',
+    pattern: /(\n      end\n    end)(\n  end\nend\s*)$/,
+    replace: (snippet) => `$1${snippet}$2`,
+  },
+];
+
 function withFmtXcode26Podfile(config) {
   return withDangerousMod(config, [
     'ios',
@@ -40,24 +56,23 @@ function withFmtXcode26Podfile(config) {
         return cfg;
       }
 
-      // Expo template: resource bundle signing block, then post_install / target `end`.
-      const anchor = `      end
-    end
-  end
-end`;
-      if (!contents.includes(anchor)) {
+      const snippet = buildSnippet();
+      let updated = null;
+
+      for (const anchor of FOOTER_ANCHORS) {
+        if (anchor.pattern.test(contents)) {
+          updated = contents.replace(anchor.pattern, anchor.replace(snippet));
+          break;
+        }
+      }
+
+      if (updated === null) {
         throw new Error(
           'withFmtXcode26Podfile: Podfile footer anchor not found; update plugins/withFmtXcode26Podfile.js for your Expo template.',
         );
       }
-      contents = contents.replace(
-        anchor,
-        `      end
-    end${buildSnippet()}
-  end
-end`,
-      );
-      fs.writeFileSync(podfilePath, contents);
+
+      fs.writeFileSync(podfilePath, updated);
       return cfg;
     },
   ]);

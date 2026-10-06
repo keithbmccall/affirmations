@@ -1,7 +1,7 @@
 import { Colors } from '@components/defaults/constants/Colors';
 import { useColorScheme } from '@styles/hooks/useColorScheme';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
+import { useBottomTabBarHeight } from 'expo-router/js-tabs';
 import { memo } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
