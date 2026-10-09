@@ -1,7 +1,6 @@
 import { Routes } from '@routes/routes';
-import { Stack } from 'expo-router';
+import { Stack, type NativeStackNavigationOptions } from 'expo-router';
 import { useMemo } from 'react';
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 export default function ModalLayout() {
   const screenOptions: NativeStackNavigationOptions = useMemo(() => {

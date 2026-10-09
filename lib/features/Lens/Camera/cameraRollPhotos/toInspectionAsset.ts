@@ -1,9 +1,9 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import type { InspectionAsset, LensPalette } from '@features/Lens/ColorPalette/types';
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from './CameraRollMediaAsset';
 
 export const toInspectionAsset = (
-  asset: Asset,
+  asset: CameraRollMediaAsset,
   lensPalette?: LensPalette
 ): InspectionAsset => {
   const base = {

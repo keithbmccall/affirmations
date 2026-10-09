@@ -1,39 +1,77 @@
+import type { ColorLensProcessor, ColorLensRegionPixels } from 'expo-color-lens-frame-processor';
 import type { Frame } from 'react-native-vision-camera';
-import { getColorLensRegion } from './getColorLensRegion';
+import { copyColorLensRegion, extractColorLensRegionColor } from './getColorLensRegion';
 
-const mockRegionPluginCall = jest.fn();
+const mockCopyRegion = jest.fn();
+const mockExtractDominantColor = jest.fn();
 
-jest.mock('./colorLensRegionFrameProcessorPlugin', () => ({
-  colorLensRegionFrameProcessorPlugin: {
-    call: (...args: unknown[]) => mockRegionPluginCall(...args),
-  },
-}));
+const mockProcessor = {
+  copyRegion: (...args: unknown[]) => mockCopyRegion(...args),
+  extractDominantColor: (...args: unknown[]) => mockExtractDominantColor(...args),
+} as unknown as ColorLensProcessor;
 
 const mockFrame = {} as Frame;
 
 const regionOptions = {
-  centerX: 0.5,
-  centerY: 0.5,
-  radius: 0.15,
+  left: 10,
+  top: 20,
+  right: 30,
+  bottom: 40,
+};
+
+const mockRegionPixels: ColorLensRegionPixels = {
+  pixels: new ArrayBuffer(16),
+  width: 2,
+  height: 2,
 };
 
 describe('getColorLensRegion', () => {
   beforeEach(() => {
-    mockRegionPluginCall.mockReset();
+    mockCopyRegion.mockReset();
+    mockExtractDominantColor.mockReset();
   });
 
-  it('calls the getColorLensRegion plugin with frame and options', () => {
-    mockRegionPluginCall.mockReturnValue('#AABBCC');
+  describe('copyColorLensRegion', () => {
+    it('calls copyRegion with frame and pixel rect', () => {
+      mockCopyRegion.mockReturnValue(mockRegionPixels);
 
-    const result = getColorLensRegion(mockFrame, regionOptions);
+      const result = copyColorLensRegion(mockProcessor, mockFrame, regionOptions);
 
-    expect(mockRegionPluginCall).toHaveBeenCalledWith(mockFrame, regionOptions);
-    expect(result).toBe('#AABBCC');
+      expect(mockCopyRegion).toHaveBeenCalledWith(
+        mockFrame,
+        regionOptions.left,
+        regionOptions.top,
+        regionOptions.right,
+        regionOptions.bottom
+      );
+      expect(result).toBe(mockRegionPixels);
+    });
+
+    it('returns null when copyRegion returns undefined', () => {
+      mockCopyRegion.mockReturnValue(undefined);
+
+      expect(copyColorLensRegion(mockProcessor, mockFrame, regionOptions)).toBeNull();
+    });
   });
 
-  it('returns null when the plugin returns null', () => {
-    mockRegionPluginCall.mockReturnValue(null as unknown as string);
+  describe('extractColorLensRegionColor', () => {
+    it('calls extractDominantColor with region pixels', () => {
+      mockExtractDominantColor.mockReturnValue('#AABBCC');
 
-    expect(getColorLensRegion(mockFrame, regionOptions)).toBeNull();
+      const result = extractColorLensRegionColor(mockProcessor, mockRegionPixels);
+
+      expect(mockExtractDominantColor).toHaveBeenCalledWith(
+        mockRegionPixels.pixels,
+        mockRegionPixels.width,
+        mockRegionPixels.height
+      );
+      expect(result).toBe('#AABBCC');
+    });
+
+    it('returns null when extractDominantColor returns undefined', () => {
+      mockExtractDominantColor.mockReturnValue(undefined);
+
+      expect(extractColorLensRegionColor(mockProcessor, mockRegionPixels)).toBeNull();
+    });
   });
 });

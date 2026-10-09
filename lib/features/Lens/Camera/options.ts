@@ -1,4 +1,4 @@
-import { PhysicalCameraDeviceType } from 'react-native-vision-camera';
+import type { PhysicalDeviceType } from 'react-native-vision-camera';
 
 export const CAMERA_MODE = {
   PHOTO: 'photo',
@@ -32,16 +32,13 @@ export const gridModeOptions = Object.keys(GRID_MODE).map(key => ({
 }));
 
 export const CAMERA_DEVICE = {
-  TRIPLE: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
-  DUAL_WIDE: ['ultra-wide-angle-camera', 'wide-angle-camera'],
-  DUAL: ['wide-angle-camera', 'telephoto-camera'],
-  // WIDE_ANGLE: ['wide-angle-camera'],
-  // ULTRA_WIDE_ANGLE: ['ultra-wide-angle-camera'],
-  // TELEPHOTO: ['telephoto-camera'],
+  TRIPLE: ['ultra-wide-angle', 'wide-angle', 'telephoto'],
+  DUAL_WIDE: ['ultra-wide-angle', 'wide-angle'],
+  DUAL: ['wide-angle', 'telephoto'],
 } as const;
 export const cameraDeviceOptions = Object.keys(CAMERA_DEVICE).map(key => ({
   label: key,
-  value: CAMERA_DEVICE[key as keyof typeof CAMERA_DEVICE] as unknown as PhysicalCameraDeviceType[],
+  value: CAMERA_DEVICE[key as keyof typeof CAMERA_DEVICE] as unknown as PhysicalDeviceType[],
 }));
 
 // Timer modes

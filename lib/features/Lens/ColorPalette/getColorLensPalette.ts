@@ -1,23 +1,27 @@
-import { Frame, VisionCameraProxy } from 'react-native-vision-camera';
+import type {
+  ColorLensPaletteResult,
+  ColorLensProcessor,
+} from 'expo-color-lens-frame-processor';
 
-// Type definition for the color palette returned by the Swift frame processor
-export interface ColorLensPaletteType {
-  primary: string;
-  secondary: string;
-  tertiary: string;
-  quaternary: string;
-  quinary: string;
-  senary: string;
-  background: string;
-  detail: string;
+export type ColorLensPaletteType = ColorLensPaletteResult;
+
+export interface ColorLensPaletteOptions {
+  /** uint8 RGB interleaved buffer from vision-camera-resizer */
+  pixels: ArrayBuffer;
+  width: number;
+  height: number;
 }
 
-const plugin = VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette', {});
-
-export function getColorLensPalette(frame: Frame): ColorLensPaletteType | null {
+/**
+ * Call from a frame worklet with a processor created on the RN JS thread.
+ * Do not call `getColorLensProcessor()` inside the worklet — that is a remote RN function.
+ */
+export function getColorLensPalette(
+  processor: ColorLensProcessor,
+  options: ColorLensPaletteOptions
+): ColorLensPaletteType | null {
   'worklet';
-  if (plugin === null || plugin === undefined) {
-    throw new Error('Failed to load Frame Processor Plugin!');
-  }
-  return plugin.call(frame) as unknown as ColorLensPaletteType | null;
+  return (
+    processor.extractPalette(options.pixels, options.width, options.height) ?? null
+  );
 }

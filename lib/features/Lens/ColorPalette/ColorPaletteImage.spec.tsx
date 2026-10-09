@@ -4,7 +4,7 @@ import type { LensPalette } from '@features/Lens/ColorPalette/types';
 import { renderWithContext } from '@testing/renderWithContext';
 import { screen } from '@testing-library/react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 
 jest.mock('expo-image', () => {
   const { View } = jest.requireActual<typeof import('react-native')>('react-native');
@@ -15,18 +15,17 @@ jest.mock('expo-image', () => {
   };
 });
 
-const createAsset = (id: string): Asset =>
-  ({
-    id,
-    uri: `file:///${id}.jpg`,
-    mediaType: 'photo',
-    width: 100,
-    height: 100,
-    filename: `${id}.jpg`,
-    creationTime: 0,
-    modificationTime: 0,
-    duration: 0,
-  }) as Asset;
+const createAsset = (id: string): CameraRollMediaAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'image',
+  width: 100,
+  height: 100,
+  filename: `${id}.jpg`,
+  creationTime: 0,
+  modificationTime: 0,
+  duration: 0,
+});
 
 const dominantPalette: LensPalette = {
   id: 'photo-1',

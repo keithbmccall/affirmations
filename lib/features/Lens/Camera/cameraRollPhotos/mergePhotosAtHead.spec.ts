@@ -1,18 +1,17 @@
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { mergePhotosAtHead } from '@features/Lens/Camera/cameraRollPhotos/mergePhotosAtHead';
-import type { Asset } from 'expo-media-library';
 
-const createAsset = (id: string, creationTime: number): Asset =>
-  ({
-    id,
-    uri: `file:///${id}.jpg`,
-    mediaType: 'photo',
-    width: 100,
-    height: 100,
-    filename: `${id}.jpg`,
-    creationTime,
-    modificationTime: 0,
-    duration: 0,
-  }) as Asset;
+const createAsset = (id: string, creationTime: number): CameraRollMediaAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'image',
+  width: 100,
+  height: 100,
+  filename: `${id}.jpg`,
+  creationTime,
+  modificationTime: 0,
+  duration: 0,
+});
 
 describe('mergePhotosAtHead', () => {
   it('returns existing when head is empty', () => {

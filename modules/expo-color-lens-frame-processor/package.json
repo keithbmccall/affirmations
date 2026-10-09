@@ -1,13 +1,22 @@
 {
   "name": "expo-color-lens-frame-processor",
   "version": "1.0.0",
-  "description": "VisionCamera frame processor for color lens palette extraction",
-  "main": "index.ts",
+  "description": "VisionCamera v5 Nitro ColorLensProcessor for palette + region MMCQ",
+  "main": "src/index.ts",
   "license": "MIT",
+  "scripts": {
+    "nitrogen": "nitrogen"
+  },
   "peerDependencies": {
-    "expo": "*",
     "react": "*",
     "react-native": "*",
-    "react-native-vision-camera": "*"
+    "react-native-nitro-modules": "*",
+    "react-native-vision-camera": ">=5"
+  },
+  "devDependencies": {
+    "nitrogen": "*",
+    "react-native-nitro-modules": "*",
+    "react-native-vision-camera": "*",
+    "typescript": "*"
   }
 }

@@ -1,7 +1,7 @@
 import { COLOR_LENS_MODE, type ColorLensMode } from '@features/Lens/ColorPalette/colorLensMode';
 import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
-import { createAssetAsync } from 'expo-media-library';
+import { createCameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset';
 import { router } from 'expo-router';
 import React from 'react';
 import { Alert } from 'react-native';
@@ -15,7 +15,8 @@ const mockOnUpdateLensPaletteNamedColors = jest.fn();
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
-const mockGetColorLensRegionWorklet = jest.fn();
+const mockCopyColorLensRegionWorklet = jest.fn();
+const mockApplyColorLensRegionColorWorklet = jest.fn();
 const mockFetchColorNames = jest.fn(() =>
   Promise.resolve({ paletteTitle: 'Test', colors: [] })
 );
@@ -79,7 +80,8 @@ jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
 
 jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
   useColorLensRegion: () => ({
-    getColorLensRegionWorklet: mockGetColorLensRegionWorklet,
+    copyColorLensRegionWorklet: mockCopyColorLensRegionWorklet,
+    applyColorLensRegionColorWorklet: mockApplyColorLensRegionColorWorklet,
     regionColor: mockRegionColor,
   }),
 }));
@@ -102,10 +104,25 @@ jest.mock('@features/Lens/Obskura/applyObskuraLensToPhotoFile', () => ({
   applyObskuraLensToPhotoFile: jest.fn(() => Promise.resolve('file:///painted.jpg')),
 }));
 
-jest.mock('expo-media-library', () => ({
-  createAssetAsync: jest.fn(() =>
-    Promise.resolve({ id: 'asset-1', uri: 'file:///asset', mediaType: 'photo' })
+jest.mock('@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset', () => ({
+  createCameraRollMediaAsset: jest.fn(() =>
+    Promise.resolve({
+      id: 'asset-1',
+      uri: 'file:///asset',
+      mediaType: 'image',
+      width: 100,
+      height: 100,
+      filename: 'asset.jpg',
+      creationTime: 0,
+      modificationTime: 0,
+      duration: 0,
+    })
   ),
+}));
+
+jest.mock('@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead', () => ({
+  requestCameraRollHeadRefresh: jest.fn(),
+  refreshCameraRollHead: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('expo-image', () => ({
@@ -115,11 +132,22 @@ jest.mock('expo-image', () => ({
   },
 }));
 
-const mockTakePhoto = jest.fn(() => Promise.resolve({ path: '/tmp/photo.jpg' }));
+const mockCapturePhotoToFile = jest.fn(() =>
+  Promise.resolve({ filePath: '/tmp/photo.jpg' })
+);
+const mockCreateRecorder = jest.fn();
 const mockStartRecording = jest.fn();
 const mockStopRecording = jest.fn(() => Promise.resolve());
 
-let pendingRecordingFinished: ((video: { path: string }) => void) | undefined;
+let pendingRecordingFinished: ((filePath: string) => void) | undefined;
+
+const mockPhotoOutput = {
+  capturePhotoToFile: (...args: unknown[]) => mockCapturePhotoToFile(...args),
+};
+
+const mockVideoOutput = {
+  createRecorder: (...args: unknown[]) => mockCreateRecorder(...args),
+};
 
 jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', () => ({
   buildObskuraLensPaintFromPipeline: jest.fn(() => ({ dispose: jest.fn() })),
@@ -127,6 +155,21 @@ jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', (
 
 jest.mock('@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig', () => ({
   OBSKURA_LENS_PIPELINE: [{ action: 'blur', settings: { sigma: 60 } }],
+}));
+
+jest.mock('react-native-vision-camera-resizer', () => ({
+  useResizer: () => ({
+    state: 'ready' as const,
+    resizer: {
+      resize: jest.fn(() => ({
+        getPixelBuffer: () => new ArrayBuffer(12),
+        width: 2,
+        height: 2,
+        dispose: jest.fn(),
+      })),
+    },
+    error: undefined,
+  }),
 }));
 
 jest.mock('react-native-vision-camera', () => {
@@ -137,40 +180,56 @@ jest.mock('react-native-vision-camera', () => {
     ref: unknown
   ) {
     React.useImperativeHandle(ref, () => ({
-      takePhoto: mockTakePhoto,
-      startRecording: mockStartRecording,
-      stopRecording: mockStopRecording,
+      focusTo: jest.fn(),
     }));
     return <RN.View testID={props.testID ?? 'vision-camera-mock'} />;
   });
   return {
     Camera: VisionCamera,
-    Templates: {
-      FrameProcessing: [{ videoResolution: { width: 1080, height: 720 } }],
+    CommonResolutions: {
+      FHD_16_9: { width: 1080, height: 1920 },
+      HD_16_9: { width: 720, height: 1280 },
+      UHD_4_3: { width: 3000, height: 4000 },
     },
     useCameraDevice: jest.fn(() => ({ id: 'mock-device' })),
-    useCameraFormat: jest.fn(() => ({
-      videoWidth: 1080,
-      videoHeight: 720,
-      photoWidth: 4032,
-      photoHeight: 3024,
-    })),
-    useFrameProcessor: jest.fn((processor: (f: unknown) => void) => {
-      try {
-        processor({});
-      } catch {
-        /* worklet body may throw outside native runtime */
+    usePhotoOutput: jest.fn(() => mockPhotoOutput),
+    useVideoOutput: jest.fn(() => mockVideoOutput),
+    useFrameOutput: jest.fn(({ onFrame }: { onFrame?: (frame: { dispose: () => void }) => void }) => {
+      if (onFrame !== undefined) {
+        try {
+          onFrame({ dispose: jest.fn() });
+        } catch {
+          /* worklet body may throw outside native runtime */
+        }
       }
-      return processor;
+      return { id: 'mock-frame-output' };
     }),
-    useSkiaFrameProcessor: jest.fn((processor: (f: unknown) => void) => {
+  };
+});
+
+jest.mock('react-native-vision-camera-skia', () => {
+  const React = jest.requireActual('react');
+  const RN = jest.requireActual('react-native');
+  const SkiaCamera = React.forwardRef(function SkiaCameraMock(
+    props: { testID?: string; onFrame?: (frame: { dispose: () => void }, render: (fn: (s: unknown) => void) => void) => void },
+    ref: unknown
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      focusTo: jest.fn(),
+    }));
+    if (props.onFrame !== undefined) {
       try {
-        processor({ render: jest.fn() });
+        props.onFrame({ dispose: jest.fn() }, onDraw => {
+          onDraw({ canvas: { drawImage: jest.fn() }, frameTexture: {} });
+        });
       } catch {
         /* Skia worklet may throw outside native runtime */
       }
-      return processor;
-    }),
+    }
+    return <RN.View testID={props.testID ?? 'skia-camera-mock'} />;
+  });
+  return {
+    SkiaCamera,
   };
 });
 
@@ -184,6 +243,7 @@ jest.mock('@features/Lens/Camera/CameraGrid', () => ({
 const mockUseCameraRollImpl = jest.fn(() => ({
   animatedPhotoStyle: {},
   handleCameraRollPress: mockHandleCameraRollPress,
+  handleCameraRollLongPress: jest.fn(),
   fetchRecentMedia: mockFetchRecentMedia,
   recentMedia: null as string | null,
 }));
@@ -217,7 +277,9 @@ jest.mock('expo-router', () => {
   };
 });
 
-const mockedCreateAssetAsync = createAssetAsync as jest.MockedFunction<typeof createAssetAsync>;
+const mockedCreateCameraRollMediaAsset = createCameraRollMediaAsset as jest.MockedFunction<
+  typeof createCameraRollMediaAsset
+>;
 const mockedApplyObskuraLensToPhotoFile = jest.mocked(applyObskuraLensToPhotoFile);
 const mockedVisionCameraModule = jest.mocked(VisionCameraModule);
 
@@ -255,22 +317,33 @@ describe('Camera', () => {
       palette: mockPalette,
       getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
     });
-    mockStartRecording.mockImplementation(
-      ({ onRecordingFinished }: { onRecordingFinished?: (v: { path: string }) => void }) => {
-        pendingRecordingFinished = onRecordingFinished;
-      }
-    );
-    mockStopRecording.mockImplementation(() => {
-      pendingRecordingFinished?.({ path: '/tmp/video.mp4' });
+    mockStartRecording.mockImplementation((onRecordingFinished: (filePath: string) => void) => {
+      pendingRecordingFinished = onRecordingFinished;
       return Promise.resolve();
     });
+    mockStopRecording.mockImplementation(() => {
+      pendingRecordingFinished?.('/tmp/video.mp4');
+      return Promise.resolve();
+    });
+    mockCreateRecorder.mockImplementation(() =>
+      Promise.resolve({
+        startRecording: mockStartRecording,
+        stopRecording: mockStopRecording,
+      })
+    );
     pendingRecordingFinished = undefined;
-    mockTakePhoto.mockResolvedValue({ path: '/tmp/photo.jpg' });
-    mockedCreateAssetAsync.mockResolvedValue({
+    mockCapturePhotoToFile.mockResolvedValue({ filePath: '/tmp/photo.jpg' });
+    mockedCreateCameraRollMediaAsset.mockResolvedValue({
       id: 'asset-1',
       uri: 'file:///asset',
-      mediaType: 'photo',
-    } as never);
+      mediaType: 'image',
+      width: 100,
+      height: 100,
+      filename: 'asset.jpg',
+      creationTime: 0,
+      modificationTime: 0,
+      duration: 0,
+    });
   });
 
   afterEach(() => {
@@ -385,9 +458,9 @@ describe('Camera', () => {
     fireEvent.press(await screen.findByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockTakePhoto).toHaveBeenCalled();
+      expect(mockCapturePhotoToFile).toHaveBeenCalled();
       expect(mockOnAddLensPalette).not.toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
     });
   });
 
@@ -404,12 +477,12 @@ describe('Camera', () => {
     fireEvent.press(await screen.findByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockTakePhoto).toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockCapturePhotoToFile).toHaveBeenCalled();
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
       expect(mockOnAddLensPalette).toHaveBeenCalledWith({
         id: 'asset-1',
         uri: 'file:///asset',
-        mediaType: 'photo',
+        mediaType: 'image',
         type: COLOR_LENS_MODE.LENS_DOMINANT,
         palette: {
           primaryColor: { hex: '#111111' },
@@ -458,12 +531,12 @@ describe('Camera', () => {
     fireEvent.press(await screen.findByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockTakePhoto).toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockCapturePhotoToFile).toHaveBeenCalled();
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
       expect(mockOnAddLensPalette).toHaveBeenCalledWith({
         id: 'asset-1',
         uri: 'file:///asset',
-        mediaType: 'photo',
+        mediaType: 'image',
         type: COLOR_LENS_MODE.LENS_POINT,
         lensPointColor: { hex: '#AABBCC' },
       });
@@ -484,7 +557,7 @@ describe('Camera', () => {
 
     await waitFor(() => {
       expect(mockedApplyObskuraLensToPhotoFile).toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('file:///painted.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('file:///painted.jpg');
     });
   });
 
@@ -515,8 +588,8 @@ describe('Camera', () => {
     expect(mockStartRecording).not.toHaveBeenCalled();
   });
 
-  it('alerts when takePhoto fails', async () => {
-    mockTakePhoto.mockRejectedValueOnce(new Error('capture failed'));
+  it('alerts when capturePhotoToFile fails', async () => {
+    mockCapturePhotoToFile.mockRejectedValueOnce(new Error('capture failed'));
 
     renderCamera(<Camera />);
 
@@ -527,10 +600,8 @@ describe('Camera', () => {
     });
   });
 
-  it('alerts when startRecording throws', async () => {
-    mockStartRecording.mockImplementationOnce(() => {
-      throw new Error('rec fail');
-    });
+  it('alerts when createRecorder throws', async () => {
+    mockCreateRecorder.mockRejectedValueOnce(new Error('rec fail'));
 
     renderCamera(<Camera />);
 
@@ -543,8 +614,12 @@ describe('Camera', () => {
 
   it('alerts on recording error callback', async () => {
     mockStartRecording.mockImplementationOnce(
-      ({ onRecordingError }: { onRecordingError?: (e: { message: string }) => void }) => {
-        onRecordingError?.({ message: 'codec' });
+      (
+        _onFinished: (filePath: string) => void,
+        onRecordingError: (e: Error) => void
+      ) => {
+        onRecordingError(new Error('codec'));
+        return Promise.resolve();
       }
     );
 

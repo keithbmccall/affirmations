@@ -6,8 +6,8 @@ import {
   prefetchCameraRollThumbnails,
   resetCameraRollThumbnailPrefetchState,
 } from '@features/Lens/Camera/cameraRollPhotos/prefetchCameraRollThumbnails';
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { Image } from 'expo-image';
-import type { Asset } from 'expo-media-library';
 
 jest.mock('expo-image', () => ({
   Image: {
@@ -17,18 +17,17 @@ jest.mock('expo-image', () => ({
 
 const mockedImagePrefetch = Image.prefetch as jest.MockedFunction<typeof Image.prefetch>;
 
-const createAsset = (id: string): Asset =>
-  ({
-    id,
-    uri: `file:///${id}.jpg`,
-    mediaType: 'photo',
-    width: 100,
-    height: 100,
-    filename: `${id}.jpg`,
-    creationTime: 0,
-    modificationTime: 0,
-    duration: 0,
-  }) as Asset;
+const createAsset = (id: string): CameraRollMediaAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'image',
+  width: 100,
+  height: 100,
+  filename: `${id}.jpg`,
+  creationTime: 0,
+  modificationTime: 0,
+  duration: 0,
+});
 
 describe('prefetchCameraRollThumbnails', () => {
   beforeEach(() => {

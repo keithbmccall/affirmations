@@ -1,8 +1,8 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPaletteImageInspector } from '@features/Lens/ColorPalette/ColorPaletteImageInspector';
 import type { InspectionAsset } from '@features/Lens/ColorPalette/types';
-import { renderWithContext } from '@testing/renderWithContext';
 import { fireEvent, screen } from '@testing-library/react-native';
+import { renderWithContext } from '@testing/renderWithContext';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 jest.mock('expo-image', () => {
@@ -66,31 +66,29 @@ describe('ColorPaletteImageInspector', () => {
   });
 
   it('renders one swatch for lens-point inspection assets', async () => {
-    renderWithContext(
-      <ColorPaletteImageInspector image={createPointInspectionAsset('photo-2')} />
-    );
+    renderWithContext(<ColorPaletteImageInspector image={createPointInspectionAsset('photo-2')} />);
 
     expect(await screen.findAllByTestId('lens-inspector-swatch')).toHaveLength(1);
   });
 
-  it('shows name, hex, and pantone in order when a named swatch is selected', async () => {
+  it('shows pantone, hex, and name in order when a named swatch is selected', async () => {
     renderWithContext(
       <ColorPaletteImageInspector image={createNamedPointInspectionAsset('photo-3')} />
     );
 
     fireEvent.press(await screen.findByTestId('lens-inspector-swatch'));
 
-    expect(await screen.findByTestId('lens-inspector-color-name')).toHaveTextContent('Ice');
-    expect(screen.getByTestId('lens-inspector-color-hex')).toHaveTextContent('#AABBCC');
+    const labels = await screen.findByTestId('lens-inspector-overlay-labels');
+    expect(labels).toHaveTextContent('Pantone 15-4020 Cerulean#AABBCCIce');
     expect(screen.getByTestId('lens-inspector-color-pantone')).toHaveTextContent(
       'Pantone 15-4020 Cerulean'
     );
+    expect(screen.getByTestId('lens-inspector-color-hex')).toHaveTextContent('#AABBCC');
+    expect(screen.getByTestId('lens-inspector-color-name')).toHaveTextContent('Ice');
   });
 
   it('shows only hex when enrichment is missing', async () => {
-    renderWithContext(
-      <ColorPaletteImageInspector image={createPointInspectionAsset('photo-4')} />
-    );
+    renderWithContext(<ColorPaletteImageInspector image={createPointInspectionAsset('photo-4')} />);
 
     fireEvent.press(await screen.findByTestId('lens-inspector-swatch'));
 

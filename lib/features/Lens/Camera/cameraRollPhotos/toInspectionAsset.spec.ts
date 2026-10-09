@@ -1,15 +1,19 @@
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
-import type { Asset } from 'expo-media-library';
 import { toInspectionAsset } from './toInspectionAsset';
 
-const asset = {
+const asset: CameraRollMediaAsset = {
   id: 'asset-1',
   uri: 'file:///asset-1.jpg',
-  mediaType: 'photo',
+  mediaType: 'image',
   height: 200,
   width: 100,
-} as Asset;
+  filename: 'asset-1.jpg',
+  creationTime: 0,
+  modificationTime: 0,
+  duration: 0,
+};
 
 const dominantPalette = {
   primaryColor: { hex: '#111111' },
@@ -27,7 +31,7 @@ describe('toInspectionAsset', () => {
     expect(toInspectionAsset(asset)).toEqual({
       id: 'asset-1',
       uri: 'file:///asset-1.jpg',
-      mediaType: 'photo',
+      mediaType: 'image',
       height: 200,
       width: 100,
     });
@@ -37,7 +41,7 @@ describe('toInspectionAsset', () => {
     const lensPalette: LensPalette = {
       id: 'asset-1',
       uri: 'file:///asset-1.jpg',
-      mediaType: 'photo',
+      mediaType: 'image',
       type: COLOR_LENS_MODE.LENS_DOMINANT,
       palette: dominantPalette,
     };
@@ -45,7 +49,7 @@ describe('toInspectionAsset', () => {
     expect(toInspectionAsset(asset, lensPalette)).toEqual({
       id: 'asset-1',
       uri: 'file:///asset-1.jpg',
-      mediaType: 'photo',
+      mediaType: 'image',
       height: 200,
       width: 100,
       type: COLOR_LENS_MODE.LENS_DOMINANT,
@@ -57,7 +61,7 @@ describe('toInspectionAsset', () => {
     const lensPalette: LensPalette = {
       id: 'asset-1',
       uri: 'file:///asset-1.jpg',
-      mediaType: 'photo',
+      mediaType: 'image',
       type: COLOR_LENS_MODE.LENS_POINT,
       lensPointColor: { hex: '#AABBCC' },
     };
@@ -65,7 +69,7 @@ describe('toInspectionAsset', () => {
     expect(toInspectionAsset(asset, lensPalette)).toEqual({
       id: 'asset-1',
       uri: 'file:///asset-1.jpg',
-      mediaType: 'photo',
+      mediaType: 'image',
       height: 200,
       width: 100,
       type: COLOR_LENS_MODE.LENS_POINT,

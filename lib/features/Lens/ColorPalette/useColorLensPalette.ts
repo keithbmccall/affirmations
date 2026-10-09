@@ -1,13 +1,19 @@
-import { COLOR_LENS_MODE, type ColorLensMode } from './colorLensMode';
-import { ColorLensPaletteType, getColorLensPalette } from './getColorLensPalette';
-import { lensPaletteConfig } from './lensPaletteConfig';
-import { useSharedValue } from 'react-native-reanimated';
-import { Frame } from 'react-native-vision-camera';
-import { Worklets } from 'react-native-worklets-core';
+import { getColorLensProcessor } from 'expo-color-lens-frame-processor';
 import { useCallback, useMemo, useState } from 'react';
+import { useSharedValue } from 'react-native-reanimated';
+import { COLOR_LENS_MODE, type ColorLensMode } from './colorLensMode';
+import {
+  type ColorLensPaletteOptions,
+  type ColorLensPaletteType,
+  getColorLensPalette,
+} from './getColorLensPalette';
+import { lensPaletteConfig } from './lensPaletteConfig';
 
 export const useColorLensPalette = () => {
   const [colorLensMode, setColorLensMode] = useState<ColorLensMode>(COLOR_LENS_MODE.DISABLED);
+
+  // Create on RN JS thread; HybridObject methods are host functions usable from the frame runtime.
+  const processor = useMemo(() => getColorLensProcessor(), []);
 
   const primaryColor = useSharedValue(lensPaletteConfig.defaultColor);
   const secondaryColor = useSharedValue(lensPaletteConfig.defaultColor);
@@ -18,29 +24,26 @@ export const useColorLensPalette = () => {
   const backgroundColor = useSharedValue(lensPaletteConfig.defaultColor);
   const detailColor = useSharedValue(lensPaletteConfig.defaultColor);
 
-  // SharedValues from useSharedValue have stable identity — empty deps is correct.
-  const applyColorPaletteWorklet = useMemo(
-    () =>
-      Worklets.createRunOnJS((colorPalette: ColorLensPaletteType | null) => {
-        primaryColor.value = colorPalette?.primary ?? primaryColor.value;
-        secondaryColor.value = colorPalette?.secondary ?? secondaryColor.value;
-        tertiaryColor.value = colorPalette?.tertiary ?? tertiaryColor.value;
-        quaternaryColor.value = colorPalette?.quaternary ?? quaternaryColor.value;
-        quinaryColor.value = colorPalette?.quinary ?? quinaryColor.value;
-        senaryColor.value = colorPalette?.senary ?? senaryColor.value;
-        backgroundColor.value = colorPalette?.background ?? backgroundColor.value;
-        detailColor.value = colorPalette?.detail ?? detailColor.value;
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
   const getColorLensPaletteWorklet = useCallback(
-    (frame: Frame) => {
+    (options: ColorLensPaletteOptions) => {
       'worklet';
-      applyColorPaletteWorklet(getColorLensPalette(frame));
+      const colorPalette: ColorLensPaletteType | null = getColorLensPalette(processor, options);
+      if (colorPalette === null) {
+        return;
+      }
+      // Vision Camera v5 + react-native-worklets: mutate SharedValues on the frame thread.
+      primaryColor.value = colorPalette.primary;
+      secondaryColor.value = colorPalette.secondary;
+      tertiaryColor.value = colorPalette.tertiary;
+      quaternaryColor.value = colorPalette.quaternary;
+      quinaryColor.value = colorPalette.quinary;
+      senaryColor.value = colorPalette.senary;
+      backgroundColor.value = colorPalette.background;
+      detailColor.value = colorPalette.detail;
     },
-    [applyColorPaletteWorklet]
+    // processor + SharedValues are stable refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [processor]
   );
 
   const palette = useMemo(

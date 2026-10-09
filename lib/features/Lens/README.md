@@ -133,26 +133,27 @@ See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens
 
 | Package | Version in `package.json` | Notes |
 |---------|---------------------------|--------|
-| `@shopify/flash-list` | 1.7.6 | **Pinned by Expo SDK 53.** v2 requires a newer SDK; keep `estimatedItemSize` on v1 |
-| `react-native-vision-camera` | 4.7.0 | v5 is current upstream; see [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md) and [`VISION_CAMERA_V5_MIGRATION.md`](VISION_CAMERA_V5_MIGRATION.md) |
-| `react-native-worklets-core` | 1.5.0 | Babel plugin required for frame worklets |
-| `@shopify/react-native-skia` | v2.0.0-next.4 | **Pinned by Expo SDK 53.** Stable 2.6.x requires Reanimated ≥3.19.1; defer until SDK bump |
+| `expo` | 57.x | SDK 57 / RN 0.86.3 |
+| `@shopify/flash-list` | 2.0.2 | SDK 57 pin |
+| `react-native-vision-camera` | 5.2.3 | Outputs + constraints; see [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md) |
+| `react-native-vision-camera-worklets` | 5.2.3 | Frame output worklets |
+| `react-native-vision-camera-skia` | 5.2.3 | Obskura `SkiaCamera` |
+| `react-native-vision-camera-resizer` | 5.2.3 | GPU cover downsample for dominant palette |
+| `react-native-nitro-modules` / `nitro-image` | 0.37.x / 0.15.x | VC5 peers + color-lens Nitro processor |
+| `react-native-worklets` | 0.10.1 | Reanimated 4 re-exports this Babel plugin |
+| `@shopify/react-native-skia` | 2.6.4+ | Live Obskura paint + still export |
 
-Peer dependencies for frame processors and Skia preview are satisfied in `package.json`.
-
-### Skia stable evaluation (SDK 53)
-
-Attempted `@shopify/react-native-skia@2.6.9` — **blocked** by peer dependency `react-native-reanimated@>=3.19.1` while Expo SDK 53 ships Reanimated ~3.17.x. Re-run after upgrading Expo and Reanimated; then `npm run test:coverage:lens` on device + CI.
+Peer dependencies for frame processors and Skia preview are satisfied in `package.json`. After Nitro/native module changes, rebuild the **dev client** (`npx expo run:ios`) — Expo Go will not load `expo-color-lens-frame-processor`.
 
 ## The three libraries (roles in this app)
 
 | Library | Role here | Official docs |
 |---------|-----------|---------------|
-| **Vision Camera** | Camera device selection, preview, `takePhoto` / video recording, hosts `useFrameProcessor` and `useSkiaFrameProcessor` | [visioncamera.margelo.com](https://react-native-vision-camera.com/) · [GitHub](https://github.com/mrousavy/react-native-vision-camera) |
-| **react-native-worklets-core** | Compiles functions marked with `'worklet'`; `Worklets.createRunOnJS` bridges from the camera frame thread back to React/Reanimated | [GitHub](https://github.com/margelo/react-native-worklets-core) |
-| **React Native Skia** | GPU image filters on the live preview (`useSkiaFrameProcessor`) and offscreen still export (`applyObskuraLensToPhotoFile`) | [Installation](https://shopify.github.io/react-native-skia/docs/getting-started/installation) |
+| **Vision Camera** | Device selection, preview, `usePhotoOutput` / `useVideoOutput` / `useFrameOutput`, constraints | [visioncamera.margelo.com](https://visioncamera.margelo.com) · [GitHub](https://github.com/mrousavy/react-native-vision-camera) |
+| **react-native-worklets** | Compiles `'worklet'` functions for frame outputs (via `react-native-vision-camera-worklets`) | [docs](https://docs.swmansion.com/react-native-worklets/) |
+| **React Native Skia** | Obskura live preview (`SkiaCamera` / `react-native-vision-camera-skia`) and still export (`applyObskuraLensToPhotoFile`) | [Installation](https://shopify.github.io/react-native-skia/docs/getting-started/installation) |
 
-**Reanimated** is not part of the frame pipeline, but it is required on this screen for `Reanimated.createAnimatedComponent(VisionCamera)`, tap-to-focus (`runOnJS`), palette UI, and camera-roll preview animations. Reanimated worklets and worklets-core are **different systems**—see [Reanimated's role](#reanimateds-role).
+**Reanimated** drives tap-to-focus (`runOnJS`), palette UI SharedValues, and camera-roll preview animations. Frame SharedValues are mutated directly on the frame thread under VC5.
 
 ## Runtime picture
 
@@ -161,12 +162,14 @@ flowchart TB
   Camera[Camera.tsx] --> mode{CAMERA_VIEW_MODE}
   mode -->|LENS| LensSurface[LensCameraSurface]
   mode -->|OBSKURA| ObskuraSurface[ObskuraCameraSurface]
-  LensSurface --> useFP[useFrameProcessor worklet]
-  useFP --> plugin[getColorLensPalette via VisionCameraProxy]
-  plugin --> ios[ExpoColorLensFrameProcessor Swift iOS]
-  useFP --> runOnJS[Worklets.createRunOnJS]
-  runOnJS --> paletteUI[Reanimated SharedValues + ColorPalette]
-  ObskuraSurface --> useSkia[useSkiaFrameProcessor]
+  LensSurface --> useFO[useFrameOutput yuv worklet]
+  useFO --> resizer[vision-camera-resizer cover]
+  resizer --> processor[Nitro ColorLensProcessor]
+  useFO --> coords[VC5 view to camera to frame]
+  coords --> processor
+  processor --> ios[ExpoColorLensFrameProcessor Swift iOS]
+  useFO --> paletteUI[Reanimated SharedValues + ColorPalette]
+  ObskuraSurface --> useSkia[SkiaCamera from vision-camera-skia]
   useSkia --> render[frame.render lensPaint]
   lensPaint --> buildPaint[buildObskuraLensPaintFromPipeline]
   capture[takePhoto] --> applyStill[applyObskuraLensToPhotoFile when Obskura mode]
@@ -182,8 +185,7 @@ React state (`useState`) read from a worklet closure without being listed in dep
 
 | Concern | Behavior in `Camera.tsx` |
 |---------|---------------------------|
-| Preview FPS (Lens, color lens **off**) | **30** (`DEFAULT_FPS`) |
-| Preview FPS (Lens, color lens **on**, screen active) | **15** (`COLOR_LENS_FPS`) |
+| Preview FPS (Lens, all color lens modes) | **30** (`CAMERA_CONSTRAINTS` / `DEFAULT_FPS`) — constant so mode switches do not rebuild the capture session |
 | Preview FPS (Obskura view mode) | **15** (`OBSKURA_FPS` on `ObskuraCameraSurface` only) |
 | Video (long-press capture) | Allowed only in Lens mode with color lens off (`isVideoNotAllowed` when color lens is on or Obskura view mode is active) |
 | Frame processors when backgrounded | `isCameraActive` false via `useFocusEffect`; surfaces pass `frameProcessor={isActive ? processor : undefined}` |
@@ -200,7 +202,7 @@ Used when `cameraViewMode === CAMERA_VIEW_MODE.LENS`.
 
 1. **`LensCameraSurface`** mounts `ReanimatedCamera` with `useFrameProcessor` whenever the screen is active (even when color lens is off—the worklet runs each frame but skips palette work until color lens is enabled).
 2. Each frame, the worklet runs on the camera thread (`'worklet'` directive required).
-3. If color lens is enabled, palette sampling is throttled with Vision Camera `runAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (1 FPS / ~1000 ms)**; point-region sampling uses **`COLOR_LENS_REGION_TARGET_FPS` (2 FPS / ~500 ms)**. When the interval allows, it calls `getColorLensPaletteWorklet(frame)` (dominant mode) or `getColorLensRegionWorklet(frame, …)` (point mode).
+3. If color lens is enabled, palette sampling is throttled with Vision Camera `runAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (1 FPS / ~1000 ms)**; point-region sampling uses **`COLOR_LENS_REGION_TARGET_FPS` (2 FPS / ~500 ms)**. When the interval allows, dominant mode resizes then **disposes the Frame** before `getColorLensPaletteWorklet`; point mode `copyColorLensRegionWorklet` → **dispose Frame** → `applyColorLensRegionColorWorklet`.
 4. **`getColorLensPaletteWorklet`** (`useColorLensPalette.ts`) calls native **`getColorLensPalette`** (`getColorLensPalette.ts`):
    - `VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette')`
    - Plugin implemented in `modules/expo-color-lens-frame-processor` (iOS only).
@@ -219,7 +221,7 @@ Video recording (long-press capture) is allowed only in **Lens mode with color l
 
 ### FPS
 
-In Lens view mode, `Camera.tsx` passes `fps` to `LensCameraSurface`: **15** when `isCameraActive && isColorLensEnabled`, else **30**. Color lens off does **not** lower FPS. Obskura view mode always uses **15** on `ObskuraCameraSurface`, independent of color lens.
+In Lens view mode, `LensCameraSurface` keeps preview constraints at a constant **30** fps (`CAMERA_CONSTRAINTS`) across color lens modes. Changing `constraints` would force VisionCamera to reconfigure the capture session (visible reload / hitch). Palette and region sampling stay throttled in the worklet via `runAtTargetFps` (`COLOR_LENS_PALETTE_TARGET_FPS` / `COLOR_LENS_REGION_TARGET_FPS`). Obskura view mode always uses **15** on `ObskuraCameraSurface`, independent of color lens.
 
 ## Obskura mode (filter path)
 
@@ -250,8 +252,8 @@ These must be correct for Lens to build and run on device:
 
 | Item | Location |
 |------|----------|
-| Dependencies | `package.json`: vision-camera, worklets-core, skia, `expo-color-lens-frame-processor` (local module) |
-| Worklets Babel plugin | `babel.config.js`: `react-native-worklets-core/plugin` **before** `react-native-reanimated/plugin` (Reanimated must be last) |
+| Dependencies | `package.json`: vision-camera 5.2.x + worklets/skia companions, nitro, `expo-color-lens-frame-processor` (local Nitro module; **podspec at package root**) |
+| Worklets Babel plugin | `babel.config.js`: `react-native-reanimated/plugin` last (Reanimated 4 re-exports `react-native-worklets/plugin`) |
 | Vision Camera Expo plugin | `app.json`: camera + microphone permission strings |
 | Media library plugin | `app.json`: save/read photos permissions |
 | iOS usage strings | `app.json` → `ios.infoPlist` NSCameraUsageDescription, NSMicrophoneUsageDescription |

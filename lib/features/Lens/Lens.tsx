@@ -5,10 +5,10 @@ import { Camera } from '@features/Lens/Camera/Camera';
 import { useCameraRollPrefetch } from '@features/Lens/Camera/hooks/useCameraRollPrefetch';
 import { useLensPermissions } from '@features/Lens/Camera/hooks/useLensPermissions';
 import { useInitLensPalettes } from '@features/Lens/ColorPalette/useInitLensPalettes';
+import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
-import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { memo, useCallback, useMemo } from 'react';
@@ -18,7 +18,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 type LensProps = ScreenContainerProps;
 
 const LensGrantedContent = memo(function LensGrantedContent() {
-  useCameraRollPrefetch();
+  const { mediaLibraryPermission } = useLensPermissions();
+
+  useCameraRollPrefetch(mediaLibraryPermission);
 
   return <Camera />;
 });
@@ -26,9 +28,7 @@ const LensGrantedContent = memo(function LensGrantedContent() {
 export const Lens = memo(function Lens({ statusBarProps }: LensProps) {
   useInitLensPalettes();
   const insets = useSafeAreaInsets();
-  const { cameraPermission, microphonePermission, mediaLibraryPermission } = useLensPermissions();
-
-  const hasAllPermissions = cameraPermission && microphonePermission && mediaLibraryPermission;
+  const { hasCameraAccess, isPermissionsReady } = useLensPermissions();
 
   const handleBackPress = useCallback(() => router.back(), []);
   const backButtonStyle = useMemo(() => [styles.backButton, { top: insets.top }], [insets.top]);
@@ -37,13 +37,19 @@ export const Lens = memo(function Lens({ statusBarProps }: LensProps) {
   return (
     <ThemedView style={styles.container}>
       <StatusBar {...statusBarProps} />
-      {hasAllPermissions ? (
+      {hasCameraAccess ? (
         <LensGrantedContent />
       ) : (
-        <View style={styles.permissionsShell} testID="lens-permissions-required">
-          <ThemedText style={styles.permissionsMessage} accessibilityRole="text">
-            Camera permission required
-          </ThemedText>
+        <View style={styles.permissionsShell}>
+          {isPermissionsReady && !hasCameraAccess ? (
+            <ThemedText
+              style={styles.permissionsMessage}
+              accessibilityRole="text"
+              testID="lens-permissions-required"
+            >
+              Camera permission required
+            </ThemedText>
+          ) : null}
           <TouchableOpacity
             testID="lens-back-button"
             style={backButtonStyle}

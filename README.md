@@ -46,20 +46,20 @@ Full Lens architecture, platform matrix, and debugging: [`lib/features/Lens/READ
 
 ### Camera and graphics
 
-- **react-native-vision-camera** 4.7.0
-- **react-native-reanimated** 3.17.5
-- **react-native-worklets-core** 1.5.0
-- **@shopify/react-native-skia** v2.0.0-next.4
-- **expo-color-lens-frame-processor** — local package at [`modules/expo-color-lens-frame-processor`](modules/expo-color-lens-frame-processor)
+- **react-native-vision-camera** 5.2.3 (+ worklets / skia companions)
+- **react-native-nitro-modules** / **react-native-nitro-image**
+- **react-native-reanimated** 4.5.1 + **react-native-worklets** 0.10.1
+- **@shopify/react-native-skia** 2.6.4+
+- **expo-color-lens-frame-processor** — local Nitro iOS package at [`modules/expo-color-lens-frame-processor`](modules/expo-color-lens-frame-processor)
 
 ### Notifications and storage
 
-- **expo-notifications** 0.31.5
-- **@react-native-async-storage/async-storage** 2.1.2
+- **expo-notifications** (SDK 57)
+- **@react-native-async-storage/async-storage** 2.2.0
 
 ### Lists
 
-- **@shopify/flash-list** 1.7.6 (Expo SDK 53 pin; v2 deferred until SDK bump)
+- **@shopify/flash-list** 2.0.2 (Expo SDK 57)
 
 ### UI and platform
 

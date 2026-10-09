@@ -15,9 +15,15 @@ describe('useCameraRollPrefetch', () => {
     jest.clearAllMocks();
   });
 
-  it('prefetches camera roll photos on mount', () => {
-    renderHook(() => useCameraRollPrefetch());
+  it('prefetches camera roll photos on mount when enabled', () => {
+    renderHook(() => useCameraRollPrefetch(true));
 
     expect(mockPrefetchCameraRollPhotos).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not prefetch camera roll photos when disabled', () => {
+    renderHook(() => useCameraRollPrefetch(false));
+
+    expect(mockPrefetchCameraRollPhotos).not.toHaveBeenCalled();
   });
 });

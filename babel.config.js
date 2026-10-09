@@ -10,8 +10,8 @@ module.exports = function (api) {
       ],
     ],
     plugins: [
-      ['react-native-worklets-core/plugin'],
-      ['react-native-reanimated/plugin'], // ← this MUST be last
+      // Reanimated 4 re-exports react-native-worklets/plugin — list only once, last.
+      ['react-native-reanimated/plugin'],
     ],
   };
 };

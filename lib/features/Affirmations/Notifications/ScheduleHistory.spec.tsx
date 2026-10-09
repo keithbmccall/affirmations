@@ -10,7 +10,7 @@ jest.mock('@features/Affirmations/Notifications/useInitNotifications', () => ({
   useInitNotifications: jest.fn(),
 }));
 
-jest.mock('@react-navigation/bottom-tabs', () => ({
+jest.mock('expo-router/js-tabs', () => ({
   useBottomTabBarHeight: () => 48,
 }));
 

@@ -1,33 +1,40 @@
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { LOAD_MORE_PAGE_SIZE } from '@features/Lens/Camera/cameraRollPhotos/constants';
 import {
   loadMoreCameraRollPhotos,
   resetLoadMoreCameraRollPhotosState,
 } from '@features/Lens/Camera/cameraRollPhotos/loadMoreCameraRollPhotos';
+import { queryCameraRollMediaAssets } from '@features/Lens/Camera/cameraRollPhotos/queryCameraRollMediaAssets';
 import {
   getCameraRollPhotosCache,
   resetCameraRollPhotosCache,
   setCameraRollPhotosCache,
 } from './cameraRollPhotosCache';
-import { getAssetsAsync, type Asset } from 'expo-media-library';
+import { CAMERA_ROLL_MEDIA_TYPE } from '@features/Lens/Camera/cameraRollPhotos/cameraRollMediaTypes';
 
-jest.mock('expo-media-library', () => ({
-  getAssetsAsync: jest.fn(),
+jest.mock('@features/Lens/Camera/cameraRollPhotos/queryCameraRollMediaAssets', () => ({
+  queryCameraRollMediaAssets: jest.fn(),
 }));
 
-const mockedGetAssetsAsync = getAssetsAsync as jest.MockedFunction<typeof getAssetsAsync>;
+jest.mock('@features/Lens/Camera/cameraRollPhotos/prefetchCameraRollThumbnails', () => ({
+  prefetchCameraRollThumbnails: jest.fn(() => Promise.resolve()),
+}));
 
-const createAsset = (id: string): Asset =>
-  ({
-    id,
-    uri: `file:///${id}.jpg`,
-    mediaType: 'photo',
-    width: 100,
-    height: 100,
-    filename: `${id}.jpg`,
-    creationTime: 0,
-    modificationTime: 0,
-    duration: 0,
-  }) as Asset;
+const mockedQueryCameraRollMediaAssets = queryCameraRollMediaAssets as jest.MockedFunction<
+  typeof queryCameraRollMediaAssets
+>;
+
+const createAsset = (id: string): CameraRollMediaAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'image',
+  width: 100,
+  height: 100,
+  filename: `${id}.jpg`,
+  creationTime: 0,
+  modificationTime: 0,
+  duration: 0,
+});
 
 describe('loadMoreCameraRollPhotos', () => {
   beforeEach(() => {
@@ -38,7 +45,7 @@ describe('loadMoreCameraRollPhotos', () => {
 
   it('re-reads the latest cache before appending tail photos', async () => {
     let resolveFetch: (value: unknown) => void = () => {};
-    mockedGetAssetsAsync.mockReturnValue(
+    mockedQueryCameraRollMediaAssets.mockReturnValue(
       new Promise(resolve => {
         resolveFetch = resolve;
       }) as never
@@ -46,7 +53,7 @@ describe('loadMoreCameraRollPhotos', () => {
 
     setCameraRollPhotosCache({
       photos: [createAsset('photo-1')],
-      endCursor: 'cursor-1',
+      nextOffset: 1,
       hasMore: true,
       prefetchComplete: true,
     });
@@ -55,30 +62,27 @@ describe('loadMoreCameraRollPhotos', () => {
 
     setCameraRollPhotosCache({
       photos: [createAsset('photo-1'), createAsset('photo-head')],
-      endCursor: 'cursor-1',
+      nextOffset: 1,
       hasMore: true,
       prefetchComplete: true,
     });
 
     resolveFetch({
       assets: [createAsset('photo-2')],
-      endCursor: 'cursor-2',
-      hasNextPage: false,
-      totalCount: 3,
+      hasMore: false,
     });
 
     await loadMorePromise;
 
-    expect(mockedGetAssetsAsync).toHaveBeenCalledWith({
-      first: LOAD_MORE_PAGE_SIZE,
-      mediaType: ['photo'],
-      sortBy: ['creationTime'],
-      after: 'cursor-1',
+    expect(mockedQueryCameraRollMediaAssets).toHaveBeenCalledWith({
+      limit: LOAD_MORE_PAGE_SIZE,
+      offset: 1,
+      mediaTypes: [CAMERA_ROLL_MEDIA_TYPE.IMAGE],
     });
 
     const cache = getCameraRollPhotosCache();
     expect(cache.photos.map(asset => asset.id)).toEqual(['photo-1', 'photo-head', 'photo-2']);
-    expect(cache.endCursor).toBe('cursor-2');
+    expect(cache.nextOffset).toBe(2);
     expect(cache.hasMore).toBe(false);
   });
 });

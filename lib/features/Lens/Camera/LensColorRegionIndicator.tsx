@@ -1,17 +1,17 @@
 import { useAnimatedColor } from '@features/Lens/ColorPalette/useAnimatedColor';
+import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { LayoutChangeEvent, LayoutRectangle, StyleSheet, View } from 'react-native';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
-import { getRegionDiameter } from './lensPointSampleRegion';
+import { getLensPointSampleRect, LENS_POINT_REGION } from './lensPointSampleRegion';
 
 interface LensColorRegionIndicatorProps {
   color: SharedValue<string>;
   animationDuration: number;
 }
 
-const HAIR_THICKNESS = 0.5;
 const INITIAL_LAYOUT: LayoutRectangle = { x: 0, y: 0, width: 0, height: 0 };
 
 export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
@@ -24,15 +24,16 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
     setLayoutSize(event.nativeEvent.layout);
   }, []);
 
-  const diameter = getRegionDiameter(layoutSize);
+  const sampleRect = getLensPointSampleRect(layoutSize);
 
   const circleStyle = useMemo(
     () => ({
-      width: diameter,
-      height: diameter,
-      borderRadius: diameter / 2,
+      width: sampleRect.size,
+      height: sampleRect.size,
+      borderRadius: sampleRect.size / 2,
+      borderWidth: LENS_POINT_REGION.borderWidth,
     }),
-    [diameter]
+    [sampleRect.size]
   );
 
   const animatedColor = useAnimatedColor(color, animationDuration);
@@ -42,11 +43,10 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
     }),
     [animatedColor]
   );
-  const animatedHairStyle = useAnimatedStyle(
-    () => ({
-      backgroundColor: animatedColor.value as string,
-    }),
-    [animatedColor]
+
+  const circleCombinedStyle = useMemo(
+    () => [styles.circle, circleStyle, animatedBorderStyle],
+    [animatedBorderStyle, circleStyle]
   );
 
   return (
@@ -56,20 +56,8 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
       pointerEvents="none"
       onLayout={handleLayout}
     >
-      {diameter > 0 ? (
-        <Reanimated.View
-          testID="lens-color-region-indicator"
-          style={[styles.circle, circleStyle, animatedBorderStyle]}
-        >
-          <Reanimated.View
-            testID="lens-color-region-hair-h"
-            style={[styles.hairHorizontal, animatedHairStyle]}
-          />
-          <Reanimated.View
-            testID="lens-color-region-hair-v"
-            style={[styles.hairVertical, animatedHairStyle]}
-          />
-        </Reanimated.View>
+      {sampleRect.size > 0 ? (
+        <Reanimated.View testID="lens-color-region-indicator" style={circleCombinedStyle} />
       ) : null}
     </View>
   );
@@ -82,19 +70,6 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   circle: {
-    ...globalStyles.flexCenter,
-    backgroundColor: 'transparent',
-    borderWidth: 7,
-    overflow: 'hidden',
-  },
-  hairHorizontal: {
-    ...globalStyles.absolute,
-    width: '100%',
-    height: HAIR_THICKNESS,
-  },
-  hairVertical: {
-    ...globalStyles.absolute,
-    height: '100%',
-    width: HAIR_THICKNESS,
+    backgroundColor: colors.human.transparent,
   },
 });

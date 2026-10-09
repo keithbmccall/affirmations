@@ -13,7 +13,8 @@ const inputRange = [0, 1];
 export const useAnimatedColor = (color: SharedValue<string>, animationDuration: number) => {
   const animation = useSharedValue(0);
   const colorFrom = useSharedValue(lensPaletteConfig.defaultColor);
-  const colorTo = useSharedValue(color.value);
+  // Do not read color.value during React render — sync via useAnimatedReaction.
+  const colorTo = useSharedValue(lensPaletteConfig.defaultColor);
 
   useAnimatedReaction(
     () => color.value,
