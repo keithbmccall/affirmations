@@ -7,29 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0E96EB458DD8C5F18718778A /* libPods-ScheduledAffirmations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 26C490E9CCB49EF87A942BEB /* libPods-ScheduledAffirmations.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		777420C2B290E2BE409861F1 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7884C24A324E1B06493235D /* ExpoModulesProvider.swift */; };
+		4500C665279FDDE26F9ADD22 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1B2CFD516FF0C2AF51C4A87 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F17F53AEC29F049990577A0C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C8CF2504465857AE7A940E68 /* PrivacyInfo.xcprivacy */; };
+		F6A87CD64F6A7690F5441056 /* libPods-ScheduledAffirmations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF9C5486290C28F26BE19A84 /* libPods-ScheduledAffirmations.a */; };
+		FD346006386DF3B00A94FF0A /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8952EE2BA974A3BB59523A1 /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* ScheduledAffirmations.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduledAffirmations.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ScheduledAffirmations/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ScheduledAffirmations/Info.plist; sourceTree = "<group>"; };
-		26C490E9CCB49EF87A942BEB /* libPods-ScheduledAffirmations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScheduledAffirmations.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A7884C24A324E1B06493235D /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		2C30B9B86A8DF7C7AA87F61A /* Pods-ScheduledAffirmations.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.debug.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.debug.xcconfig"; sourceTree = "<group>"; };
+		A1B2CFD516FF0C2AF51C4A87 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ScheduledAffirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ScheduledAffirmations/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AF038134D448B068E2CF5A2F /* Pods-ScheduledAffirmations.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.debug.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.debug.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C8CF2504465857AE7A940E68 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ScheduledAffirmations/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		CFFCD23A1BB16F62A6779BE9 /* Pods-ScheduledAffirmations.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.release.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.release.xcconfig"; sourceTree = "<group>"; };
+		CF9C5486290C28F26BE19A84 /* libPods-ScheduledAffirmations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScheduledAffirmations.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D1A1D74A6ACA5B05F5E4009C /* Pods-ScheduledAffirmations.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduledAffirmations.release.xcconfig"; path = "Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ScheduledAffirmations/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* ScheduledAffirmations-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ScheduledAffirmations-Bridging-Header.h"; path = "ScheduledAffirmations/ScheduledAffirmations-Bridging-Header.h"; sourceTree = "<group>"; };
+		F8952EE2BA974A3BB59523A1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0E96EB458DD8C5F18718778A /* libPods-ScheduledAffirmations.a in Frameworks */,
+				F6A87CD64F6A7690F5441056 /* libPods-ScheduledAffirmations.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				C8CF2504465857AE7A940E68 /* PrivacyInfo.xcprivacy */,
+				A1B2CFD516FF0C2AF51C4A87 /* PrivacyInfo.xcprivacy */,
 			);
 			name = ScheduledAffirmations;
 			sourceTree = "<group>";
@@ -62,9 +62,17 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				26C490E9CCB49EF87A942BEB /* libPods-ScheduledAffirmations.a */,
+				CF9C5486290C28F26BE19A84 /* libPods-ScheduledAffirmations.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6597FF80B2FE25D6293586A1 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				8E97D4328DA09271DB33CFC1 /* ScheduledAffirmations */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -81,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				DB58102C7A803881F3BDA1EA /* Pods */,
-				94A7ACDBE38C9E1CCEC8FAFF /* ExpoModulesProviders */,
+				D5BD4888E1B245D5B3018186 /* Pods */,
+				6597FF80B2FE25D6293586A1 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -97,12 +105,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		94A7ACDBE38C9E1CCEC8FAFF /* ExpoModulesProviders */ = {
+		8E97D4328DA09271DB33CFC1 /* ScheduledAffirmations */ = {
 			isa = PBXGroup;
 			children = (
-				F309E14C25FB4A810D21449F /* ScheduledAffirmations */,
+				F8952EE2BA974A3BB59523A1 /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
+			name = ScheduledAffirmations;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -114,22 +122,13 @@
 			path = ScheduledAffirmations/Supporting;
 			sourceTree = "<group>";
 		};
-		DB58102C7A803881F3BDA1EA /* Pods */ = {
+		D5BD4888E1B245D5B3018186 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				AF038134D448B068E2CF5A2F /* Pods-ScheduledAffirmations.debug.xcconfig */,
-				CFFCD23A1BB16F62A6779BE9 /* Pods-ScheduledAffirmations.release.xcconfig */,
+				2C30B9B86A8DF7C7AA87F61A /* Pods-ScheduledAffirmations.debug.xcconfig */,
+				D1A1D74A6ACA5B05F5E4009C /* Pods-ScheduledAffirmations.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
-			sourceTree = "<group>";
-		};
-		F309E14C25FB4A810D21449F /* ScheduledAffirmations */ = {
-			isa = PBXGroup;
-			children = (
-				A7884C24A324E1B06493235D /* ExpoModulesProvider.swift */,
-			);
-			name = ScheduledAffirmations;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +139,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ScheduledAffirmations" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				85631FAC8A75A5DEE160F096 /* [Expo] Configure project */,
+				A9FA4ABD3BCD74F2C4A32777 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				80889BE456C96D273725567F /* [CP] Embed Pods Frameworks */,
+				D77ECC103A98A98B2DCDE3A0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -167,8 +166,6 @@
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
-						DevelopmentTeam = "UA4DD67N85";
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -198,7 +195,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				F17F53AEC29F049990577A0C /* PrivacyInfo.xcprivacy in Resources */,
+				4500C665279FDDE26F9ADD22 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,7 +283,31 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		80889BE456C96D273725567F /* [CP] Embed Pods Frameworks */ = {
+		A9FA4ABD3BCD74F2C4A32777 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/ScheduledAffirmations/ScheduledAffirmations.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-ScheduledAffirmations/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ScheduledAffirmations/expo-configure-project.sh\"\n";
+		};
+		D77ECC103A98A98B2DCDE3A0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -332,30 +353,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ScheduledAffirmations/Pods-ScheduledAffirmations-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		85631FAC8A75A5DEE160F096 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/ScheduledAffirmations/ScheduledAffirmations.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-ScheduledAffirmations/expo-configure-project.sh",
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-ScheduledAffirmations/ExpoModulesProvider.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ScheduledAffirmations/expo-configure-project.sh\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -364,7 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				777420C2B290E2BE409861F1 /* ExpoModulesProvider.swift in Sources */,
+				FD346006386DF3B00A94FF0A /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,19 +370,20 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AF038134D448B068E2CF5A2F /* Pods-ScheduledAffirmations.debug.xcconfig */;
+			baseConfigurationReference = 2C30B9B86A8DF7C7AA87F61A /* Pods-ScheduledAffirmations.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ScheduledAffirmations/ScheduledAffirmations.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UA4DD67N85;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = ScheduledAffirmations/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -405,22 +403,20 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
-				DEVELOPMENT_TEAM = "UA4DD67N85";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 			};
 			name = Debug;
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CFFCD23A1BB16F62A6779BE9 /* Pods-ScheduledAffirmations.release.xcconfig */;
+			baseConfigurationReference = D1A1D74A6ACA5B05F5E4009C /* Pods-ScheduledAffirmations.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ScheduledAffirmations/ScheduledAffirmations.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UA4DD67N85;
 				INFOPLIST_FILE = ScheduledAffirmations/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -439,9 +435,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
-				DEVELOPMENT_TEAM = "UA4DD67N85";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 			};
 			name = Release;
 		};

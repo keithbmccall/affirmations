@@ -127,6 +127,8 @@ if (regionPixels !== null) {
 
 Module: [`modules/expo-color-lens-frame-processor/`](../../../modules/expo-color-lens-frame-processor/)
 
+See also: [`COLOR_LENS_PROCESSOR_LIMITATIONS.md`](../../../modules/expo-color-lens-frame-processor/COLOR_LENS_PROCESSOR_LIMITATIONS.md) (thread safety, buffer layout, performance guardrails).
+
 Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`), created lazily via `getColorLensProcessor()`.
 
 ### `copyRegion(frame, left, top, right, bottom)` → `{ pixels, width, height }`

@@ -10,13 +10,6 @@ final class ColorLensSwatch: NSObject {
     self.b = b
   }
 
-  func getColors() -> Dictionary<String,UInt8> {
-    return ["r":r , "g":g, "b":b]
-  }
-  
-  func makeUIColor() -> UIColor {
-    return UIColor(red: CGFloat(r) / CGFloat(255), green: CGFloat(g) / CGFloat(255), blue: CGFloat(b) / CGFloat(255), alpha: CGFloat(1))
-  }
 }
 
 // MARK: - MMCQ Algorithm
@@ -191,45 +184,16 @@ final class MMCQ {
     }
   }
 
-  /// Optimized histogram for BGRA / a,b,g,r layout (4 bytes/px) used by CI BGRA8 render.
-  private static func makeHistogramAndVBoxOptimized(from pixels: [UInt8], histogram: inout [Int], quality: Int, ignoreWhite: Bool) -> ([Int], VBox) {
-    return makeHistogramAndVBox(
-      from: pixels,
-      histogram: &histogram,
-      quality: quality,
-      ignoreWhite: ignoreWhite,
-      bytesPerPixel: 4,
-      channelOrder: .abgr
-    )
-  }
-
-  /// Histogram for interleaved RGB (3 bytes/px) from vision-camera-resizer GPUFrame buffers.
-  private static func makeHistogramAndVBoxOptimizedRGB(from pixels: [UInt8], histogram: inout [Int], quality: Int, ignoreWhite: Bool) -> ([Int], VBox) {
-    return makeHistogramAndVBox(
-      from: pixels,
-      histogram: &histogram,
-      quality: quality,
-      ignoreWhite: ignoreWhite,
-      bytesPerPixel: 3,
-      channelOrder: .rgb
-    )
-  }
-
-  private enum ChannelOrder {
-    case abgr
-    case rgb
-  }
-
-  private static func makeHistogramAndVBox(
+  /// Histogram for interleaved RGB (3 bytes/px) — sole product pixel layout.
+  private static func makeHistogramAndVBoxRGB(
     from pixels: [UInt8],
     histogram: inout [Int],
     quality: Int,
-    ignoreWhite: Bool,
-    bytesPerPixel: Int,
-    channelOrder: ChannelOrder
+    ignoreWhite: Bool
   ) -> ([Int], VBox) {
-    for i in 0..<histogram.count {
-      histogram[i] = 0
+    histogram.withUnsafeMutableBufferPointer { buffer in
+      guard let base = buffer.baseAddress else { return }
+      memset(base, 0, buffer.count * MemoryLayout<Int>.size)
     }
 
     var rMin = UInt8.max
@@ -239,67 +203,14 @@ final class MMCQ {
     var bMin = UInt8.max
     var bMax = UInt8.min
 
-    let pixelCount = pixels.count / bytesPerPixel
+    let pixelCount = pixels.count / 3
     for i in stride(from: 0, to: pixelCount, by: quality) {
-      let r: UInt8
-      let g: UInt8
-      let b: UInt8
-      let a: UInt8
+      let base = i * 3
+      let r = pixels[base + 0]
+      let g = pixels[base + 1]
+      let b = pixels[base + 2]
 
-      switch channelOrder {
-      case .abgr:
-        a = pixels[i * 4 + 0]
-        b = pixels[i * 4 + 1]
-        g = pixels[i * 4 + 2]
-        r = pixels[i * 4 + 3]
-      case .rgb:
-        r = pixels[i * 3 + 0]
-        g = pixels[i * 3 + 1]
-        b = pixels[i * 3 + 2]
-        a = 255
-      }
-
-      guard a >= 125 && !(ignoreWhite && r > 250 && g > 250 && b > 250) else {
-        continue
-      }
-
-      let shiftedR = r >> UInt8(rightShift)
-      let shiftedG = g >> UInt8(rightShift)
-      let shiftedB = b >> UInt8(rightShift)
-
-      rMin = min(rMin, shiftedR)
-      rMax = max(rMax, shiftedR)
-      gMin = min(gMin, shiftedG)
-      gMax = max(gMax, shiftedG)
-      bMin = min(bMin, shiftedB)
-      bMax = max(bMax, shiftedB)
-
-      let index = MMCQ.makeColorIndexOf(red: Int(shiftedR), green: Int(shiftedG), blue: Int(shiftedB))
-      histogram[index] += 1
-    }
-
-    let vbox = VBox(rMin: rMin, rMax: rMax, gMin: gMin, gMax: gMax, bMin: bMin, bMax: bMax, histogram: histogram)
-    return (histogram, vbox)
-  }
-
-  /// Original histogram method for compatibility
-  private static func makeHistogramAndVBox(from pixels: [UInt8], quality: Int, ignoreWhite: Bool) -> ([Int], VBox) {
-    var histogram = [Int](repeating: 0, count: histogramSize)
-    var rMin = UInt8.max
-    var rMax = UInt8.min
-    var gMin = UInt8.max
-    var gMax = UInt8.min
-    var bMin = UInt8.max
-    var bMax = UInt8.min
-
-    let pixelCount = pixels.count / 4
-    for i in stride(from: 0, to: pixelCount, by: quality) {
-      let a = pixels[i * 4 + 0]
-      let b = pixels[i * 4 + 1]
-      let g = pixels[i * 4 + 2]
-      let r = pixels[i * 4 + 3]
-
-      guard a >= 125 && !(ignoreWhite && r > 250 && g > 250 && b > 250) else {
+      guard !(ignoreWhite && r > 250 && g > 250 && b > 250) else {
         continue
       }
 
@@ -444,19 +355,11 @@ final class MMCQ {
     fatalError("VBox can't be cut")
   }
 
-  /// Optimized quantize for BGRA / a,b,g,r (4 bytes/px).
-  static func quantizeOptimized(_ pixels: inout [UInt8], _ histogram: inout [Int], quality: Int, ignoreWhite: Bool, maxColors: Int) -> ColorMap? {
-    guard !pixels.isEmpty && maxColors > 1 && maxColors <= 256 else { return nil }
-
-    let (_, vbox) = makeHistogramAndVBoxOptimized(from: pixels, histogram: &histogram, quality: quality, ignoreWhite: ignoreWhite)
-    return buildColorMap(from: vbox, histogram: histogram, maxColors: maxColors)
-  }
-
-  /// Optimized quantize for interleaved RGB (3 bytes/px) from the GPU resizer.
+  /// Quantize interleaved RGB (3 bytes/px) — resizer and region crop paths.
   static func quantizeOptimizedRGB(_ pixels: inout [UInt8], _ histogram: inout [Int], quality: Int, ignoreWhite: Bool, maxColors: Int) -> ColorMap? {
     guard !pixels.isEmpty && maxColors > 1 && maxColors <= 256 else { return nil }
 
-    let (_, vbox) = makeHistogramAndVBoxOptimizedRGB(from: pixels, histogram: &histogram, quality: quality, ignoreWhite: ignoreWhite)
+    let (_, vbox) = makeHistogramAndVBoxRGB(from: pixels, histogram: &histogram, quality: quality, ignoreWhite: ignoreWhite)
     return buildColorMap(from: vbox, histogram: histogram, maxColors: maxColors)
   }
 
@@ -475,24 +378,6 @@ final class MMCQ {
     return colorMap
   }
   
-  static func quantize(_ pixels: [UInt8], quality: Int, ignoreWhite: Bool, maxColors: Int) -> ColorMap? {
-    guard !pixels.isEmpty && maxColors > 1 && maxColors <= 256 else { return nil }
-
-    let (histogram, vbox) = makeHistogramAndVBox(from: pixels, quality: quality, ignoreWhite: ignoreWhite)
-    var pq = [vbox]
-    let target = Int(ceil(fractionByPopulation * Double(maxColors)))
-
-    iterate(over: &pq, comparator: compareByCount, target: target, histogram: histogram)
-    pq.sort(by: compareByProduct)
-    iterate(over: &pq, comparator: compareByProduct, target: maxColors - pq.count, histogram: histogram)
-
-    pq = pq.reversed()
-
-    let colorMap = ColorMap()
-    pq.forEach { colorMap.push($0) }
-    return colorMap
-  }
-
   /// Simplified iteration function
   private static func iterate(over queue: inout [VBox], comparator: (VBox, VBox) -> Bool, target: Int, histogram: [Int]) {
     var color = 1
