@@ -1,11 +1,11 @@
 import {
   CAMERA_POSITION,
-  CAMERA_VIEW_MODE,
   cameraDeviceOptions,
   flashModeOptions,
   type CameraPosition,
   type CameraViewMode,
 } from '@features/Lens/Camera/options';
+import { useCameraViewModeSwitch } from '@features/Lens/Camera/useCameraViewModeSwitch';
 import { useFocusEffect } from 'expo-router';
 import {
   createContext,
@@ -27,9 +27,6 @@ import {
 } from 'react-native-vision-camera';
 
 const flashModeOptionsLength = flashModeOptions.length;
-
-/** Ignore rapid view-mode taps while the previous camera session settles. */
-export const VIEW_MODE_SWITCH_SETTLE_MS = 300;
 
 export interface CameraSurfaceContextValue {
   cameraRef: React.RefObject<CameraRef | null>;
@@ -60,10 +57,16 @@ interface CameraSurfaceProviderProps {
 export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) => {
   const [cameraDevice, setCameraDevice] = useState<number>(0);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>(CAMERA_POSITION.BACK);
-  const [cameraViewMode, setCameraViewMode] = useState<CameraViewMode>(CAMERA_VIEW_MODE.LENS);
   const [flashMode, setFlashMode] = useState<number>(0);
   const [gridMode, setGridMode] = useState<number>(0);
-  const [isCameraActive, setIsCameraActive] = useState(true);
+
+  const {
+    cameraViewMode,
+    isCameraActive,
+    onViewModeToggle,
+    onScreenFocus,
+    onScreenBlur,
+  } = useCameraViewModeSwitch();
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
@@ -73,8 +76,6 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
   const videoOutput = useVideoOutput({ enableAudio: true });
 
   const cameraRef = useRef<CameraRef>(null);
-  const isViewModeSwitchingRef = useRef(false);
-  const viewModeSwitchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Permissions are hard-gated in Lens.tsx before Camera mounts.
   const showPreview = Boolean(device);
@@ -97,35 +98,14 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
     setCameraDevice(prev => (prev + 1) % cameraDeviceOptions.length);
   }, []);
 
-  const handleCameraViewModeToggle = useCallback(() => {
-    if (isViewModeSwitchingRef.current) {
-      return;
-    }
-
-    isViewModeSwitchingRef.current = true;
-    setCameraViewMode(prev =>
-      prev === CAMERA_VIEW_MODE.LENS ? CAMERA_VIEW_MODE.OBSKURA : CAMERA_VIEW_MODE.LENS
-    );
-
-    viewModeSwitchTimeoutRef.current = setTimeout(() => {
-      viewModeSwitchTimeoutRef.current = null;
-      isViewModeSwitchingRef.current = false;
-    }, VIEW_MODE_SWITCH_SETTLE_MS);
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
-      setIsCameraActive(true);
+      onScreenFocus();
 
       return () => {
-        setIsCameraActive(false);
-        if (viewModeSwitchTimeoutRef.current !== null) {
-          clearTimeout(viewModeSwitchTimeoutRef.current);
-          viewModeSwitchTimeoutRef.current = null;
-        }
-        isViewModeSwitchingRef.current = false;
+        onScreenBlur();
       };
-    }, [])
+    }, [onScreenFocus, onScreenBlur])
   );
 
   const value = useMemo(
@@ -139,7 +119,7 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       gridMode,
       cameraViewMode,
       device,
-      onViewModeToggle: handleCameraViewModeToggle,
+      onViewModeToggle,
       onGridToggle: handleGridToggle,
       onFlashToggle: handleFlashToggle,
       onSwitchCameraToggle: handleSwitchCameraToggle,
@@ -154,7 +134,7 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       gridMode,
       cameraViewMode,
       device,
-      handleCameraViewModeToggle,
+      onViewModeToggle,
       handleGridToggle,
       handleFlashToggle,
       handleSwitchCameraToggle,

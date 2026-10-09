@@ -17,7 +17,7 @@ const BlurTabBarBackground = memo(function BlurTabBarBackground() {
 });
 
 const SolidTabBarBackground = memo(function SolidTabBarBackground() {
-  const colorScheme = useColorScheme() ?? 'light';
+  const colorScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
 
   return (
     <View

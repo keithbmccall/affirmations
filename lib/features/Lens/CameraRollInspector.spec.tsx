@@ -122,7 +122,6 @@ describe('CameraRollInspector', () => {
     const pager = await screen.findByTestId('camera-roll-inspector-pager');
 
     expect(pager.props.data).toHaveLength(3);
-    expect(pager.props.estimatedListSize).toEqual(MEASURED_PAGER_SIZE);
     const page = screen.getByTestId('camera-roll-inspector-page-photo-2');
     const flattenedPageStyle = Array.isArray(page.props.style)
       ? Object.assign({}, ...page.props.style)

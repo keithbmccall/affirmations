@@ -40,7 +40,7 @@ export default function TabLayout() {
 
   const screenOptions: BottomTabNavigationOptions = useMemo(() => {
     return {
-      tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+      tabBarActiveTintColor: Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint,
       headerShown: false,
       tabBarButton: props => <HapticTab {...props} />,
       tabBarBackground: () => <TabBarBackground />,

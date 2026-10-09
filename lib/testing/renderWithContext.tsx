@@ -2,10 +2,10 @@ import { StateContextProvider } from '@platform/StateContextProvider';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import {
   MockContextConfig,
-  render,
-  RenderOptions,
+  type RenderOptions,
   renderRouter,
 } from 'expo-router/testing-library';
+import { render } from '@testing-library/react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React from 'react';
 

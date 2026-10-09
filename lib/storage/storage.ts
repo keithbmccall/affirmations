@@ -1,7 +1,7 @@
 import { catchError } from '@utils/helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type SaveData = (key: string, value: string | Record<string, any>) => void;
+type SaveData = (key: string, value: string | boolean | Record<string, any>) => void;
 export const saveData: SaveData = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));

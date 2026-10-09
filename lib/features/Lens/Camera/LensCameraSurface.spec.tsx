@@ -45,7 +45,7 @@ const mockPhotoOutput = { id: 'photo' } as unknown as CameraPhotoOutput;
 const mockVideoOutput = { id: 'video' } as unknown as CameraVideoOutput;
 
 const mockGpuDispose = jest.fn();
-const mockResize = jest.fn(() => ({
+const mockResize = jest.fn((..._args: unknown[]) => ({
   getPixelBuffer: () => new ArrayBuffer(12),
   width: 2,
   height: 2,
@@ -341,7 +341,8 @@ describe('LensCameraSurface', () => {
     mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
     const order: string[] = [];
 
-    mockResize.mockImplementation((frame: MockFrame) => {
+    mockResize.mockImplementation((...args: unknown[]) => {
+      const frame = args[0] as MockFrame;
       const originalDispose = frame.dispose.bind(frame);
       frame.dispose = jest.fn(() => {
         order.push('frameDispose');

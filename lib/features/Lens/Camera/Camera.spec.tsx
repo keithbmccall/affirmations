@@ -8,7 +8,6 @@ import { Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as VisionCameraModule from 'react-native-vision-camera';
 import { Camera } from './Camera';
-import { VIEW_MODE_SWITCH_SETTLE_MS } from './CameraSurfaceContext';
 
 const mockOnAddLensPalette = jest.fn();
 const mockOnUpdateLensPaletteNamedColors = jest.fn();
@@ -17,10 +16,10 @@ const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
 const mockCopyColorLensRegionWorklet = jest.fn();
 const mockApplyColorLensRegionColorWorklet = jest.fn();
-const mockFetchColorNames = jest.fn(() =>
+const mockFetchColorNames = jest.fn((_hexes: string[]) =>
   Promise.resolve({ paletteTitle: 'Test', colors: [] })
 );
-const mockMatchPantoneColors = jest.fn(() => ({ colors: [] }));
+const mockMatchPantoneColors = jest.fn((_hexes: string[]) => ({ colors: [] }));
 const mockRegionColor = { value: '#AABBCC' };
 
 const mockPalette = {
@@ -67,11 +66,11 @@ jest.mock('@platform', () => ({
 }));
 
 jest.mock('@api/fetchColorNames', () => ({
-  fetchColorNames: (...args: unknown[]) => mockFetchColorNames(...args),
+  fetchColorNames: (hexes: string[]) => mockFetchColorNames(hexes),
 }));
 
 jest.mock('@features/Lens/ColorPalette/matchPantoneColors', () => ({
-  matchPantoneColors: (...args: unknown[]) => mockMatchPantoneColors(...args),
+  matchPantoneColors: (hexes: string[]) => mockMatchPantoneColors(hexes),
 }));
 
 jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
@@ -142,11 +141,14 @@ const mockStopRecording = jest.fn(() => Promise.resolve());
 let pendingRecordingFinished: ((filePath: string) => void) | undefined;
 
 const mockPhotoOutput = {
-  capturePhotoToFile: (...args: unknown[]) => mockCapturePhotoToFile(...args),
+  capturePhotoToFile: (
+    ...args: Parameters<typeof mockCapturePhotoToFile>
+  ) => mockCapturePhotoToFile(...args),
 };
 
 const mockVideoOutput = {
-  createRecorder: (...args: unknown[]) => mockCreateRecorder(...args),
+  createRecorder: (...args: Parameters<typeof mockCreateRecorder>) =>
+    mockCreateRecorder(...args),
 };
 
 jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', () => ({
@@ -307,6 +309,7 @@ describe('Camera', () => {
     mockUseCameraRollImpl.mockImplementation(() => ({
       animatedPhotoStyle: {},
       handleCameraRollPress: mockHandleCameraRollPress,
+      handleCameraRollLongPress: jest.fn(),
       fetchRecentMedia: mockFetchRecentMedia,
       recentMedia: null,
     }));
@@ -662,6 +665,7 @@ describe('Camera', () => {
     mockUseCameraRollImpl.mockImplementation(() => ({
       animatedPhotoStyle: {},
       handleCameraRollPress: mockHandleCameraRollPress,
+      handleCameraRollLongPress: jest.fn(),
       fetchRecentMedia: mockFetchRecentMedia,
       recentMedia: 'file:///roll-thumb.jpg',
     }));
@@ -685,30 +689,18 @@ describe('Camera', () => {
     expect(updater(COLOR_LENS_MODE.LENS_POINT)).toBe(COLOR_LENS_MODE.DISABLED);
   });
 
-  it('ignores rapid view-mode toggles until settle completes', () => {
-    jest.useFakeTimers();
+  it('queues rapid view-mode toggles and settles on the latest intent', async () => {
     renderCamera(<Camera />);
 
-    fireEvent.press(screen.getByTestId('lens-control-view-mode'));
-    expect(screen.getByTestId('lens-control-obskura-color-mode')).toBeTruthy();
+    fireEvent.press(await screen.findByTestId('lens-control-view-mode'));
+    expect(await screen.findByTestId('lens-control-obskura-color-mode')).toBeTruthy();
 
     fireEvent.press(screen.getByTestId('lens-control-view-mode'));
-    expect(screen.getByTestId('lens-control-obskura-color-mode')).toBeTruthy();
-    expect(screen.queryByTestId('lens-toggle-color-lens')).toBeNull();
-
-    act(() => {
-      jest.advanceTimersByTime(VIEW_MODE_SWITCH_SETTLE_MS);
-    });
-
-    fireEvent.press(screen.getByTestId('lens-control-view-mode'));
-    expect(screen.getByTestId('lens-toggle-color-lens')).toBeTruthy();
+    expect(await screen.findByTestId('lens-toggle-color-lens')).toBeTruthy();
     expect(screen.queryByTestId('lens-control-obskura-color-mode')).toBeNull();
-
-    jest.useRealTimers();
   });
 
   it('cycles flash, flip, lens device, color lens toggle, and Obskura color mode', async () => {
-    jest.useFakeTimers();
     renderCamera(<Camera />);
 
     fireEvent.press(await screen.findByTestId('lens-control-flash'));
@@ -722,13 +714,7 @@ describe('Camera', () => {
     fireEvent.press(await screen.findByTestId('lens-control-obskura-color-mode'));
     fireEvent.press(screen.getByTestId('lens-control-obskura-color-mode'));
 
-    act(() => {
-      jest.advanceTimersByTime(VIEW_MODE_SWITCH_SETTLE_MS);
-    });
-
     fireEvent.press(screen.getByTestId('lens-control-view-mode'));
     expect(await screen.findByTestId('vision-camera-mock')).toBeTruthy();
-
-    jest.useRealTimers();
   });
 });

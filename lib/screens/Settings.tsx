@@ -7,13 +7,13 @@ import { spacing } from '@styles/spacing';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
 import { StatusBar } from 'expo-status-bar';
 import { memo } from 'react';
-import { NativeSyntheticEvent, StyleSheet, TextInputFocusEventData } from 'react-native';
+import { StyleSheet, type TextInputEndEditingEvent } from 'react-native';
 
 type SettingsProps = ScreenContainerProps;
 const Settings = ({ statusBarProps }: SettingsProps) => {
   const { user, onSetName } = useSettings();
 
-  const updateName = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const updateName = (event: TextInputEndEditingEvent) => {
     onSetName(event.nativeEvent.text);
   };
 
@@ -24,7 +24,7 @@ const Settings = ({ statusBarProps }: SettingsProps) => {
 
       <ThemedInput
         value={user.name}
-        onBlur={updateName}
+        onEndEditing={updateName}
         placeholder="What's ya name"
         submitBehavior="blurAndSubmit"
         autoCorrect={false}

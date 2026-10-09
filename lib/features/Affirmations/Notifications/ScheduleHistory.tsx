@@ -21,8 +21,6 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { NotificationRow } from './NotificationRow';
 
-const NOTIFICATION_ROW_ESTIMATED_HEIGHT = spacing.sm * 2 + spacing['2xl'] * 2 + spacing.lg;
-
 export const ScheduleHistory = memo(function ScheduleHistory() {
   const [page, setPage] = useState<ScheduleHistoryPages>(SCHEDULE_HISTORY_PAGES.PENDING);
 
@@ -125,7 +123,6 @@ export const ScheduleHistory = memo(function ScheduleHistory() {
         data={notificationsByDate}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        estimatedItemSize={NOTIFICATION_ROW_ESTIMATED_HEIGHT}
         contentContainerStyle={contentContainerStyle}
         style={globalStyles.flex1}
       />

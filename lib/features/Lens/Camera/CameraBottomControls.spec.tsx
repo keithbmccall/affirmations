@@ -83,11 +83,14 @@ const mockedCreateCameraRollMediaAsset = createCameraRollMediaAsset as jest.Mock
 >;
 
 const mockPhotoOutput = {
-  capturePhotoToFile: (...args: unknown[]) => mockCapturePhotoToFile(...args),
+  capturePhotoToFile: (
+    ...args: Parameters<typeof mockCapturePhotoToFile>
+  ) => mockCapturePhotoToFile(...args),
 } as unknown as CameraPhotoOutput;
 
 const mockVideoOutput = {
-  createRecorder: (...args: unknown[]) => mockCreateRecorder(...args),
+  createRecorder: (...args: Parameters<typeof mockCreateRecorder>) =>
+    mockCreateRecorder(...args),
 } as unknown as CameraVideoOutput;
 
 function TestSafeArea({ children }: { children: React.ReactNode }) {

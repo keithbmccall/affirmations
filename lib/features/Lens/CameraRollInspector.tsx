@@ -137,14 +137,6 @@ export const CameraRollInspector = memo(function CameraRollInspector({
     [pagerSize.width]
   );
 
-  const estimatedListSize = useMemo(
-    () => ({
-      width: pagerSize.width,
-      height: pagerSize.height,
-    }),
-    [pagerSize.height, pagerSize.width]
-  );
-
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
   }).current;
@@ -215,8 +207,6 @@ export const CameraRollInspector = memo(function CameraRollInspector({
             showsHorizontalScrollIndicator={false}
             scrollEnabled={isPagerScrollEnabled}
             initialScrollIndex={initialIndex}
-            estimatedItemSize={pagerSize.width}
-            estimatedListSize={estimatedListSize}
             overrideItemLayout={overrideItemLayout}
             viewabilityConfig={viewabilityConfig}
             onViewableItemsChanged={onViewableItemsChanged}

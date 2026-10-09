@@ -111,7 +111,6 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
           renderItem={renderPhoto}
           keyExtractor={keyExtractor}
           numColumns={CAMERA_ROLL_NUM_COLUMNS}
-          estimatedItemSize={CAMERA_ROLL_GRID_CELL_SIZE}
           onEndReached={loadMore}
           onEndReachedThreshold={0.1}
           ListEmptyComponent={listEmptyComponent}
