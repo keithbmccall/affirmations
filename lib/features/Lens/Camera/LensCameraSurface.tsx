@@ -30,7 +30,7 @@ import { CameraBottomControls } from './CameraBottomControls';
 import { useCameraSurface } from './CameraSurfaceContext';
 import { CameraTopControls } from './CameraTopControls';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
-import { LENS_POINT_REGION } from './lensPointSampleRegion';
+import { getLensPointSampleRect } from './lensPointSampleRegion';
 import { getResizerOutputSize } from './resizerOutputSize';
 import { runAtTargetFps } from './runAtTargetFps';
 
@@ -92,18 +92,20 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
         return;
       }
 
-      const half = LENS_POINT_REGION.sampleRadius * Math.min(width, height);
-      const centerX = width / 2;
-      const centerY = height / 2;
+      const sampleRect = getLensPointSampleRect({ x: 0, y: 0, width, height });
+      if (sampleRect.size <= 0) {
+        sampleCamReady.value = 0;
+        return;
+      }
 
       try {
         const corner1 = camera.convertViewPointToCameraPoint({
-          x: centerX - half,
-          y: centerY - half,
+          x: sampleRect.x,
+          y: sampleRect.y,
         });
         const corner2 = camera.convertViewPointToCameraPoint({
-          x: centerX + half,
-          y: centerY + half,
+          x: sampleRect.x + sampleRect.size,
+          y: sampleRect.y + sampleRect.size,
         });
         sampleCamX1.value = corner1.x;
         sampleCamY1.value = corner1.y;

@@ -12,7 +12,7 @@ import {
   COLOR_LENS_REGION_TARGET_FPS,
   LensCameraSurface,
 } from './LensCameraSurface';
-import { LENS_POINT_REGION } from './lensPointSampleRegion';
+import { getLensPointSampleRect } from './lensPointSampleRegion';
 import { CAMERA_VIEW_MODE } from './options';
 import { getResizerOutputSize } from './resizerOutputSize';
 
@@ -203,14 +203,12 @@ const layoutViewport = (surface: ReturnType<typeof renderLensSurface>, width = 3
 };
 
 const expectedSampleRect = (width: number, height: number) => {
-  const half = LENS_POINT_REGION.sampleRadius * Math.min(width, height);
-  const centerX = width / 2;
-  const centerY = height / 2;
+  const sampleRect = getLensPointSampleRect({ x: 0, y: 0, width, height });
   return {
-    left: centerX - half,
-    top: centerY - half,
-    right: centerX + half,
-    bottom: centerY + half,
+    left: sampleRect.x,
+    top: sampleRect.y,
+    right: sampleRect.x + sampleRect.size,
+    bottom: sampleRect.y + sampleRect.size,
   };
 };
 

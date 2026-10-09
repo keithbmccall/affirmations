@@ -3,11 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 
-import {
-  getRegionDiameter,
-  getRegionHaloDiameter,
-  LENS_POINT_REGION,
-} from './lensPointSampleRegion';
+import { getLensPointSampleRect, LENS_POINT_REGION } from './lensPointSampleRegion';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 
 jest.mock('@features/Lens/ColorPalette/useAnimatedColor', () => ({
@@ -47,7 +43,7 @@ describe('LensColorRegionIndicator', () => {
     );
   });
 
-  it('renders inner sample ring and outer halo from layout short side', () => {
+  it('renders a sample ring matching getLensPointSampleRect from layout short side', () => {
     const color = useSharedValue('#112233');
 
     render(<LensColorRegionIndicator color={color} animationDuration={500} />);
@@ -56,20 +52,7 @@ describe('LensColorRegionIndicator', () => {
       nativeEvent: { layout },
     });
 
-    const expectedDiameter = getRegionDiameter(layout);
-    const expectedHaloDiameter = getRegionHaloDiameter(layout);
-
-    const ringsHost = screen.getByTestId('lens-color-region-rings-host');
-    const hostStyle = Array.isArray(ringsHost.props.style)
-      ? Object.assign({}, ...ringsHost.props.style.filter(Boolean))
-      : ringsHost.props.style;
-
-    expect(hostStyle).toEqual(
-      expect.objectContaining({
-        width: expectedHaloDiameter,
-        height: expectedHaloDiameter,
-      })
-    );
+    const expected = getLensPointSampleRect(layout);
 
     const indicator = screen.getByTestId('lens-color-region-indicator');
     const indicatorStyle = Array.isArray(indicator.props.style)
@@ -78,36 +61,21 @@ describe('LensColorRegionIndicator', () => {
 
     expect(indicatorStyle).toEqual(
       expect.objectContaining({
-        width: expectedDiameter,
-        height: expectedDiameter,
-        borderRadius: expectedDiameter / 2,
-        borderWidth: LENS_POINT_REGION.innerBorderWidth,
+        width: expected.size,
+        height: expected.size,
+        borderRadius: expected.size / 2,
+        borderWidth: LENS_POINT_REGION.borderWidth,
         backgroundColor: 'transparent',
-      })
-    );
-
-    const halo = screen.getByTestId('lens-color-region-halo');
-    const haloStyle = Array.isArray(halo.props.style)
-      ? Object.assign({}, ...halo.props.style.filter(Boolean))
-      : halo.props.style;
-
-    expect(haloStyle).toEqual(
-      expect.objectContaining({
-        borderRadius: expectedHaloDiameter / 2,
-        borderWidth: LENS_POINT_REGION.haloBorderWidth,
-        backgroundColor: 'transparent',
-        opacity: LENS_POINT_REGION.haloBorderOpacity,
       })
     );
     expect(mockUseAnimatedColor).toHaveBeenCalledWith(color, 500);
   });
 
-  it('does not render rings until layout is measured', () => {
+  it('does not render the sample ring until layout is measured', () => {
     const color = useSharedValue('#112233');
 
     render(<LensColorRegionIndicator color={color} animationDuration={500} />);
 
     expect(screen.queryByTestId('lens-color-region-indicator')).toBeNull();
-    expect(screen.queryByTestId('lens-color-region-halo')).toBeNull();
   });
 });

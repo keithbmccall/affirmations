@@ -12,7 +12,7 @@ export interface ColorLensPaletteResult {
   detail: string;
 }
 
-/** BGRA uint8 interleaved pixels from a region crop (owned ArrayBuffer). */
+/** RGB uint8 interleaved pixels from a region crop (owned ArrayBuffer; same layout as extractPalette). */
 export interface ColorLensRegionPixels {
   pixels: ArrayBuffer;
   width: number;
@@ -22,8 +22,8 @@ export interface ColorLensRegionPixels {
 /**
  * Long-lived Nitro processor for color-lens MMCQ.
  * - extractPalette: uint8 RGB interleaved ArrayBuffer (from vision-camera-resizer)
- * - copyRegion: CI crop+render into owned BGRA bytes (release Frame before MMCQ)
- * - extractDominantColor: BGRA ArrayBuffer → dominant hex
+ * - copyRegion: CI crop+render into owned RGB bytes (release Frame before MMCQ)
+ * - extractDominantColor: RGB ArrayBuffer → dominant hex (same MMCQ reader as extractPalette)
  */
 export interface ColorLensProcessor extends HybridObject<{ ios: 'swift' }> {
   extractPalette(

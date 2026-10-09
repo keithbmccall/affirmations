@@ -5,11 +5,7 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import { LayoutChangeEvent, LayoutRectangle, StyleSheet, View } from 'react-native';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
-import {
-  getRegionDiameter,
-  getRegionHaloDiameter,
-  LENS_POINT_REGION,
-} from './lensPointSampleRegion';
+import { getLensPointSampleRect, LENS_POINT_REGION } from './lensPointSampleRegion';
 
 interface LensColorRegionIndicatorProps {
   color: SharedValue<string>;
@@ -28,34 +24,16 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
     setLayoutSize(event.nativeEvent.layout);
   }, []);
 
-  const diameter = getRegionDiameter(layoutSize);
-  const haloDiameter = getRegionHaloDiameter(layoutSize);
+  const sampleRect = getLensPointSampleRect(layoutSize);
 
   const circleStyle = useMemo(
     () => ({
-      width: diameter,
-      height: diameter,
-      borderRadius: diameter / 2,
-      borderWidth: LENS_POINT_REGION.innerBorderWidth,
+      width: sampleRect.size,
+      height: sampleRect.size,
+      borderRadius: sampleRect.size / 2,
+      borderWidth: LENS_POINT_REGION.borderWidth,
     }),
-    [diameter]
-  );
-
-  const haloStyle = useMemo(
-    () => ({
-      borderRadius: haloDiameter / 2,
-      borderWidth: LENS_POINT_REGION.haloBorderWidth,
-      opacity: LENS_POINT_REGION.haloBorderOpacity,
-    }),
-    [haloDiameter]
-  );
-
-  const ringsHostStyle = useMemo(
-    () => ({
-      width: haloDiameter,
-      height: haloDiameter,
-    }),
-    [haloDiameter]
+    [sampleRect.size]
   );
 
   const animatedColor = useAnimatedColor(color, animationDuration);
@@ -66,17 +44,7 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
     [animatedColor]
   );
 
-  const ringsHostCombinedStyle = useMemo(
-    () => [styles.ringsHost, ringsHostStyle],
-    [ringsHostStyle]
-  );
-
-  const haloCombinedStyle = useMemo(
-    () => [styles.haloRing, StyleSheet.absoluteFillObject, haloStyle, animatedBorderStyle],
-    [animatedBorderStyle, haloStyle]
-  );
-
-  const innerCombinedStyle = useMemo(
+  const circleCombinedStyle = useMemo(
     () => [styles.circle, circleStyle, animatedBorderStyle],
     [animatedBorderStyle, circleStyle]
   );
@@ -88,17 +56,8 @@ export const LensColorRegionIndicator = memo(function LensColorRegionIndicator({
       pointerEvents="none"
       onLayout={handleLayout}
     >
-      {diameter > 0 ? (
-        <View testID="lens-color-region-rings-host" style={ringsHostCombinedStyle}>
-          <Reanimated.View
-            testID="lens-color-region-halo"
-            style={haloCombinedStyle}
-          />
-          <Reanimated.View
-            testID="lens-color-region-indicator"
-            style={innerCombinedStyle}
-          />
-        </View>
+      {sampleRect.size > 0 ? (
+        <Reanimated.View testID="lens-color-region-indicator" style={circleCombinedStyle} />
       ) : null}
     </View>
   );
@@ -109,13 +68,6 @@ const styles = StyleSheet.create({
     ...globalStyles.absoluteFill,
     ...globalStyles.flexCenter,
     zIndex: 5,
-  },
-  ringsHost: {
-    ...globalStyles.relative,
-    ...globalStyles.flexCenter,
-  },
-  haloRing: {
-    backgroundColor: colors.human.transparent,
   },
   circle: {
     backgroundColor: colors.human.transparent,

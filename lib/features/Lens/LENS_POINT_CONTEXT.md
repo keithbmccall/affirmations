@@ -10,8 +10,9 @@ Handoff doc for **lens-point** color sampling (`COLOR_LENS_MODE.LENS_POINT`). De
 
 - User cycles color-lens mode via top controls: `disabled → lens-dominant → lens-point → disabled`.
 - In **lens-point** mode:
-  - A **fixed-center** indicator sits over the camera preview (no drag yet).
-  - Live sampled hex drives the **inner ring** border color (animated).
+  - A **fixed-center** circular ring sits over the camera preview (no drag yet).
+  - Ring **diameter** matches the view-space sample **square side** sent to native (inscribed circle; native still crops the square).
+  - Live sampled hex drives the ring border color (animated).
   - Photo capture saves the current `regionColor` with the asset.
 - **Not implemented yet:** movable/draggable lens point. Stage 2 coords make this straightforward: update the view-space sample square on drag, re-run `convertViewPointToCameraPoint` on the JS thread.
 
@@ -23,24 +24,20 @@ Handoff doc for **lens-point** color sampling (`COLOR_LENS_MODE.LENS_POINT`). De
 
 ```typescript
 export const LENS_POINT_REGION = {
-  sampleRadius: 0.01,       // view-space sample square + inner ring (1:1)
-  haloMultiplier: 8,          // outer halo diameter only (UI)
-  innerBorderWidth: 1,
-  haloBorderWidth: 2,
-  haloBorderOpacity: 0.4,
+  sampleRadius: 0.04,       // view-space sample square + ring diameter (1:1 side)
+  borderWidth: 1,
 } as const;
 ```
 
 | Field | Affects |
 |-------|---------|
-| `sampleRadius` | View-space sample square **and** inner ring diameter |
-| `haloMultiplier` | Outer halo size only (`sampleRadius × multiplier`) |
-| `innerBorderWidth` / `haloBorderWidth` / `haloBorderOpacity` | Indicator chrome only |
+| `sampleRadius` | View-space sample square **and** on-screen ring diameter |
+| `borderWidth` | Indicator chrome only |
 
 Helpers:
 
-- `getRegionDiameter(layout)` → inner ring px (`2 × sampleRadius × shortSide`)
-- `getRegionHaloDiameter(layout)` → outer halo px (`2 × haloRadius × shortSide`)
+- `getLensPointSampleRect(layout)` → centered `{ x, y, size }` used by indicator **and** VC5 corner conversion
+- `getRegionDiameter(layout)` → `size` alias (`2 × sampleRadius × shortSide`)
 
 ---
 
@@ -94,7 +91,7 @@ flowchart TB
 
 - `resizeMode="cover"` on `Camera`.
 - `useFrameOutput({ pixelFormat: 'yuv', enablePreviewSizedOutputBuffers: true, onFrame })`.
-- On layout / preview started / device flip: build the view-space sample square (center = viewport center, half-size = `sampleRadius × min(w,h)`), convert opposite corners with `cameraRef.convertViewPointToCameraPoint`, store camera-space corners in SharedValues. Skip region sampling until ready (`sampleCamReady`).
+- On layout / preview started / device flip: `getLensPointSampleRect` → convert opposite corners with `cameraRef.convertViewPointToCameraPoint`, store camera-space corners in SharedValues. Skip region sampling until ready (`sampleCamReady`).
 - Point-mode worklet (throttled `COLOR_LENS_REGION_TARGET_FPS` = 2):
 
 ```typescript
@@ -113,7 +110,7 @@ if (regionPixels !== null) {
 ```
 
 - Dominant mode: `useResizer` → **`frame.dispose()`** → `extractPalette(gpu.getPixelBuffer(), w, h)` → `gpuFrame.dispose()`.
-- Renders [`LensColorRegionIndicator`](Camera/LensColorRegionIndicator.tsx) when `isColorLensPoint(colorLensMode)`.
+- Renders [`LensColorRegionIndicator`](Camera/LensColorRegionIndicator.tsx) when `isColorLensPoint(colorLensMode)` — circular ring with diameter from the same `getLensPointSampleRect`.
 
 ### JS bridge
 
@@ -136,12 +133,12 @@ Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`)
 
 1. Unwrap `NativeFrame` → `CVPixelBuffer`.
 2. [`ColorLensImagePipeline.cropBufferRect`](../../../modules/expo-color-lens-frame-processor/ios/ColorLensImagePipeline.swift) — clamp rect, flip Y for CI origin, crop.
-3. Downsample (max side 128) → `CIContext.render` BGRA → **owned** `ArrayBuffer` copy.
+3. Downsample (max side 128) → `CIContext.render` BGRA → pack interleaved **RGB** → **owned** `ArrayBuffer` copy.
 4. Native throttle (~20 FPS) returns `nil` when skipped; JS throttles to 2 FPS.
 
 ### `extractDominantColor(pixels, width, height)` → hex
 
-1. Copy BGRA `ArrayBuffer` into reused buffer → MMCQ → dominant hex.
+1. Copy RGB interleaved `ArrayBuffer` into reused buffer → **same** MMCQ RGB reader as `extractPalette` → dominant hex.
 2. Temporal smoothing. Call **after** disposing the camera `Frame`.
 
 ### `extractPalette(pixels, width, height)`
@@ -156,7 +153,7 @@ Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`)
 
 | Space | Who produces it |
 |-------|-----------------|
-| View pixels | Layout + `LENS_POINT_REGION.sampleRadius` |
+| View pixels | `getLensPointSampleRect` from layout + `LENS_POINT_REGION.sampleRadius` |
 | Camera normalized | `convertViewPointToCameraPoint` (JS thread) |
 | Frame / buffer pixels | `convertCameraPointToFramePoint` (worklet) |
 
@@ -176,10 +173,10 @@ Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`)
 
 | Concern | Path |
 |---------|------|
-| Config + diameter math | [`Camera/lensPointSampleRegion.ts`](Camera/lensPointSampleRegion.ts) |
+| Config + sample rect math | [`Camera/lensPointSampleRegion.ts`](Camera/lensPointSampleRegion.ts) |
 | Camera + frame output | [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx) |
 | Resizer size helper | [`Camera/resizerOutputSize.ts`](Camera/resizerOutputSize.ts) |
-| On-screen rings | [`Camera/LensColorRegionIndicator.tsx`](Camera/LensColorRegionIndicator.tsx) |
+| On-screen ring | [`Camera/LensColorRegionIndicator.tsx`](Camera/LensColorRegionIndicator.tsx) |
 | Region / palette hooks | [`ColorPalette/useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts), [`useColorLensPalette.ts`](ColorPalette/useColorLensPalette.ts) |
 | Nitro processor | [`modules/.../HybridColorLensProcessor.swift`](../../../modules/expo-color-lens-frame-processor/ios/HybridColorLensProcessor.swift) |
 | Thin CI crop helpers | [`modules/.../ColorLensImagePipeline.swift`](../../../modules/expo-color-lens-frame-processor/ios/ColorLensImagePipeline.swift) |
@@ -189,6 +186,5 @@ Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`)
 ## Deferred / out of scope
 
 - Draggable lens point.
-- Circular sample mask vs square native crop.
 - Android native implementation.
 - Package rename away from `expo-color-lens-frame-processor`.

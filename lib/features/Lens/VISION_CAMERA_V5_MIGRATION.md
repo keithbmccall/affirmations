@@ -118,7 +118,7 @@ Do **not** rely on the plugin for permission strings after removal — they must
 
 ### Lens point + dominant palette (shipped Nitro modernize)
 
-**Region (lens-point):** JS-thread `convertViewPointToCameraPoint` on sample-square corners → SharedValues → worklet `convertCameraPointToFramePoint` → `copyRegion` → **`frame.dispose()`** → `extractDominantColor` (owned BGRA). See [`LENS_POINT_CONTEXT.md`](LENS_POINT_CONTEXT.md).
+**Region (lens-point):** JS-thread `convertViewPointToCameraPoint` on sample-square corners → SharedValues → worklet `convertCameraPointToFramePoint` → `copyRegion` → **`frame.dispose()`** → `extractDominantColor` (owned RGB; same MMCQ reader as palette). See [`LENS_POINT_CONTEXT.md`](LENS_POINT_CONTEXT.md).
 
 **Dominant:** `useResizer({ scaleMode: 'cover', channelOrder: 'rgb', … })` with viewport-aspect size (long side 128) → `extractPalette(ArrayBuffer, w, h)`.
 

@@ -70,7 +70,7 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
   }
 
   /// Axis-aligned rect in raw CVPixelBuffer pixel coordinates (top-left origin).
-  /// Returns owned BGRA bytes so the caller can dispose the camera Frame before MMCQ.
+  /// Returns owned RGB interleaved bytes (same layout as extractPalette) so the caller can dispose the Frame before MMCQ.
   func copyRegion(
     frame: any HybridFrameSpec,
     left: Double,
@@ -111,11 +111,11 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
       maxSide: maxImageSize
     )
 
-    guard let dimensions = renderBGRAToPixelBuffer(downsampledImage) else {
+    guard let dimensions = renderRegionRGBToPixelBuffer(downsampledImage) else {
       return nil
     }
 
-    let byteCount = dimensions.width * dimensions.height * 4
+    let byteCount = dimensions.width * dimensions.height * 3
     let owningPixels = pixelBuffer.withUnsafeBufferPointer { buffer -> ArrayBuffer in
       ArrayBuffer.copy(of: buffer.baseAddress!, size: byteCount)
     }
@@ -127,7 +127,7 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
     )
   }
 
-  /// BGRA uint8 interleaved pixels from `copyRegion` → dominant hex with temporal smoothing.
+  /// RGB interleaved uint8 pixels from `copyRegion` → dominant hex via the same MMCQ path as extractPalette.
   func extractDominantColor(
     pixels: ArrayBuffer,
     width: Double,
@@ -135,7 +135,7 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
   ) throws -> String? {
     let w = Int(width)
     let h = Int(height)
-    let expectedSize = w * h * 4
+    let expectedSize = w * h * 3
     guard w > 0, h > 0, pixels.size >= expectedSize else {
       return previousRegionColor
     }
@@ -161,8 +161,9 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
     }
   }
 
+  /// CI renders BGRA8; pack to interleaved RGB (R,G,B) for shared MMCQ with extractPalette.
   @discardableResult
-  private func renderBGRAToPixelBuffer(_ image: CIImage) -> (width: Int, height: Int)? {
+  private func renderRegionRGBToPixelBuffer(_ image: CIImage) -> (width: Int, height: Int)? {
     let extent = image.extent
     let width = Int(floor(extent.width))
     let height = Int(floor(extent.height))
@@ -177,13 +178,10 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
       )
     }
 
-    let pixelCount = width * height * 4
-    if pixelBuffer.count != pixelCount {
-      pixelBuffer = Array(repeating: 0, count: pixelCount)
-    }
-
+    let pixelCount = width * height
+    var bgra = [UInt8](repeating: 0, count: pixelCount * 4)
     let colorSpace = CGColorSpaceCreateDeviceRGB()
-    pixelBuffer.withUnsafeMutableBytes { rawBuffer in
+    bgra.withUnsafeMutableBytes { rawBuffer in
       guard let baseAddress = rawBuffer.baseAddress else { return }
       context.render(
         originAligned,
@@ -193,6 +191,19 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
         format: .BGRA8,
         colorSpace: colorSpace
       )
+    }
+
+    let rgbCount = pixelCount * 3
+    if pixelBuffer.count != rgbCount {
+      pixelBuffer = Array(repeating: 0, count: rgbCount)
+    }
+    for i in 0..<pixelCount {
+      let b = bgra[i * 4 + 0]
+      let g = bgra[i * 4 + 1]
+      let r = bgra[i * 4 + 2]
+      pixelBuffer[i * 3 + 0] = r
+      pixelBuffer[i * 3 + 1] = g
+      pixelBuffer[i * 3 + 2] = b
     }
     return (width, height)
   }
@@ -300,7 +311,7 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
   private func getDominantColorFromPixelBuffer() -> String? {
     guard let palette = getPaletteSwatches(
       maxColors: Self.regionMaxColors,
-      rgbInterleaved: false
+      rgbInterleaved: true
     )?.first else {
       return nil
     }

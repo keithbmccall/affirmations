@@ -18,7 +18,7 @@ export type { ColorLensRegionPixels };
  * Call from a frame worklet with a processor created on the RN JS thread.
  * Do not call `getColorLensProcessor()` inside the worklet — that is a remote RN function.
  *
- * Returns owned BGRA pixels so the camera Frame can be disposed before MMCQ.
+ * Returns owned RGB interleaved pixels so the camera Frame can be disposed before MMCQ.
  */
 export function copyColorLensRegion(
   processor: ColorLensProcessor,
@@ -38,7 +38,8 @@ export function copyColorLensRegion(
 }
 
 /**
- * Run after disposing the camera Frame. Consumes BGRA pixels from `copyColorLensRegion`.
+ * Run after disposing the camera Frame. Consumes RGB pixels from `copyColorLensRegion`
+ * (same MMCQ layout as dominant palette).
  */
 export function extractColorLensRegionColor(
   processor: ColorLensProcessor,
