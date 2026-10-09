@@ -1,12 +1,13 @@
 import { LensCameraRoll } from '@features/Lens/LensCameraRoll';
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { PREFETCH_COUNT } from '@features/Lens/Camera/cameraRollPhotos/constants';
 import {
   resetCameraRollPhotosCache,
   setCameraRollPhotosCache,
 } from '@features/Lens/Camera/cameraRollPhotos/cameraRollPhotosCache';
+import { queryCameraRollMediaAssets } from '@features/Lens/Camera/cameraRollPhotos/queryCameraRollMediaAssets';
 import { renderWithContext } from '@testing/renderWithContext';
 import { fireEvent, screen } from '@testing-library/react-native';
-import { type Asset, getAssetsAsync } from 'expo-media-library';
 import React from 'react';
 
 jest.mock('@components/Modal', () => {
@@ -39,27 +40,28 @@ jest.mock('@features/Lens/ColorPalette/ColorPaletteImage', () => {
   };
 });
 
-jest.mock('expo-media-library', () => ({
-  getAssetsAsync: jest.fn().mockResolvedValue({
+jest.mock('@features/Lens/Camera/cameraRollPhotos/queryCameraRollMediaAssets', () => ({
+  queryCameraRollMediaAssets: jest.fn().mockResolvedValue({
     assets: [],
-    endCursor: null,
-    hasNextPage: false,
-    totalCount: 0,
+    hasMore: false,
   }),
 }));
 
-const createAsset = (id: string): Asset =>
-  ({
-    id,
-    uri: `file:///${id}.jpg`,
-    mediaType: 'photo',
-    width: 100,
-    height: 100,
-    filename: `${id}.jpg`,
-    creationTime: 0,
-    modificationTime: 0,
-    duration: 0,
-  }) as Asset;
+jest.mock('@features/Lens/Camera/cameraRollPhotos/prefetchCameraRollThumbnails', () => ({
+  prefetchCameraRollThumbnails: jest.fn(() => Promise.resolve()),
+}));
+
+const createAsset = (id: string): CameraRollMediaAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'image',
+  width: 100,
+  height: 100,
+  filename: `${id}.jpg`,
+  creationTime: 0,
+  modificationTime: 0,
+  duration: 0,
+});
 
 describe('LensCameraRoll', () => {
   beforeEach(() => {
@@ -68,8 +70,8 @@ describe('LensCameraRoll', () => {
   });
 
   it('keeps FlashList mounted while loading with an empty cache', async () => {
-    const mockedGetAssetsAsync = jest.mocked(getAssetsAsync);
-    mockedGetAssetsAsync.mockReturnValue(new Promise(() => {}));
+    const mockedQuery = jest.mocked(queryCameraRollMediaAssets);
+    mockedQuery.mockReturnValue(new Promise(() => {}));
 
     renderWithContext(<LensCameraRoll />);
 
@@ -80,7 +82,7 @@ describe('LensCameraRoll', () => {
   it('shows an empty-state message when the catalog is empty', async () => {
     setCameraRollPhotosCache({
       photos: [],
-      endCursor: null,
+      nextOffset: 0,
       hasMore: false,
       prefetchComplete: true,
     });
@@ -93,7 +95,7 @@ describe('LensCameraRoll', () => {
   it('renders cached photos immediately without a load-more footer', async () => {
     setCameraRollPhotosCache({
       photos: [createAsset('cached-1'), createAsset('cached-2')],
-      endCursor: null,
+      nextOffset: 2,
       hasMore: false,
       prefetchComplete: true,
     });
@@ -112,17 +114,15 @@ describe('LensCameraRoll', () => {
 
     setCameraRollPhotosCache({
       photos: prefetchedAssets,
-      endCursor: 'cursor-300',
+      nextOffset: PREFETCH_COUNT,
       hasMore: true,
       prefetchComplete: true,
     });
 
-    const mockedGetAssetsAsync = jest.mocked(getAssetsAsync);
-    mockedGetAssetsAsync.mockResolvedValueOnce({
+    const mockedQuery = jest.mocked(queryCameraRollMediaAssets);
+    mockedQuery.mockResolvedValueOnce({
       assets: [createAsset('photo-301')],
-      endCursor: '',
-      hasNextPage: false,
-      totalCount: PREFETCH_COUNT + 1,
+      hasMore: false,
     });
 
     renderWithContext(<LensCameraRoll />);

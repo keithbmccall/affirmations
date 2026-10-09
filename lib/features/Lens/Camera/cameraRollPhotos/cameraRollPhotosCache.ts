@@ -1,10 +1,10 @@
 import { Cache } from '@storage/cache';
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from './CameraRollMediaAsset';
 import { mergePhotosAtHead } from './mergePhotosAtHead';
 
 export type CameraRollPhotosCache = {
-  photos: Asset[];
-  endCursor: string | null;
+  photos: CameraRollMediaAsset[];
+  nextOffset: number;
   hasMore: boolean;
   prefetchComplete: boolean;
 };
@@ -12,13 +12,13 @@ export type CameraRollPhotosCache = {
 // Shared empty default — callers must not mutate get().photos in place.
 const EMPTY_CAMERA_ROLL_PHOTOS_CACHE: CameraRollPhotosCache = {
   photos: [],
-  endCursor: null,
+  nextOffset: 0,
   hasMore: true,
   prefetchComplete: false,
 };
 
 export class CameraRollPhotosCacheStore extends Cache<CameraRollPhotosCache> {
-  mergeHeadPhotos(head: Asset[]): void {
+  mergeHeadPhotos(head: CameraRollMediaAsset[]): void {
     const current = this.get();
     const mergedPhotos = mergePhotosAtHead(current.photos, head);
 

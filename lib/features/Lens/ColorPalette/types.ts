@@ -1,5 +1,4 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
-import { Asset } from 'expo-media-library';
 
 export type LensNamedColor = {
   /** The color sampled from the photo; never a matcher’s replacement swatch. */
@@ -53,8 +52,8 @@ export type LensPhotoCaptureContext =
     };
 
 export type InspectionAsset = LensPaletteBase & {
-  height: Asset['height'];
-  width: Asset['width'];
+  height: number;
+  width: number;
 } & (
     | {
         type: typeof COLOR_LENS_MODE.LENS_DOMINANT;

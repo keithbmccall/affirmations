@@ -1,22 +1,27 @@
-import {
-  colorLensPalettePlugin,
-  type ColorLensPaletteResult,
+import type {
+  ColorLensPaletteResult,
+  ColorLensProcessor,
 } from 'expo-color-lens-frame-processor';
-import type { Frame } from 'react-native-vision-camera';
 
 export type ColorLensPaletteType = ColorLensPaletteResult;
 
 export interface ColorLensPaletteOptions {
-  viewportWidth: number;
-  viewportHeight: number;
+  /** uint8 RGB interleaved buffer from vision-camera-resizer */
+  pixels: ArrayBuffer;
+  width: number;
+  height: number;
 }
 
+/**
+ * Call from a frame worklet with a processor created on the RN JS thread.
+ * Do not call `getColorLensProcessor()` inside the worklet — that is a remote RN function.
+ */
 export function getColorLensPalette(
-  frame: Frame,
+  processor: ColorLensProcessor,
   options: ColorLensPaletteOptions
 ): ColorLensPaletteType | null {
   'worklet';
   return (
-    colorLensPalettePlugin.call(frame, options.viewportWidth, options.viewportHeight) ?? null
+    processor.extractPalette(options.pixels, options.width, options.height) ?? null
   );
 }

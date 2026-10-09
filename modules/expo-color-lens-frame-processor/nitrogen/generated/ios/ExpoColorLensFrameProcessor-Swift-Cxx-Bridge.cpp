@@ -9,8 +9,7 @@
 
 // Include C++ implementation defined types
 #include "ExpoColorLensFrameProcessor-Swift-Cxx-Umbrella.hpp"
-#include "HybridColorLensPalettePluginSpecSwift.hpp"
-#include "HybridColorLensRegionPluginSpecSwift.hpp"
+#include "HybridColorLensProcessorSpecSwift.hpp"
 #include <NitroModules/NitroDefines.hpp>
 #include <VisionCamera/VisionCamera-Swift-Cxx-Bridge.hpp>
 
@@ -26,35 +25,19 @@ namespace margelo::nitro::colorlens::bridge::swift {
     return margelo::nitro::camera::bridge::swift::get_std__shared_ptr_HybridFrameSpec_(cppType);
   }
   
-  // pragma MARK: std::shared_ptr<HybridColorLensPalettePluginSpec>
-  std::shared_ptr<HybridColorLensPalettePluginSpec> create_std__shared_ptr_HybridColorLensPalettePluginSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
-    ExpoColorLensFrameProcessor::HybridColorLensPalettePluginSpec_cxx swiftPart = ExpoColorLensFrameProcessor::HybridColorLensPalettePluginSpec_cxx::fromUnsafe(swiftUnsafePointer);
-    return std::make_shared<margelo::nitro::colorlens::HybridColorLensPalettePluginSpecSwift>(swiftPart);
+  // pragma MARK: std::shared_ptr<HybridColorLensProcessorSpec>
+  std::shared_ptr<HybridColorLensProcessorSpec> create_std__shared_ptr_HybridColorLensProcessorSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    ExpoColorLensFrameProcessor::HybridColorLensProcessorSpec_cxx swiftPart = ExpoColorLensFrameProcessor::HybridColorLensProcessorSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::colorlens::HybridColorLensProcessorSpecSwift>(swiftPart);
   }
-  void* NON_NULL get_std__shared_ptr_HybridColorLensPalettePluginSpec_(std__shared_ptr_HybridColorLensPalettePluginSpec_ cppType) {
-    std::shared_ptr<margelo::nitro::colorlens::HybridColorLensPalettePluginSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::colorlens::HybridColorLensPalettePluginSpecSwift>(cppType);
+  void* NON_NULL get_std__shared_ptr_HybridColorLensProcessorSpec_(std__shared_ptr_HybridColorLensProcessorSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::colorlens::HybridColorLensProcessorSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::colorlens::HybridColorLensProcessorSpecSwift>(cppType);
     #ifdef NITRO_DEBUG
     if (swiftWrapper == nullptr) [[unlikely]] {
-      throw std::runtime_error("Class \"HybridColorLensPalettePluginSpec\" is not implemented in Swift!");
+      throw std::runtime_error("Class \"HybridColorLensProcessorSpec\" is not implemented in Swift!");
     }
     #endif
-    ExpoColorLensFrameProcessor::HybridColorLensPalettePluginSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
-    return swiftPart.toUnsafe();
-  }
-  
-  // pragma MARK: std::shared_ptr<HybridColorLensRegionPluginSpec>
-  std::shared_ptr<HybridColorLensRegionPluginSpec> create_std__shared_ptr_HybridColorLensRegionPluginSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
-    ExpoColorLensFrameProcessor::HybridColorLensRegionPluginSpec_cxx swiftPart = ExpoColorLensFrameProcessor::HybridColorLensRegionPluginSpec_cxx::fromUnsafe(swiftUnsafePointer);
-    return std::make_shared<margelo::nitro::colorlens::HybridColorLensRegionPluginSpecSwift>(swiftPart);
-  }
-  void* NON_NULL get_std__shared_ptr_HybridColorLensRegionPluginSpec_(std__shared_ptr_HybridColorLensRegionPluginSpec_ cppType) {
-    std::shared_ptr<margelo::nitro::colorlens::HybridColorLensRegionPluginSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::colorlens::HybridColorLensRegionPluginSpecSwift>(cppType);
-    #ifdef NITRO_DEBUG
-    if (swiftWrapper == nullptr) [[unlikely]] {
-      throw std::runtime_error("Class \"HybridColorLensRegionPluginSpec\" is not implemented in Swift!");
-    }
-    #endif
-    ExpoColorLensFrameProcessor::HybridColorLensRegionPluginSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    ExpoColorLensFrameProcessor::HybridColorLensProcessorSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
 

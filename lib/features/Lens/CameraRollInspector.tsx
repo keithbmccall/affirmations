@@ -6,7 +6,7 @@ import { toInspectionAsset } from '@features/Lens/Camera/cameraRollPhotos/toInsp
 import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCameraRollPhotos';
 import { useLens } from '@platform';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { FlashList, type ListRenderItem } from '@shopify/flash-list';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -35,7 +35,7 @@ interface CameraRollInspectorProps extends ScreenContainerProps {
 }
 
 interface InspectorPagerItemProps {
-  asset: Asset;
+  asset: CameraRollMediaAsset;
   lensPalette: LensPalette | undefined;
   isActive: boolean;
   pageWidth: number;
@@ -150,7 +150,7 @@ export const CameraRollInspector = memo(function CameraRollInspector({
   }).current;
 
   const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken<Asset>[] }) => {
+    ({ viewableItems }: { viewableItems: ViewToken<CameraRollMediaAsset>[] }) => {
       const firstVisible = viewableItems[0];
 
       if (firstVisible?.index === null || firstVisible?.index === undefined) {
@@ -171,9 +171,9 @@ export const CameraRollInspector = memo(function CameraRollInspector({
     }
   ).current;
 
-  const keyExtractor = useCallback((item: Asset) => item.id, []);
+  const keyExtractor = useCallback((item: CameraRollMediaAsset) => item.id, []);
 
-  const renderItem: ListRenderItem<Asset> = useCallback(
+  const renderItem: ListRenderItem<CameraRollMediaAsset> = useCallback(
     ({ item, index }) => (
       <InspectorPagerItem
         asset={item}

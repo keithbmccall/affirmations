@@ -1,3 +1,5 @@
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
+import { createCameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset';
 import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead';
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
 import { useCameraRoll } from '@features/Lens/Camera/hooks/useCameraRoll';
@@ -7,7 +9,6 @@ import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
-import { createAssetAsync, type Asset } from 'expo-media-library';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Reanimated from 'react-native-reanimated';
@@ -18,8 +19,11 @@ interface CameraBottomControlsProps {
   enableVideoLongPress?: boolean;
   onPhotoCaptureStart?: () => LensPhotoCaptureContext | undefined;
   processPhotoPath?: (inputPath: string) => Promise<string>;
-  onPhotoAssetSaved?: (asset: Asset, context?: LensPhotoCaptureContext) => Promise<void>;
-  onVideoAssetSaved?: (asset: Asset) => Promise<void>;
+  onPhotoAssetSaved?: (
+    asset: CameraRollMediaAsset,
+    context?: LensPhotoCaptureContext
+  ) => Promise<void>;
+  onVideoAssetSaved?: (asset: CameraRollMediaAsset) => Promise<void>;
 }
 
 const identityPhotoPath = (inputPath: string) => Promise.resolve(inputPath);
@@ -65,7 +69,7 @@ export const CameraBottomControls = memo(function CameraBottomControls({
         {}
       );
       const savePath = await processPhotoPath(photoFile.filePath);
-      const asset = await createAssetAsync(savePath);
+      const asset = await createCameraRollMediaAsset(savePath);
       await onPhotoAssetSaved?.(asset, captureContext);
       notifyAfterMediaCapture();
     } catch {
@@ -87,7 +91,7 @@ export const CameraBottomControls = memo(function CameraBottomControls({
       await recorder.startRecording(
         async filePath => {
           try {
-            const asset = await createAssetAsync(filePath);
+            const asset = await createCameraRollMediaAsset(filePath);
             await onVideoAssetSaved?.(asset);
             notifyAfterMediaCapture();
           } catch {

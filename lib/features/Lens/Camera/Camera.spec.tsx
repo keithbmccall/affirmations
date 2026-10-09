@@ -1,7 +1,7 @@
 import { COLOR_LENS_MODE, type ColorLensMode } from '@features/Lens/ColorPalette/colorLensMode';
 import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
-import { createAssetAsync } from 'expo-media-library';
+import { createCameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset';
 import { router } from 'expo-router';
 import React from 'react';
 import { Alert } from 'react-native';
@@ -15,7 +15,8 @@ const mockOnUpdateLensPaletteNamedColors = jest.fn();
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
-const mockGetColorLensRegionWorklet = jest.fn();
+const mockCopyColorLensRegionWorklet = jest.fn();
+const mockApplyColorLensRegionColorWorklet = jest.fn();
 const mockFetchColorNames = jest.fn(() =>
   Promise.resolve({ paletteTitle: 'Test', colors: [] })
 );
@@ -79,7 +80,8 @@ jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
 
 jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
   useColorLensRegion: () => ({
-    getColorLensRegionWorklet: mockGetColorLensRegionWorklet,
+    copyColorLensRegionWorklet: mockCopyColorLensRegionWorklet,
+    applyColorLensRegionColorWorklet: mockApplyColorLensRegionColorWorklet,
     regionColor: mockRegionColor,
   }),
 }));
@@ -102,10 +104,25 @@ jest.mock('@features/Lens/Obskura/applyObskuraLensToPhotoFile', () => ({
   applyObskuraLensToPhotoFile: jest.fn(() => Promise.resolve('file:///painted.jpg')),
 }));
 
-jest.mock('expo-media-library', () => ({
-  createAssetAsync: jest.fn(() =>
-    Promise.resolve({ id: 'asset-1', uri: 'file:///asset', mediaType: 'photo' })
+jest.mock('@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset', () => ({
+  createCameraRollMediaAsset: jest.fn(() =>
+    Promise.resolve({
+      id: 'asset-1',
+      uri: 'file:///asset',
+      mediaType: 'image',
+      width: 100,
+      height: 100,
+      filename: 'asset.jpg',
+      creationTime: 0,
+      modificationTime: 0,
+      duration: 0,
+    })
   ),
+}));
+
+jest.mock('@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead', () => ({
+  requestCameraRollHeadRefresh: jest.fn(),
+  refreshCameraRollHead: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('expo-image', () => ({
@@ -138,6 +155,21 @@ jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', (
 
 jest.mock('@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig', () => ({
   OBSKURA_LENS_PIPELINE: [{ action: 'blur', settings: { sigma: 60 } }],
+}));
+
+jest.mock('react-native-vision-camera-resizer', () => ({
+  useResizer: () => ({
+    state: 'ready' as const,
+    resizer: {
+      resize: jest.fn(() => ({
+        getPixelBuffer: () => new ArrayBuffer(12),
+        width: 2,
+        height: 2,
+        dispose: jest.fn(),
+      })),
+    },
+    error: undefined,
+  }),
 }));
 
 jest.mock('react-native-vision-camera', () => {
@@ -245,7 +277,9 @@ jest.mock('expo-router', () => {
   };
 });
 
-const mockedCreateAssetAsync = createAssetAsync as jest.MockedFunction<typeof createAssetAsync>;
+const mockedCreateCameraRollMediaAsset = createCameraRollMediaAsset as jest.MockedFunction<
+  typeof createCameraRollMediaAsset
+>;
 const mockedApplyObskuraLensToPhotoFile = jest.mocked(applyObskuraLensToPhotoFile);
 const mockedVisionCameraModule = jest.mocked(VisionCameraModule);
 
@@ -299,11 +333,17 @@ describe('Camera', () => {
     );
     pendingRecordingFinished = undefined;
     mockCapturePhotoToFile.mockResolvedValue({ filePath: '/tmp/photo.jpg' });
-    mockedCreateAssetAsync.mockResolvedValue({
+    mockedCreateCameraRollMediaAsset.mockResolvedValue({
       id: 'asset-1',
       uri: 'file:///asset',
-      mediaType: 'photo',
-    } as never);
+      mediaType: 'image',
+      width: 100,
+      height: 100,
+      filename: 'asset.jpg',
+      creationTime: 0,
+      modificationTime: 0,
+      duration: 0,
+    });
   });
 
   afterEach(() => {
@@ -420,7 +460,7 @@ describe('Camera', () => {
     await waitFor(() => {
       expect(mockCapturePhotoToFile).toHaveBeenCalled();
       expect(mockOnAddLensPalette).not.toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
     });
   });
 
@@ -438,11 +478,11 @@ describe('Camera', () => {
 
     await waitFor(() => {
       expect(mockCapturePhotoToFile).toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
       expect(mockOnAddLensPalette).toHaveBeenCalledWith({
         id: 'asset-1',
         uri: 'file:///asset',
-        mediaType: 'photo',
+        mediaType: 'image',
         type: COLOR_LENS_MODE.LENS_DOMINANT,
         palette: {
           primaryColor: { hex: '#111111' },
@@ -492,11 +532,11 @@ describe('Camera', () => {
 
     await waitFor(() => {
       expect(mockCapturePhotoToFile).toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
       expect(mockOnAddLensPalette).toHaveBeenCalledWith({
         id: 'asset-1',
         uri: 'file:///asset',
-        mediaType: 'photo',
+        mediaType: 'image',
         type: COLOR_LENS_MODE.LENS_POINT,
         lensPointColor: { hex: '#AABBCC' },
       });
@@ -517,7 +557,7 @@ describe('Camera', () => {
 
     await waitFor(() => {
       expect(mockedApplyObskuraLensToPhotoFile).toHaveBeenCalled();
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('file:///painted.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('file:///painted.jpg');
     });
   });
 

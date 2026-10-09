@@ -1,7 +1,7 @@
 {
   "name": "expo-color-lens-frame-processor",
   "version": "1.0.0",
-  "description": "VisionCamera v5 Nitro frame processors for color lens palette extraction",
+  "description": "VisionCamera v5 Nitro ColorLensProcessor for palette + region MMCQ",
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {

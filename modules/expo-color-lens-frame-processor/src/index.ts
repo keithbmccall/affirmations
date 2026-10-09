@@ -1,12 +1,22 @@
 import { NitroModules } from 'react-native-nitro-modules';
-import type { ColorLensPalettePlugin } from './specs/ColorLensPalettePlugin.nitro';
-import type { ColorLensRegionPlugin } from './specs/ColorLensRegionPlugin.nitro';
+import type {
+  ColorLensPaletteResult,
+  ColorLensProcessor,
+  ColorLensRegionPixels,
+} from './specs/ColorLensProcessor.nitro';
 
-export type { ColorLensPalettePlugin, ColorLensPaletteResult } from './specs/ColorLensPalettePlugin.nitro';
-export type { ColorLensRegionPlugin } from './specs/ColorLensRegionPlugin.nitro';
+export type {
+  ColorLensPaletteResult,
+  ColorLensProcessor,
+  ColorLensRegionPixels,
+} from './specs/ColorLensProcessor.nitro';
 
-export const colorLensPalettePlugin =
-  NitroModules.createHybridObject<ColorLensPalettePlugin>('ColorLensPalettePlugin');
+let processor: ColorLensProcessor | undefined;
 
-export const colorLensRegionPlugin =
-  NitroModules.createHybridObject<ColorLensRegionPlugin>('ColorLensRegionPlugin');
+/** Lazily create the long-lived ColorLensProcessor HybridObject. */
+export function getColorLensProcessor(): ColorLensProcessor {
+  if (processor === undefined) {
+    processor = NitroModules.createHybridObject<ColorLensProcessor>('ColorLensProcessor');
+  }
+  return processor;
+}

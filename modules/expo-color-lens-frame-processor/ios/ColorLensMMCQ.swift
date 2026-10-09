@@ -191,13 +191,47 @@ final class MMCQ {
     }
   }
 
-  /// Optimized histogram creation using pre-allocated array
+  /// Optimized histogram for BGRA / a,b,g,r layout (4 bytes/px) used by CI BGRA8 render.
   private static func makeHistogramAndVBoxOptimized(from pixels: [UInt8], histogram: inout [Int], quality: Int, ignoreWhite: Bool) -> ([Int], VBox) {
-    // Clear histogram efficiently
+    return makeHistogramAndVBox(
+      from: pixels,
+      histogram: &histogram,
+      quality: quality,
+      ignoreWhite: ignoreWhite,
+      bytesPerPixel: 4,
+      channelOrder: .abgr
+    )
+  }
+
+  /// Histogram for interleaved RGB (3 bytes/px) from vision-camera-resizer GPUFrame buffers.
+  private static func makeHistogramAndVBoxOptimizedRGB(from pixels: [UInt8], histogram: inout [Int], quality: Int, ignoreWhite: Bool) -> ([Int], VBox) {
+    return makeHistogramAndVBox(
+      from: pixels,
+      histogram: &histogram,
+      quality: quality,
+      ignoreWhite: ignoreWhite,
+      bytesPerPixel: 3,
+      channelOrder: .rgb
+    )
+  }
+
+  private enum ChannelOrder {
+    case abgr
+    case rgb
+  }
+
+  private static func makeHistogramAndVBox(
+    from pixels: [UInt8],
+    histogram: inout [Int],
+    quality: Int,
+    ignoreWhite: Bool,
+    bytesPerPixel: Int,
+    channelOrder: ChannelOrder
+  ) -> ([Int], VBox) {
     for i in 0..<histogram.count {
       histogram[i] = 0
     }
-    
+
     var rMin = UInt8.max
     var rMax = UInt8.min
     var gMin = UInt8.max
@@ -205,12 +239,25 @@ final class MMCQ {
     var bMin = UInt8.max
     var bMax = UInt8.min
 
-    let pixelCount = pixels.count / 4
+    let pixelCount = pixels.count / bytesPerPixel
     for i in stride(from: 0, to: pixelCount, by: quality) {
-      let a = pixels[i * 4 + 0]
-      let b = pixels[i * 4 + 1]
-      let g = pixels[i * 4 + 2]
-      let r = pixels[i * 4 + 3]
+      let r: UInt8
+      let g: UInt8
+      let b: UInt8
+      let a: UInt8
+
+      switch channelOrder {
+      case .abgr:
+        a = pixels[i * 4 + 0]
+        b = pixels[i * 4 + 1]
+        g = pixels[i * 4 + 2]
+        r = pixels[i * 4 + 3]
+      case .rgb:
+        r = pixels[i * 3 + 0]
+        g = pixels[i * 3 + 1]
+        b = pixels[i * 3 + 2]
+        a = 255
+      }
 
       guard a >= 125 && !(ignoreWhite && r > 250 && g > 250 && b > 250) else {
         continue
@@ -397,12 +444,23 @@ final class MMCQ {
     fatalError("VBox can't be cut")
   }
 
-  /// Optimized quantize method using pre-allocated histogram
+  /// Optimized quantize for BGRA / a,b,g,r (4 bytes/px).
   static func quantizeOptimized(_ pixels: inout [UInt8], _ histogram: inout [Int], quality: Int, ignoreWhite: Bool, maxColors: Int) -> ColorMap? {
     guard !pixels.isEmpty && maxColors > 1 && maxColors <= 256 else { return nil }
 
     let (_, vbox) = makeHistogramAndVBoxOptimized(from: pixels, histogram: &histogram, quality: quality, ignoreWhite: ignoreWhite)
+    return buildColorMap(from: vbox, histogram: histogram, maxColors: maxColors)
+  }
 
+  /// Optimized quantize for interleaved RGB (3 bytes/px) from the GPU resizer.
+  static func quantizeOptimizedRGB(_ pixels: inout [UInt8], _ histogram: inout [Int], quality: Int, ignoreWhite: Bool, maxColors: Int) -> ColorMap? {
+    guard !pixels.isEmpty && maxColors > 1 && maxColors <= 256 else { return nil }
+
+    let (_, vbox) = makeHistogramAndVBoxOptimizedRGB(from: pixels, histogram: &histogram, quality: quality, ignoreWhite: ignoreWhite)
+    return buildColorMap(from: vbox, histogram: histogram, maxColors: maxColors)
+  }
+
+  private static func buildColorMap(from vbox: VBox, histogram: [Int], maxColors: Int) -> ColorMap {
     var pq = [vbox]
     let target = Int(ceil(fractionByPopulation * Double(maxColors)))
 

@@ -7,7 +7,7 @@ import { useLensCameraRollPhotos } from '@features/Lens/Camera/hooks/useLensCame
 import { renderWithContext } from '@testing/renderWithContext';
 import { fireEvent, screen } from '@testing-library/react-native';
 import React from 'react';
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 
 jest.mock('@components/Modal', () => {
   const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
@@ -58,20 +58,19 @@ const mockedUseLensCameraRollPhotos = useLensCameraRollPhotos as jest.MockedFunc
   typeof useLensCameraRollPhotos
 >;
 
-const createAsset = (id: string): Asset =>
-  ({
-    id,
-    uri: `file:///${id}.jpg`,
-    mediaType: 'photo',
-    width: 100,
-    height: 100,
-    filename: `${id}.jpg`,
-    creationTime: 0,
-    modificationTime: 0,
-    duration: 0,
-  }) as Asset;
+const createAsset = (id: string): CameraRollMediaAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'image',
+  width: 100,
+  height: 100,
+  filename: `${id}.jpg`,
+  creationTime: 0,
+  modificationTime: 0,
+  duration: 0,
+});
 
-const toAssetParam = (asset: Asset) =>
+const toAssetParam = (asset: CameraRollMediaAsset) =>
   JSON.stringify({
     id: asset.id,
     uri: asset.uri,
@@ -156,7 +155,7 @@ describe('CameraRollInspector', () => {
 
     setCameraRollPhotosCache({
       photos,
-      endCursor: 'cursor',
+      nextOffset: 3,
       hasMore: true,
       prefetchComplete: true,
     });

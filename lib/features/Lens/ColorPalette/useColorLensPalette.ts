@@ -1,6 +1,6 @@
+import { getColorLensProcessor } from 'expo-color-lens-frame-processor';
 import { useCallback, useMemo, useState } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
-import type { Frame } from 'react-native-vision-camera';
 import { COLOR_LENS_MODE, type ColorLensMode } from './colorLensMode';
 import {
   type ColorLensPaletteOptions,
@@ -12,6 +12,9 @@ import { lensPaletteConfig } from './lensPaletteConfig';
 export const useColorLensPalette = () => {
   const [colorLensMode, setColorLensMode] = useState<ColorLensMode>(COLOR_LENS_MODE.DISABLED);
 
+  // Create on RN JS thread; HybridObject methods are host functions usable from the frame runtime.
+  const processor = useMemo(() => getColorLensProcessor(), []);
+
   const primaryColor = useSharedValue(lensPaletteConfig.defaultColor);
   const secondaryColor = useSharedValue(lensPaletteConfig.defaultColor);
   const tertiaryColor = useSharedValue(lensPaletteConfig.defaultColor);
@@ -22,9 +25,9 @@ export const useColorLensPalette = () => {
   const detailColor = useSharedValue(lensPaletteConfig.defaultColor);
 
   const getColorLensPaletteWorklet = useCallback(
-    (frame: Frame, options: ColorLensPaletteOptions) => {
+    (options: ColorLensPaletteOptions) => {
       'worklet';
-      const colorPalette: ColorLensPaletteType | null = getColorLensPalette(frame, options);
+      const colorPalette: ColorLensPaletteType | null = getColorLensPalette(processor, options);
       if (colorPalette === null) {
         return;
       }
@@ -38,9 +41,9 @@ export const useColorLensPalette = () => {
       backgroundColor.value = colorPalette.background;
       detailColor.value = colorPalette.detail;
     },
-    // SharedValues are stable refs.
+    // processor + SharedValues are stable refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [processor]
   );
 
   const palette = useMemo(

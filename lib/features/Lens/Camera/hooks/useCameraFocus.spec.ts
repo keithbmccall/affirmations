@@ -39,4 +39,20 @@ describe('useCameraFocus', () => {
       });
     }).not.toThrow();
   });
+
+  it('swallows focusTo promise rejections (canceled metering)', async () => {
+    const focusTo = jest.fn(() =>
+      Promise.reject(new Error('The metering operation has been canceled!'))
+    );
+    const cameraRef = asCameraRef({ current: { focusTo } });
+
+    const { result } = renderHook(() => useCameraFocus(cameraRef));
+
+    await act(async () => {
+      result.current.handleFocusTap(200, 400);
+      await Promise.resolve();
+    });
+
+    expect(focusTo).toHaveBeenCalled();
+  });
 });

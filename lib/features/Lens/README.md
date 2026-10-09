@@ -138,7 +138,8 @@ See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens
 | `react-native-vision-camera` | 5.2.3 | Outputs + constraints; see [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md) |
 | `react-native-vision-camera-worklets` | 5.2.3 | Frame output worklets |
 | `react-native-vision-camera-skia` | 5.2.3 | Obskura `SkiaCamera` |
-| `react-native-nitro-modules` / `nitro-image` | 0.37.x / 0.15.x | VC5 peers + color-lens Nitro plugins |
+| `react-native-vision-camera-resizer` | 5.2.3 | GPU cover downsample for dominant palette |
+| `react-native-nitro-modules` / `nitro-image` | 0.37.x / 0.15.x | VC5 peers + color-lens Nitro processor |
 | `react-native-worklets` | 0.10.1 | Reanimated 4 re-exports this Babel plugin |
 | `@shopify/react-native-skia` | 2.6.4+ | Live Obskura paint + still export |
 
@@ -161,9 +162,12 @@ flowchart TB
   Camera[Camera.tsx] --> mode{CAMERA_VIEW_MODE}
   mode -->|LENS| LensSurface[LensCameraSurface]
   mode -->|OBSKURA| ObskuraSurface[ObskuraCameraSurface]
-  LensSurface --> useFO[useFrameOutput worklet]
-  useFO --> plugin[Nitro ColorLensPalettePlugin / RegionPlugin]
-  plugin --> ios[ExpoColorLensFrameProcessor Swift iOS]
+  LensSurface --> useFO[useFrameOutput yuv worklet]
+  useFO --> resizer[vision-camera-resizer cover]
+  resizer --> processor[Nitro ColorLensProcessor]
+  useFO --> coords[VC5 view to camera to frame]
+  coords --> processor
+  processor --> ios[ExpoColorLensFrameProcessor Swift iOS]
   useFO --> paletteUI[Reanimated SharedValues + ColorPalette]
   ObskuraSurface --> useSkia[SkiaCamera from vision-camera-skia]
   useSkia --> render[frame.render lensPaint]
@@ -181,8 +185,7 @@ React state (`useState`) read from a worklet closure without being listed in dep
 
 | Concern | Behavior in `Camera.tsx` |
 |---------|---------------------------|
-| Preview FPS (Lens, color lens **off**) | **30** (`DEFAULT_FPS`) |
-| Preview FPS (Lens, color lens **on**, screen active) | **15** (`COLOR_LENS_FPS`) |
+| Preview FPS (Lens, all color lens modes) | **30** (`CAMERA_CONSTRAINTS` / `DEFAULT_FPS`) — constant so mode switches do not rebuild the capture session |
 | Preview FPS (Obskura view mode) | **15** (`OBSKURA_FPS` on `ObskuraCameraSurface` only) |
 | Video (long-press capture) | Allowed only in Lens mode with color lens off (`isVideoNotAllowed` when color lens is on or Obskura view mode is active) |
 | Frame processors when backgrounded | `isCameraActive` false via `useFocusEffect`; surfaces pass `frameProcessor={isActive ? processor : undefined}` |
@@ -199,7 +202,7 @@ Used when `cameraViewMode === CAMERA_VIEW_MODE.LENS`.
 
 1. **`LensCameraSurface`** mounts `ReanimatedCamera` with `useFrameProcessor` whenever the screen is active (even when color lens is off—the worklet runs each frame but skips palette work until color lens is enabled).
 2. Each frame, the worklet runs on the camera thread (`'worklet'` directive required).
-3. If color lens is enabled, palette sampling is throttled with Vision Camera `runAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (1 FPS / ~1000 ms)**; point-region sampling uses **`COLOR_LENS_REGION_TARGET_FPS` (2 FPS / ~500 ms)**. When the interval allows, it calls `getColorLensPaletteWorklet(frame)` (dominant mode) or `getColorLensRegionWorklet(frame, …)` (point mode).
+3. If color lens is enabled, palette sampling is throttled with Vision Camera `runAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (1 FPS / ~1000 ms)**; point-region sampling uses **`COLOR_LENS_REGION_TARGET_FPS` (2 FPS / ~500 ms)**. When the interval allows, dominant mode resizes then **disposes the Frame** before `getColorLensPaletteWorklet`; point mode `copyColorLensRegionWorklet` → **dispose Frame** → `applyColorLensRegionColorWorklet`.
 4. **`getColorLensPaletteWorklet`** (`useColorLensPalette.ts`) calls native **`getColorLensPalette`** (`getColorLensPalette.ts`):
    - `VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette')`
    - Plugin implemented in `modules/expo-color-lens-frame-processor` (iOS only).
@@ -218,7 +221,7 @@ Video recording (long-press capture) is allowed only in **Lens mode with color l
 
 ### FPS
 
-In Lens view mode, `Camera.tsx` passes `fps` to `LensCameraSurface`: **15** when `isCameraActive && isColorLensEnabled`, else **30**. Color lens off does **not** lower FPS. Obskura view mode always uses **15** on `ObskuraCameraSurface`, independent of color lens.
+In Lens view mode, `LensCameraSurface` keeps preview constraints at a constant **30** fps (`CAMERA_CONSTRAINTS`) across color lens modes. Changing `constraints` would force VisionCamera to reconfigure the capture session (visible reload / hitch). Palette and region sampling stay throttled in the worklet via `runAtTargetFps` (`COLOR_LENS_PALETTE_TARGET_FPS` / `COLOR_LENS_REGION_TARGET_FPS`). Obskura view mode always uses **15** on `ObskuraCameraSurface`, independent of color lens.
 
 ## Obskura mode (filter path)
 

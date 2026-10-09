@@ -5,8 +5,8 @@ package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 Pod::Spec.new do |s|
   s.name           = 'ExpoColorLensFrameProcessor'
   s.version        = package['version']
-  s.summary        = 'VisionCamera v5 Nitro color lens frame processors'
-  s.description    = 'Nitro HybridObject frame processors for getColorLensPalette / getColorLensRegion.'
+  s.summary        = 'VisionCamera v5 Nitro ColorLensProcessor'
+  s.description    = 'Nitro HybridObject for color-lens palette (RGB ArrayBuffer) and region (frame rect) MMCQ.'
   s.author         = ''
   s.homepage       = 'https://docs.expo.dev/modules/'
   s.license        = package['license']

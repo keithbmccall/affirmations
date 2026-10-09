@@ -1,3 +1,4 @@
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
@@ -6,12 +7,11 @@ import { memo, useMemo } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import type { LensPalette } from './types';
-import type { Asset } from 'expo-media-library';
 
 const { width } = Dimensions.get('window');
 
 interface ColorPaletteImageProps {
-  image: Asset;
+  image: CameraRollMediaAsset;
   lensPalette?: LensPalette;
   cellSize?: number;
 }

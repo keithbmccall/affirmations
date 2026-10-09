@@ -1,17 +1,19 @@
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
+import { CAMERA_ROLL_MEDIA_TYPE } from '@features/Lens/Camera/cameraRollPhotos/cameraRollMediaTypes';
+import { queryCameraRollMediaAssets } from '@features/Lens/Camera/cameraRollPhotos/queryCameraRollMediaAssets';
 import { toInspectionAsset } from '@features/Lens/Camera/cameraRollPhotos/toInspectionAsset';
 import { useLens } from '@platform';
 import { Routes } from '@routes/routes';
-import { getAssetsAsync, type Asset } from 'expo-media-library';
 import { router } from 'expo-router';
-import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
+import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 /** Assumes media-library access was granted at the Lens hallway before mount. */
 export const useCameraRoll = () => {
   const { lensPalettesMap } = useLens();
   const [recentMedia, setRecentMedia] = useState<string | null>(null);
-  const [recentAsset, setRecentAsset] = useState<Asset | null>(null);
+  const [recentAsset, setRecentAsset] = useState<CameraRollMediaAsset | null>(null);
 
   // Animation values for photo transition
   const mediaOpacity = useSharedValue(1);
@@ -49,10 +51,10 @@ export const useCameraRoll = () => {
   // Fetch most recent photo from library
   const fetchRecentMedia = useCallback(async () => {
     try {
-      const result = await getAssetsAsync({
-        first: 1,
-        mediaType: ['photo', 'video'],
-        sortBy: ['creationTime'],
+      const result = await queryCameraRollMediaAssets({
+        limit: 1,
+        offset: 0,
+        mediaTypes: [CAMERA_ROLL_MEDIA_TYPE.IMAGE, CAMERA_ROLL_MEDIA_TYPE.VIDEO],
       });
 
       if (result.assets.length > 0) {

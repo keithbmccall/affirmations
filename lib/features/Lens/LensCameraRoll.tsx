@@ -13,13 +13,16 @@ import { Routes } from '@routes/routes';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import type { ScreenContainerProps } from '@shared-types/ScreenContainerProps';
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { memo, useCallback, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) => {
+const handlePhotoPress = (
+  asset: CameraRollMediaAsset,
+  lensPalette: LensPalette | undefined
+) => {
   const item = toInspectionAsset(asset, lensPalette);
   router.push({
     pathname: Routes.subRoutes.cameraRollInspector.routePathname,
@@ -30,7 +33,7 @@ const handlePhotoPress = (asset: Asset, lensPalette: LensPalette | undefined) =>
 type LensCameraRollProps = ScreenContainerProps;
 
 interface PhotoGridItemProps {
-  item: Asset;
+  item: CameraRollMediaAsset;
   lensPalette?: LensPalette;
 }
 
@@ -63,13 +66,13 @@ export const LensCameraRoll = memo(function LensCameraRoll(_props: LensCameraRol
   const { lensPalettesMap } = useLens();
 
   const renderPhoto = useCallback(
-    ({ item }: { item: Asset }) => (
+    ({ item }: { item: CameraRollMediaAsset }) => (
       <PhotoGridItem item={item} lensPalette={lensPalettesMap[item.id]} />
     ),
     [lensPalettesMap]
   );
 
-  const keyExtractor = useCallback((item: Asset) => item.id, []);
+  const keyExtractor = useCallback((item: CameraRollMediaAsset) => item.id, []);
 
   const listEmptyComponent = useMemo(() => {
     if (error && photos.length === 0) {

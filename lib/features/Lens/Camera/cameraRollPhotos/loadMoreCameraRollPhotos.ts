@@ -2,7 +2,8 @@ import {
   getCameraRollPhotosCache,
   setCameraRollPhotosCache,
 } from './cameraRollPhotosCache';
-import { getAssetsAsync } from 'expo-media-library';
+import { CAMERA_ROLL_MEDIA_TYPE } from './cameraRollMediaTypes';
+import { queryCameraRollMediaAssets } from './queryCameraRollMediaAssets';
 import { LOAD_MORE_PAGE_SIZE } from './constants';
 import { prefetchCameraRollThumbnails } from './prefetchCameraRollThumbnails';
 
@@ -16,22 +17,21 @@ export const loadMoreCameraRollPhotos = async (): Promise<void> => {
   }
 
   isFetchingMore = true;
-  const requestCursor = current.endCursor;
+  const requestOffset = current.nextOffset;
 
   try {
-    const result = await getAssetsAsync({
-      first: LOAD_MORE_PAGE_SIZE,
-      mediaType: ['photo'],
-      sortBy: ['creationTime'],
-      after: requestCursor ?? undefined,
+    const result = await queryCameraRollMediaAssets({
+      limit: LOAD_MORE_PAGE_SIZE,
+      offset: requestOffset,
+      mediaTypes: [CAMERA_ROLL_MEDIA_TYPE.IMAGE],
     });
 
     const latest = getCameraRollPhotosCache();
 
     setCameraRollPhotosCache({
       photos: [...latest.photos, ...result.assets],
-      endCursor: result.endCursor,
-      hasMore: result.hasNextPage,
+      nextOffset: requestOffset + result.assets.length,
+      hasMore: result.hasMore,
       prefetchComplete: latest.prefetchComplete,
     });
 

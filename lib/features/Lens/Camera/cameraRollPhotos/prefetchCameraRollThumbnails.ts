@@ -1,6 +1,5 @@
 import { Image } from 'expo-image';
-import type { Asset } from 'expo-media-library';
-
+import type { CameraRollMediaAsset } from './CameraRollMediaAsset';
 import { THUMBNAIL_PREFETCH_CONCURRENCY, THUMBNAIL_PREFETCH_PRIORITY_COUNT } from './constants';
 
 const prefetchedUris = new Set<string>();
@@ -25,7 +24,9 @@ const prefetchUriBatch = async (uris: string[]): Promise<void> => {
   }
 };
 
-export const prefetchCameraRollThumbnails = async (assets: Asset[]): Promise<void> => {
+export const prefetchCameraRollThumbnails = async (
+  assets: CameraRollMediaAsset[]
+): Promise<void> => {
   const priorityUris: string[] = [];
   const remainingUris: string[] = [];
 

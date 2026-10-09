@@ -9,7 +9,7 @@ import {
   type SkPaint,
   type SkSurface,
 } from '@shopify/react-native-skia';
-import { cacheDirectory, EncodingType, writeAsStringAsync } from 'expo-file-system';
+import { EncodingType, File, Paths } from 'expo-file-system';
 
 const JPEG_QUALITY = 95;
 
@@ -27,16 +27,12 @@ function toFileUri(path: string): string {
 }
 
 /**
- * Reads a still from `takePhoto`, applies the same Obskura lens as the live preview, writes a JPEG to cache, and returns a `file://` URI for `createAssetAsync`.
+ * Reads a still from `takePhoto`, applies the same Obskura lens as the live preview, writes a JPEG to cache, and returns a `file://` URI for `createCameraRollMediaAsset`.
  */
 export async function applyObskuraLensToPhotoFile({
   inputPath,
   colorMode,
 }: ApplyObskuraLensToPhotoFileParams): Promise<string> {
-  if (!cacheDirectory) {
-    throw new Error('FileSystem.cacheDirectory is not available');
-  }
-
   const sourceUri = toFileUri(inputPath);
   let lensPaint: SkPaint | null = null;
   let sourceData: SkData | null = null;
@@ -70,9 +66,10 @@ export async function applyObskuraLensToPhotoFile({
     snapshot = surface.makeImageSnapshot();
 
     const encoded = snapshot.encodeToBase64(ImageFormat.JPEG, JPEG_QUALITY);
-    const outputUri = `${cacheDirectory}lens-obskura-${Date.now()}.jpg`;
-    await writeAsStringAsync(outputUri, encoded, { encoding: EncodingType.Base64 });
-    return outputUri;
+    const outputFile = new File(Paths.cache, `lens-obskura-${Date.now()}.jpg`);
+    outputFile.create({ intermediates: true, overwrite: true });
+    outputFile.write(encoded, { encoding: EncodingType.Base64 });
+    return outputFile.uri;
   } finally {
     snapshot?.dispose();
     surface?.dispose();

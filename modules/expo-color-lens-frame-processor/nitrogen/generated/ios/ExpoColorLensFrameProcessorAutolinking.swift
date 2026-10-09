@@ -12,27 +12,15 @@ import NitroModules
 public final class ExpoColorLensFrameProcessorAutolinking {
   public typealias bridge = margelo.nitro.colorlens.bridge.swift
 
-  public static func createColorLensPalettePlugin() -> bridge.std__shared_ptr_HybridColorLensPalettePluginSpec_ {
-    let hybridObject = HybridColorLensPalettePlugin()
-    return { () -> bridge.std__shared_ptr_HybridColorLensPalettePluginSpec_ in
+  public static func createColorLensProcessor() -> bridge.std__shared_ptr_HybridColorLensProcessorSpec_ {
+    let hybridObject = HybridColorLensProcessor()
+    return { () -> bridge.std__shared_ptr_HybridColorLensProcessorSpec_ in
       let __cxxWrapped = hybridObject.getCxxWrapper()
       return __cxxWrapped.getCxxPart()
     }()
   }
   
-  public static func isColorLensPalettePluginRecyclable() -> Bool {
-    return HybridColorLensPalettePlugin.self is any RecyclableView.Type
-  }
-  
-  public static func createColorLensRegionPlugin() -> bridge.std__shared_ptr_HybridColorLensRegionPluginSpec_ {
-    let hybridObject = HybridColorLensRegionPlugin()
-    return { () -> bridge.std__shared_ptr_HybridColorLensRegionPluginSpec_ in
-      let __cxxWrapped = hybridObject.getCxxWrapper()
-      return __cxxWrapped.getCxxPart()
-    }()
-  }
-  
-  public static func isColorLensRegionPluginRecyclable() -> Bool {
-    return HybridColorLensRegionPlugin.self is any RecyclableView.Type
+  public static func isColorLensProcessorRecyclable() -> Bool {
+    return HybridColorLensProcessor.self is any RecyclableView.Type
   }
 }

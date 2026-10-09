@@ -40,9 +40,12 @@ export const useCameraFocus = (camera: React.RefObject<CameraRef | null>) => {
       withDelay(1000, withTiming(0, { duration: 300 }))
     );
 
-    // Focus the camera (v5: focusTo on CameraRef / SkiaCameraRef)
-    void camera.current?.focusTo({ x, y });
-  }, []);
+    // Focus the camera (v5: focusTo on CameraRef / SkiaCameraRef).
+    // Metering cancels when a newer tap/session change supersedes it — ignore that rejection.
+    void camera.current?.focusTo({ x, y })?.catch(() => {
+      // Expected: "The metering operation has been canceled!"
+    });
+  }, [camera, focusOpacity, focusScale, focusX, focusY]);
   // Animated style for focus indicator
   const focusIndicatorAnimatedStyle = useAnimatedStyle(() => ({
     left: `${focusX.value * 100}%`,

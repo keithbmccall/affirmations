@@ -1,6 +1,6 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
-import { createAssetAsync } from 'expo-media-library';
+import { createCameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset';
 import React, { createRef } from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -39,9 +39,19 @@ jest.mock('@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead', () => 
   requestCameraRollHeadRefresh: () => mockRequestCameraRollHeadRefresh(),
 }));
 
-jest.mock('expo-media-library', () => ({
-  createAssetAsync: jest.fn(() =>
-    Promise.resolve({ id: 'asset-1', uri: 'file:///asset', mediaType: 'photo' })
+jest.mock('@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset', () => ({
+  createCameraRollMediaAsset: jest.fn(() =>
+    Promise.resolve({
+      id: 'asset-1',
+      uri: 'file:///asset',
+      mediaType: 'image',
+      width: 100,
+      height: 100,
+      filename: 'asset.jpg',
+      creationTime: 0,
+      modificationTime: 0,
+      duration: 0,
+    })
   ),
 }));
 
@@ -68,7 +78,9 @@ jest.mock('react-native-vision-camera', () => {
   };
 });
 
-const mockedCreateAssetAsync = createAssetAsync as jest.MockedFunction<typeof createAssetAsync>;
+const mockedCreateCameraRollMediaAsset = createCameraRollMediaAsset as jest.MockedFunction<
+  typeof createCameraRollMediaAsset
+>;
 
 const mockPhotoOutput = {
   capturePhotoToFile: (...args: unknown[]) => mockCapturePhotoToFile(...args),
@@ -140,10 +152,16 @@ describe('CameraBottomControls', () => {
       fetchRecentMedia: mockFetchRecentMedia,
       recentMedia: null,
     }));
-    mockedCreateAssetAsync.mockResolvedValue({
+    mockedCreateCameraRollMediaAsset.mockResolvedValue({
       id: 'asset-1',
       uri: 'file:///asset',
-      mediaType: 'photo',
+      mediaType: 'image',
+      width: 100,
+      height: 100,
+      filename: 'asset.jpg',
+      creationTime: 0,
+      modificationTime: 0,
+      duration: 0,
     } as never);
     pendingRecordingFinished = undefined;
     mockStartRecording.mockImplementation((onRecordingFinished: (filePath: string) => void) => {
@@ -214,14 +232,14 @@ describe('CameraBottomControls', () => {
     fireEvent.press(getByTestId('lens-capture-button'));
 
     await waitFor(() => {
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
       expect(onPhotoAssetSaved).toHaveBeenCalled();
       expect(mockFetchRecentMedia).toHaveBeenCalled();
       expect(mockRequestCameraRollHeadRefresh).toHaveBeenCalled();
     });
   });
 
-  it('runs processPhotoPath before createAssetAsync', async () => {
+  it('runs processPhotoPath before createCameraRollMediaAsset', async () => {
     const processPhotoPath = jest.fn(() => Promise.resolve('file:///painted.jpg'));
     const { getByTestId } = renderBottomControls({ processPhotoPath });
 
@@ -229,7 +247,7 @@ describe('CameraBottomControls', () => {
 
     await waitFor(() => {
       expect(processPhotoPath).toHaveBeenCalledWith('/tmp/photo.jpg');
-      expect(mockedCreateAssetAsync).toHaveBeenCalledWith('file:///painted.jpg');
+      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('file:///painted.jpg');
     });
   });
 

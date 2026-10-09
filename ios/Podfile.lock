@@ -2427,6 +2427,31 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - VisionCameraResizer (5.2.3):
+    - hermes-engine
+    - NitroModules
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - VisionCamera
+    - Yoga
   - VisionCameraWorklets (5.2.3):
     - hermes-engine
     - NitroModules
@@ -2571,6 +2596,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
+  - VisionCameraResizer (from `../node_modules/react-native-vision-camera-resizer`)
   - VisionCameraWorklets (from `../node_modules/react-native-vision-camera-worklets`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2804,6 +2830,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-worklets"
   VisionCamera:
     :path: "../node_modules/react-native-vision-camera"
+  VisionCameraResizer:
+    :path: "../node_modules/react-native-vision-camera-resizer"
   VisionCameraWorklets:
     :path: "../node_modules/react-native-vision-camera-worklets"
   Yoga:
@@ -2815,7 +2843,7 @@ SPEC CHECKSUMS:
   Expo: 404a8f48f74f2d062911f965440380d98bfa879b
   ExpoAsset: a917b756b2e4fe12cef1ac3bca5fd849ddb2b919
   ExpoBlur: 975b78b65b3c8f475c44bd8f8b53948146b1ff9b
-  ExpoColorLensFrameProcessor: b17a8ad95f9939d4affa235715b7d9690d9e1183
+  ExpoColorLensFrameProcessor: 4e89f43093439cac0e899ceda2bd4073ee732609
   ExpoDevice: 5c638e530304a51992263ab5c1cab726f992b9dc
   ExpoDomWebView: beaec034e51bd028428b98bb1f2633ab79c6d095
   ExpoFileSystem: 28778f942725170102f7c6cf4dee05a526ddacd0
@@ -2924,6 +2952,7 @@ SPEC CHECKSUMS:
   RNScreens: c1a06fd73d0581a2a28a160577be393f579662b9
   RNWorklets: 43af89f696342f91118a2f1f3a879056e2f47331
   VisionCamera: f84550cffbbf23f3cac7a3d1d2e66e5098a4e8eb
+  VisionCameraResizer: ff4f3c9bd01f23392b367a65e16c18cc17b94e31
   VisionCameraWorklets: b6de1b4f950e958236366987750ed0b3c86228b9
   Yoga: 18b74b3ade30bebc1904004dfaceae1dd02a330a
 

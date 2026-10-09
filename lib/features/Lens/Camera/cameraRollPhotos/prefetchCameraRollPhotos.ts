@@ -2,7 +2,8 @@ import {
   getCameraRollPhotosCache,
   setCameraRollPhotosCache,
 } from './cameraRollPhotosCache';
-import { getAssetsAsync } from 'expo-media-library';
+import { CAMERA_ROLL_MEDIA_TYPE } from './cameraRollMediaTypes';
+import { queryCameraRollMediaAssets } from './queryCameraRollMediaAssets';
 import { PREFETCH_COUNT } from './constants';
 import { prefetchCameraRollThumbnails } from './prefetchCameraRollThumbnails';
 
@@ -26,16 +27,16 @@ export const prefetchCameraRollPhotos = (): Promise<void> => {
 
   prefetchInFlight = (async () => {
     try {
-      const result = await getAssetsAsync({
-        first: PREFETCH_COUNT,
-        mediaType: ['photo'],
-        sortBy: ['creationTime'],
+      const result = await queryCameraRollMediaAssets({
+        limit: PREFETCH_COUNT,
+        offset: 0,
+        mediaTypes: [CAMERA_ROLL_MEDIA_TYPE.IMAGE],
       });
 
       setCameraRollPhotosCache({
         photos: result.assets,
-        endCursor: result.endCursor,
-        hasMore: result.hasNextPage,
+        nextOffset: result.assets.length,
+        hasMore: result.hasMore,
         prefetchComplete: true,
       });
 

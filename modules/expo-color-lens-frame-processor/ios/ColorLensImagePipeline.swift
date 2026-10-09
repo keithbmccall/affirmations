@@ -1,99 +1,37 @@
-import AVFoundation
 import CoreImage
-import UIKit
-import VisionCamera
 
-struct ColorLensPreviewContext {
-  let viewportWidth: CGFloat
-  let viewportHeight: CGFloat
-  let bufferWidth: CGFloat
-  let bufferHeight: CGFloat
-  let orientation: CameraOrientation
-  let isMirrored: Bool
-
-  init?(
-    frame: any HybridFrameSpec,
-    viewportWidth: Double,
-    viewportHeight: Double
-  ) {
-    guard viewportWidth > 0, viewportHeight > 0 else {
-      return nil
-    }
-
-    self.viewportWidth = CGFloat(viewportWidth)
-    self.viewportHeight = CGFloat(viewportHeight)
-    self.bufferWidth = CGFloat(frame.width)
-    self.bufferHeight = CGFloat(frame.height)
-    self.orientation = frame.orientation
-    self.isMirrored = frame.isMirrored
-  }
-}
-
+/// Thin CI helpers for region sampling (raw buffer rect → MMCQ-sized image).
 enum ColorLensImagePipeline {
-  static func makePreviewAlignedImage(from ciImage: CIImage, context: ColorLensPreviewContext) -> CIImage? {
-    guard context.bufferWidth > 0, context.bufferHeight > 0 else {
-      return nil
-    }
-
-    let oriented = applyOrientationAndMirror(
-      to: ciImage,
-      orientation: context.orientation,
-      isMirrored: context.isMirrored
-    )
-    let viewAligned = flipToViewCoordinates(oriented)
-    let extent = viewAligned.extent
-
-    guard extent.width > 0, extent.height > 0 else {
-      return nil
-    }
-
-    let viewportAspect = context.viewportWidth / context.viewportHeight
-    let cropRect = coverCropRect(
-      imageSize: CGSize(width: extent.width, height: extent.height),
-      viewportAspect: viewportAspect
-    )
-
-    guard let cropRect,
-          !cropRect.isNull,
-          cropRect.width > 0,
-          cropRect.height > 0 else {
-      return translateToOrigin(viewAligned)
-    }
-
-    return translateToOrigin(viewAligned.cropped(to: cropRect))
-  }
-
-  static func cropPointRegion(
+  /// Crop a top-left-origin pixel rect from a CVPixelBuffer-backed CIImage.
+  /// Flips Y because CI uses a bottom-left origin.
+  static func cropBufferRect(
     on image: CIImage,
-    centerX: CGFloat,
-    centerY: CGFloat,
-    radius: CGFloat
+    left: Double,
+    top: Double,
+    right: Double,
+    bottom: Double,
+    bufferWidth: Int,
+    bufferHeight: Int
   ) -> CIImage? {
-    let extent = image.extent
-
-    guard extent.width > 0, extent.height > 0 else {
+    guard bufferWidth > 0, bufferHeight > 0 else {
       return nil
     }
 
-    let shortSide = min(extent.width, extent.height)
-    let radiusPx = radius * shortSide
+    let clampedLeft = max(0.0, min(left, Double(bufferWidth)))
+    let clampedRight = max(0.0, min(right, Double(bufferWidth)))
+    let clampedTop = max(0.0, min(top, Double(bufferHeight)))
+    let clampedBottom = max(0.0, min(bottom, Double(bufferHeight)))
 
-    guard radiusPx > 0 else {
+    let width = clampedRight - clampedLeft
+    let height = clampedBottom - clampedTop
+    guard width > 0, height > 0 else {
       return nil
     }
 
-    let cropRect = CGRect(
-      x: centerX * extent.width - radiusPx,
-      y: centerY * extent.height - radiusPx,
-      width: radiusPx * 2,
-      height: radiusPx * 2
-    ).intersection(extent)
-
-    guard !cropRect.isNull, cropRect.width > 0, cropRect.height > 0 else {
-      return nil
-    }
-
-    return image.cropped(to: cropRect)
+    let ciY = Double(bufferHeight) - clampedBottom
+    let cropRect = CGRect(x: clampedLeft, y: ciY, width: width, height: height)
+    let cropped = image.cropped(to: cropRect)
+    return translateToOrigin(cropped)
   }
 
   static func downsampleForMMCQ(_ ciImage: CIImage, maxSide: CGFloat) -> CIImage {
@@ -107,70 +45,7 @@ enum ColorLensImagePipeline {
 
     let scale = min(maxSide / width, maxSide / height)
     let transform = CGAffineTransform(scaleX: scale, y: scale)
-    return ciImage.transformed(by: transform)
-  }
-
-  private static func coverCropRect(imageSize: CGSize, viewportAspect: CGFloat) -> CGRect? {
-    guard imageSize.width > 0, imageSize.height > 0, viewportAspect > 0 else {
-      return nil
-    }
-
-    let imageAspect = imageSize.width / imageSize.height
-
-    if imageAspect > viewportAspect {
-      let cropWidth = imageSize.height * viewportAspect
-      let x = (imageSize.width - cropWidth) / 2.0
-      return CGRect(x: x, y: 0, width: cropWidth, height: imageSize.height)
-    }
-
-    let cropHeight = imageSize.width / viewportAspect
-    let y = (imageSize.height - cropHeight) / 2.0
-    return CGRect(x: 0, y: y, width: imageSize.width, height: cropHeight)
-  }
-
-  private static func applyOrientationAndMirror(
-    to image: CIImage,
-    orientation: CameraOrientation,
-    isMirrored: Bool
-  ) -> CIImage {
-    let extent = image.extent
-    var orientedImage: CIImage
-
-    switch orientation {
-    case .up:
-      orientedImage = image
-    case .down:
-      orientedImage = image.transformed(
-        by: CGAffineTransform(translationX: extent.width, y: extent.height).rotated(by: .pi)
-      )
-    case .left:
-      orientedImage = image.transformed(
-        by: CGAffineTransform(translationX: 0, y: extent.width).rotated(by: -.pi / 2)
-      )
-    case .right:
-      orientedImage = image.transformed(
-        by: CGAffineTransform(translationX: extent.height, y: 0).rotated(by: .pi / 2)
-      )
-    @unknown default:
-      orientedImage = image
-    }
-
-    if isMirrored {
-      let mirroredExtent = orientedImage.extent
-      orientedImage = orientedImage.transformed(
-        by: CGAffineTransform(translationX: mirroredExtent.width, y: 0).scaledBy(x: -1, y: 1)
-      )
-    }
-
-    return translateToOrigin(orientedImage)
-  }
-
-  private static func flipToViewCoordinates(_ image: CIImage) -> CIImage {
-    let extent = image.extent
-    let flipped = image.transformed(
-      by: CGAffineTransform(translationX: 0, y: extent.height).scaledBy(x: 1, y: -1)
-    )
-    return translateToOrigin(flipped)
+    return translateToOrigin(ciImage.transformed(by: transform))
   }
 
   private static func translateToOrigin(_ image: CIImage) -> CIImage {

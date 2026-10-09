@@ -5,20 +5,19 @@ import {
   setCameraRollPhotosCache,
   subscribeCameraRollPhotosCache,
 } from '@features/Lens/Camera/cameraRollPhotos/cameraRollPhotosCache';
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 
-const createAsset = (id: string, creationTime = 0): Asset =>
-  ({
-    id,
-    uri: `file:///${id}.jpg`,
-    mediaType: 'photo',
-    width: 100,
-    height: 100,
-    filename: `${id}.jpg`,
-    creationTime,
-    modificationTime: 0,
-    duration: 0,
-  }) as Asset;
+const createAsset = (id: string, creationTime = 0): CameraRollMediaAsset => ({
+  id,
+  uri: `file:///${id}.jpg`,
+  mediaType: 'image',
+  width: 100,
+  height: 100,
+  filename: `${id}.jpg`,
+  creationTime,
+  modificationTime: 0,
+  duration: 0,
+});
 
 describe('cameraRollPhotosCache', () => {
   beforeEach(() => {
@@ -30,7 +29,7 @@ describe('cameraRollPhotosCache', () => {
 
     setCameraRollPhotosCache({
       photos: [createAsset('photo-1'), createAsset('photo-2'), createAsset('photo-3')],
-      endCursor: 'cursor-3',
+      nextOffset: 3,
       hasMore: true,
       prefetchComplete: true,
     });
@@ -50,7 +49,7 @@ describe('cameraRollPhotosCache', () => {
   it('mergeHeadPhotos preserves pagination fields', () => {
     setCameraRollPhotosCache({
       photos: [createAsset('photo-1')],
-      endCursor: 'cursor-1',
+      nextOffset: 1,
       hasMore: true,
       prefetchComplete: true,
     });
@@ -59,7 +58,7 @@ describe('cameraRollPhotosCache', () => {
 
     const cache = getCameraRollPhotosCache();
     expect(cache.photos.map(asset => asset.id)).toEqual(['photo-new', 'photo-1']);
-    expect(cache.endCursor).toBe('cursor-1');
+    expect(cache.nextOffset).toBe(1);
     expect(cache.hasMore).toBe(true);
     expect(cache.prefetchComplete).toBe(true);
   });
@@ -67,14 +66,14 @@ describe('cameraRollPhotosCache', () => {
   it('mergeHeadPhotos re-reads the latest snapshot at write time', () => {
     setCameraRollPhotosCache({
       photos: [createAsset('photo-1')],
-      endCursor: 'cursor-1',
+      nextOffset: 1,
       hasMore: true,
       prefetchComplete: true,
     });
 
     setCameraRollPhotosCache({
       photos: [createAsset('photo-1'), createAsset('photo-tail')],
-      endCursor: 'cursor-2',
+      nextOffset: 2,
       hasMore: true,
       prefetchComplete: true,
     });
@@ -83,6 +82,6 @@ describe('cameraRollPhotosCache', () => {
 
     const cache = getCameraRollPhotosCache();
     expect(cache.photos.map(asset => asset.id)).toEqual(['photo-new', 'photo-1', 'photo-tail']);
-    expect(cache.endCursor).toBe('cursor-2');
+    expect(cache.nextOffset).toBe(2);
   });
 });

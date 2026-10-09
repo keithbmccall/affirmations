@@ -1,4 +1,4 @@
-import type { Asset } from 'expo-media-library';
+import type { CameraRollMediaAsset } from './CameraRollMediaAsset';
 
 /**
  * Merges a fresh library head into the cached photo list.
@@ -14,7 +14,10 @@ import type { Asset } from 'expo-media-library';
  * @remarks Both arrays must be sorted by `creationTime` descending. If sort order
  * changes, the suffix-slice optimisation can produce incorrect results.
  */
-export const mergePhotosAtHead = (existing: Asset[], head: Asset[]): Asset[] => {
+export const mergePhotosAtHead = (
+  existing: CameraRollMediaAsset[],
+  head: CameraRollMediaAsset[]
+): CameraRollMediaAsset[] => {
   if (__DEV__ && existing.length >= 2) {
     console.assert(
       existing[0].creationTime >= existing[1].creationTime,
@@ -59,7 +62,7 @@ export const mergePhotosAtHead = (existing: Asset[], head: Asset[]): Asset[] => 
   }
 
   const prefixEnd = Math.min(headLen, existing.length);
-  const prefixKept: Asset[] = [];
+  const prefixKept: CameraRollMediaAsset[] = [];
 
   // Loop 3: walk existing[0..prefixEnd); keep items absent from head (orphaned prefix photos).
   for (let i = 0; i < prefixEnd; i++) {

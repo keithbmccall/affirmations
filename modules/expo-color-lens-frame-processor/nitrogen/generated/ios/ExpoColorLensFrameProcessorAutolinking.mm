@@ -10,8 +10,7 @@
 #import "ExpoColorLensFrameProcessor-Swift-Cxx-Umbrella.hpp"
 #import <type_traits>
 
-#include "HybridColorLensPalettePluginSpecSwift.hpp"
-#include "HybridColorLensRegionPluginSpecSwift.hpp"
+#include "HybridColorLensProcessorSpecSwift.hpp"
 
 @interface ExpoColorLensFrameProcessorAutolinking : NSObject
 @end
@@ -23,16 +22,9 @@
   using namespace margelo::nitro::colorlens;
 
   HybridObjectRegistry::registerHybridObjectConstructor(
-    "ColorLensPalettePlugin",
+    "ColorLensProcessor",
     []() -> std::shared_ptr<HybridObject> {
-      std::shared_ptr<HybridColorLensPalettePluginSpec> hybridObject = ExpoColorLensFrameProcessor::ExpoColorLensFrameProcessorAutolinking::createColorLensPalettePlugin();
-      return hybridObject;
-    }
-  );
-  HybridObjectRegistry::registerHybridObjectConstructor(
-    "ColorLensRegionPlugin",
-    []() -> std::shared_ptr<HybridObject> {
-      std::shared_ptr<HybridColorLensRegionPluginSpec> hybridObject = ExpoColorLensFrameProcessor::ExpoColorLensFrameProcessorAutolinking::createColorLensRegionPlugin();
+      std::shared_ptr<HybridColorLensProcessorSpec> hybridObject = ExpoColorLensFrameProcessor::ExpoColorLensFrameProcessorAutolinking::createColorLensProcessor();
       return hybridObject;
     }
   );

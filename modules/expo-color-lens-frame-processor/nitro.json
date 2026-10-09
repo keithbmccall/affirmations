@@ -9,16 +9,10 @@
     "androidCxxLibName": "ExpoColorLensFrameProcessor"
   },
   "autolinking": {
-    "ColorLensPalettePlugin": {
+    "ColorLensProcessor": {
       "ios": {
         "language": "swift",
-        "implementationClassName": "HybridColorLensPalettePlugin"
-      }
-    },
-    "ColorLensRegionPlugin": {
-      "ios": {
-        "language": "swift",
-        "implementationClassName": "HybridColorLensRegionPlugin"
+        "implementationClassName": "HybridColorLensProcessor"
       }
     }
   },
