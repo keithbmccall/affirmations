@@ -51,7 +51,16 @@ const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
 };
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
-  const { cameraRef, photoOutput, videoOutput, showPreview, isActive, device } = useCameraSurface();
+  const {
+    cameraRef,
+    photoOutput,
+    videoOutput,
+    showPreview,
+    isActive,
+    device,
+    onSessionStarted,
+    onSessionStopped,
+  } = useCameraSurface();
   const { onAddLensPalette } = useLens();
   const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
@@ -304,6 +313,8 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
           outputs={outputs}
           constraints={CAMERA_CONSTRAINTS}
           resizeMode="cover"
+          onStarted={onSessionStarted}
+          onStopped={onSessionStopped}
           onPreviewStarted={handlePreviewStarted}
         />
       )}

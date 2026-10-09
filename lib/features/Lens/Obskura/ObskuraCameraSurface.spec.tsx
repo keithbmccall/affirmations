@@ -56,8 +56,11 @@ const createMockSurfaceContext = (
   flashMode: 0,
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.OBSKURA,
+  isViewModeSwitching: false,
   device: mockDevice,
   onViewModeToggle: jest.fn(),
+  onSessionStarted: jest.fn(),
+  onSessionStopped: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
   onSwitchCameraToggle: jest.fn(),
@@ -135,6 +138,8 @@ describe('ObskuraCameraSurface', () => {
       mockObskuraPhotoOutput,
     ]);
     expect(obskuraVisionCameraMockState.lastCameraProps?.isActive).toBe(true);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.onStarted).toEqual(expect.any(Function));
+    expect(obskuraVisionCameraMockState.lastCameraProps?.onStopped).toEqual(expect.any(Function));
   });
 
   it('keeps onFrame when inactive (session gated by isActive)', () => {

@@ -177,13 +177,37 @@ jest.mock('react-native-vision-camera-resizer', () => ({
 jest.mock('react-native-vision-camera', () => {
   const React = jest.requireActual('react');
   const RN = jest.requireActual('react-native');
+
   const VisionCamera = React.forwardRef(function VisionCameraMock(
-    props: { testID?: string },
+    props: {
+      testID?: string;
+      isActive?: boolean;
+      onStarted?: () => void;
+      onStopped?: () => void;
+      onPreviewStarted?: () => void;
+    },
     ref: unknown
   ) {
+    const wasActiveRef = React.useRef(undefined as boolean | undefined);
+
     React.useImperativeHandle(ref, () => ({
       focusTo: jest.fn(),
     }));
+
+    React.useEffect(() => {
+      const isActive = props.isActive === true;
+      const wasActive = wasActiveRef.current;
+
+      if (isActive) {
+        props.onStarted?.();
+        props.onPreviewStarted?.();
+      } else if (wasActive === true) {
+        props.onStopped?.();
+      }
+
+      wasActiveRef.current = isActive;
+    }, [props.isActive, props.onStarted, props.onStopped, props.onPreviewStarted]);
+
     return <RN.View testID={props.testID ?? 'vision-camera-mock'} />;
   });
   return {
@@ -212,13 +236,39 @@ jest.mock('react-native-vision-camera', () => {
 jest.mock('react-native-vision-camera-skia', () => {
   const React = jest.requireActual('react');
   const RN = jest.requireActual('react-native');
+
   const SkiaCamera = React.forwardRef(function SkiaCameraMock(
-    props: { testID?: string; onFrame?: (frame: { dispose: () => void }, render: (fn: (s: unknown) => void) => void) => void },
+    props: {
+      testID?: string;
+      isActive?: boolean;
+      onStarted?: () => void;
+      onStopped?: () => void;
+      onFrame?: (
+        frame: { dispose: () => void },
+        render: (fn: (s: unknown) => void) => void
+      ) => void;
+    },
     ref: unknown
   ) {
+    const wasActiveRef = React.useRef(undefined as boolean | undefined);
+
     React.useImperativeHandle(ref, () => ({
       focusTo: jest.fn(),
     }));
+
+    React.useEffect(() => {
+      const isActive = props.isActive === true;
+      const wasActive = wasActiveRef.current;
+
+      if (isActive) {
+        props.onStarted?.();
+      } else if (wasActive === true) {
+        props.onStopped?.();
+      }
+
+      wasActiveRef.current = isActive;
+    }, [props.isActive, props.onStarted, props.onStopped]);
+
     if (props.onFrame !== undefined) {
       try {
         props.onFrame({ dispose: jest.fn() }, onDraw => {

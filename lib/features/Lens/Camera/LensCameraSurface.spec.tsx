@@ -144,8 +144,11 @@ const createMockSurfaceContext = (
   flashMode: 0,
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.LENS,
+  isViewModeSwitching: false,
   device: mockDevice,
   onViewModeToggle: jest.fn(),
+  onSessionStarted: jest.fn(),
+  onSessionStopped: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
   onSwitchCameraToggle: jest.fn(),
@@ -237,6 +240,8 @@ describe('LensCameraSurface', () => {
     expect(lastCameraProps?.constraints).toEqual([{ fps: 30 }]);
     expect(lastCameraProps?.device).toBe(mockDevice);
     expect(lastCameraProps?.isActive).toBe(true);
+    expect(lastCameraProps?.onStarted).toEqual(expect.any(Function));
+    expect(lastCameraProps?.onStopped).toEqual(expect.any(Function));
   });
 
   it('configures frame output for yuv + preview-sized buffers', () => {

@@ -5,7 +5,7 @@ import {
   type CameraPosition,
   type CameraViewMode,
 } from '@features/Lens/Camera/options';
-import { useCameraViewModeSwitch } from '@features/Lens/Camera/useCameraViewModeSwitch';
+import { useCameraViewModeLifecycle } from '@features/Lens/Camera/useCameraViewModeLifecycle';
 import { useFocusEffect } from 'expo-router';
 import {
   createContext,
@@ -37,8 +37,11 @@ export interface CameraSurfaceContextValue {
   flashMode: number;
   gridMode: number;
   cameraViewMode: CameraViewMode;
+  isViewModeSwitching: boolean;
   device: CameraDevice | undefined;
   onViewModeToggle: () => void;
+  onSessionStarted: () => void;
+  onSessionStopped: () => void;
   onGridToggle: () => void;
   onFlashToggle: () => void;
   onSwitchCameraToggle: () => void;
@@ -63,10 +66,13 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
   const {
     cameraViewMode,
     isCameraActive,
+    isViewModeSwitching,
     onViewModeToggle,
+    onSessionStarted,
+    onSessionStopped,
     onScreenFocus,
     onScreenBlur,
-  } = useCameraViewModeSwitch();
+  } = useCameraViewModeLifecycle();
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
@@ -118,8 +124,11 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       flashMode,
       gridMode,
       cameraViewMode,
+      isViewModeSwitching,
       device,
       onViewModeToggle,
+      onSessionStarted,
+      onSessionStopped,
       onGridToggle: handleGridToggle,
       onFlashToggle: handleFlashToggle,
       onSwitchCameraToggle: handleSwitchCameraToggle,
@@ -133,8 +142,11 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       flashMode,
       gridMode,
       cameraViewMode,
+      isViewModeSwitching,
       device,
       onViewModeToggle,
+      onSessionStarted,
+      onSessionStopped,
       handleGridToggle,
       handleFlashToggle,
       handleSwitchCameraToggle,
