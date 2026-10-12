@@ -10,14 +10,16 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CameraBottomControls } from './CameraBottomControls';
 import { CameraGrid } from './CameraGrid';
 import { CameraSurfaceProvider, useCameraSurface } from './CameraSurfaceContext';
+import { CameraTopControls } from './CameraTopControls';
 import { useCameraFocus } from './hooks/useCameraFocus';
 import { LensCameraSurface } from './LensCameraSurface';
 import { CAMERA_VIEW_MODE, gridModeOptions } from './options';
 
 const CameraViewport = memo(function CameraViewport() {
-  const { showPreview, gridMode, cameraViewMode } = useCameraSurface();
+  const { showPreview, gridMode, cameraViewMode, chromeBindings } = useCameraSurface();
   const showGrid = gridModeOptions[gridMode].value === 'on';
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
 
@@ -30,6 +32,23 @@ const CameraViewport = memo(function CameraViewport() {
         </ThemedText>
       )}
       {showGrid && <CameraGrid />}
+      <CameraTopControls
+        colorLensMode={chromeBindings?.colorLensMode}
+        palette={chromeBindings?.palette}
+        colorAnimationDuration={chromeBindings?.colorAnimationDuration}
+        onColorLensModeToggle={chromeBindings?.onColorLensModeToggle}
+        obskuraColorMode={chromeBindings?.obskuraColorMode}
+        onObskuraColorModeToggle={chromeBindings?.onObskuraColorModeToggle}
+      />
+      <CameraBottomControls
+        photoOutput={chromeBindings?.photoOutput}
+        videoOutput={chromeBindings?.videoOutput}
+        enableVideoLongPress={chromeBindings?.enableVideoLongPress}
+        onPhotoCaptureStart={chromeBindings?.onPhotoCaptureStart}
+        processPhotoPath={chromeBindings?.processPhotoPath}
+        onPhotoAssetSaved={chromeBindings?.onPhotoAssetSaved}
+        onVideoAssetSaved={chromeBindings?.onVideoAssetSaved}
+      />
     </View>
   );
 });

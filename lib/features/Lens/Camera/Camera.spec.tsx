@@ -366,21 +366,25 @@ describe('Camera', () => {
   });
 
   it('shows no camera message when device is missing', async () => {
-    mockedVisionCameraModule.useCameraDevice.mockReturnValueOnce(undefined);
+    mockedVisionCameraModule.useCameraDevice.mockReturnValue(undefined);
 
     renderCamera(<Camera />);
 
     expect(await screen.findByText('No camera available')).toBeTruthy();
+
+    (mockedVisionCameraModule.useCameraDevice as jest.Mock).mockReturnValue({ id: 'mock-device' });
   });
 
   it('shows grid overlay when device is missing', async () => {
-    mockedVisionCameraModule.useCameraDevice.mockReturnValueOnce(undefined);
+    mockedVisionCameraModule.useCameraDevice.mockReturnValue(undefined);
 
     renderCamera(<Camera />);
 
     fireEvent.press(await screen.findByTestId('lens-control-grid'));
 
     expect(screen.getByTestId('camera-grid-mock')).toBeTruthy();
+
+    (mockedVisionCameraModule.useCameraDevice as jest.Mock).mockReturnValue({ id: 'mock-device' });
   });
 
   it('navigates back from header button', async () => {
@@ -679,6 +683,30 @@ describe('Camera', () => {
     renderCamera(<Camera />);
 
     expect(await screen.findByTestId('expo-image')).toBeTruthy();
+  });
+
+  it('keeps camera-roll thumbnail and top controls usable after view-mode toggle', async () => {
+    mockUseCameraRollImpl.mockImplementation(() => ({
+      animatedPhotoStyle: {},
+      handleCameraRollPress: mockHandleCameraRollPress,
+      handleCameraRollLongPress: jest.fn(),
+      fetchRecentMedia: mockFetchRecentMedia,
+      recentMedia: 'file:///roll-thumb.jpg',
+    }));
+
+    renderCamera(<Camera />);
+
+    expect(await screen.findByTestId('expo-image')).toBeTruthy();
+    expect(screen.getByTestId('lens-toggle-color-lens')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('lens-control-view-mode'));
+
+    expect(await screen.findByTestId('lens-control-obskura-color-mode')).toBeTruthy();
+    expect(screen.getByTestId('expo-image')).toBeTruthy();
+    expect(screen.getByTestId('lens-camera-roll-open')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('lens-camera-roll-open'));
+    expect(mockHandleCameraRollPress).toHaveBeenCalled();
   });
 
   it('cycles color lens mode when palette toggle is pressed', async () => {

@@ -116,6 +116,8 @@ const createMockSurfaceContext = (
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.LENS,
   device: undefined,
+  chromeBindings: null,
+  setChromeBindings: jest.fn(),
   onViewModeToggle: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
@@ -279,6 +281,14 @@ describe('CameraBottomControls', () => {
     fireEvent(getByTestId('lens-capture-button'), 'longPress');
 
     expect(mockCreateRecorder).not.toHaveBeenCalled();
+  });
+
+  it('no-ops photo capture when photoOutput is omitted', () => {
+    const { getByTestId } = renderBottomControls({ photoOutput: undefined });
+
+    fireEvent.press(getByTestId('lens-capture-button'));
+
+    expect(mockCapturePhotoToFile).not.toHaveBeenCalled();
   });
 
   it('alerts when capturePhotoToFile fails', async () => {

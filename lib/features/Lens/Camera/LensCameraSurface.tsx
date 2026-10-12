@@ -28,9 +28,7 @@ import {
   type Frame,
 } from 'react-native-vision-camera';
 import { useResizer } from 'react-native-vision-camera-resizer';
-import { CameraBottomControls } from './CameraBottomControls';
 import { useCameraSurface } from './CameraSurfaceContext';
-import { CameraTopControls } from './CameraTopControls';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import { getLensPointSampleRect } from './lensPointSampleRegion';
 import { getResizerOutputSize } from './resizerOutputSize';
@@ -55,7 +53,7 @@ const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
 };
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
-  const { cameraRef, showPreview, isActive, device } = useCameraSurface();
+  const { cameraRef, showPreview, isActive, device, setChromeBindings } = useCameraSurface();
   const photoOutput = usePhotoOutput();
   const videoOutput = useVideoOutput({ enableAudio: true });
   const { onAddLensPalette } = useLens();
@@ -298,6 +296,38 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     [photoOutput, videoOutput, frameOutput]
   );
 
+  const chromeBindings = useMemo(
+    () => ({
+      colorLensMode,
+      palette,
+      colorAnimationDuration: COLOR_ANIMATION_DURATION,
+      onColorLensModeToggle: handleColorLensModeToggle,
+      photoOutput,
+      videoOutput,
+      enableVideoLongPress: !isColorLensModeActive,
+      onPhotoCaptureStart,
+      onPhotoAssetSaved,
+    }),
+    [
+      colorLensMode,
+      palette,
+      handleColorLensModeToggle,
+      photoOutput,
+      videoOutput,
+      isColorLensModeActive,
+      onPhotoCaptureStart,
+      onPhotoAssetSaved,
+    ]
+  );
+
+  useEffect(() => {
+    setChromeBindings(chromeBindings);
+
+    return () => {
+      setChromeBindings(null);
+    };
+  }, [chromeBindings, setChromeBindings]);
+
   return (
     <View testID="lens-camera-surface" style={styles.surface} onLayout={handleSurfaceLayout}>
       {showPreview && device !== undefined && (
@@ -312,19 +342,6 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
           onPreviewStarted={handlePreviewStarted}
         />
       )}
-      <CameraTopControls
-        colorLensMode={colorLensMode}
-        palette={palette}
-        colorAnimationDuration={COLOR_ANIMATION_DURATION}
-        onColorLensModeToggle={handleColorLensModeToggle}
-      />
-      <CameraBottomControls
-        photoOutput={photoOutput}
-        videoOutput={videoOutput}
-        enableVideoLongPress={!isColorLensModeActive}
-        onPhotoCaptureStart={onPhotoCaptureStart}
-        onPhotoAssetSaved={onPhotoAssetSaved}
-      />
       {isColorLensPoint(colorLensMode) && (
         <LensColorRegionIndicator
           color={regionColor}

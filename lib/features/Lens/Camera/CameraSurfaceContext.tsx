@@ -1,3 +1,4 @@
+import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import {
   CAMERA_POSITION,
   CAMERA_VIEW_MODE,
@@ -6,6 +7,10 @@ import {
   type CameraPosition,
   type CameraViewMode,
 } from '@features/Lens/Camera/options';
+import type { ColorLensMode } from '@features/Lens/ColorPalette/colorLensMode';
+import type { LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
+import type { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
+import type { ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { useFocusEffect } from 'expo-router';
 import {
   createContext,
@@ -16,9 +21,34 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { type CameraDevice, type CameraRef, useCameraDevice } from 'react-native-vision-camera';
+import {
+  type CameraDevice,
+  type CameraPhotoOutput,
+  type CameraRef,
+  type CameraVideoOutput,
+  useCameraDevice,
+} from 'react-native-vision-camera';
 
 const flashModeOptionsLength = flashModeOptions.length;
+
+export interface CameraChromeBindings {
+  colorLensMode?: ColorLensMode;
+  palette?: ReturnType<typeof useColorLensPalette>['palette'];
+  colorAnimationDuration?: number;
+  onColorLensModeToggle?: () => void;
+  obskuraColorMode?: ObskuraColorMode;
+  onObskuraColorModeToggle?: () => void;
+  photoOutput?: CameraPhotoOutput;
+  videoOutput?: CameraVideoOutput;
+  enableVideoLongPress?: boolean;
+  onPhotoCaptureStart?: () => LensPhotoCaptureContext | undefined;
+  processPhotoPath?: (inputPath: string) => Promise<string>;
+  onPhotoAssetSaved?: (
+    asset: CameraRollMediaAsset,
+    context?: LensPhotoCaptureContext
+  ) => Promise<void>;
+  onVideoAssetSaved?: (asset: CameraRollMediaAsset) => Promise<void>;
+}
 
 export interface CameraSurfaceContextValue {
   cameraRef: React.RefObject<CameraRef | null>;
@@ -28,6 +58,8 @@ export interface CameraSurfaceContextValue {
   gridMode: number;
   cameraViewMode: CameraViewMode;
   device: CameraDevice | undefined;
+  chromeBindings: CameraChromeBindings | null;
+  setChromeBindings: (bindings: CameraChromeBindings | null) => void;
   onViewModeToggle: () => void;
   onGridToggle: () => void;
   onFlashToggle: () => void;
@@ -51,6 +83,7 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
   const [gridMode, setGridMode] = useState<number>(0);
   const [cameraViewMode, setCameraViewMode] = useState<CameraViewMode>(CAMERA_VIEW_MODE.LENS);
   const [isActive, setIsActive] = useState(true);
+  const [chromeBindings, setChromeBindingsState] = useState<CameraChromeBindings | null>(null);
 
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: cameraDeviceOptions[cameraDevice].value,
@@ -60,6 +93,10 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
 
   // Permissions are hard-gated in Lens.tsx before Camera mounts.
   const showPreview = Boolean(device);
+
+  const setChromeBindings = useCallback((bindings: CameraChromeBindings | null) => {
+    setChromeBindingsState(bindings);
+  }, []);
 
   const handleViewModeToggle = useCallback(() => {
     setCameraViewMode(prev =>
@@ -104,6 +141,8 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       gridMode,
       cameraViewMode,
       device,
+      chromeBindings,
+      setChromeBindings,
       onViewModeToggle: handleViewModeToggle,
       onGridToggle: handleGridToggle,
       onFlashToggle: handleFlashToggle,
@@ -117,6 +156,8 @@ export const CameraSurfaceProvider = ({ children }: CameraSurfaceProviderProps) 
       gridMode,
       cameraViewMode,
       device,
+      chromeBindings,
+      setChromeBindings,
       handleViewModeToggle,
       handleGridToggle,
       handleFlashToggle,

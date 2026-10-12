@@ -1,6 +1,4 @@
-import { CameraBottomControls } from '@features/Lens/Camera/CameraBottomControls';
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
-import { CameraTopControls } from '@features/Lens/Camera/CameraTopControls';
 import { applyObskuraLensToPhotoFile } from '@features/Lens/Obskura/applyObskuraLensToPhotoFile';
 import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { buildObskuraLensPaintFromPipeline } from '@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline';
@@ -90,7 +88,7 @@ const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
 });
 
 export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
-  const { cameraRef, showPreview, isActive, device } = useCameraSurface();
+  const { cameraRef, showPreview, isActive, device, setChromeBindings } = useCameraSurface();
   const photoOutput = usePhotoOutput();
   const [obskuraColorMode, setObskuraColorMode] = useState<ObskuraColorMode>(
     OBSKURA_COLOR_MODE.DEFAULT
@@ -111,6 +109,24 @@ export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
     [obskuraColorMode]
   );
 
+  const chromeBindings = useMemo(
+    () => ({
+      obskuraColorMode,
+      onObskuraColorModeToggle: handleObskuraColorModeToggle,
+      photoOutput,
+      processPhotoPath,
+    }),
+    [obskuraColorMode, handleObskuraColorModeToggle, photoOutput, processPhotoPath]
+  );
+
+  useEffect(() => {
+    setChromeBindings(chromeBindings);
+
+    return () => {
+      setChromeBindings(null);
+    };
+  }, [chromeBindings, setChromeBindings]);
+
   return (
     <View style={styles.surface}>
       {showPreview && device !== undefined && (
@@ -122,11 +138,6 @@ export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
           photoOutput={photoOutput}
         />
       )}
-      <CameraTopControls
-        obskuraColorMode={obskuraColorMode}
-        onObskuraColorModeToggle={handleObskuraColorModeToggle}
-      />
-      <CameraBottomControls photoOutput={photoOutput} processPhotoPath={processPhotoPath} />
     </View>
   );
 });

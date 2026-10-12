@@ -21,7 +21,7 @@ import type {
 } from 'react-native-vision-camera';
 
 interface CameraBottomControlsProps {
-  photoOutput: CameraPhotoOutput;
+  photoOutput?: CameraPhotoOutput;
   videoOutput?: CameraVideoOutput;
   enableVideoLongPress?: boolean;
   onPhotoCaptureStart?: () => LensPhotoCaptureContext | undefined;
@@ -68,6 +68,10 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   }, [fetchRecentMedia]);
 
   const handlePhotoCapture = useCallback(async () => {
+    if (photoOutput === undefined) {
+      return;
+    }
+
     try {
       const captureContext = onPhotoCaptureStart?.();
       const photoFile = await photoOutput.capturePhotoToFile(

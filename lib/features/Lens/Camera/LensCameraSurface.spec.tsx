@@ -81,37 +81,6 @@ jest.mock('react-native-vision-camera-resizer', () => ({
   }),
 }));
 
-jest.mock('./CameraTopControls', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    CameraTopControls: () => <RN.View testID="mock-lens-top-controls" />,
-  };
-});
-
-jest.mock('./CameraBottomControls', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    CameraBottomControls: ({
-      onPhotoCaptureStart,
-      onPhotoAssetSaved,
-    }: {
-      onPhotoCaptureStart?: () => unknown;
-      onPhotoAssetSaved?: (asset: unknown, context?: unknown) => Promise<void>;
-    }) => (
-      <RN.Pressable
-        testID="mock-bottom-controls"
-        onPress={() => {
-          const context = onPhotoCaptureStart?.();
-          void onPhotoAssetSaved?.(
-            { id: 'asset-1', uri: 'file:///asset', mediaType: 'image' },
-            context
-          );
-        }}
-      />
-    ),
-  };
-});
-
 jest.mock('@features/Lens/ColorPalette/requestColorNames', () => ({
   requestColorNames: jest.fn(async (hexes: string[]) =>
     hexes.map(hex => ({ hex, name: 'Test', pantone: null }))
@@ -133,6 +102,8 @@ const createMockCameraRef = (): React.RefObject<CameraRef | null> => {
   return ref;
 };
 
+const mockSetChromeBindings = jest.fn();
+
 const createMockSurfaceContext = (
   overrides: Partial<CameraSurfaceContextValue> = {}
 ): CameraSurfaceContextValue => ({
@@ -143,6 +114,8 @@ const createMockSurfaceContext = (
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.LENS,
   device: mockDevice,
+  chromeBindings: null,
+  setChromeBindings: mockSetChromeBindings,
   onViewModeToggle: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
@@ -150,6 +123,19 @@ const createMockSurfaceContext = (
   onCameraDeviceToggle: jest.fn(),
   ...overrides,
 });
+
+const latestChromeBindings = () => {
+  const calls = mockSetChromeBindings.mock.calls.filter(
+    ([bindings]: [unknown]) => bindings !== null
+  );
+  return calls[calls.length - 1]?.[0] as {
+    onPhotoCaptureStart?: () => unknown;
+    onPhotoAssetSaved?: (asset: unknown, context?: unknown) => Promise<void>;
+    photoOutput?: unknown;
+    videoOutput?: unknown;
+    enableVideoLongPress?: boolean;
+  };
+};
 
 const renderLensSurface = (contextOverrides: Partial<CameraSurfaceContextValue> = {}) =>
   render(
@@ -220,6 +206,7 @@ describe('LensCameraSurface', () => {
     global.__frameProcessorRunAtTargetFpsMap = undefined;
     jest.spyOn(performance, 'now').mockReturnValue(10_000);
     jest.clearAllMocks();
+    mockSetChromeBindings.mockClear();
   });
 
   afterEach(() => {
@@ -237,6 +224,15 @@ describe('LensCameraSurface', () => {
     expect(lastCameraProps?.constraints).toEqual([{ fps: 30 }]);
     expect(lastCameraProps?.device).toBe(mockDevice);
     expect(lastCameraProps?.isActive).toBe(true);
+  });
+
+  it('registers chrome bindings with photo and video outputs', () => {
+    renderLensSurface();
+
+    const bindings = latestChromeBindings();
+    expect(bindings?.photoOutput).toBe(mockPhotoOutput);
+    expect(bindings?.videoOutput).toBe(mockVideoOutput);
+    expect(bindings?.enableVideoLongPress).toBe(true);
   });
 
   it('configures frame output for yuv + preview-sized buffers', () => {
@@ -490,9 +486,14 @@ describe('LensCameraSurface', () => {
 
   it('saves dominant palette via onPhotoAssetSaved', async () => {
     mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
-    const { getByTestId } = renderLensSurface();
+    renderLensSurface();
 
-    fireEvent.press(getByTestId('mock-bottom-controls'));
+    const bindings = latestChromeBindings();
+    const context = bindings.onPhotoCaptureStart?.();
+    await bindings.onPhotoAssetSaved?.(
+      { id: 'asset-1', uri: 'file:///asset', mediaType: 'image' },
+      context
+    );
 
     await waitFor(() => {
       expect(mockOnAddLensPalette).toHaveBeenCalledWith(
@@ -506,9 +507,14 @@ describe('LensCameraSurface', () => {
 
   it('saves lens-point color via onPhotoAssetSaved', async () => {
     mockColorLensMode = COLOR_LENS_MODE.LENS_POINT;
-    const { getByTestId } = renderLensSurface();
+    renderLensSurface();
 
-    fireEvent.press(getByTestId('mock-bottom-controls'));
+    const bindings = latestChromeBindings();
+    const context = bindings.onPhotoCaptureStart?.();
+    await bindings.onPhotoAssetSaved?.(
+      { id: 'asset-1', uri: 'file:///asset', mediaType: 'image' },
+      context
+    );
 
     await waitFor(() => {
       expect(mockOnAddLensPalette).toHaveBeenCalledWith(
@@ -523,12 +529,23 @@ describe('LensCameraSurface', () => {
 
   it('skips palette save when color lens is disabled', async () => {
     mockColorLensMode = COLOR_LENS_MODE.DISABLED;
-    const { getByTestId } = renderLensSurface();
+    renderLensSurface();
 
-    fireEvent.press(getByTestId('mock-bottom-controls'));
+    const bindings = latestChromeBindings();
+    const context = bindings.onPhotoCaptureStart?.();
+    await bindings.onPhotoAssetSaved?.(
+      { id: 'asset-1', uri: 'file:///asset', mediaType: 'image' },
+      context
+    );
 
-    await waitFor(() => {
-      expect(mockOnAddLensPalette).not.toHaveBeenCalled();
-    });
+    expect(mockOnAddLensPalette).not.toHaveBeenCalled();
+  });
+
+  it('clears chrome bindings on unmount', () => {
+    const { unmount } = renderLensSurface();
+
+    unmount();
+
+    expect(mockSetChromeBindings).toHaveBeenCalledWith(null);
   });
 });

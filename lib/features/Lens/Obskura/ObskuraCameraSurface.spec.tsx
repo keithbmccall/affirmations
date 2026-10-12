@@ -8,7 +8,7 @@ import {
   type CameraSurfaceContextValue,
 } from '@features/Lens/Camera/CameraSurfaceContext';
 import { CAMERA_VIEW_MODE } from '@features/Lens/Camera/options';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, render } from '@testing-library/react-native';
 import React, { createRef } from 'react';
 import type { CameraDevice, CameraRef } from 'react-native-vision-camera';
 
@@ -19,30 +19,8 @@ jest.mock('@features/Lens/Obskura/applyObskuraLensToPhotoFile', () => ({
   applyObskuraLensToPhotoFile: jest.fn(() => Promise.resolve('file:///painted.jpg')),
 }));
 
-jest.mock('@features/Lens/Camera/CameraTopControls', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    CameraTopControls: ({
-      onObskuraColorModeToggle,
-    }: {
-      onObskuraColorModeToggle: () => void;
-    }) => (
-      <RN.Pressable
-        testID="lens-control-obskura-color-mode"
-        onPress={onObskuraColorModeToggle}
-      />
-    ),
-  };
-});
-
-jest.mock('@features/Lens/Camera/CameraBottomControls', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    CameraBottomControls: () => <RN.View testID="mock-bottom-controls" />,
-  };
-});
-
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
+const mockSetChromeBindings = jest.fn();
 
 const createMockSurfaceContext = (
   overrides: Partial<CameraSurfaceContextValue> = {}
@@ -54,6 +32,8 @@ const createMockSurfaceContext = (
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.OBSKURA,
   device: mockDevice,
+  chromeBindings: null,
+  setChromeBindings: mockSetChromeBindings,
   onViewModeToggle: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
@@ -68,6 +48,18 @@ const renderObskuraSurface = (contextOverrides: Partial<CameraSurfaceContextValu
       <ObskuraCameraSurface />
     </CameraSurfaceContextForTesting.Provider>
   );
+
+const latestChromeBindings = () => {
+  const calls = mockSetChromeBindings.mock.calls.filter(
+    ([bindings]: [unknown]) => bindings !== null
+  );
+  return calls[calls.length - 1]?.[0] as {
+    obskuraColorMode?: string;
+    onObskuraColorModeToggle?: () => void;
+    photoOutput?: unknown;
+    processPhotoPath?: (inputPath: string) => Promise<string>;
+  };
+};
 
 const mockDispose = jest.fn();
 const mockBuildObskuraLensPaintFromPipeline = jest.fn((_pipeline: unknown, _context: unknown) => ({
@@ -101,6 +93,7 @@ describe('ObskuraCameraSurface', () => {
     resetObskuraVisionCameraMockState();
     mockDispose.mockClear();
     mockBuildObskuraLensPaintFromPipeline.mockClear();
+    mockSetChromeBindings.mockClear();
     jest.clearAllMocks();
     jest.useFakeTimers();
     jest.spyOn(global, 'requestAnimationFrame').mockImplementation(callback => {
@@ -138,6 +131,16 @@ describe('ObskuraCameraSurface', () => {
     expect(obskuraVisionCameraMockState.lastCameraProps?.isActive).toBe(true);
   });
 
+  it('registers chrome bindings with photo output and Obskura color controls', () => {
+    renderObskuraSurface();
+
+    const bindings = latestChromeBindings();
+    expect(bindings?.photoOutput).toBe(mockObskuraPhotoOutput);
+    expect(bindings?.obskuraColorMode).toBe(OBSKURA_COLOR_MODE.DEFAULT);
+    expect(bindings?.onObskuraColorModeToggle).toEqual(expect.any(Function));
+    expect(bindings?.processPhotoPath).toEqual(expect.any(Function));
+  });
+
   it('keeps onFrame when inactive (session gated by isActive)', () => {
     renderObskuraSurface({ isActive: false });
 
@@ -146,9 +149,11 @@ describe('ObskuraCameraSurface', () => {
   });
 
   it('defers disposing previous paint when color mode changes', () => {
-    const { getByTestId } = renderObskuraSurface();
+    renderObskuraSurface();
 
-    fireEvent.press(getByTestId('lens-control-obskura-color-mode'));
+    act(() => {
+      latestChromeBindings().onObskuraColorModeToggle?.();
+    });
 
     expect(mockDispose).not.toHaveBeenCalled();
     flushDeferredSkPaintDispose();
@@ -167,5 +172,6 @@ describe('ObskuraCameraSurface', () => {
     expect(mockDispose).not.toHaveBeenCalled();
     flushDeferredSkPaintDispose();
     expect(mockDispose).toHaveBeenCalledTimes(1);
+    expect(mockSetChromeBindings).toHaveBeenCalledWith(null);
   });
 });
