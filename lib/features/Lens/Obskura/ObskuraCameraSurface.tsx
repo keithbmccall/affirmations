@@ -11,6 +11,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import {
   CommonResolutions,
+  usePhotoOutput,
   type CameraDevice,
   type CameraPhotoOutput,
   type CameraRef,
@@ -20,6 +21,8 @@ import {
 import { SkiaCamera, type SkiaCameraRef, type SkiaOnFrameState } from 'react-native-vision-camera-skia';
 
 const OBSKURA_FPS = 15;
+/** Short side of {@link CommonResolutions.HD_16_9} — scales blur sigma to match FHD look. */
+const OBSKURA_PREVIEW_SHORT_SIDE_PX = 720;
 
 interface ObskuraCameraPreviewProps {
   cameraRef: React.RefObject<CameraRef | null>;
@@ -27,8 +30,6 @@ interface ObskuraCameraPreviewProps {
   isActive: boolean;
   colorMode: ObskuraColorMode;
   photoOutput: CameraPhotoOutput;
-  onSessionStarted: () => void;
-  onSessionStopped: () => void;
 }
 
 const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
@@ -37,11 +38,13 @@ const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
   isActive,
   colorMode,
   photoOutput,
-  onSessionStarted,
-  onSessionStopped,
 }: ObskuraCameraPreviewProps) {
   const lensPaint = useMemo(
-    () => buildObskuraLensPaintFromPipeline(OBSKURA_LENS_PIPELINE, { colorMode }),
+    () =>
+      buildObskuraLensPaintFromPipeline(OBSKURA_LENS_PIPELINE, {
+        colorMode,
+        outputShortSidePx: OBSKURA_PREVIEW_SHORT_SIDE_PX,
+      }),
     [colorMode]
   );
 
@@ -80,24 +83,15 @@ const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
       isActive={isActive}
       outputs={outputs}
       constraints={constraints}
-      targetResolution={CommonResolutions.FHD_16_9}
+      targetResolution={CommonResolutions.HD_16_9}
       onFrame={onFrame}
-      onStarted={onSessionStarted}
-      onStopped={onSessionStopped}
     />
   );
 });
 
 export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
-  const {
-    cameraRef,
-    photoOutput,
-    showPreview,
-    isActive,
-    device,
-    onSessionStarted,
-    onSessionStopped,
-  } = useCameraSurface();
+  const { cameraRef, showPreview, isActive, device } = useCameraSurface();
+  const photoOutput = usePhotoOutput();
   const [obskuraColorMode, setObskuraColorMode] = useState<ObskuraColorMode>(
     OBSKURA_COLOR_MODE.DEFAULT
   );
@@ -126,15 +120,13 @@ export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
           isActive={isActive}
           colorMode={obskuraColorMode}
           photoOutput={photoOutput}
-          onSessionStarted={onSessionStarted}
-          onSessionStopped={onSessionStopped}
         />
       )}
       <CameraTopControls
         obskuraColorMode={obskuraColorMode}
         onObskuraColorModeToggle={handleObskuraColorModeToggle}
       />
-      <CameraBottomControls processPhotoPath={processPhotoPath} />
+      <CameraBottomControls photoOutput={photoOutput} processPhotoPath={processPhotoPath} />
     </View>
   );
 });

@@ -23,6 +23,8 @@ import { useSharedValue } from 'react-native-reanimated';
 import {
   Camera as VisionCamera,
   useFrameOutput,
+  usePhotoOutput,
+  useVideoOutput,
   type Frame,
 } from 'react-native-vision-camera';
 import { useResizer } from 'react-native-vision-camera-resizer';
@@ -32,7 +34,7 @@ import { CameraTopControls } from './CameraTopControls';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import { getLensPointSampleRect } from './lensPointSampleRegion';
 import { getResizerOutputSize } from './resizerOutputSize';
-import { runAtTargetFps } from './runAtTargetFps';
+import { shouldRunAtTargetFps } from './shouldRunAtTargetFps';
 
 export const COLOR_LENS_PALETTE_TARGET_FPS = 1;
 export const COLOR_LENS_REGION_TARGET_FPS = 2;
@@ -41,6 +43,8 @@ const COLOR_ANIMATION_DURATION = 500;
 const DEFAULT_FPS = 30;
 /** Stable across color-lens mode changes — VisionCamera reconfigures the session when constraints change. */
 const CAMERA_CONSTRAINTS = [{ fps: DEFAULT_FPS }];
+const COLOR_LENS_PALETTE_FPS_KEY = 'color-lens-palette';
+const COLOR_LENS_REGION_FPS_KEY = 'color-lens-region';
 
 const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
   if (context.type === COLOR_LENS_MODE.LENS_POINT) {
@@ -51,16 +55,9 @@ const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
 };
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
-  const {
-    cameraRef,
-    photoOutput,
-    videoOutput,
-    showPreview,
-    isActive,
-    device,
-    onSessionStarted,
-    onSessionStopped,
-  } = useCameraSurface();
+  const { cameraRef, showPreview, isActive, device } = useCameraSurface();
+  const photoOutput = usePhotoOutput();
+  const videoOutput = useVideoOutput({ enableAudio: true });
   const { onAddLensPalette } = useLens();
   const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
@@ -209,17 +206,15 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       // Dispose as soon as pixels are copied so MMCQ does not hold camera pool buffers.
       let disposed = false;
       try {
-        if (!isActive) {
-          return;
-        }
-
         switch (colorLensMode) {
           case COLOR_LENS_MODE.LENS_DOMINANT:
-            runAtTargetFps(COLOR_LENS_PALETTE_TARGET_FPS, () => {
-              'worklet';
-              if (resizer === undefined) {
-                return;
-              }
+            if (!shouldRunAtTargetFps(COLOR_LENS_PALETTE_FPS_KEY, COLOR_LENS_PALETTE_TARGET_FPS)) {
+              break;
+            }
+            if (resizer === undefined) {
+              break;
+            }
+            {
               const gpuFrame = resizer.resize(frame);
               frame.dispose();
               disposed = true;
@@ -232,15 +227,17 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
               } finally {
                 gpuFrame.dispose();
               }
-            });
+            }
             break;
           case COLOR_LENS_MODE.LENS_POINT:
             // Gate before throttle so "preview not ready" frames don't consume the FPS budget.
             if (sampleCamReady.value !== 1) {
               break;
             }
-            runAtTargetFps(COLOR_LENS_REGION_TARGET_FPS, () => {
-              'worklet';
+            if (!shouldRunAtTargetFps(COLOR_LENS_REGION_FPS_KEY, COLOR_LENS_REGION_TARGET_FPS)) {
+              break;
+            }
+            {
               const framePoint1 = frame.convertCameraPointToFramePoint({
                 x: sampleCamX1.value,
                 y: sampleCamY1.value,
@@ -264,7 +261,7 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
               if (regionPixels !== null) {
                 applyColorLensRegionColorWorklet(regionPixels);
               }
-            });
+            }
             break;
           case COLOR_LENS_MODE.DISABLED:
           default:
@@ -277,7 +274,6 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       }
     },
     [
-      isActive,
       colorLensMode,
       resizer,
       getColorLensPaletteWorklet,
@@ -313,8 +309,6 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
           outputs={outputs}
           constraints={CAMERA_CONSTRAINTS}
           resizeMode="cover"
-          onStarted={onSessionStarted}
-          onStopped={onSessionStopped}
           onPreviewStarted={handlePreviewStarted}
         />
       )}
@@ -325,6 +319,8 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
         onColorLensModeToggle={handleColorLensModeToggle}
       />
       <CameraBottomControls
+        photoOutput={photoOutput}
+        videoOutput={videoOutput}
         enableVideoLongPress={!isColorLensModeActive}
         onPhotoCaptureStart={onPhotoCaptureStart}
         onPhotoAssetSaved={onPhotoAssetSaved}

@@ -13,9 +13,16 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { FlashMode, Recorder } from 'react-native-vision-camera';
+import type {
+  CameraPhotoOutput,
+  CameraVideoOutput,
+  FlashMode,
+  Recorder,
+} from 'react-native-vision-camera';
 
 interface CameraBottomControlsProps {
+  photoOutput: CameraPhotoOutput;
+  videoOutput?: CameraVideoOutput;
   enableVideoLongPress?: boolean;
   onPhotoCaptureStart?: () => LensPhotoCaptureContext | undefined;
   processPhotoPath?: (inputPath: string) => Promise<string>;
@@ -29,6 +36,8 @@ interface CameraBottomControlsProps {
 const identityPhotoPath = (inputPath: string) => Promise.resolve(inputPath);
 
 export const CameraBottomControls = memo(function CameraBottomControls({
+  photoOutput,
+  videoOutput,
   enableVideoLongPress = false,
   onPhotoCaptureStart,
   processPhotoPath = identityPhotoPath,
@@ -36,7 +45,7 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   onVideoAssetSaved,
 }: CameraBottomControlsProps) {
   const insets = useSafeAreaInsets();
-  const { photoOutput, videoOutput, flashMode } = useCameraSurface();
+  const { flashMode } = useCameraSurface();
   const recorderRef = useRef<Recorder | null>(null);
 
   const {
@@ -85,6 +94,10 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   ]);
 
   const handleVideoCapture = useCallback(async () => {
+    if (videoOutput === undefined) {
+      return;
+    }
+
     try {
       const recorder = await videoOutput.createRecorder({});
       recorderRef.current = recorder;

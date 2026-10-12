@@ -137,18 +137,13 @@ const createMockSurfaceContext = (
   overrides: Partial<CameraSurfaceContextValue> = {}
 ): CameraSurfaceContextValue => ({
   cameraRef: createMockCameraRef(),
-  photoOutput: mockPhotoOutput,
-  videoOutput: mockVideoOutput,
   showPreview: true,
   isActive: true,
   flashMode: 0,
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.LENS,
-  isViewModeSwitching: false,
   device: mockDevice,
   onViewModeToggle: jest.fn(),
-  onSessionStarted: jest.fn(),
-  onSessionStopped: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
   onSwitchCameraToggle: jest.fn(),
@@ -185,6 +180,8 @@ jest.mock('react-native-vision-camera', () => {
   });
   return {
     Camera: MockCamera,
+    usePhotoOutput: jest.fn(() => mockPhotoOutput),
+    useVideoOutput: jest.fn(() => mockVideoOutput),
     useFrameOutput: jest.fn(({ onFrame }: { onFrame?: (frame: MockFrame) => void }) => {
       lastOnFrame = onFrame;
       if (onFrame !== undefined) {
@@ -240,8 +237,6 @@ describe('LensCameraSurface', () => {
     expect(lastCameraProps?.constraints).toEqual([{ fps: 30 }]);
     expect(lastCameraProps?.device).toBe(mockDevice);
     expect(lastCameraProps?.isActive).toBe(true);
-    expect(lastCameraProps?.onStarted).toEqual(expect.any(Function));
-    expect(lastCameraProps?.onStopped).toEqual(expect.any(Function));
   });
 
   it('configures frame output for yuv + preview-sized buffers', () => {
@@ -259,15 +254,10 @@ describe('LensCameraSurface', () => {
     );
   });
 
-  it('does not call color lens worklets when inactive', () => {
-    mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
-
+  it('passes isActive false to the camera when the session is inactive', () => {
     renderLensSurface({ isActive: false });
 
-    expect(lastOnFrame).toBeDefined();
-    expect(mockGetColorLensPaletteWorklet).not.toHaveBeenCalled();
-    expect(mockCopyColorLensRegionWorklet).not.toHaveBeenCalled();
-    expect(mockApplyColorLensRegionColorWorklet).not.toHaveBeenCalled();
+    expect(lastCameraProps?.isActive).toBe(false);
   });
 
   it('updates sample camera rect on surface layout', () => {

@@ -10,7 +10,7 @@ import {
 import { CAMERA_VIEW_MODE } from '@features/Lens/Camera/options';
 import { fireEvent, render } from '@testing-library/react-native';
 import React, { createRef } from 'react';
-import type { CameraDevice, CameraPhotoOutput, CameraRef, CameraVideoOutput } from 'react-native-vision-camera';
+import type { CameraDevice, CameraRef } from 'react-native-vision-camera';
 
 import { ObskuraCameraSurface } from './ObskuraCameraSurface';
 import { OBSKURA_COLOR_MODE } from './options';
@@ -43,24 +43,18 @@ jest.mock('@features/Lens/Camera/CameraBottomControls', () => {
 });
 
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
-const mockVideoOutput = { id: 'video' } as unknown as CameraVideoOutput;
 
 const createMockSurfaceContext = (
   overrides: Partial<CameraSurfaceContextValue> = {}
 ): CameraSurfaceContextValue => ({
   cameraRef: createRef<CameraRef | null>(),
-  photoOutput: mockObskuraPhotoOutput as unknown as CameraPhotoOutput,
-  videoOutput: mockVideoOutput,
   showPreview: true,
   isActive: true,
   flashMode: 0,
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.OBSKURA,
-  isViewModeSwitching: false,
   device: mockDevice,
   onViewModeToggle: jest.fn(),
-  onSessionStarted: jest.fn(),
-  onSessionStopped: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
   onSwitchCameraToggle: jest.fn(),
@@ -127,7 +121,7 @@ describe('ObskuraCameraSurface', () => {
 
     expect(mockBuildObskuraLensPaintFromPipeline).toHaveBeenCalledWith(
       [{ action: 'blur', settings: { sigma: 60 } }],
-      { colorMode: OBSKURA_COLOR_MODE.DEFAULT }
+      { colorMode: OBSKURA_COLOR_MODE.DEFAULT, outputShortSidePx: 720 }
     );
     expect(obskuraVisionCameraMockState.lastCameraProps?.onFrame).toBeDefined();
     expect(obskuraVisionCameraMockState.lastCameraProps?.constraints).toEqual([
@@ -137,9 +131,11 @@ describe('ObskuraCameraSurface', () => {
     expect(obskuraVisionCameraMockState.lastCameraProps?.outputs).toEqual([
       mockObskuraPhotoOutput,
     ]);
+    expect(obskuraVisionCameraMockState.lastCameraProps?.targetResolution).toEqual({
+      width: 720,
+      height: 1280,
+    });
     expect(obskuraVisionCameraMockState.lastCameraProps?.isActive).toBe(true);
-    expect(obskuraVisionCameraMockState.lastCameraProps?.onStarted).toEqual(expect.any(Function));
-    expect(obskuraVisionCameraMockState.lastCameraProps?.onStopped).toEqual(expect.any(Function));
   });
 
   it('keeps onFrame when inactive (session gated by isActive)', () => {
@@ -159,7 +155,7 @@ describe('ObskuraCameraSurface', () => {
     expect(mockDispose).toHaveBeenCalledTimes(1);
     expect(mockBuildObskuraLensPaintFromPipeline).toHaveBeenCalledWith(
       [{ action: 'blur', settings: { sigma: 60 } }],
-      { colorMode: OBSKURA_COLOR_MODE.TAME_RED }
+      { colorMode: OBSKURA_COLOR_MODE.TAME_RED, outputShortSidePx: 720 }
     );
   });
 

@@ -110,18 +110,13 @@ const createMockSurfaceContext = (
   overrides: Partial<CameraSurfaceContextValue> = {}
 ): CameraSurfaceContextValue => ({
   cameraRef: createRef<CameraRef | null>(),
-  photoOutput: mockPhotoOutput,
-  videoOutput: mockVideoOutput,
   showPreview: true,
   isActive: true,
   flashMode: 0,
   gridMode: 0,
   cameraViewMode: CAMERA_VIEW_MODE.LENS,
-  isViewModeSwitching: false,
   device: undefined,
   onViewModeToggle: jest.fn(),
-  onSessionStarted: jest.fn(),
-  onSessionStopped: jest.fn(),
   onGridToggle: jest.fn(),
   onFlashToggle: jest.fn(),
   onSwitchCameraToggle: jest.fn(),
@@ -138,7 +133,11 @@ const renderBottomControls = (
       <CameraSurfaceContextForTesting.Provider
         value={createMockSurfaceContext(contextOverrides)}
       >
-        <CameraBottomControls {...props} />
+        <CameraBottomControls
+          photoOutput={mockPhotoOutput}
+          videoOutput={mockVideoOutput}
+          {...props}
+        />
       </CameraSurfaceContextForTesting.Provider>
     </TestSafeArea>
   );
