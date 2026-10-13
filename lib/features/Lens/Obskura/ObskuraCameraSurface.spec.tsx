@@ -141,6 +141,20 @@ describe('ObskuraCameraSurface', () => {
     expect(bindings?.processPhotoPath).toEqual(expect.any(Function));
   });
 
+  it('requests high-quality JPEG photo output for Skia still decoding', () => {
+    const { usePhotoOutput } = jest.requireMock('react-native-vision-camera') as {
+      usePhotoOutput: jest.Mock;
+    };
+
+    renderObskuraSurface();
+
+    expect(usePhotoOutput).toHaveBeenCalledWith({
+      containerFormat: 'jpeg',
+      quality: 1,
+      qualityPrioritization: 'quality',
+    });
+  });
+
   it('keeps onFrame when inactive (session gated by isActive)', () => {
     renderObskuraSurface({ isActive: false });
 

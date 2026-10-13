@@ -89,7 +89,12 @@ const ObskuraCameraPreview = memo(function ObskuraCameraPreview({
 
 export const ObskuraCameraSurface = memo(function ObskuraCameraSurface() {
   const { cameraRef, showPreview, isActive, device, setChromeBindings } = useCameraSurface();
-  const photoOutput = usePhotoOutput();
+  // JPEG required — Skia MakeImageFromEncoded cannot decode iOS native HEIC.
+  const photoOutput = usePhotoOutput({
+    containerFormat: 'jpeg',
+    quality: 1,
+    qualityPrioritization: 'quality',
+  });
   const [obskuraColorMode, setObskuraColorMode] = useState<ObskuraColorMode>(
     OBSKURA_COLOR_MODE.DEFAULT
   );

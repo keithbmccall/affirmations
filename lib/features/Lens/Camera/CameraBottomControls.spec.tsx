@@ -292,14 +292,18 @@ describe('CameraBottomControls', () => {
   });
 
   it('alerts when capturePhotoToFile fails', async () => {
-    mockCapturePhotoToFile.mockRejectedValueOnce(new Error('capture failed'));
+    const captureError = new Error('capture failed');
+    mockCapturePhotoToFile.mockRejectedValueOnce(captureError);
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const { getByTestId } = renderBottomControls();
 
     fireEvent.press(getByTestId('lens-capture-button'));
 
     await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Photo capture failed', captureError);
       expect(alertSpy).toHaveBeenCalledWith('Error', 'Failed to capture');
     });
+    consoleErrorSpy.mockRestore();
   });
 
   it('opens camera roll from thumbnail control', async () => {

@@ -85,7 +85,8 @@ export const CameraBottomControls = memo(function CameraBottomControls({
       const asset = await createCameraRollMediaAsset(savePath);
       await onPhotoAssetSaved?.(asset, captureContext);
       notifyAfterMediaCapture();
-    } catch {
+    } catch (error) {
+      console.error('Photo capture failed', error);
       Alert.alert('Error', 'Failed to capture');
     }
   }, [
