@@ -12,23 +12,16 @@
 // Forward declaration of `HybridColorLensProcessorSpec_cxx` to properly resolve imports.
 namespace ExpoColorLensFrameProcessor { class HybridColorLensProcessorSpec_cxx; }
 
-// Forward declaration of `ColorLensPaletteResult` to properly resolve imports.
-namespace margelo::nitro::colorlens { struct ColorLensPaletteResult; }
-// Forward declaration of `ArrayBufferHolder` to properly resolve imports.
-namespace NitroModules { class ArrayBufferHolder; }
-// Forward declaration of `ColorLensRegionPixels` to properly resolve imports.
-namespace margelo::nitro::colorlens { struct ColorLensRegionPixels; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `ColorLensPaletteResult` to properly resolve imports.
+namespace margelo::nitro::colorlens { struct ColorLensPaletteResult; }
 
-#include "ColorLensPaletteResult.hpp"
-#include <optional>
 #include <string>
-#include <NitroModules/ArrayBuffer.hpp>
-#include <NitroModules/ArrayBufferHolder.hpp>
-#include "ColorLensRegionPixels.hpp"
+#include <optional>
 #include <memory>
 #include <VisionCamera/HybridFrameSpec.hpp>
+#include "ColorLensPaletteResult.hpp"
 
 #include "ExpoColorLensFrameProcessor-Swift-Cxx-Umbrella.hpp"
 
@@ -80,24 +73,16 @@ namespace margelo::nitro::colorlens {
 
   public:
     // Methods
-    inline std::optional<ColorLensPaletteResult> extractPalette(const std::shared_ptr<ArrayBuffer>& pixels, double width, double height) override {
-      auto __result = _swiftPart.extractPalette(ArrayBufferHolder(pixels), std::forward<decltype(width)>(width), std::forward<decltype(height)>(height));
+    inline std::optional<std::string> extractRegionColor(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame, double left, double top, double right, double bottom) override {
+      auto __result = _swiftPart.extractRegionColor(frame, std::forward<decltype(left)>(left), std::forward<decltype(top)>(top), std::forward<decltype(right)>(right), std::forward<decltype(bottom)>(bottom));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::optional<ColorLensRegionPixels> copyRegion(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame, double left, double top, double right, double bottom) override {
-      auto __result = _swiftPart.copyRegion(frame, std::forward<decltype(left)>(left), std::forward<decltype(top)>(top), std::forward<decltype(right)>(right), std::forward<decltype(bottom)>(bottom));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::optional<std::string> extractDominantColor(const std::shared_ptr<ArrayBuffer>& pixels, double width, double height) override {
-      auto __result = _swiftPart.extractDominantColor(ArrayBufferHolder(pixels), std::forward<decltype(width)>(width), std::forward<decltype(height)>(height));
+    inline std::optional<ColorLensPaletteResult> extractFramePalette(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame, double left, double top, double right, double bottom) override {
+      auto __result = _swiftPart.extractFramePalette(frame, std::forward<decltype(left)>(left), std::forward<decltype(top)>(top), std::forward<decltype(right)>(right), std::forward<decltype(bottom)>(bottom));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

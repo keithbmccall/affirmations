@@ -1,18 +1,20 @@
 import type { ColorLensProcessor } from 'expo-color-lens-frame-processor';
+import type { Frame } from 'react-native-vision-camera';
 import { getColorLensPalette } from './getColorLensPalette';
 
-const mockExtractPalette = jest.fn();
+const mockExtractFramePalette = jest.fn();
 
 const mockProcessor = {
-  extractPalette: (...args: unknown[]) => mockExtractPalette(...args),
+  extractFramePalette: (...args: unknown[]) => mockExtractFramePalette(...args),
 } as unknown as ColorLensProcessor;
 
-const mockPixels = new ArrayBuffer(12);
+const mockFrame = {} as Frame;
 
 const paletteOptions = {
-  pixels: mockPixels,
-  width: 2,
-  height: 2,
+  left: 0,
+  top: 0,
+  right: 100,
+  bottom: 200,
 };
 
 const mockPalette = {
@@ -28,25 +30,27 @@ const mockPalette = {
 
 describe('getColorLensPalette', () => {
   beforeEach(() => {
-    mockExtractPalette.mockReset();
+    mockExtractFramePalette.mockReset();
   });
 
-  it('calls extractPalette with RGB buffer dimensions', () => {
-    mockExtractPalette.mockReturnValue(mockPalette);
+  it('calls extractFramePalette with frame and pixel rect', () => {
+    mockExtractFramePalette.mockReturnValue(mockPalette);
 
-    const result = getColorLensPalette(mockProcessor, paletteOptions);
+    const result = getColorLensPalette(mockProcessor, mockFrame, paletteOptions);
 
-    expect(mockExtractPalette).toHaveBeenCalledWith(
-      mockPixels,
-      paletteOptions.width,
-      paletteOptions.height
+    expect(mockExtractFramePalette).toHaveBeenCalledWith(
+      mockFrame,
+      paletteOptions.left,
+      paletteOptions.top,
+      paletteOptions.right,
+      paletteOptions.bottom
     );
     expect(result).toEqual(mockPalette);
   });
 
-  it('returns null when extractPalette returns undefined', () => {
-    mockExtractPalette.mockReturnValue(undefined);
+  it('returns null when extractFramePalette returns undefined', () => {
+    mockExtractFramePalette.mockReturnValue(undefined);
 
-    expect(getColorLensPalette(mockProcessor, paletteOptions)).toBeNull();
+    expect(getColorLensPalette(mockProcessor, mockFrame, paletteOptions)).toBeNull();
   });
 });

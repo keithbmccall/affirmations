@@ -15,7 +15,6 @@ This document tracked the upgrade from **react-native-vision-camera 4.7.0** to *
 | `react-native-vision-camera`          | 5.2.3     |
 | `react-native-vision-camera-worklets` | 5.2.3     |
 | `react-native-vision-camera-skia`     | 5.2.3     |
-| `react-native-vision-camera-resizer`  | 5.2.3     |
 | `react-native-nitro-modules`          | 0.37.x    |
 | `react-native-nitro-image`            | 0.15.x    |
 | `react-native-reanimated`             | 4.5.1     |
@@ -71,7 +70,7 @@ Leave `expo` at 53.0.27 for this migration. Treat SDK 54 as a later, separate pr
 | `react-native-reanimated`             | 3.17.5           | **4.5.1**                                                                                         |
 | `@shopify/react-native-skia`          | v2.0.0-next.4    | **2.6.4+**                                                                                        |
 | `expo-color-lens-frame-processor`     | v4 FP registry   | **Nitro `ColorLensProcessor`** (lazy HybridObject); podspec at pkg root |
-| `react-native-vision-camera-resizer`  | —                | **5.2.3** (dominant palette GPU cover)                                                                |
+| `react-native-vision-camera-resizer`  | —                | **Removed** — dominant/region sample YUV via `ColorLensYUVSampler` |
 
 Install sequence (upstream v5.0.0 release):
 
@@ -79,7 +78,6 @@ Install sequence (upstream v5.0.0 release):
 npm i react-native-nitro-modules react-native-nitro-image
 npm i react-native-vision-camera@5
 npm i react-native-vision-camera-worklets react-native-worklets
-npm i react-native-vision-camera-resizer@5
 # Obskura path (when migrating Skia preview):
 npm i react-native-vision-camera-skia
 ```
@@ -111,23 +109,23 @@ Do **not** rely on the plugin for permission strings after removal — they must
 | [`Camera/CameraBottomControls.tsx`](Camera/CameraBottomControls.tsx)       | `cameraRef.takePhoto`, `startRecording`, `stopRecording` | **`usePhotoOutput` / `useVideoOutput`**; write `Photo` to cache before `createAssetAsync` |
 | [`Camera/CameraSurfaceContext.tsx`](Camera/CameraSurfaceContext.tsx)       | `cameraRef`, `useCameraDevice`                           | Hold output refs; expose photo/video outputs to bottom controls                           |
 | [`Camera/options.ts`](Camera/options.ts)                                   | `PhysicalCameraDeviceType`                               | Confirm type re-exports on v5 `CameraDevice`                                              |
-| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)             | `useFrameProcessor`, fixed-center lens-point sampling  | **`useFrameOutput`** + VC5 coords (region) + **resizer** (dominant)    |
+| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)             | `useFrameProcessor`, fixed-center lens-point sampling  | **`useFrameOutput`** + VC5 coords → YUV sample (region + dominant)    |
 | [`Obskura/ObskuraCameraSurface.tsx`](Obskura/ObskuraCameraSurface.tsx)     | `useSkiaFrameProcessor`, `useCameraFormat`, `Templates`  | **`react-native-vision-camera-skia`** + **Constraints API**                               |
 | [`Camera/hooks/useCameraFocus.ts`](Camera/hooks/useCameraFocus.ts)         | `cameraRef.focus({ x, y })`                              | Verify v5 focus API on preview ref / controller                                           |
 | [`Camera/hooks/useLensPermissions.ts`](Camera/hooks/useLensPermissions.ts) | `useCameraPermission`, `useMicrophonePermission`         | Hooks unchanged in spirit — **not** `Camera.getCameraPermissionStatus()`                  |
 
 ### Lens point + dominant palette (shipped Nitro modernize)
 
-**Region (lens-point):** JS-thread `convertViewPointToCameraPoint` on sample-square corners → SharedValues → worklet `convertCameraPointToFramePoint` → `copyRegion` → **`frame.dispose()`** → `extractDominantColor` (owned RGB; same MMCQ reader as palette). See [`LENS_POINT_CONTEXT.md`](LENS_POINT_CONTEXT.md).
+**Region (lens-point):** JS-thread `convertViewPointToCameraPoint` on sample-square corners → SharedValues → worklet `convertCameraPointToFramePoint` → `extractRegionColor(frame, rect)` (YUV sample + MMCQ) → **`frame.dispose()`**. See [`LENS_POINT_CONTEXT.md`](LENS_POINT_CONTEXT.md).
 
-**Dominant:** `useResizer({ scaleMode: 'cover', channelOrder: 'rgb', … })` with viewport-aspect size (long side 128) → `extractPalette(ArrayBuffer, w, h)`.
+**Dominant:** same pipeline with viewport corners → `extractFramePalette(frame, rect)`. Palette targets **2 FPS**, region **10 FPS**; color animation is **150 ms ease-out**.
 
 ### Color lens frame processors
 
 | File                                                                         | Role                                                                 |
 | ---------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| [`ColorPalette/getColorLensPalette.ts`](ColorPalette/getColorLensPalette.ts) | `getColorLensProcessor().extractPalette(pixels, w, h)`               |
-| [`ColorPalette/getColorLensRegion.ts`](ColorPalette/getColorLensRegion.ts)   | `copyRegion` + `extractDominantColor` (dispose Frame between) |
+| [`ColorPalette/getColorLensPalette.ts`](ColorPalette/getColorLensPalette.ts) | `getColorLensProcessor().extractFramePalette(frame, rect)`           |
+| [`ColorPalette/getColorLensRegion.ts`](ColorPalette/getColorLensRegion.ts)   | `extractRegionColor(frame, rect)`                                    |
 | [`ColorPalette/useColorLensPalette.ts`](ColorPalette/useColorLensPalette.ts) | Palette SharedValues mutated on the frame thread                     |
 | [`ColorPalette/useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts)   | Region color SharedValue mutated on the frame thread                 |
 

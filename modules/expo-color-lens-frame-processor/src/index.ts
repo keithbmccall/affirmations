@@ -2,13 +2,11 @@ import { NitroModules } from 'react-native-nitro-modules';
 import type {
   ColorLensPaletteResult,
   ColorLensProcessor,
-  ColorLensRegionPixels,
 } from './specs/ColorLensProcessor.nitro';
 
 export type {
   ColorLensPaletteResult,
   ColorLensProcessor,
-  ColorLensRegionPixels,
 } from './specs/ColorLensProcessor.nitro';
 
 let processor: ColorLensProcessor | undefined;

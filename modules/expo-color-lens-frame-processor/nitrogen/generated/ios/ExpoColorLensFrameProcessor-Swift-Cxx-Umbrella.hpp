@@ -10,8 +10,6 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `ColorLensPaletteResult` to properly resolve imports.
 namespace margelo::nitro::colorlens { struct ColorLensPaletteResult; }
-// Forward declaration of `ColorLensRegionPixels` to properly resolve imports.
-namespace margelo::nitro::colorlens { struct ColorLensRegionPixels; }
 // Forward declaration of `HybridColorLensProcessorSpec` to properly resolve imports.
 namespace margelo::nitro::colorlens { class HybridColorLensProcessorSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
@@ -19,9 +17,7 @@ namespace margelo::nitro::camera { class HybridFrameSpec; }
 
 // Include C++ defined types
 #include "ColorLensPaletteResult.hpp"
-#include "ColorLensRegionPixels.hpp"
 #include "HybridColorLensProcessorSpec.hpp"
-#include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Result.hpp>
 #include <VisionCamera/HybridFrameSpec.hpp>
 #include <exception>

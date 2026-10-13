@@ -2,7 +2,7 @@
 
 Handoff doc for **lens-point** color sampling (`COLOR_LENS_MODE.LENS_POINT`). Describes how the on-screen indicator, JS frame output, VC5 coordinate conversions, and iOS Nitro processor connect.
 
-**Dominant** palette mode uses the same frame output with `react-native-vision-camera-resizer` (GPU cover crop) → `ColorLensProcessor.extractPalette(ArrayBuffer)`.
+**Dominant** palette mode uses the same frame output: JS-thread viewport corners → worklet `convertCameraPointToFramePoint` → `ColorLensProcessor.extractFramePalette(frame, rect)` (YUV sample + MMCQ). No GPU resizer.
 
 ---
 
@@ -12,7 +12,7 @@ Handoff doc for **lens-point** color sampling (`COLOR_LENS_MODE.LENS_POINT`). De
 - In **lens-point** mode:
   - A **fixed-center** circular ring sits over the camera preview (no drag yet).
   - Ring **diameter** matches the view-space sample **square side** sent to native (inscribed circle; native still crops the square).
-  - Live sampled hex drives the ring border color (animated).
+  - Live sampled hex drives the ring border color (animated, 150 ms ease-out).
   - Photo capture saves the current `regionColor` with the asset.
 - **Not implemented yet:** movable/draggable lens point. Stage 2 coords make this straightforward: update the view-space sample square on drag, re-run `convertViewPointToCameraPoint` on the JS thread.
 
@@ -57,31 +57,29 @@ flowchart TB
   end
 
   subgraph worklet [Frame output worklet]
-    FO[useFrameOutput yuv @ 2 FPS]
+    FO[useFrameOutput yuv @ 10 FPS]
     CamToFrame[frame.convertCameraPointToFramePoint]
-    CopyWorklet[copyColorLensRegionWorklet]
+    ApplyWorklet[applyColorLensRegionWorklet]
     DisposeFrame[frame.dispose]
-    ApplyWorklet[applyColorLensRegionColorWorklet]
   end
 
   subgraph native [iOS Nitro]
-    CopyRegion[ColorLensProcessor.copyRegion]
-    Crop[cropBufferRect raw pixels]
-    Extract[ColorLensProcessor.extractDominantColor]
+    Extract[ColorLensProcessor.extractRegionColor]
+    Sampler[ColorLensYUVSampler]
     MMCQ[MMCQ dominant hex]
   end
 
   Surface --> ViewToCam --> CamRect
   FO --> CamToFrame
   CamRect --> CamToFrame
-  CamToFrame --> CopyWorklet --> CopyRegion --> Crop
-  CopyWorklet --> DisposeFrame --> ApplyWorklet --> Extract --> MMCQ
+  CamToFrame --> ApplyWorklet --> Extract --> Sampler --> MMCQ
+  ApplyWorklet --> DisposeFrame
   MMCQ --> RegionSV --> Indicator
 ```
 
-**Rule:** View→camera conversion runs on the **JS thread** (preview throws until ready). Camera→frame conversion runs in the **worklet**. Native only crops a raw pixel rect.
+**Rule:** View→camera conversion runs on the **JS thread** (preview throws until ready). Camera→frame conversion runs in the **worklet**. Native samples a raw pixel rect from YUV.
 
-**Buffer rule:** Dispose the camera `Frame` **before** MMCQ. Hold time is only the CI crop/copy (point) or Metal resize (dominant); owned pixel buffers keep analysis off the camera pool.
+**Buffer rule:** Hold the camera `Frame` for the single native call (YUV sample + MMCQ), then dispose in `finally`.
 
 ---
 
@@ -91,35 +89,32 @@ flowchart TB
 
 - `resizeMode="cover"` on `Camera`.
 - `useFrameOutput({ pixelFormat: 'yuv', enablePreviewSizedOutputBuffers: true, onFrame })`.
-- On layout / preview started / device flip: `getLensPointSampleRect` → convert opposite corners with `cameraRef.convertViewPointToCameraPoint`, store camera-space corners in SharedValues. Skip region sampling until ready (`sampleCamReady`).
-- Point-mode worklet (throttled `COLOR_LENS_REGION_TARGET_FPS` = 2):
+- On layout / preview started / device flip: `getLensPointSampleRect` → convert opposite corners with `cameraRef.convertViewPointToCameraPoint`, store camera-space corners in SharedValues. Also convert viewport corners `(0,0)` / `(width,height)` for dominant cover-crop. Skip sampling until ready (`sampleCamReady` / `viewportCamReady`).
+- Point-mode worklet (throttled `COLOR_LENS_REGION_TARGET_FPS` = 10):
 
 ```typescript
 const framePoint1 = frame.convertCameraPointToFramePoint({ x: sampleCamX1.value, y: sampleCamY1.value })
 const framePoint2 = frame.convertCameraPointToFramePoint({ x: sampleCamX2.value, y: sampleCamY2.value })
-const regionPixels = copyColorLensRegionWorklet(frame, {
+applyColorLensRegionWorklet(frame, {
   left: Math.min(framePoint1.x, framePoint2.x),
   top: Math.min(framePoint1.y, framePoint2.y),
   right: Math.max(framePoint1.x, framePoint2.x),
   bottom: Math.max(framePoint1.y, framePoint2.y),
 })
-frame.dispose() // before MMCQ — avoids out-of-buffers
-if (regionPixels !== null) {
-  applyColorLensRegionColorWorklet(regionPixels)
-}
+// frame.dispose() in finally
 ```
 
-- Dominant mode: `useResizer` → **`frame.dispose()`** → `extractPalette(gpu.getPixelBuffer(), w, h)` → `gpuFrame.dispose()`.
+- Dominant mode: same pattern with viewport camera corners → `getColorLensPaletteWorklet(frame, rect)`.
 - Renders [`LensColorRegionIndicator`](Camera/LensColorRegionIndicator.tsx) when `isColorLensPoint(colorLensMode)` — circular ring with diameter from the same `getLensPointSampleRect`.
 
 ### JS bridge
 
 | File | Role |
 |------|------|
-| [`useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts) | `copyColorLensRegionWorklet` + `applyColorLensRegionColorWorklet` (mutate `regionColor` after dispose) |
-| [`getColorLensRegion.ts`](ColorPalette/getColorLensRegion.ts) | `copyRegion` / `extractDominantColor` wrappers |
+| [`useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts) | `applyColorLensRegionWorklet` (mutate `regionColor`) |
+| [`getColorLensRegion.ts`](ColorPalette/getColorLensRegion.ts) | `extractRegionColor` wrapper |
 | [`useColorLensPalette.ts`](ColorPalette/useColorLensPalette.ts) | Mutates palette SharedValues on the frame thread |
-| [`getColorLensPalette.ts`](ColorPalette/getColorLensPalette.ts) | Calls `getColorLensProcessor().extractPalette(pixels, width, height)` |
+| [`getColorLensPalette.ts`](ColorPalette/getColorLensPalette.ts) | Calls `getColorLensProcessor().extractFramePalette(frame, rect)` |
 
 ---
 
@@ -131,23 +126,18 @@ See also: [`COLOR_LENS_PROCESSOR_LIMITATIONS.md`](../../../modules/expo-color-le
 
 Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`), created lazily via `getColorLensProcessor()`.
 
-### `copyRegion(frame, left, top, right, bottom)` → `{ pixels, width, height }`
+### `extractRegionColor(frame, left, top, right, bottom)` → hex
 
 1. Unwrap `NativeFrame` → `CVPixelBuffer`.
-2. [`ColorLensImagePipeline.cropBufferRect`](../../../modules/expo-color-lens-frame-processor/ios/ColorLensImagePipeline.swift) — clamp rect, flip Y for CI origin, crop.
-3. Downsample (max side 128) → `CIContext.render` BGRA → pack interleaved **RGB** → **owned** `ArrayBuffer` copy.
-4. Native throttle (~20 FPS) returns `nil` when skipped; JS throttles to 2 FPS.
+2. [`ColorLensYUVSampler`](../../../modules/expo-color-lens-frame-processor/ios/ColorLensYUVSampler.swift) — clamp rect, virtual grid (max side 128), strided YUV→RGB.
+3. MMCQ (`regionMaxColors` = 2) → dominant hex + temporal smoothing.
+4. Native throttle (~20 FPS); JS throttles to 10 FPS.
 
-### `extractDominantColor(pixels, width, height)` → hex
+### `extractFramePalette(frame, left, top, right, bottom)` → palette
 
-1. Copy RGB interleaved `ArrayBuffer` into reused buffer → **same** MMCQ RGB reader as `extractPalette` → dominant hex.
-2. Temporal smoothing. Call **after** disposing the camera `Frame`.
-
-### `extractPalette(pixels, width, height)`
-
-1. Copy uint8 RGB interleaved `ArrayBuffer` from the GPU resizer.
-2. MMCQ stride-3 RGB reader → up to 6 colors + background/detail.
-3. No CIContext / cover math on this path.
+1. Same YUV sampler as region.
+2. MMCQ (`paletteMaxColors` = 6) → slot mapping + smoothing + cache.
+3. Viewport rect from JS reproduces former resizer `scaleMode: 'cover'` crop.
 
 ---
 
@@ -165,7 +155,7 @@ Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`)
 
 ## Vision Camera / platform notes
 
-- **v5.2.3** — uses VC5 coordinate APIs + `react-native-vision-camera-resizer@5.2.3`.
+- **v5.2.3** — uses VC5 coordinate APIs; color sampling is direct YUV (no `react-native-vision-camera-resizer`).
 - **Android:** color-lens processor is iOS-only (`HybridObject<{ ios: 'swift' }>`).
 - **Native changes require dev client rebuild** (`npx expo run:ios`).
 
@@ -177,11 +167,10 @@ Single HybridObject: **`ColorLensProcessor`** (`HybridColorLensProcessor.swift`)
 |---------|------|
 | Config + sample rect math | [`Camera/lensPointSampleRegion.ts`](Camera/lensPointSampleRegion.ts) |
 | Camera + frame output | [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx) |
-| Resizer size helper | [`Camera/resizerOutputSize.ts`](Camera/resizerOutputSize.ts) |
 | On-screen ring | [`Camera/LensColorRegionIndicator.tsx`](Camera/LensColorRegionIndicator.tsx) |
 | Region / palette hooks | [`ColorPalette/useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts), [`useColorLensPalette.ts`](ColorPalette/useColorLensPalette.ts) |
 | Nitro processor | [`modules/.../HybridColorLensProcessor.swift`](../../../modules/expo-color-lens-frame-processor/ios/HybridColorLensProcessor.swift) |
-| Thin CI crop helpers | [`modules/.../ColorLensImagePipeline.swift`](../../../modules/expo-color-lens-frame-processor/ios/ColorLensImagePipeline.swift) |
+| YUV sampler | [`modules/.../ColorLensYUVSampler.swift`](../../../modules/expo-color-lens-frame-processor/ios/ColorLensYUVSampler.swift) |
 
 ---
 

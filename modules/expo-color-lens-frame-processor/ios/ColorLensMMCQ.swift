@@ -102,11 +102,13 @@ final class MMCQ {
         return count
       } else {
         var count = 0
-        for i in rRange {
-          for j in gRange {
-            for k in bRange {
-              let index = MMCQ.makeColorIndexOf(red: i, green: j, blue: k)
-              count += histogram[index]
+        histogram.withUnsafeBufferPointer { hist in
+          for i in rRange {
+            for j in gRange {
+              for k in bRange {
+                let index = MMCQ.makeColorIndexOf(red: i, green: j, blue: k)
+                count += hist[index]
+              }
             }
           }
         }
@@ -125,15 +127,19 @@ final class MMCQ {
         var gSum = 0
         var bSum = 0
 
-        for i in rRange {
-          for j in gRange {
-            for k in bRange {
-              let index = MMCQ.makeColorIndexOf(red: i, green: j, blue: k)
-              let hval = histogram[index]
-              ntot += hval
-              rSum += Int(Double(hval) * (Double(i) + 0.5) * Double(MMCQ.multiplier))
-              gSum += Int(Double(hval) * (Double(j) + 0.5) * Double(MMCQ.multiplier))
-              bSum += Int(Double(hval) * (Double(k) + 0.5) * Double(MMCQ.multiplier))
+        // Integer form of Int(Double(hval) * (Double(i) + 0.5) * Double(multiplier))
+        let halfMultiplier = MMCQ.multiplier / 2
+        histogram.withUnsafeBufferPointer { hist in
+          for i in rRange {
+            for j in gRange {
+              for k in bRange {
+                let index = MMCQ.makeColorIndexOf(red: i, green: j, blue: k)
+                let hval = hist[index]
+                ntot += hval
+                rSum += hval * (MMCQ.multiplier * i + halfMultiplier)
+                gSum += hval * (MMCQ.multiplier * j + halfMultiplier)
+                bSum += hval * (MMCQ.multiplier * k + halfMultiplier)
+              }
             }
           }
         }
@@ -186,11 +192,11 @@ final class MMCQ {
 
   /// Histogram for interleaved RGB (3 bytes/px) — sole product pixel layout.
   private static func makeHistogramAndVBoxRGB(
-    from pixels: [UInt8],
+    from pixels: UnsafeBufferPointer<UInt8>,
     histogram: inout [Int],
     quality: Int,
     ignoreWhite: Bool
-  ) -> ([Int], VBox) {
+  ) -> VBox {
     histogram.withUnsafeMutableBufferPointer { buffer in
       guard let base = buffer.baseAddress else { return }
       memset(base, 0, buffer.count * MemoryLayout<Int>.size)
@@ -204,33 +210,34 @@ final class MMCQ {
     var bMax = UInt8.min
 
     let pixelCount = pixels.count / 3
-    for i in stride(from: 0, to: pixelCount, by: quality) {
-      let base = i * 3
-      let r = pixels[base + 0]
-      let g = pixels[base + 1]
-      let b = pixels[base + 2]
+    histogram.withUnsafeMutableBufferPointer { hist in
+      for i in stride(from: 0, to: pixelCount, by: quality) {
+        let base = i * 3
+        let r = pixels[base + 0]
+        let g = pixels[base + 1]
+        let b = pixels[base + 2]
 
-      guard !(ignoreWhite && r > 250 && g > 250 && b > 250) else {
-        continue
+        guard !(ignoreWhite && r > 250 && g > 250 && b > 250) else {
+          continue
+        }
+
+        let shiftedR = r >> UInt8(rightShift)
+        let shiftedG = g >> UInt8(rightShift)
+        let shiftedB = b >> UInt8(rightShift)
+
+        rMin = min(rMin, shiftedR)
+        rMax = max(rMax, shiftedR)
+        gMin = min(gMin, shiftedG)
+        gMax = max(gMax, shiftedG)
+        bMin = min(bMin, shiftedB)
+        bMax = max(bMax, shiftedB)
+
+        let index = MMCQ.makeColorIndexOf(red: Int(shiftedR), green: Int(shiftedG), blue: Int(shiftedB))
+        hist[index] += 1
       }
-
-      let shiftedR = r >> UInt8(rightShift)
-      let shiftedG = g >> UInt8(rightShift)
-      let shiftedB = b >> UInt8(rightShift)
-
-      rMin = min(rMin, shiftedR)
-      rMax = max(rMax, shiftedR)
-      gMin = min(gMin, shiftedG)
-      gMax = max(gMax, shiftedG)
-      bMin = min(bMin, shiftedB)
-      bMax = max(bMax, shiftedB)
-
-      let index = MMCQ.makeColorIndexOf(red: Int(shiftedR), green: Int(shiftedG), blue: Int(shiftedB))
-      histogram[index] += 1
     }
 
-    let vbox = VBox(rMin: rMin, rMax: rMax, gMin: gMin, gMax: gMax, bMin: bMin, bMax: bMax, histogram: histogram)
-    return (histogram, vbox)
+    return VBox(rMin: rMin, rMax: rMax, gMin: gMin, gMax: gMax, bMin: bMin, bMax: bMax, histogram: histogram)
   }
 
   private static func applyMedianCut(with histogram: [Int], vbox: VBox) -> [VBox] {
@@ -247,42 +254,44 @@ final class MMCQ {
     var total = 0
     var partialSum = [Int](repeating: -1, count: vboxLength) // -1 = not set / 0 = 0
     let axis = vbox.widestColorChannel()
-    switch axis {
-    case .r:
-      for i in vbox.rRange {
-        var sum = 0
-        for j in vbox.gRange {
-          for k in vbox.bRange {
-            let index = MMCQ.makeColorIndexOf(red: i, green: j, blue: k)
-            sum += histogram[index]
+    histogram.withUnsafeBufferPointer { hist in
+      switch axis {
+      case .r:
+        for i in vbox.rRange {
+          var sum = 0
+          for j in vbox.gRange {
+            for k in vbox.bRange {
+              let index = MMCQ.makeColorIndexOf(red: i, green: j, blue: k)
+              sum += hist[index]
+            }
           }
+          total += sum
+          partialSum[i] = total
         }
-        total += sum
-        partialSum[i] = total
-      }
-    case .g:
-      for i in vbox.gRange {
-        var sum = 0
-        for j in vbox.rRange {
-          for k in vbox.bRange {
-            let index = MMCQ.makeColorIndexOf(red: j, green: i, blue: k)
-            sum += histogram[index]
+      case .g:
+        for i in vbox.gRange {
+          var sum = 0
+          for j in vbox.rRange {
+            for k in vbox.bRange {
+              let index = MMCQ.makeColorIndexOf(red: j, green: i, blue: k)
+              sum += hist[index]
+            }
           }
+          total += sum
+          partialSum[i] = total
         }
-        total += sum
-        partialSum[i] = total
-      }
-    case .b:
-      for i in vbox.bRange {
-        var sum = 0
-        for j in vbox.rRange {
-          for k in vbox.gRange {
-            let index = MMCQ.makeColorIndexOf(red: j, green: k, blue: i)
-            sum += histogram[index]
+      case .b:
+        for i in vbox.bRange {
+          var sum = 0
+          for j in vbox.rRange {
+            for k in vbox.gRange {
+              let index = MMCQ.makeColorIndexOf(red: j, green: k, blue: i)
+              sum += hist[index]
+            }
           }
+          total += sum
+          partialSum[i] = total
         }
-        total += sum
-        partialSum[i] = total
       }
     }
 
@@ -326,9 +335,12 @@ final class MMCQ {
         d2 = max(vboxMin, Int(Double(i - 1) - Double(left) / 2.0))
       }
 
-      // avoid 0-count
-      while d2 < 0 || partialSum[d2] <= 0 {
+      // avoid 0-count — bound at vboxMax to prevent out-of-bounds reads
+      while d2 <= vboxMax && (d2 < 0 || partialSum[d2] <= 0) {
         d2 += 1
+      }
+      if d2 > vboxMax {
+        return [vbox]
       }
       var count2 = lookAheadSum[d2]
       while count2 == 0 && d2 > 0 && partialSum[d2 - 1] > 0 {
@@ -352,14 +364,21 @@ final class MMCQ {
       return [vbox1, vbox2]
     }
 
-    fatalError("VBox can't be cut")
+    // Cannot split — return unsplit box instead of crashing the frame thread
+    return [vbox]
   }
 
-  /// Quantize interleaved RGB (3 bytes/px) — resizer and region crop paths.
-  static func quantizeOptimizedRGB(_ pixels: inout [UInt8], _ histogram: inout [Int], quality: Int, ignoreWhite: Bool, maxColors: Int) -> ColorMap? {
+  /// Quantize interleaved RGB (3 bytes/px) from a pointer (YUV sampler / ArrayBuffer).
+  static func quantizeOptimizedRGB(
+    _ pixels: UnsafeBufferPointer<UInt8>,
+    _ histogram: inout [Int],
+    quality: Int,
+    ignoreWhite: Bool,
+    maxColors: Int
+  ) -> ColorMap? {
     guard !pixels.isEmpty && maxColors > 1 && maxColors <= 256 else { return nil }
 
-    let (_, vbox) = makeHistogramAndVBoxRGB(from: pixels, histogram: &histogram, quality: quality, ignoreWhite: ignoreWhite)
+    let vbox = makeHistogramAndVBoxRGB(from: pixels, histogram: &histogram, quality: quality, ignoreWhite: ignoreWhite)
     return buildColorMap(from: vbox, histogram: histogram, maxColors: maxColors)
   }
 
@@ -377,25 +396,26 @@ final class MMCQ {
     pq.forEach { colorMap.push($0) }
     return colorMap
   }
-  
+
   /// Simplified iteration function
   private static func iterate(over queue: inout [VBox], comparator: (VBox, VBox) -> Bool, target: Int, histogram: [Int]) {
     var color = 1
 
     for _ in 0..<min(maxIterations, target) {
       guard let vbox = queue.last, vbox.getCount() > 0 else { break }
-      
+
       queue.removeLast()
       let vboxes = applyMedianCut(with: histogram, vbox: vbox)
-      
+      guard !vboxes.isEmpty else { break }
+
       queue.append(vboxes[0])
       if vboxes.count == 2 {
         queue.append(vboxes[1])
         color += 1
       }
-      
+
       queue.sort(by: comparator)
-      
+
       if color >= target { break }
     }
   }
@@ -411,4 +431,3 @@ final class MMCQ {
     return aProduct < bProduct
   }
 }
-

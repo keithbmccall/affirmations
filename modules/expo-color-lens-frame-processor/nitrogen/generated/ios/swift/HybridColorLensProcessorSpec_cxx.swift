@@ -126,49 +126,13 @@ open class HybridColorLensProcessorSpec_cxx {
 
   // Methods
   @inline(__always)
-  public final func extractPalette(pixels: ArrayBuffer, width: Double, height: Double) -> bridge.Result_std__optional_ColorLensPaletteResult__ {
+  public final func extractRegionColor(frame: bridge.std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_, left: Double, top: Double, right: Double, bottom: Double) -> bridge.Result_std__optional_std__string__ {
     do {
-      let __result = try self.__implementation.extractPalette(pixels: pixels, width: width, height: height)
-      let __resultCpp = { () -> bridge.std__optional_ColorLensPaletteResult_ in
-        if let __unwrappedValue = __result {
-          return bridge.create_std__optional_ColorLensPaletteResult_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-      return bridge.create_Result_std__optional_ColorLensPaletteResult__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__optional_ColorLensPaletteResult__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func copyRegion(frame: bridge.std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_, left: Double, top: Double, right: Double, bottom: Double) -> bridge.Result_std__optional_ColorLensRegionPixels__ {
-    do {
-      let __result = try self.__implementation.copyRegion(frame: { () -> any HybridFrameSpec in
+      let __result = try self.__implementation.extractRegionColor(frame: { () -> any HybridFrameSpec in
         let __unsafePointer = bridge.get_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(frame)
         let __instance = HybridFrameSpec_cxx.fromUnsafe(__unsafePointer)
         return __instance.getHybridFrameSpec()
       }(), left: left, top: top, right: right, bottom: bottom)
-      let __resultCpp = { () -> bridge.std__optional_ColorLensRegionPixels_ in
-        if let __unwrappedValue = __result {
-          return bridge.create_std__optional_ColorLensRegionPixels_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-      return bridge.create_Result_std__optional_ColorLensRegionPixels__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__optional_ColorLensRegionPixels__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func extractDominantColor(pixels: ArrayBuffer, width: Double, height: Double) -> bridge.Result_std__optional_std__string__ {
-    do {
-      let __result = try self.__implementation.extractDominantColor(pixels: pixels, width: width, height: height)
       let __resultCpp = { () -> bridge.std__optional_std__string_ in
         if let __unwrappedValue = __result {
           return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
@@ -180,6 +144,28 @@ open class HybridColorLensProcessorSpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_std__optional_std__string__(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func extractFramePalette(frame: bridge.std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_, left: Double, top: Double, right: Double, bottom: Double) -> bridge.Result_std__optional_ColorLensPaletteResult__ {
+    do {
+      let __result = try self.__implementation.extractFramePalette(frame: { () -> any HybridFrameSpec in
+        let __unsafePointer = bridge.get_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(frame)
+        let __instance = HybridFrameSpec_cxx.fromUnsafe(__unsafePointer)
+        return __instance.getHybridFrameSpec()
+      }(), left: left, top: top, right: right, bottom: bottom)
+      let __resultCpp = { () -> bridge.std__optional_ColorLensPaletteResult_ in
+        if let __unwrappedValue = __result {
+          return bridge.create_std__optional_ColorLensPaletteResult_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+      return bridge.create_Result_std__optional_ColorLensPaletteResult__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__optional_ColorLensPaletteResult__(__exceptionPtr)
     }
   }
 }

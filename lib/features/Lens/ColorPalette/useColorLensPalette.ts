@@ -1,6 +1,7 @@
 import { getColorLensProcessor } from 'expo-color-lens-frame-processor';
 import { useCallback, useMemo, useState } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
+import type { Frame } from 'react-native-vision-camera';
 import { COLOR_LENS_MODE, type ColorLensMode } from './colorLensMode';
 import {
   type ColorLensPaletteOptions,
@@ -25,9 +26,13 @@ export const useColorLensPalette = () => {
   const detailColor = useSharedValue(lensPaletteConfig.defaultColor);
 
   const getColorLensPaletteWorklet = useCallback(
-    (options: ColorLensPaletteOptions) => {
+    (frame: Frame, options: ColorLensPaletteOptions) => {
       'worklet';
-      const colorPalette: ColorLensPaletteType | null = getColorLensPalette(processor, options);
+      const colorPalette: ColorLensPaletteType | null = getColorLensPalette(
+        processor,
+        frame,
+        options
+      );
       if (colorPalette === null) {
         return;
       }

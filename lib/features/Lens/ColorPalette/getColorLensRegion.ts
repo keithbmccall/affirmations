@@ -1,7 +1,4 @@
-import type {
-  ColorLensProcessor,
-  ColorLensRegionPixels,
-} from 'expo-color-lens-frame-processor';
+import type { ColorLensProcessor } from 'expo-color-lens-frame-processor';
 import type { Frame } from 'react-native-vision-camera';
 
 /** Axis-aligned rect in raw CVPixelBuffer pixel coordinates (top-left origin). */
@@ -12,41 +9,25 @@ export interface ColorLensRegionOptions {
   bottom: number;
 }
 
-export type { ColorLensRegionPixels };
-
 /**
  * Call from a frame worklet with a processor created on the RN JS thread.
  * Do not call `getColorLensProcessor()` inside the worklet — that is a remote RN function.
  *
- * Returns owned RGB interleaved pixels so the camera Frame can be disposed before MMCQ.
+ * Samples the frame region via YUV and returns the dominant hex (or null).
  */
-export function copyColorLensRegion(
+export function getColorLensRegionColor(
   processor: ColorLensProcessor,
   frame: Frame,
   options: ColorLensRegionOptions
-): ColorLensRegionPixels | null {
+): string | null {
   'worklet';
   return (
-    processor.copyRegion(
+    processor.extractRegionColor(
       frame,
       options.left,
       options.top,
       options.right,
       options.bottom
     ) ?? null
-  );
-}
-
-/**
- * Run after disposing the camera Frame. Consumes RGB pixels from `copyColorLensRegion`
- * (same MMCQ layout as dominant palette).
- */
-export function extractColorLensRegionColor(
-  processor: ColorLensProcessor,
-  region: ColorLensRegionPixels
-): string | null {
-  'worklet';
-  return (
-    processor.extractDominantColor(region.pixels, region.width, region.height) ?? null
   );
 }

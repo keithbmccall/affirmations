@@ -10,11 +10,11 @@ Handoff for engineers and agents working on [`expo-color-lens-frame-processor`](
 
 Shared **mutable** state on one instance:
 
-- `pixelBuffer`, `bgraScratch`, `histogram`
-- `paletteResultCache`, `previousPaletteRGB`, `previousRegionRGB`
+- `pixelBuffer`, `histogram`
+- Palette slot cache / `previousPaletteRGB`, `previousRegionRGB`
 - Throttle timestamps
 
-**Safe:** Sequential use on the Vision Camera frame thread, e.g. `copyRegion` → dispose camera `Frame` → `extractDominantColor` before the next frame; dominant `extractPalette` when not overlapping another entry point on the same instance.
+**Safe:** Sequential use on the Vision Camera frame thread. Only one mode runs per frame (`switch` in `onFrame`). Call `extractRegionColor` or `extractFramePalette`, then dispose the camera `Frame`.
 
 **Unsafe:** Parallel native calls on the same instance (e.g. two worklets or a merged API without serialization). Do not add concurrent entry points without per-call buffers or an explicit lock.
 
@@ -22,22 +22,24 @@ Shared **mutable** state on one instance:
 
 ## Pixel layout contract
 
-Product MMCQ input is **interleaved RGB** (`width × height × 3` bytes):
+Product MMCQ input is **interleaved RGB** (`N × 3` bytes), produced by **`ColorLensYUVSampler`** from the camera `CVPixelBuffer`:
 
 | API | Source |
 |-----|--------|
-| `extractPalette` | GPU resizer (dominant mode) |
-| `extractDominantColor` | `copyRegion` output (lens-point) |
+| `extractFramePalette` | Viewport cover-crop rect → YUV strided sample |
+| `extractRegionColor` | Lens-point sample square → YUV strided sample |
 
-Region path: Core Image renders **BGRA8** into `bgraScratch`, then packs to RGB in `pixelBuffer`. **MMCQ must not consume BGRA.** Do not reintroduce a second MMCQ reader without updating this doc and QA.
+Supported buffer format: Vision Camera `pixelFormat: 'yuv'` → `kCVPixelFormatType_420YpCbCr8BiPlanarFullRange`. Matrix from `kCVImageBufferYCbCrMatrixKey` (BT.601 / BT.709). Display P3 primaries are converted to sRGB when present.
+
+**MMCQ must not consume BGRA or YUV directly.** Sampling always packs RGB first.
 
 ---
 
 ## Buffer lifetime
 
-- `copyRegion` returns an **owned** `ArrayBuffer` copy of RGB pixels.
-- JS must **dispose the camera `Frame`** before running MMCQ (`extractDominantColor`) so the camera buffer pool is not held.
-- Do not retain region pixels across async JS without copying; `extractDominantColor` reads the buffer once per call.
+- Each entry point locks the camera `CVPixelBuffer` **read-only** for the duration of the YUV→RGB sample + MMCQ.
+- JS holds the camera `Frame` for that single native call, then **`frame.dispose()`** in a `finally` block.
+- Do not retain the `Frame` across async JS.
 
 ---
 
@@ -52,7 +54,7 @@ Region path: Core Image renders **BGRA8** into `bgraScratch`, then packs to RGB 
 ## UI vs native geometry (lens-point)
 
 - On-screen indicator: **circular ring** (diameter = sample square side).
-- Native sample: **axis-aligned square** from `getLensPointSampleRect` → VC5 → `copyRegion`.
+- Native sample: **axis-aligned square** from `getLensPointSampleRect` → VC5 → `extractRegionColor`.
 - Corner pixels of the square are analyzed but not outlined. This is intentional; not a coordinate bug.
 
 ---
@@ -63,13 +65,12 @@ Do not change in drive-by PRs without profiling and product sign-off:
 
 | Constant | Role |
 |----------|------|
-| JS palette ~1 FPS / region ~2 FPS | [`LensCameraSurface.tsx`](../../lib/features/Lens/Camera/LensCameraSurface.tsx) |
+| JS palette **2 FPS** / region **10 FPS** | [`LensCameraSurface.tsx`](../../lib/features/Lens/Camera/LensCameraSurface.tsx) |
+| Color animation **150 ms**, ease-out cubic | [`useAnimatedColor.ts`](../../lib/features/Lens/ColorPalette/useAnimatedColor.ts) |
 | Native `minProcessingInterval` 0.05s | ~20 FPS cap per entry point |
-| `maxImageSize` 128 | Downsample before MMCQ |
-| `defaultQuality` 15 | Histogram stride |
+| `maxImageSize` 128 | Virtual grid long side before strided sample |
+| `defaultQuality` 15 | Histogram / sample stride on the virtual grid |
 | `stabilityThreshold` 900 | Temporal smoothing (RGB distance²) |
-
-**Known CPU follow-up:** merge `copyRegion` + `extractDominantColor` into one Nitro call to drop an extra buffer copy and Nitro hop (requires JS/worklet API change).
 
 Raising sample rates or lowering `quality` / resolution changes UX and battery; profile first.
 
@@ -80,7 +81,8 @@ Raising sample rates or lowering `quality` / resolution changes UX and battery; 
 | Concern | Path |
 |---------|------|
 | Processor | [`ios/HybridColorLensProcessor.swift`](ios/HybridColorLensProcessor.swift) |
+| YUV sampler | [`ios/ColorLensYUVSampler.swift`](ios/ColorLensYUVSampler.swift) |
 | MMCQ | [`ios/ColorLensMMCQ.swift`](ios/ColorLensMMCQ.swift) |
-| CI crop | [`ios/ColorLensImagePipeline.swift`](ios/ColorLensImagePipeline.swift) |
 | Nitro spec | [`src/specs/ColorLensProcessor.nitro.ts`](src/specs/ColorLensProcessor.nitro.ts) |
-| JS bridge | [`lib/features/Lens/ColorPalette/getColorLensRegion.ts`](../../lib/features/Lens/ColorPalette/getColorLensRegion.ts) |
+| JS region bridge | [`lib/features/Lens/ColorPalette/getColorLensRegion.ts`](../../lib/features/Lens/ColorPalette/getColorLensRegion.ts) |
+| JS palette bridge | [`lib/features/Lens/ColorPalette/getColorLensPalette.ts`](../../lib/features/Lens/ColorPalette/getColorLensPalette.ts) |

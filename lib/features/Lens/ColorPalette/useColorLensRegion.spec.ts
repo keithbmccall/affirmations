@@ -1,15 +1,12 @@
 import { act, renderHook } from '@testing-library/react-native';
-import type { ColorLensRegionPixels } from 'expo-color-lens-frame-processor';
 import type { Frame } from 'react-native-vision-camera';
 
 import { lensPaletteConfig } from './lensPaletteConfig';
 import { useColorLensRegion } from './useColorLensRegion';
 
-const mockCopyColorLensRegion = jest.fn();
-const mockExtractColorLensRegionColor = jest.fn();
+const mockGetColorLensRegionColor = jest.fn();
 const mockProcessor = {
-  copyRegion: jest.fn(),
-  extractDominantColor: jest.fn(),
+  extractRegionColor: jest.fn(),
 };
 
 jest.mock('expo-color-lens-frame-processor', () => ({
@@ -17,9 +14,7 @@ jest.mock('expo-color-lens-frame-processor', () => ({
 }));
 
 jest.mock('./getColorLensRegion', () => ({
-  copyColorLensRegion: (...args: unknown[]) => mockCopyColorLensRegion(...args),
-  extractColorLensRegionColor: (...args: unknown[]) =>
-    mockExtractColorLensRegionColor(...args),
+  getColorLensRegionColor: (...args: unknown[]) => mockGetColorLensRegionColor(...args),
 }));
 
 const mockFrame = {} as Frame;
@@ -31,16 +26,9 @@ const regionOptions = {
   bottom: 40,
 };
 
-const mockRegionPixels: ColorLensRegionPixels = {
-  pixels: new ArrayBuffer(16),
-  width: 2,
-  height: 2,
-};
-
 describe('useColorLensRegion', () => {
   beforeEach(() => {
-    mockCopyColorLensRegion.mockReset();
-    mockExtractColorLensRegionColor.mockReset();
+    mockGetColorLensRegionColor.mockReset();
   });
 
   it('returns regionColor initialized to the default palette color', () => {
@@ -49,52 +37,33 @@ describe('useColorLensRegion', () => {
     expect(result.current.regionColor.value).toBe(lensPaletteConfig.defaultColor);
   });
 
-  it('copies region pixels via copyColorLensRegionWorklet', () => {
-    mockCopyColorLensRegion.mockReturnValue(mockRegionPixels);
+  it('updates regionColor when applyColorLensRegionWorklet receives a color', () => {
+    mockGetColorLensRegionColor.mockReturnValue('#AABBCC');
 
     const { result } = renderHook(() => useColorLensRegion());
 
-    let copied: ColorLensRegionPixels | null = null;
     act(() => {
-      copied = result.current.copyColorLensRegionWorklet(mockFrame, regionOptions);
+      result.current.applyColorLensRegionWorklet(mockFrame, regionOptions);
     });
 
-    expect(mockCopyColorLensRegion).toHaveBeenCalledWith(
+    expect(mockGetColorLensRegionColor).toHaveBeenCalledWith(
       mockProcessor,
       mockFrame,
       regionOptions
     );
-    expect(copied).toBe(mockRegionPixels);
-  });
-
-  it('updates regionColor when applyColorLensRegionColorWorklet receives a color', () => {
-    mockExtractColorLensRegionColor.mockReturnValue('#AABBCC');
-
-    const { result } = renderHook(() => useColorLensRegion());
-
-    act(() => {
-      result.current.applyColorLensRegionColorWorklet(mockRegionPixels);
-    });
-
-    expect(mockExtractColorLensRegionColor).toHaveBeenCalledWith(
-      mockProcessor,
-      mockRegionPixels
-    );
     expect(result.current.regionColor.value).toBe('#AABBCC');
   });
 
-  it('keeps the previous regionColor when extractColorLensRegionColor returns null', () => {
-    mockExtractColorLensRegionColor
-      .mockReturnValueOnce('#AABBCC')
-      .mockReturnValueOnce(null);
+  it('keeps the previous regionColor when getColorLensRegionColor returns null', () => {
+    mockGetColorLensRegionColor.mockReturnValueOnce('#AABBCC').mockReturnValueOnce(null);
 
     const { result } = renderHook(() => useColorLensRegion());
 
     act(() => {
-      result.current.applyColorLensRegionColorWorklet(mockRegionPixels);
+      result.current.applyColorLensRegionWorklet(mockFrame, regionOptions);
     });
     act(() => {
-      result.current.applyColorLensRegionColorWorklet(mockRegionPixels);
+      result.current.applyColorLensRegionWorklet(mockFrame, regionOptions);
     });
 
     expect(result.current.regionColor.value).toBe('#AABBCC');

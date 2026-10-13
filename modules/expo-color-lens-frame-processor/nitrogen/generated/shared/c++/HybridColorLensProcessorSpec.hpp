@@ -13,20 +13,16 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `ColorLensPaletteResult` to properly resolve imports.
-namespace margelo::nitro::colorlens { struct ColorLensPaletteResult; }
-// Forward declaration of `ColorLensRegionPixels` to properly resolve imports.
-namespace margelo::nitro::colorlens { struct ColorLensRegionPixels; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `ColorLensPaletteResult` to properly resolve imports.
+namespace margelo::nitro::colorlens { struct ColorLensPaletteResult; }
 
-#include "ColorLensPaletteResult.hpp"
+#include <string>
 #include <optional>
-#include <NitroModules/ArrayBuffer.hpp>
-#include "ColorLensRegionPixels.hpp"
 #include <memory>
 #include <VisionCamera/HybridFrameSpec.hpp>
-#include <string>
+#include "ColorLensPaletteResult.hpp"
 
 namespace margelo::nitro::colorlens {
 
@@ -59,9 +55,8 @@ namespace margelo::nitro::colorlens {
 
     public:
       // Methods
-      virtual std::optional<ColorLensPaletteResult> extractPalette(const std::shared_ptr<ArrayBuffer>& pixels, double width, double height) = 0;
-      virtual std::optional<ColorLensRegionPixels> copyRegion(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame, double left, double top, double right, double bottom) = 0;
-      virtual std::optional<std::string> extractDominantColor(const std::shared_ptr<ArrayBuffer>& pixels, double width, double height) = 0;
+      virtual std::optional<std::string> extractRegionColor(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame, double left, double top, double right, double bottom) = 0;
+      virtual std::optional<ColorLensPaletteResult> extractFramePalette(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame, double left, double top, double right, double bottom) = 0;
 
     protected:
       // Hybrid Setup

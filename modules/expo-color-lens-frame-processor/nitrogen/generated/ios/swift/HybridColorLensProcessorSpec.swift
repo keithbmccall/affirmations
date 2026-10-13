@@ -5,8 +5,8 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
 import VisionCamera
+import NitroModules
 
 /// See ``HybridColorLensProcessorSpec``
 public protocol HybridColorLensProcessorSpec_protocol: HybridObject {
@@ -14,9 +14,8 @@ public protocol HybridColorLensProcessorSpec_protocol: HybridObject {
   
 
   // Methods
-  func extractPalette(pixels: ArrayBuffer, width: Double, height: Double) throws -> ColorLensPaletteResult?
-  func copyRegion(frame: (any HybridFrameSpec), left: Double, top: Double, right: Double, bottom: Double) throws -> ColorLensRegionPixels?
-  func extractDominantColor(pixels: ArrayBuffer, width: Double, height: Double) throws -> String?
+  func extractRegionColor(frame: (any HybridFrameSpec), left: Double, top: Double, right: Double, bottom: Double) throws -> String?
+  func extractFramePalette(frame: (any HybridFrameSpec), left: Double, top: Double, right: Double, bottom: Double) throws -> ColorLensPaletteResult?
 }
 
 public extension HybridColorLensProcessorSpec_protocol {

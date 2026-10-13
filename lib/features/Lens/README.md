@@ -138,7 +138,6 @@ See [Shared conventions](#shared-conventions-fps-video-focus), [Lens mode](#lens
 | `react-native-vision-camera` | 5.2.3 | Outputs + constraints; see [`VISION_CAMERA_V4_VS_V5.md`](VISION_CAMERA_V4_VS_V5.md) |
 | `react-native-vision-camera-worklets` | 5.2.3 | Frame output worklets |
 | `react-native-vision-camera-skia` | 5.2.3 | Obskura `SkiaCamera` |
-| `react-native-vision-camera-resizer` | 5.2.3 | GPU cover downsample for dominant palette |
 | `react-native-nitro-modules` / `nitro-image` | 0.37.x / 0.15.x | VC5 peers + color-lens Nitro processor |
 | `react-native-worklets` | 0.10.1 | Reanimated 4 re-exports this Babel plugin |
 | `@shopify/react-native-skia` | 2.6.4+ | Live Obskura paint + still export |
@@ -163,10 +162,8 @@ flowchart TB
   mode -->|LENS| LensSurface[LensCameraSurface]
   mode -->|OBSKURA| ObskuraSurface[ObskuraCameraSurface]
   LensSurface --> useFO[useFrameOutput yuv worklet]
-  useFO --> resizer[vision-camera-resizer cover]
-  resizer --> processor[Nitro ColorLensProcessor]
   useFO --> coords[VC5 view to camera to frame]
-  coords --> processor
+  coords --> processor[Nitro ColorLensProcessor YUV sample]
   processor --> ios[ExpoColorLensFrameProcessor Swift iOS]
   useFO --> paletteUI[Reanimated SharedValues + ColorPalette]
   ObskuraSurface --> useSkia[SkiaCamera from vision-camera-skia]
@@ -202,13 +199,11 @@ Used when `cameraViewMode === CAMERA_VIEW_MODE.LENS`.
 
 1. **`LensCameraSurface`** mounts `ReanimatedCamera` with `useFrameProcessor` whenever the screen is active (even when color lens is off—the worklet runs each frame but skips palette work until color lens is enabled).
 2. Each frame, the worklet runs on the camera thread (`'worklet'` directive required).
-3. If color lens is enabled, palette sampling is throttled with Vision Camera `runAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (1 FPS / ~1000 ms)**; point-region sampling uses **`COLOR_LENS_REGION_TARGET_FPS` (2 FPS / ~500 ms)**. When the interval allows, dominant mode resizes then **disposes the Frame** before `getColorLensPaletteWorklet`; point mode `copyColorLensRegionWorklet` → **dispose Frame** → `applyColorLensRegionColorWorklet`.
-4. **`getColorLensPaletteWorklet`** (`useColorLensPalette.ts`) calls native **`getColorLensPalette`** (`getColorLensPalette.ts`):
-   - `VisionCameraProxy.initFrameProcessorPlugin('getColorLensPalette')`
-   - Plugin implemented in `modules/expo-color-lens-frame-processor` (iOS only).
-5. Native Swift (`ColorLensFrameProcessor.swift`) downsamples the frame, runs MMCQ palette extraction (up to **6** dominant colors mapped to primary/secondary/…/detail), applies temporal smoothing, and caps work at roughly **20 FPS** (`minProcessingInterval` 0.05s).
-6. Result returns to the worklet; **`Worklets.createRunOnJS(applyColorPalette)`** updates Reanimated shared values.
-7. **`ColorPalette`** reads those shared values and animates swatches on the React thread.
+3. If color lens is enabled, sampling is throttled via `shouldRunAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (2 FPS)** and **`COLOR_LENS_REGION_TARGET_FPS` (10 FPS)**. Dominant mode converts viewport corners to a frame rect and calls `getColorLensPaletteWorklet(frame, rect)`; point mode calls `applyColorLensRegionWorklet(frame, rect)`. The camera `Frame` is disposed in `finally` after the native call.
+4. **`getColorLensPaletteWorklet`** / **`applyColorLensRegionWorklet`** call Nitro **`extractFramePalette`** / **`extractRegionColor`** on `ColorLensProcessor` (`expo-color-lens-frame-processor`, iOS only).
+5. Native Swift (`ColorLensYUVSampler` + MMCQ) samples YUV from the buffer rect, runs palette extraction (up to **6** colors) or dominant hex, applies temporal smoothing, and caps work at roughly **20 FPS** (`minProcessingInterval` 0.05s).
+6. Results mutate Reanimated SharedValues on the frame thread.
+7. **`ColorPalette`** / lens-point ring animate those SharedValues on the UI thread (**150 ms ease-out**).
 
 ### Capture flow (lens mode)
 
@@ -258,7 +253,6 @@ These must be correct for Lens to build and run on device:
 | Media library plugin | `app.json`: save/read photos permissions |
 | iOS usage strings | `app.json` → `ios.infoPlist` NSCameraUsageDescription, NSMicrophoneUsageDescription |
 | New Architecture | `app.json` → `newArchEnabled: true` (enabled for this Expo SDK 53 project; Skia requires RN ≥0.79 / React ≥19, not New Arch by itself) |
-| Web worklets stub | `metro.config.js` resolves `react-native-worklets-core` to `lib/shims/workletsCoreWebStub.ts` on web (bundle safety only; Lens is not a web camera feature) |
 | Native module | After changing `modules/expo-color-lens-frame-processor`: `npx expo prebuild`, `cd ios && pod install`, restart Metro with `--reset-cache` |
 
 ## Reanimated's role

@@ -27,17 +27,15 @@ import {
   useVideoOutput,
   type Frame,
 } from 'react-native-vision-camera';
-import { useResizer } from 'react-native-vision-camera-resizer';
 import { useCameraSurface } from './CameraSurfaceContext';
 import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import { getLensPointSampleRect } from './lensPointSampleRegion';
-import { getResizerOutputSize } from './resizerOutputSize';
 import { shouldRunAtTargetFps } from './shouldRunAtTargetFps';
 
-export const COLOR_LENS_PALETTE_TARGET_FPS = 1;
-export const COLOR_LENS_REGION_TARGET_FPS = 2;
+export const COLOR_LENS_PALETTE_TARGET_FPS = 2;
+export const COLOR_LENS_REGION_TARGET_FPS = 10;
 
-const COLOR_ANIMATION_DURATION = 500;
+const COLOR_ANIMATION_DURATION = 150;
 const DEFAULT_FPS = 30;
 /** Stable across color-lens mode changes — VisionCamera reconfigures the session when constraints change. */
 const CAMERA_CONSTRAINTS = [{ fps: DEFAULT_FPS }];
@@ -59,11 +57,7 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
   const { onAddLensPalette } = useLens();
   const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
-  const {
-    regionColor,
-    copyColorLensRegionWorklet,
-    applyColorLensRegionColorWorklet,
-  } = useColorLensRegion();
+  const { regionColor, applyColorLensRegionWorklet } = useColorLensRegion();
 
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
@@ -74,31 +68,26 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
   const sampleCamY2 = useSharedValue(0);
   const sampleCamReady = useSharedValue(0);
 
-  const resizerSize = useMemo(
-    () => getResizerOutputSize(viewportSize.width, viewportSize.height),
-    [viewportSize.height, viewportSize.width]
-  );
-
-  const { resizer } = useResizer({
-    width: resizerSize.width,
-    height: resizerSize.height,
-    channelOrder: 'rgb',
-    dataType: 'uint8',
-    scaleMode: 'cover',
-    pixelLayout: 'interleaved',
-  });
+  // Camera-space viewport corners for dominant cover-crop (same geometry as former resizer cover).
+  const viewportCamX1 = useSharedValue(0);
+  const viewportCamY1 = useSharedValue(0);
+  const viewportCamX2 = useSharedValue(0);
+  const viewportCamY2 = useSharedValue(0);
+  const viewportCamReady = useSharedValue(0);
 
   const updateSampleCameraRect = useCallback(
     (width: number, height: number) => {
       const camera = cameraRef.current;
       if (camera === null || width <= 0 || height <= 0) {
         sampleCamReady.value = 0;
+        viewportCamReady.value = 0;
         return;
       }
 
       const sampleRect = getLensPointSampleRect({ x: 0, y: 0, width, height });
       if (sampleRect.size <= 0) {
         sampleCamReady.value = 0;
+        viewportCamReady.value = 0;
         return;
       }
 
@@ -116,12 +105,33 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
         sampleCamX2.value = corner2.x;
         sampleCamY2.value = corner2.y;
         sampleCamReady.value = 1;
+
+        const viewportCorner1 = camera.convertViewPointToCameraPoint({ x: 0, y: 0 });
+        const viewportCorner2 = camera.convertViewPointToCameraPoint({ x: width, y: height });
+        viewportCamX1.value = viewportCorner1.x;
+        viewportCamY1.value = viewportCorner1.y;
+        viewportCamX2.value = viewportCorner2.x;
+        viewportCamY2.value = viewportCorner2.y;
+        viewportCamReady.value = 1;
       } catch {
-        // Preview layer not ready yet — skip region sampling until it is.
+        // Preview layer not ready yet — skip sampling until it is.
         sampleCamReady.value = 0;
+        viewportCamReady.value = 0;
       }
     },
-    [cameraRef, sampleCamReady, sampleCamX1, sampleCamX2, sampleCamY1, sampleCamY2]
+    [
+      cameraRef,
+      sampleCamReady,
+      sampleCamX1,
+      sampleCamX2,
+      sampleCamY1,
+      sampleCamY2,
+      viewportCamReady,
+      viewportCamX1,
+      viewportCamX2,
+      viewportCamY1,
+      viewportCamY2,
+    ]
   );
 
   const handleSurfaceLayout = useCallback(
@@ -201,30 +211,30 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
   const onFrame = useCallback(
     (frame: Frame) => {
       'worklet';
-      // Dispose as soon as pixels are copied so MMCQ does not hold camera pool buffers.
-      let disposed = false;
       try {
         switch (colorLensMode) {
           case COLOR_LENS_MODE.LENS_DOMINANT:
+            // Gate before throttle so "preview not ready" frames don't consume the FPS budget.
+            if (viewportCamReady.value !== 1) {
+              break;
+            }
             if (!shouldRunAtTargetFps(COLOR_LENS_PALETTE_FPS_KEY, COLOR_LENS_PALETTE_TARGET_FPS)) {
               break;
             }
-            if (resizer === undefined) {
-              break;
-            }
             {
-              const gpuFrame = resizer.resize(frame);
-              frame.dispose();
-              disposed = true;
-              try {
-                getColorLensPaletteWorklet({
-                  pixels: gpuFrame.getPixelBuffer(),
-                  width: gpuFrame.width,
-                  height: gpuFrame.height,
-                });
-              } finally {
-                gpuFrame.dispose();
-              }
+              const framePoint1 = frame.convertCameraPointToFramePoint({
+                x: viewportCamX1.value,
+                y: viewportCamY1.value,
+              });
+              const framePoint2 = frame.convertCameraPointToFramePoint({
+                x: viewportCamX2.value,
+                y: viewportCamY2.value,
+              });
+              const left = Math.min(framePoint1.x, framePoint2.x);
+              const right = Math.max(framePoint1.x, framePoint2.x);
+              const top = Math.min(framePoint1.y, framePoint2.y);
+              const bottom = Math.max(framePoint1.y, framePoint2.y);
+              getColorLensPaletteWorklet(frame, { left, top, right, bottom });
             }
             break;
           case COLOR_LENS_MODE.LENS_POINT:
@@ -248,17 +258,7 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
               const right = Math.max(framePoint1.x, framePoint2.x);
               const top = Math.min(framePoint1.y, framePoint2.y);
               const bottom = Math.max(framePoint1.y, framePoint2.y);
-              const regionPixels = copyColorLensRegionWorklet(frame, {
-                left,
-                top,
-                right,
-                bottom,
-              });
-              frame.dispose();
-              disposed = true;
-              if (regionPixels !== null) {
-                applyColorLensRegionColorWorklet(regionPixels);
-              }
+              applyColorLensRegionWorklet(frame, { left, top, right, bottom });
             }
             break;
           case COLOR_LENS_MODE.DISABLED:
@@ -266,22 +266,23 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
             break;
         }
       } finally {
-        if (!disposed) {
-          frame.dispose();
-        }
+        frame.dispose();
       }
     },
     [
       colorLensMode,
-      resizer,
       getColorLensPaletteWorklet,
-      copyColorLensRegionWorklet,
-      applyColorLensRegionColorWorklet,
+      applyColorLensRegionWorklet,
       sampleCamReady,
       sampleCamX1,
       sampleCamY1,
       sampleCamX2,
       sampleCamY2,
+      viewportCamReady,
+      viewportCamX1,
+      viewportCamY1,
+      viewportCamX2,
+      viewportCamY2,
     ]
   );
 

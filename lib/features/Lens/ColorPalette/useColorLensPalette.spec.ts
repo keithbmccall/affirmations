@@ -1,11 +1,12 @@
 import { act, renderHook } from '@testing-library/react-native';
+import type { Frame } from 'react-native-vision-camera';
 
 import { COLOR_LENS_MODE } from './colorLensMode';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import { useColorLensPalette } from './useColorLensPalette';
 
 const mockGetColorLensPalette = jest.fn();
-const mockProcessor = { extractPalette: jest.fn() };
+const mockProcessor = { extractFramePalette: jest.fn() };
 
 jest.mock('expo-color-lens-frame-processor', () => ({
   getColorLensProcessor: () => mockProcessor,
@@ -15,10 +16,13 @@ jest.mock('./getColorLensPalette', () => ({
   getColorLensPalette: (...args: unknown[]) => mockGetColorLensPalette(...args),
 }));
 
+const mockFrame = {} as Frame;
+
 const paletteOptions = {
-  pixels: new ArrayBuffer(12),
-  width: 2,
-  height: 2,
+  left: 0,
+  top: 0,
+  right: 100,
+  bottom: 200,
 };
 
 const mockPalette = {
@@ -51,10 +55,14 @@ describe('useColorLensPalette', () => {
     const { result } = renderHook(() => useColorLensPalette());
 
     act(() => {
-      result.current.getColorLensPaletteWorklet(paletteOptions);
+      result.current.getColorLensPaletteWorklet(mockFrame, paletteOptions);
     });
 
-    expect(mockGetColorLensPalette).toHaveBeenCalledWith(mockProcessor, paletteOptions);
+    expect(mockGetColorLensPalette).toHaveBeenCalledWith(
+      mockProcessor,
+      mockFrame,
+      paletteOptions
+    );
     expect(result.current.palette.primaryColor.value).toBe(mockPalette.primary);
     expect(result.current.palette.detailColor.value).toBe(mockPalette.detail);
   });
@@ -65,10 +73,10 @@ describe('useColorLensPalette', () => {
     const { result } = renderHook(() => useColorLensPalette());
 
     act(() => {
-      result.current.getColorLensPaletteWorklet(paletteOptions);
+      result.current.getColorLensPaletteWorklet(mockFrame, paletteOptions);
     });
     act(() => {
-      result.current.getColorLensPaletteWorklet(paletteOptions);
+      result.current.getColorLensPaletteWorklet(mockFrame, paletteOptions);
     });
 
     expect(result.current.palette.primaryColor.value).toBe(mockPalette.primary);

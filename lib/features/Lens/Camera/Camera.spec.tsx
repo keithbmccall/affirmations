@@ -14,8 +14,7 @@ const mockOnUpdateLensPaletteNamedColors = jest.fn();
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
-const mockCopyColorLensRegionWorklet = jest.fn();
-const mockApplyColorLensRegionColorWorklet = jest.fn();
+const mockApplyColorLensRegionWorklet = jest.fn();
 const mockFetchColorNames = jest.fn((_hexes: string[]) =>
   Promise.resolve({ paletteTitle: 'Test', colors: [] })
 );
@@ -79,8 +78,7 @@ jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
 
 jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
   useColorLensRegion: () => ({
-    copyColorLensRegionWorklet: mockCopyColorLensRegionWorklet,
-    applyColorLensRegionColorWorklet: mockApplyColorLensRegionColorWorklet,
+    applyColorLensRegionWorklet: mockApplyColorLensRegionWorklet,
     regionColor: mockRegionColor,
   }),
 }));
@@ -157,21 +155,6 @@ jest.mock('@features/Lens/Obskura/pipeline/buildObskuraLensPaintFromPipeline', (
 
 jest.mock('@features/Lens/Obskura/pipeline/obskuraLensPipelineConfig', () => ({
   OBSKURA_LENS_PIPELINE: [{ action: 'blur', settings: { sigma: 60 } }],
-}));
-
-jest.mock('react-native-vision-camera-resizer', () => ({
-  useResizer: () => ({
-    state: 'ready' as const,
-    resizer: {
-      resize: jest.fn(() => ({
-        getPixelBuffer: () => new ArrayBuffer(12),
-        width: 2,
-        height: 2,
-        dispose: jest.fn(),
-      })),
-    },
-    error: undefined,
-  }),
 }));
 
 jest.mock('react-native-vision-camera', () => {

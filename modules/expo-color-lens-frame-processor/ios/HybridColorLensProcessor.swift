@@ -1,5 +1,4 @@
 import AVFoundation
-import CoreImage
 import Foundation
 import NitroModules
 import VisionCamera
@@ -10,26 +9,26 @@ private struct RGBTriplet {
   var b: Int
 }
 
-/// Nitro singleton — shared `pixelBuffer`, `bgraScratch`, and `histogram` are not safe under concurrent entry points.
+/// Nitro singleton — shared `pixelBuffer` and `histogram` are not safe under concurrent entry points.
 class HybridColorLensProcessor: HybridColorLensProcessorSpec {
-  private let context = CIContext(options: [
-    .useSoftwareRenderer: false,
-    .cacheIntermediates: false,
-    .highQualityDownsample: false,
-  ])
-
   private var lastPaletteProcessTime: TimeInterval = 0
   private var lastRegionProcessTime: TimeInterval = 0
   private let minProcessingInterval: TimeInterval = 0.05
 
-  private var paletteResultCache: [String: String] = [:]
   private var previousPaletteRGB: [String: RGBTriplet] = [:]
   private var previousRegionRGB: RGBTriplet?
 
-  /// Reused for MMCQ input and CI RGB pack output — sequential calls only.
+  // Fixed palette slots (avoids Dictionary allocs on the hot path).
+  private var cachedPrimary = ""
+  private var cachedSecondary = ""
+  private var cachedTertiary = ""
+  private var cachedQuaternary = ""
+  private var cachedQuinary = ""
+  private var cachedSenary = ""
+  private var hasCachedPalette = false
+
+  /// Reused for MMCQ input from the YUV sampler — sequential calls only.
   private var pixelBuffer: [UInt8] = []
-  /// CI BGRA8 staging for region crop — sequential calls only.
-  private var bgraScratch: [UInt8] = []
   private var histogram: [Int] = []
   private let maxImageSize: CGFloat = 128.0
   private static let defaultQuality = 15
@@ -38,120 +37,44 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
   private static let regionMaxColors = 2
   private let stabilityThreshold: Int = 900
 
+  private static let hexLookup: [String] = (0..<256).map { String(format: "%02X", $0) }
+
   var memorySize: Int {
-    pixelBuffer.count + bgraScratch.count + histogram.count * MemoryLayout<Int>.size
+    pixelBuffer.count + histogram.count * MemoryLayout<Int>.size
   }
 
   override init() {
     super.init()
-    paletteResultCache.reserveCapacity(8)
     previousPaletteRGB.reserveCapacity(8)
     let maxSide = Int(maxImageSize)
+    // Worst case: full maxSide×maxSide grid with quality 1.
     pixelBuffer.reserveCapacity(maxSide * maxSide * 3)
-    bgraScratch.reserveCapacity(maxSide * maxSide * 4)
     histogram = Array(repeating: 0, count: MMCQ.histogramSize)
   }
 
-  /// RGB interleaved uint8 pixels from vision-camera-resizer (already cover-cropped + upright).
-  func extractPalette(
-    pixels: ArrayBuffer,
-    width: Double,
-    height: Double
-  ) throws -> ColorLensPaletteResult? {
-    let currentTime = CACurrentMediaTime()
-    if currentTime - lastPaletteProcessTime < minProcessingInterval {
-      return cachedPaletteResult()
-    }
-    lastPaletteProcessTime = currentTime
-
-    let w = Int(width)
-    let h = Int(height)
-    let expectedSize = w * h * 3
-    guard w > 0, h > 0, pixels.size >= expectedSize else {
-      return cachedPaletteResult()
-    }
-
-    copyArrayBuffer(pixels, byteCount: expectedSize)
-
-    guard extractPaletteColorsUsingMMCQ() != nil else {
-      return cachedPaletteResult()
-    }
-
-    return cachedPaletteResult()
-  }
-
-  /// Axis-aligned rect in raw CVPixelBuffer pixel coordinates (top-left origin).
-  /// Returns owned RGB interleaved bytes (same layout as extractPalette) so the caller can dispose the Frame before MMCQ.
-  func copyRegion(
+  /// Axis-aligned rect in raw CVPixelBuffer pixel coordinates (top-left origin) → dominant hex.
+  func extractRegionColor(
     frame: any HybridFrameSpec,
     left: Double,
     top: Double,
     right: Double,
     bottom: Double
-  ) throws -> ColorLensRegionPixels? {
+  ) throws -> String? {
     let currentTime = CACurrentMediaTime()
     if currentTime - lastRegionProcessTime < minProcessingInterval {
-      return nil
+      return previousRegionRGB.map(formatHex)
     }
     lastRegionProcessTime = currentTime
 
-    guard let nativeFrame = frame as? any NativeFrame,
-          let sampleBuffer = nativeFrame.sampleBuffer,
-          let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-      return nil
-    }
-
-    let bufferWidth = CVPixelBufferGetWidth(imageBuffer)
-    let bufferHeight = CVPixelBufferGetHeight(imageBuffer)
-    let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-
-    guard let croppedImage = ColorLensImagePipeline.cropBufferRect(
-      on: ciImage,
+    guard sampleFrame(
+      frame: frame,
       left: left,
       top: top,
       right: right,
-      bottom: bottom,
-      bufferWidth: bufferWidth,
-      bufferHeight: bufferHeight
+      bottom: bottom
     ) else {
-      return nil
-    }
-
-    let downsampledImage = ColorLensImagePipeline.downsampleForMMCQ(
-      croppedImage,
-      maxSide: maxImageSize
-    )
-
-    guard let dimensions = renderRegionRGBToPixelBuffer(downsampledImage) else {
-      return nil
-    }
-
-    let byteCount = dimensions.width * dimensions.height * 3
-    let owningPixels = pixelBuffer.withUnsafeBufferPointer { buffer -> ArrayBuffer in
-      ArrayBuffer.copy(of: buffer.baseAddress!, size: byteCount)
-    }
-
-    return ColorLensRegionPixels(
-      pixels: owningPixels,
-      width: Double(dimensions.width),
-      height: Double(dimensions.height)
-    )
-  }
-
-  /// RGB interleaved uint8 pixels from `copyRegion` → dominant hex via the same MMCQ path as extractPalette.
-  func extractDominantColor(
-    pixels: ArrayBuffer,
-    width: Double,
-    height: Double
-  ) throws -> String? {
-    let w = Int(width)
-    let h = Int(height)
-    let expectedSize = w * h * 3
-    guard w > 0, h > 0, pixels.size >= expectedSize else {
       return previousRegionRGB.map(formatHex)
     }
-
-    copyArrayBuffer(pixels, byteCount: expectedSize)
 
     guard let dominantRGB = getDominantRGBFromPixelBuffer() else {
       return previousRegionRGB.map(formatHex)
@@ -160,123 +83,124 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
     return applyRegionTemporalSmoothing(dominantRGB)
   }
 
-  // MARK: - Buffer helpers
+  /// Axis-aligned rect in raw CVPixelBuffer pixel coordinates → 6-slot palette.
+  func extractFramePalette(
+    frame: any HybridFrameSpec,
+    left: Double,
+    top: Double,
+    right: Double,
+    bottom: Double
+  ) throws -> ColorLensPaletteResult? {
+    let currentTime = CACurrentMediaTime()
+    if currentTime - lastPaletteProcessTime < minProcessingInterval {
+      return cachedPaletteResult()
+    }
+    lastPaletteProcessTime = currentTime
 
-  private func copyArrayBuffer(_ buffer: ArrayBuffer, byteCount: Int) {
-    if pixelBuffer.count != byteCount {
-      pixelBuffer = Array(repeating: 0, count: byteCount)
+    guard sampleFrame(
+      frame: frame,
+      left: left,
+      top: top,
+      right: right,
+      bottom: bottom
+    ) else {
+      return cachedPaletteResult()
     }
-    pixelBuffer.withUnsafeMutableBufferPointer { dest in
-      guard let destBase = dest.baseAddress else { return }
-      memcpy(destBase, buffer.data, byteCount)
+
+    guard extractPaletteColorsUsingMMCQ() else {
+      return cachedPaletteResult()
     }
+
+    return cachedPaletteResult()
   }
 
-  /// CI renders BGRA8 into `bgraScratch`; pack to interleaved RGB in `pixelBuffer` for shared MMCQ.
+  // MARK: - YUV sample
+
   @discardableResult
-  private func renderRegionRGBToPixelBuffer(_ image: CIImage) -> (width: Int, height: Int)? {
-    let extent = image.extent
-    let width = Int(floor(extent.width))
-    let height = Int(floor(extent.height))
-    guard width > 0, height > 0 else { return nil }
-
-    let originAligned: CIImage
-    if extent.origin.x == 0, extent.origin.y == 0 {
-      originAligned = image
-    } else {
-      originAligned = image.transformed(
-        by: CGAffineTransform(translationX: -extent.origin.x, y: -extent.origin.y)
-      )
+  private func sampleFrame(
+    frame: any HybridFrameSpec,
+    left: Double,
+    top: Double,
+    right: Double,
+    bottom: Double
+  ) -> Bool {
+    guard let nativeFrame = frame as? any NativeFrame,
+          let sampleBuffer = nativeFrame.sampleBuffer,
+          let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+      return false
     }
 
-    let pixelCount = width * height
-    let bgraByteCount = pixelCount * 4
-    if bgraScratch.count != bgraByteCount {
-      bgraScratch = Array(repeating: 0, count: bgraByteCount)
-    }
-
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    bgraScratch.withUnsafeMutableBytes { rawBuffer in
-      guard let baseAddress = rawBuffer.baseAddress else { return }
-      context.render(
-        originAligned,
-        toBitmap: baseAddress,
-        rowBytes: width * 4,
-        bounds: CGRect(x: 0, y: 0, width: width, height: height),
-        format: .BGRA8,
-        colorSpace: colorSpace
-      )
-    }
-
-    let rgbCount = pixelCount * 3
-    if pixelBuffer.count != rgbCount {
-      pixelBuffer = Array(repeating: 0, count: rgbCount)
-    }
-
-    bgraScratch.withUnsafeBufferPointer { bgra in
-      pixelBuffer.withUnsafeMutableBufferPointer { rgb in
-        guard let bgraBase = bgra.baseAddress, let rgbBase = rgb.baseAddress else { return }
-        var rgbIndex = 0
-        for i in stride(from: 0, to: bgraByteCount, by: 4) {
-          rgbBase[rgbIndex] = bgraBase[i + 2]
-          rgbBase[rgbIndex + 1] = bgraBase[i + 1]
-          rgbBase[rgbIndex + 2] = bgraBase[i]
-          rgbIndex += 3
-        }
-      }
-    }
-    return (width, height)
+    return ColorLensYUVSampler.sampleRegion(
+      pixelBuffer: imageBuffer,
+      left: left,
+      top: top,
+      right: right,
+      bottom: bottom,
+      maxSide: maxImageSize,
+      quality: Self.defaultQuality,
+      rgbOut: &pixelBuffer
+    ) != nil
   }
 
   // MARK: - Palette MMCQ
 
   private func cachedPaletteResult() -> ColorLensPaletteResult? {
-    guard let primary = paletteResultCache["primary"] ?? previousPaletteRGB["primary"].map(formatHex),
-          let secondary = paletteResultCache["secondary"] ?? previousPaletteRGB["secondary"].map(formatHex),
-          let tertiary = paletteResultCache["tertiary"] ?? previousPaletteRGB["tertiary"].map(formatHex),
-          let quaternary = paletteResultCache["quaternary"] ?? previousPaletteRGB["quaternary"].map(formatHex),
-          let quinary = paletteResultCache["quinary"] ?? previousPaletteRGB["quinary"].map(formatHex),
-          let senary = paletteResultCache["senary"] ?? previousPaletteRGB["senary"].map(formatHex),
-          let background = paletteResultCache["background"] ?? previousPaletteRGB["background"].map(formatHex),
-          let detail = paletteResultCache["detail"] ?? previousPaletteRGB["detail"].map(formatHex) else {
-      return nil
+    guard hasCachedPalette else {
+      guard let primary = previousPaletteRGB["primary"].map(formatHex),
+            let secondary = previousPaletteRGB["secondary"].map(formatHex),
+            let tertiary = previousPaletteRGB["tertiary"].map(formatHex),
+            let quaternary = previousPaletteRGB["quaternary"].map(formatHex),
+            let quinary = previousPaletteRGB["quinary"].map(formatHex),
+            let senary = previousPaletteRGB["senary"].map(formatHex) else {
+        return nil
+      }
+      return ColorLensPaletteResult(
+        primary: primary,
+        secondary: secondary,
+        tertiary: tertiary,
+        quaternary: quaternary,
+        quinary: quinary,
+        senary: senary,
+        background: primary,
+        detail: secondary
+      )
     }
 
     return ColorLensPaletteResult(
-      primary: primary,
-      secondary: secondary,
-      tertiary: tertiary,
-      quaternary: quaternary,
-      quinary: quinary,
-      senary: senary,
-      background: background,
-      detail: detail
+      primary: cachedPrimary,
+      secondary: cachedSecondary,
+      tertiary: cachedTertiary,
+      quaternary: cachedQuaternary,
+      quinary: cachedQuinary,
+      senary: cachedSenary,
+      background: cachedPrimary,
+      detail: cachedSecondary
     )
   }
 
   private func getPaletteSwatches(maxColors: Int) -> [ColorLensSwatch]? {
-    let colorMap = MMCQ.quantizeOptimizedRGB(
-      &pixelBuffer,
-      &histogram,
-      quality: Self.defaultQuality,
-      ignoreWhite: Self.defaultIgnoreWhite,
-      maxColors: maxColors
-    )
+    let colorMap = pixelBuffer.withUnsafeBufferPointer { pixels in
+      MMCQ.quantizeOptimizedRGB(
+        pixels,
+        &histogram,
+        quality: 1,
+        ignoreWhite: Self.defaultIgnoreWhite,
+        maxColors: maxColors
+      )
+    }
     return colorMap?.makePalette()
   }
 
   @discardableResult
-  private func extractPaletteColorsUsingMMCQ() -> [String: String]? {
+  private func extractPaletteColorsUsingMMCQ() -> Bool {
     guard let palette = getPaletteSwatches(maxColors: Self.paletteMaxColors) else {
-      return nil
+      return false
     }
 
     let colorCount = min(palette.count, Self.paletteMaxColors)
     let fallbackRGB = palette.isEmpty
       ? RGBTriplet(r: 0, g: 0, b: 0)
       : rgbFromSwatch(palette[0])
-
-    paletteResultCache.removeAll(keepingCapacity: true)
 
     let slotRGBs: [RGBTriplet] = (0..<Self.paletteMaxColors).map { index in
       if index < colorCount {
@@ -286,18 +210,27 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
     }
 
     let slotKeys = ["primary", "secondary", "tertiary", "quaternary", "quinary", "senary"]
+    var hexes: [String] = []
+    hexes.reserveCapacity(Self.paletteMaxColors)
     for (index, key) in slotKeys.enumerated() {
       let smoothed = smoothRGB(slotRGBs[index], previous: previousPaletteRGB[key])
-      paletteResultCache[key] = formatHex(smoothed)
+      let hex = formatHex(smoothed)
+      hexes.append(hex)
       previousPaletteRGB[key] = smoothed
     }
 
-    paletteResultCache["background"] = paletteResultCache["primary"]!
-    paletteResultCache["detail"] = paletteResultCache["secondary"]!
+    cachedPrimary = hexes[0]
+    cachedSecondary = hexes[1]
+    cachedTertiary = hexes[2]
+    cachedQuaternary = hexes[3]
+    cachedQuinary = hexes[4]
+    cachedSenary = hexes[5]
+    hasCachedPalette = true
+
     previousPaletteRGB["background"] = previousPaletteRGB["primary"]
     previousPaletteRGB["detail"] = previousPaletteRGB["secondary"]
 
-    return paletteResultCache
+    return true
   }
 
   // MARK: - Region MMCQ
@@ -336,6 +269,9 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
   }
 
   private func formatHex(_ rgb: RGBTriplet) -> String {
-    String(format: "#%02X%02X%02X", rgb.r, rgb.g, rgb.b)
+    let r = min(max(rgb.r, 0), 255)
+    let g = min(max(rgb.g, 0), 255)
+    let b = min(max(rgb.b, 0), 255)
+    return "#" + Self.hexLookup[r] + Self.hexLookup[g] + Self.hexLookup[b]
   }
 }

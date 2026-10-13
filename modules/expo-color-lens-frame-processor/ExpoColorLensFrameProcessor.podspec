@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.name           = 'ExpoColorLensFrameProcessor'
   s.version        = package['version']
   s.summary        = 'VisionCamera v5 Nitro ColorLensProcessor'
-  s.description    = 'Nitro HybridObject for color-lens palette (RGB ArrayBuffer) and region (frame rect) MMCQ.'
+  s.description    = 'Nitro HybridObject for color-lens palette and region MMCQ via direct YUV sampling.'
   s.author         = ''
   s.homepage       = 'https://docs.expo.dev/modules/'
   s.license        = package['license']

@@ -28,7 +28,7 @@ export const useAnimatedColor = (color: SharedValue<string>, animationDuration: 
       animation.value = 0;
       animation.value = withTiming(1, {
         duration: animationDuration,
-        easing: Easing.in(Easing.cubic),
+        easing: Easing.out(Easing.cubic),
       });
     }
   );
