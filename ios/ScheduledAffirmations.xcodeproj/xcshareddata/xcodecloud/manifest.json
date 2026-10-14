@@ -1,0 +1,9 @@
+{
+  "id" : "cae8ee7f-9294-44b0-a545-328dad7cc451",
+  "targets" : [
+    {
+      "id" : "2D18870E-E93B-419E-A535-FB55D3A535A0",
+      "name" : "ScheduledAffirmations"
+    }
+  ]
+}
