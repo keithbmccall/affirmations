@@ -57,18 +57,29 @@ const CameraViewport = memo(function CameraViewport() {
 
 const CameraContent = memo(function CameraContent() {
   const insets = useSafeAreaInsets();
-  const { cameraRef, showPreview } = useCameraSurface();
+  const { cameraRef, showPreview, chromeBindings } = useCameraSurface();
   const { handleFocusTap } = useCameraFocus(cameraRef);
 
   const handleBackPress = useCallback(() => router.back(), []);
+
+  const handleViewportTap = useCallback(
+    (x: number, y: number) => {
+      if (chromeBindings?.isFrozen === true && chromeBindings.onFrozenTap !== undefined) {
+        chromeBindings.onFrozenTap(x, y);
+        return;
+      }
+      handleFocusTap(x, y);
+    },
+    [chromeBindings, handleFocusTap]
+  );
 
   const gesture = useMemo(
     /* istanbul ignore next -- Gesture onEnd + runOnJS not executed under Jest RNGH/Reanimated mocks */
     () =>
       Gesture.Tap().onEnd(({ x, y }) => {
-        runOnJS(handleFocusTap)(x, y);
+        runOnJS(handleViewportTap)(x, y);
       }),
-    [handleFocusTap]
+    [handleViewportTap]
   );
 
   const backButtonStyle = useMemo(() => [styles.backButton, { top: insets.top }], [insets.top]);

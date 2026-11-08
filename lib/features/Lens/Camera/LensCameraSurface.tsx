@@ -1,4 +1,5 @@
 import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
+import { useFrozenFrame } from '@features/Lens/Camera/FrozenFrame';
 import {
   COLOR_LENS_MODE,
   isColorLensActive,
@@ -13,8 +14,8 @@ import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
 import { useLens } from '@platform';
 import { globalStyles } from '@styles/globalStyles';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import { memo, useCallback, useEffect, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
   Camera as VisionCamera,
   useFrameOutput,
@@ -39,36 +40,32 @@ const getCaptureHexes = (context: LensPhotoCaptureContext): string[] =>
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
   const { cameraRef, showPreview, isActive, device, setChromeBindings } = useCameraSurface();
-  const photoOutput = usePhotoOutput();
+  // JPEG required — Skia MakeImageFromEncoded cannot decode iOS native HEIC.
+  const photoOutput = usePhotoOutput({
+    containerFormat: 'jpeg',
+    quality: 1,
+    qualityPrioritization: 'speed',
+  });
   const videoOutput = useVideoOutput({ enableAudio: true });
   const { onAddLensPalette } = useLens();
   const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
-  const { viewportCorners, updateViewportCameraRect } = useLensCameraSampleRects(cameraRef);
-
-  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
-  const [isFrozen, setIsFrozen] = useState(false);
-
-  const handleFreezeToggle = useCallback(() => {
-    setIsFrozen(prev => !prev);
-  }, []);
-
-  const handleSurfaceLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      const { width, height } = event.nativeEvent.layout;
-      setViewportSize({ width, height });
-      updateViewportCameraRect(width, height);
-    },
-    [updateViewportCameraRect]
-  );
+  const {
+    viewportCorners,
+    viewportWidth,
+    viewportHeight,
+    onViewportLayout,
+    syncViewportCameraRect,
+  } = useLensCameraSampleRects(cameraRef, { deviceId: device?.id });
+  const { isFrozen, onFreezeToggle, onFrozenTap, isCameraActiveGate, overlay } = useFrozenFrame({
+    photoOutput,
+    viewportWidth,
+    viewportHeight,
+  });
 
   const handlePreviewStarted = useCallback(() => {
-    updateViewportCameraRect(viewportSize.width, viewportSize.height);
-  }, [updateViewportCameraRect, viewportSize.height, viewportSize.width]);
-
-  useEffect(() => {
-    updateViewportCameraRect(viewportSize.width, viewportSize.height);
-  }, [device, updateViewportCameraRect, viewportSize.height, viewportSize.width]);
+    syncViewportCameraRect();
+  }, [syncViewportCameraRect]);
 
   const isColorLensModeActive = isColorLensActive(colorLensMode);
 
@@ -142,7 +139,8 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       colorAnimationDuration: COLOR_ANIMATION_DURATION,
       onColorLensModeToggle: handleColorLensModeToggle,
       isFrozen,
-      onFreezeToggle: handleFreezeToggle,
+      onFreezeToggle,
+      onFrozenTap: isFrozen ? onFrozenTap : undefined,
       photoOutput,
       videoOutput,
       enableVideoLongPress: !isColorLensModeActive,
@@ -154,7 +152,8 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       palette,
       handleColorLensModeToggle,
       isFrozen,
-      handleFreezeToggle,
+      onFreezeToggle,
+      onFrozenTap,
       photoOutput,
       videoOutput,
       isColorLensModeActive,
@@ -176,20 +175,21 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       testID="lens-camera-surface"
       collapsable={false}
       style={styles.surface}
-      onLayout={handleSurfaceLayout}
+      onLayout={onViewportLayout}
     >
       {showPreview && device !== undefined && (
         <VisionCamera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
           device={device}
-          isActive={isActive && !isFrozen}
+          isActive={isActive && isCameraActiveGate}
           outputs={outputs}
           constraints={CAMERA_CONSTRAINTS}
           resizeMode="cover"
           onPreviewStarted={handlePreviewStarted}
         />
       )}
+      {overlay}
     </View>
   );
 });

@@ -5,11 +5,16 @@ import {
 } from '../lensCameraCornerSharedValues';
 import { useSharedValue } from 'react-native-reanimated';
 import type { CameraRef } from 'react-native-vision-camera';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { LayoutChangeEvent } from 'react-native';
 
 export const useLensCameraSampleRects = (
-  cameraRef: React.RefObject<CameraRef | null>
+  cameraRef: React.RefObject<CameraRef | null>,
+  options?: { deviceId?: string }
 ) => {
+  const deviceId = options?.deviceId;
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+
   // Camera-space viewport corners for dominant cover-crop.
   const viewportCamX1 = useSharedValue(0);
   const viewportCamY1 = useSharedValue(0);
@@ -46,8 +51,8 @@ export const useLensCameraSampleRects = (
     ]
   );
 
-  const updateViewportCameraRect = useCallback(
-    (width: number, height: number) => {
+  const syncViewportCameraRect = useCallback(
+    (width: number = viewportSize.width, height: number = viewportSize.height) => {
       const camera = cameraRef.current;
       if (camera === null || width <= 0 || height <= 0) {
         clearLensCameraCorners(viewportCorners);
@@ -65,11 +70,27 @@ export const useLensCameraSampleRects = (
         clearLensCameraCorners(viewportCorners);
       }
     },
-    [cameraRef, viewportCorners]
+    [cameraRef, viewportCorners, viewportSize.height, viewportSize.width]
   );
+
+  const onViewportLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { width, height } = event.nativeEvent.layout;
+      setViewportSize({ width, height });
+      syncViewportCameraRect(width, height);
+    },
+    [syncViewportCameraRect]
+  );
+
+  useEffect(() => {
+    syncViewportCameraRect();
+  }, [deviceId, syncViewportCameraRect]);
 
   return {
     viewportCorners,
-    updateViewportCameraRect,
+    viewportWidth: viewportSize.width,
+    viewportHeight: viewportSize.height,
+    onViewportLayout,
+    syncViewportCameraRect,
   };
 };

@@ -27,8 +27,49 @@ let mockColorLensMode: ColorLensMode = COLOR_LENS_MODE.DISABLED;
 
 const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000 / COLOR_LENS_PALETTE_TARGET_FPS;
 
-const mockPhotoOutput = { id: 'photo' } as unknown as CameraPhotoOutput;
+const mockCapturePhotoToFile = jest.fn(() =>
+  Promise.resolve({ filePath: '/tmp/freeze.jpg' })
+);
+const mockPhotoOutput = {
+  id: 'photo',
+  capturePhotoToFile: mockCapturePhotoToFile,
+} as unknown as CameraPhotoOutput;
 const mockVideoOutput = { id: 'video' } as unknown as CameraVideoOutput;
+
+const mockLoadFrozenFramePixels = jest.fn(
+  async (_uri: string) => ({
+    width: 100,
+    height: 200,
+    pixels: new Uint8Array(100 * 200 * 4).fill(128),
+  })
+);
+const mockAverageHexFromRgbaPixels = jest.fn(
+  (
+    _pixels: Uint8Array,
+    _imageWidth: number,
+    _imageHeight: number,
+    _centerX: number,
+    _centerY: number
+  ) => '#AABBCC'
+);
+
+jest.mock('./FrozenFrame/sampleFrozenFrameColor', () => ({
+  loadFrozenFramePixels: (uri: string) => mockLoadFrozenFramePixels(uri),
+  averageHexFromRgbaPixels: (
+    pixels: Uint8Array,
+    imageWidth: number,
+    imageHeight: number,
+    centerX: number,
+    centerY: number
+  ) => mockAverageHexFromRgbaPixels(pixels, imageWidth, imageHeight, centerX, centerY),
+}));
+
+jest.mock('expo-image', () => ({
+  Image: (props: { testID?: string }) => {
+    const RN = jest.requireActual('react-native');
+    return <RN.View testID={props.testID ?? 'expo-image'} />;
+  },
+}));
 
 jest.mock('@platform', () => ({
   useLens: () => ({ onAddLensPalette: mockOnAddLensPalette }),
@@ -97,7 +138,8 @@ const latestChromeBindings = () => {
     videoOutput?: unknown;
     enableVideoLongPress?: boolean;
     isFrozen?: boolean;
-    onFreezeToggle?: () => void;
+    onFreezeToggle?: () => void | Promise<void>;
+    onFrozenTap?: (x: number, y: number) => void;
   };
 };
 
@@ -168,6 +210,13 @@ describe('LensCameraSurface', () => {
     jest.spyOn(performance, 'now').mockReturnValue(10_000);
     jest.clearAllMocks();
     mockSetChromeBindings.mockClear();
+    mockCapturePhotoToFile.mockResolvedValue({ filePath: '/tmp/freeze.jpg' });
+    mockLoadFrozenFramePixels.mockResolvedValue({
+      width: 100,
+      height: 200,
+      pixels: new Uint8Array(100 * 200 * 4).fill(128),
+    });
+    mockAverageHexFromRgbaPixels.mockReturnValue('#AABBCC');
   });
 
   afterEach(() => {
@@ -218,37 +267,66 @@ describe('LensCameraSurface', () => {
     expect(lastCameraProps?.isActive).toBe(false);
   });
 
-  it('registers freeze chrome bindings and gates isActive when frozen', () => {
-    renderLensSurface();
+  it('registers freeze chrome bindings and gates isActive when frozen', async () => {
+    const surface = renderLensSurface();
 
     const bindings = latestChromeBindings();
     expect(bindings?.isFrozen).toBe(false);
     expect(bindings?.onFreezeToggle).toEqual(expect.any(Function));
+    expect(bindings?.onFrozenTap).toBeUndefined();
     expect(lastCameraProps?.isActive).toBe(true);
 
-    act(() => {
-      bindings?.onFreezeToggle?.();
+    await act(async () => {
+      await bindings?.onFreezeToggle?.();
     });
 
+    expect(mockCapturePhotoToFile).toHaveBeenCalled();
+    expect(mockLoadFrozenFramePixels).toHaveBeenCalledWith('file:///tmp/freeze.jpg');
     expect(latestChromeBindings()?.isFrozen).toBe(true);
+    expect(latestChromeBindings()?.onFrozenTap).toEqual(expect.any(Function));
     expect(lastCameraProps?.isActive).toBe(false);
+    expect(surface.getByTestId('lens-freeze-frame-overlay')).toBeTruthy();
 
-    act(() => {
-      latestChromeBindings()?.onFreezeToggle?.();
+    await act(async () => {
+      await latestChromeBindings()?.onFreezeToggle?.();
     });
 
     expect(latestChromeBindings()?.isFrozen).toBe(false);
+    expect(latestChromeBindings()?.onFrozenTap).toBeUndefined();
     expect(lastCameraProps?.isActive).toBe(true);
+    expect(surface.queryByTestId('lens-freeze-frame-overlay')).toBeNull();
   });
 
-  it('keeps isActive false when frozen while the session is inactive', () => {
+  it('keeps isActive false when frozen while the session is inactive', async () => {
     renderLensSurface({ isActive: false });
 
-    act(() => {
-      latestChromeBindings()?.onFreezeToggle?.();
+    await act(async () => {
+      await latestChromeBindings()?.onFreezeToggle?.();
     });
 
     expect(lastCameraProps?.isActive).toBe(false);
+  });
+
+  it('samples a frozen tap into the temporary color indicator', async () => {
+    const surface = renderLensSurface();
+    layoutViewport(surface);
+
+    await act(async () => {
+      await latestChromeBindings()?.onFreezeToggle?.();
+    });
+
+    act(() => {
+      latestChromeBindings()?.onFrozenTap?.(120, 240);
+    });
+
+    expect(mockAverageHexFromRgbaPixels).toHaveBeenCalled();
+    expect(surface.getByTestId('lens-frozen-tap-color-indicator')).toBeTruthy();
+
+    await act(async () => {
+      await latestChromeBindings()?.onFreezeToggle?.();
+    });
+
+    expect(surface.queryByTestId('lens-frozen-tap-color-indicator')).toBeNull();
   });
 
   it('updates sample camera rect on surface layout', () => {

@@ -69,6 +69,15 @@ jest.mock('@components/shared/icon-symbol/IconSymbol', () => ({
   },
 }));
 
+jest.mock('@shopify/react-native-skia', () => ({
+  AlphaType: { Unpremul: 3 },
+  ColorType: { RGBA_8888: 4 },
+  Skia: {
+    Data: { fromURI: jest.fn() },
+    Image: { MakeImageFromEncoded: jest.fn() },
+  },
+}));
+
 const mockCapturePhotoToFile = jest.fn(() =>
   Promise.resolve({ filePath: '/tmp/photo.jpg' })
 );

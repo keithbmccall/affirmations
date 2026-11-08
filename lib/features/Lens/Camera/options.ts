@@ -63,17 +63,6 @@ export const CAMERA_VIEW_MODE = {
   OBSKURA: 'obskura',
 } as const;
 
-// Freeze modes (preview + color sampling)
-export const FREEZE_MODE = {
-  OFF: ['off', 'pause.fill'],
-  ON: ['on', 'play.fill'],
-} as const;
-export const freezeModeOptions = Object.keys(FREEZE_MODE).map(key => ({
-  label: key,
-  icon: FREEZE_MODE[key as keyof typeof FREEZE_MODE][1],
-  value: FREEZE_MODE[key as keyof typeof FREEZE_MODE][0],
-}));
-
 // Type aliases
 export type CameraMode = (typeof CAMERA_MODE)[keyof typeof CAMERA_MODE];
 export type FlashMode = (typeof FLASH_MODE)[keyof typeof FLASH_MODE];
@@ -81,4 +70,3 @@ export type GridMode = (typeof GRID_MODE)[keyof typeof GRID_MODE];
 export type TimerMode = (typeof TIMER_MODE)[keyof typeof TIMER_MODE];
 export type CameraPosition = (typeof CAMERA_POSITION)[keyof typeof CAMERA_POSITION];
 export type CameraViewMode = (typeof CAMERA_VIEW_MODE)[keyof typeof CAMERA_VIEW_MODE];
-export type FreezeMode = (typeof FREEZE_MODE)[keyof typeof FREEZE_MODE];

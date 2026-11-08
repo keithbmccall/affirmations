@@ -113,6 +113,15 @@ jest.mock('expo-image', () => ({
   },
 }));
 
+jest.mock('./FrozenFrame/sampleFrozenFrameColor', () => ({
+  loadFrozenFramePixels: jest.fn(async () => ({
+    width: 100,
+    height: 200,
+    pixels: new Uint8Array(100 * 200 * 4).fill(128),
+  })),
+  averageHexFromRgbaPixels: jest.fn(() => '#AABBCC'),
+}));
+
 const mockCapturePhotoToFile = jest.fn(() =>
   Promise.resolve({ filePath: '/tmp/photo.jpg' })
 );
@@ -227,8 +236,10 @@ jest.mock('@features/Lens/Camera/hooks/useCameraRoll', () => ({
   useCameraRoll: () => mockUseCameraRollImpl(),
 }));
 
+const mockHandleFocusTap = jest.fn();
+
 jest.mock('@features/Lens/Camera/hooks/useCameraFocus', () => ({
-  useCameraFocus: () => ({ handleFocusTap: jest.fn() }),
+  useCameraFocus: () => ({ handleFocusTap: mockHandleFocusTap }),
 }));
 
 let mockFocusCleanup: (() => void) | undefined;
@@ -279,6 +290,7 @@ describe('Camera', () => {
   beforeEach(() => {
     alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
     jest.clearAllMocks();
+    mockHandleFocusTap.mockClear();
     mockUseCameraRollImpl.mockImplementation(() => ({
       animatedPhotoStyle: {},
       handleCameraRollPress: mockHandleCameraRollPress,
@@ -381,6 +393,8 @@ describe('Camera', () => {
 
     expect(await screen.findByTestId('icon-play.fill')).toBeTruthy();
     expect(screen.queryByTestId('icon-pause.fill')).toBeNull();
+    expect(await screen.findByTestId('lens-freeze-frame-overlay')).toBeTruthy();
+    expect(mockCapturePhotoToFile).toHaveBeenCalled();
   });
 
   it('replaces freeze control with a spacer in Obskura mode', async () => {
@@ -392,6 +406,14 @@ describe('Camera', () => {
 
     expect(await screen.findByTestId('lens-freeze-frame-spacer')).toBeTruthy();
     expect(screen.queryByTestId('lens-toggle-freeze-frame')).toBeNull();
+  });
+
+  it('does not call focus while freezing the frame', async () => {
+    renderCamera(<Camera />);
+
+    fireEvent.press(await screen.findByTestId('lens-toggle-freeze-frame'));
+    expect(await screen.findByTestId('lens-freeze-frame-overlay')).toBeTruthy();
+    expect(mockHandleFocusTap).not.toHaveBeenCalled();
   });
 
   it('toggles grid overlay', async () => {

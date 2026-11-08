@@ -4,7 +4,8 @@ import { createCameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhot
 import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead';
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
 import { useCameraRoll } from '@features/Lens/Camera/hooks/useCameraRoll';
-import { flashModeOptions, freezeModeOptions } from '@features/Lens/Camera/options';
+import { freezeModeOptions } from '@features/Lens/Camera/FrozenFrame';
+import { flashModeOptions } from '@features/Lens/Camera/options';
 import type { LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
