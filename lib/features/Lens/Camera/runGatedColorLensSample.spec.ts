@@ -12,6 +12,29 @@ const createMockFrame = (): Frame =>
     dispose: jest.fn(),
   }) as unknown as Frame;
 
+const createCornerOptions = (
+  overrides: Partial<{
+    ready: SharedValue<number>;
+    fpsKey: string;
+    targetFps: number;
+    apply: jest.Mock;
+  }> = {}
+) => ({
+  ready: createSharedNumber(1),
+  x1: createSharedNumber(10),
+  y1: createSharedNumber(20),
+  x2: createSharedNumber(100),
+  y2: createSharedNumber(20),
+  x3: createSharedNumber(100),
+  y3: createSharedNumber(80),
+  x4: createSharedNumber(10),
+  y4: createSharedNumber(80),
+  fpsKey: 'test-gated',
+  targetFps: 1,
+  apply: jest.fn(),
+  ...overrides,
+});
+
 describe('runGatedColorLensSample', () => {
   beforeEach(() => {
     global.__frameProcessorRunAtTargetFpsMap = undefined;
@@ -24,32 +47,17 @@ describe('runGatedColorLensSample', () => {
 
   it('skips apply when ready is not 1', () => {
     const apply = jest.fn();
-    runGatedColorLensSample(createMockFrame(), {
-      ready: createSharedNumber(0),
-      x1: createSharedNumber(0),
-      y1: createSharedNumber(0),
-      x2: createSharedNumber(10),
-      y2: createSharedNumber(20),
-      fpsKey: 'test-gated',
-      targetFps: 1,
-      apply,
-    });
+    runGatedColorLensSample(
+      createMockFrame(),
+      createCornerOptions({ ready: createSharedNumber(0), apply })
+    );
     expect(apply).not.toHaveBeenCalled();
   });
 
-  it('applies frame bounds when ready and FPS allows', () => {
+  it('applies frame bounds from all four corners when ready and FPS allows', () => {
     const apply = jest.fn();
     const frame = createMockFrame();
-    runGatedColorLensSample(frame, {
-      ready: createSharedNumber(1),
-      x1: createSharedNumber(10),
-      y1: createSharedNumber(20),
-      x2: createSharedNumber(100),
-      y2: createSharedNumber(80),
-      fpsKey: 'test-gated',
-      targetFps: 1,
-      apply,
-    });
+    runGatedColorLensSample(frame, createCornerOptions({ apply }));
     expect(apply).toHaveBeenCalledWith(frame, {
       left: 10,
       top: 20,
@@ -60,16 +68,7 @@ describe('runGatedColorLensSample', () => {
 
   it('skips apply when FPS throttle denies the call', () => {
     const apply = jest.fn();
-    const options = {
-      ready: createSharedNumber(1),
-      x1: createSharedNumber(0),
-      y1: createSharedNumber(0),
-      x2: createSharedNumber(1),
-      y2: createSharedNumber(1),
-      fpsKey: 'test-gated',
-      targetFps: 1,
-      apply,
-    };
+    const options = createCornerOptions({ apply });
 
     runGatedColorLensSample(createMockFrame(), options);
     expect(apply).toHaveBeenCalledTimes(1);

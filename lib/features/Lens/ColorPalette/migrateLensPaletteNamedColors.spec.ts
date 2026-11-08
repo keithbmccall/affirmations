@@ -21,6 +21,7 @@ jest.mock('@storage/storage', () => ({
 
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import type { LensPalettesMap } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { StorageDevice } from '@storage/storage';
 import {
   lensNamedColorNeedsEnrichment,
@@ -90,7 +91,7 @@ describe('migrateLensPaletteNamedColors', () => {
         id: 'asset-1',
         uri: 'file:///a.jpg',
         mediaType: 'photo',
-        type: COLOR_LENS_MODE.LENS_POINT,
+        type: LENS_PALETTE_TYPE.POINT,
         lensPointColor: {
           hex: '#AABBCC',
           name: 'Ice',
@@ -129,14 +130,14 @@ describe('migrateLensPaletteNamedColors', () => {
         id: 'asset-1',
         uri: 'file:///a.jpg',
         mediaType: 'photo',
-        type: COLOR_LENS_MODE.LENS_POINT,
+        type: LENS_PALETTE_TYPE.POINT,
         lensPointColor: { hex: '#AABBCC' },
       },
       'asset-2': {
         id: 'asset-2',
         uri: 'file:///b.jpg',
         mediaType: 'photo',
-        type: COLOR_LENS_MODE.LENS_POINT,
+        type: LENS_PALETTE_TYPE.POINT,
         lensPointColor: { hex: '#AABBCC' },
       },
     };
@@ -179,7 +180,7 @@ describe('migrateLensPaletteNamedColors', () => {
         id: 'asset-1',
         uri: 'file:///a.jpg',
         mediaType: 'photo',
-        type: COLOR_LENS_MODE.LENS_POINT,
+        type: LENS_PALETTE_TYPE.POINT,
         lensPointColor: { hex: '#AABBCC' },
       },
     };

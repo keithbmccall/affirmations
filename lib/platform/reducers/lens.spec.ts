@@ -1,5 +1,6 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import type { Action } from '../actions';
 import { initialState } from '../state';
 import { lensReducer } from './lens';
@@ -8,7 +9,7 @@ const palette: LensPalette = {
   id: 'asset-1',
   uri: 'file:///asset-1.jpg',
   mediaType: 'photo',
-  type: COLOR_LENS_MODE.LENS_POINT,
+  type: LENS_PALETTE_TYPE.POINT,
   lensPointColor: { hex: '#AABBCC' },
 };
 

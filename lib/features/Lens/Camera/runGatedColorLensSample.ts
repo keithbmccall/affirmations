@@ -13,6 +13,10 @@ export interface RunGatedColorLensSampleOptions {
   y1: SharedValue<number>;
   x2: SharedValue<number>;
   y2: SharedValue<number>;
+  x3: SharedValue<number>;
+  y3: SharedValue<number>;
+  x4: SharedValue<number>;
+  y4: SharedValue<number>;
   fpsKey: string;
   targetFps: number;
   apply: (frame: Frame, bounds: FrameBounds) => void;
@@ -39,7 +43,9 @@ export function runGatedColorLensSample(
     frameBoundsFromCameraCorners(
       frame,
       { x: options.x1.value, y: options.y1.value },
-      { x: options.x2.value, y: options.y2.value }
+      { x: options.x2.value, y: options.y2.value },
+      { x: options.x3.value, y: options.y3.value },
+      { x: options.x4.value, y: options.y4.value }
     )
   );
 }

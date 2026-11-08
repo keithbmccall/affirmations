@@ -113,4 +113,6 @@ export const iconMapping = {
   'stopwatch.fill': 'timer',
   hourglass: 'hourglass-empty',
   'clock.arrow.circlepath': 'schedule',
+  'pause.fill': 'pause',
+  'play.fill': 'play-arrow',
 } as const;

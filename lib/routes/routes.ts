@@ -61,7 +61,7 @@ export const Routes: RoutesStructure = {
       name: 'lens-camera-roll-modal',
       title: 'Camera Roll',
       icon: 'photo.fill',
-      routePathname: '/(modals)/lens-camera-roll-modal',
+      routePathname: '/(modals)/lens-camera-roll-modal/camera-roll',
     },
   },
   subRoutes: {

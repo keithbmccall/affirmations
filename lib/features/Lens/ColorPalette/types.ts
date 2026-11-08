@@ -1,5 +1,11 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 
+/** Stored palette kinds (includes historical lens-point entries; not a live camera mode). */
+export const LENS_PALETTE_TYPE = {
+  DOMINANT: COLOR_LENS_MODE.LENS_DOMINANT,
+  POINT: 'lens-point',
+} as const;
+
 export type LensNamedColor = {
   /** The color sampled from the photo; never a matcher’s replacement swatch. */
   hex: string;
@@ -28,12 +34,12 @@ export type LensPaletteBase = {
 };
 
 export type LensDominantPalette = LensPaletteBase & {
-  type: typeof COLOR_LENS_MODE.LENS_DOMINANT;
+  type: typeof LENS_PALETTE_TYPE.DOMINANT;
   palette: LensDominantPaletteColors;
 };
 
 export type LensPointPalette = LensPaletteBase & {
-  type: typeof COLOR_LENS_MODE.LENS_POINT;
+  type: typeof LENS_PALETTE_TYPE.POINT;
   lensPointColor: LensNamedColor;
 };
 
@@ -41,26 +47,21 @@ export type LensPalette = LensDominantPalette | LensPointPalette;
 
 export type LensPalettesMap = Record<LensPalette['id'], LensPalette>;
 
-export type LensPhotoCaptureContext =
-  | {
-      type: typeof COLOR_LENS_MODE.LENS_DOMINANT;
-      paletteSnapshot: Record<keyof LensDominantPaletteColors, string>;
-    }
-  | {
-      type: typeof COLOR_LENS_MODE.LENS_POINT;
-      lensPointColor: string;
-    };
+export type LensPhotoCaptureContext = {
+  type: typeof LENS_PALETTE_TYPE.DOMINANT;
+  paletteSnapshot: Record<keyof LensDominantPaletteColors, string>;
+};
 
 export type InspectionAsset = LensPaletteBase & {
   height: number;
   width: number;
 } & (
     | {
-        type: typeof COLOR_LENS_MODE.LENS_DOMINANT;
+        type: typeof LENS_PALETTE_TYPE.DOMINANT;
         palette: LensDominantPaletteColors;
       }
     | {
-        type: typeof COLOR_LENS_MODE.LENS_POINT;
+        type: typeof LENS_PALETTE_TYPE.POINT;
         lensPointColor: LensNamedColor;
       }
     | {
@@ -69,3 +70,4 @@ export type InspectionAsset = LensPaletteBase & {
         lensPointColor?: LensNamedColor;
       }
   );
+

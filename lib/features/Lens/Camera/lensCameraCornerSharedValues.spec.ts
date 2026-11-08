@@ -15,6 +15,10 @@ const createCorners = (): LensCameraCornerSharedValues => ({
   y1: createSharedNumber(0),
   x2: createSharedNumber(0),
   y2: createSharedNumber(0),
+  x3: createSharedNumber(0),
+  y3: createSharedNumber(0),
+  x4: createSharedNumber(0),
+  y4: createSharedNumber(0),
   ready: createSharedNumber(1),
 });
 
@@ -27,7 +31,7 @@ describe('clearLensCameraCorners', () => {
 });
 
 describe('writeViewRectToCameraCorners', () => {
-  it('writes converted camera corners and marks ready', () => {
+  it('writes all four converted camera corners and marks ready', () => {
     const camera = {
       convertViewPointToCameraPoint: ({ x, y }: { x: number; y: number }) => ({
         x: x + 1,
@@ -46,11 +50,15 @@ describe('writeViewRectToCameraCorners', () => {
     expect(corners.x1.value).toBe(11);
     expect(corners.y1.value).toBe(22);
     expect(corners.x2.value).toBe(101);
-    expect(corners.y2.value).toBe(82);
+    expect(corners.y2.value).toBe(22);
+    expect(corners.x3.value).toBe(101);
+    expect(corners.y3.value).toBe(82);
+    expect(corners.x4.value).toBe(11);
+    expect(corners.y4.value).toBe(82);
     expect(corners.ready.value).toBe(1);
   });
 
-  it('invokes convertViewPointToCameraPoint for both view corners', () => {
+  it('invokes convertViewPointToCameraPoint for all four view corners', () => {
     const convertViewPointToCameraPoint = jest.fn(({ x, y }: { x: number; y: number }) => ({
       x,
       y,
@@ -64,8 +72,10 @@ describe('writeViewRectToCameraCorners', () => {
       corners
     );
 
-    expect(convertViewPointToCameraPoint).toHaveBeenCalledTimes(2);
+    expect(convertViewPointToCameraPoint).toHaveBeenCalledTimes(4);
     expect(convertViewPointToCameraPoint).toHaveBeenNthCalledWith(1, { x: 1, y: 2 });
-    expect(convertViewPointToCameraPoint).toHaveBeenNthCalledWith(2, { x: 3, y: 4 });
+    expect(convertViewPointToCameraPoint).toHaveBeenNthCalledWith(2, { x: 3, y: 2 });
+    expect(convertViewPointToCameraPoint).toHaveBeenNthCalledWith(3, { x: 3, y: 4 });
+    expect(convertViewPointToCameraPoint).toHaveBeenNthCalledWith(4, { x: 1, y: 4 });
   });
 });

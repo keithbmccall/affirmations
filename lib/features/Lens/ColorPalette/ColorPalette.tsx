@@ -1,10 +1,10 @@
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { useAnimatedColor } from './useAnimatedColor';
 import { lensPaletteConfig } from './lensPaletteConfig';
+import { useAnimatedColor } from './useAnimatedColor';
 import { useColorLensPalette } from './useColorLensPalette';
 
 type ColorSwatchProps = {
@@ -57,8 +57,8 @@ export const ColorPalette = memo(function ColorPalette({
 const styles = StyleSheet.create({
   tile: {
     padding: 3,
-    minWidth: 35,
-    minHeight: 35,
+    minWidth: 25,
+    minHeight: 25,
     borderRadius: spacing.sm,
   },
   colorPaletteGrid: {
@@ -66,6 +66,6 @@ const styles = StyleSheet.create({
     ...globalStyles.alignCenter,
     paddingHorizontal: spacing.xs,
     paddingBottom: spacing.xs,
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
 });

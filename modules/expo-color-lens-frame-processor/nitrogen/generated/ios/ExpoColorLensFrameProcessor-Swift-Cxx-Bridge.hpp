@@ -37,33 +37,6 @@ namespace VisionCamera { class HybridFrameSpec_cxx; }
  */
 namespace margelo::nitro::colorlens::bridge::swift {
 
-  // pragma MARK: std::optional<std::string>
-  /**
-   * Specialized version of `std::optional<std::string>`.
-   */
-  using std__optional_std__string_ = std::optional<std::string>;
-  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) noexcept {
-    return std::optional<std::string>(value);
-  }
-  inline bool has_value_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>
-  /**
-   * Specialized version of `std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>`.
-   */
-  using std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_ = std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>;
-  std::shared_ptr<margelo::nitro::camera::HybridFrameSpec> create_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
-  void* NON_NULL get_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_ cppType);
-  
-  // pragma MARK: std::weak_ptr<margelo::nitro::camera::HybridFrameSpec>
-  using std__weak_ptr_margelo__nitro__camera__HybridFrameSpec_ = std::weak_ptr<margelo::nitro::camera::HybridFrameSpec>;
-  inline std__weak_ptr_margelo__nitro__camera__HybridFrameSpec_ weakify_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& strong) noexcept { return strong; }
-  
   // pragma MARK: std::optional<ColorLensPaletteResult>
   /**
    * Specialized version of `std::optional<ColorLensPaletteResult>`.
@@ -79,6 +52,18 @@ namespace margelo::nitro::colorlens::bridge::swift {
     return optional.value();
   }
   
+  // pragma MARK: std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>
+  /**
+   * Specialized version of `std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>`.
+   */
+  using std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_ = std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>;
+  std::shared_ptr<margelo::nitro::camera::HybridFrameSpec> create_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<margelo::nitro::camera::HybridFrameSpec>
+  using std__weak_ptr_margelo__nitro__camera__HybridFrameSpec_ = std::weak_ptr<margelo::nitro::camera::HybridFrameSpec>;
+  inline std__weak_ptr_margelo__nitro__camera__HybridFrameSpec_ weakify_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& strong) noexcept { return strong; }
+  
   // pragma MARK: std::shared_ptr<HybridColorLensProcessorSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridColorLensProcessorSpec>`.
@@ -90,15 +75,6 @@ namespace margelo::nitro::colorlens::bridge::swift {
   // pragma MARK: std::weak_ptr<HybridColorLensProcessorSpec>
   using std__weak_ptr_HybridColorLensProcessorSpec_ = std::weak_ptr<HybridColorLensProcessorSpec>;
   inline std__weak_ptr_HybridColorLensProcessorSpec_ weakify_std__shared_ptr_HybridColorLensProcessorSpec_(const std::shared_ptr<HybridColorLensProcessorSpec>& strong) noexcept { return strong; }
-  
-  // pragma MARK: Result<std::optional<std::string>>
-  using Result_std__optional_std__string__ = Result<std::optional<std::string>>;
-  inline Result_std__optional_std__string__ create_Result_std__optional_std__string__(const std::optional<std::string>& value) noexcept {
-    return Result<std::optional<std::string>>::withValue(value);
-  }
-  inline Result_std__optional_std__string__ create_Result_std__optional_std__string__(const std::exception_ptr& error) noexcept {
-    return Result<std::optional<std::string>>::withError(error);
-  }
   
   // pragma MARK: Result<std::optional<ColorLensPaletteResult>>
   using Result_std__optional_ColorLensPaletteResult__ = Result<std::optional<ColorLensPaletteResult>>;

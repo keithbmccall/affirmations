@@ -9,11 +9,11 @@ import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPal
 import { OBSKURA_COLOR_MODE, type ObskuraColorMode } from '@features/Lens/Obskura/options';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
+import { spacing } from '@styles/spacing';
 import { memo, useMemo } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCameraSurface } from './CameraSurfaceContext';
-import { cameraTopControlsStyles as styles } from './cameraTopControlsStyles';
 import {
   CAMERA_VIEW_MODE,
   cameraDeviceOptions,
@@ -22,6 +22,7 @@ import {
 } from './options';
 
 interface CameraTopControlsProps {
+  isFrozen?: boolean;
   colorLensMode?: ColorLensMode;
   palette?: ReturnType<typeof useColorLensPalette>['palette'];
   colorAnimationDuration?: number;
@@ -31,6 +32,7 @@ interface CameraTopControlsProps {
 }
 
 export const CameraTopControls = memo(function CameraTopControls({
+  isFrozen = false,
   colorLensMode,
   palette,
   colorAnimationDuration,
@@ -50,70 +52,87 @@ export const CameraTopControls = memo(function CameraTopControls({
     onCameraDeviceToggle,
   } = useCameraSurface();
   const showCameraDeviceToggle = cameraDeviceOptions.length > 1;
-  const showColorLensControls =
-    colorLensMode !== undefined && onColorLensModeToggle !== undefined;
+  const showColorLensControls = colorLensMode !== undefined && onColorLensModeToggle !== undefined;
   const showObskuraColorModeControls =
     obskuraColorMode !== undefined && onObskuraColorModeToggle !== undefined;
-  const viewModeIcon =
-    cameraViewMode === CAMERA_VIEW_MODE.OBSKURA ? 'camera.fill' : 'drop.fill';
+  const viewModeIcon = cameraViewMode === CAMERA_VIEW_MODE.OBSKURA ? 'camera.fill' : 'drop.fill';
+  const iconColor = isFrozen ? (colors.gray[400] as string) : colors.human.white;
+  const buttonStyle = useMemo(
+    () => [styles.topButton, isFrozen && styles.topButtonDisabled],
+    [isFrozen]
+  );
 
   const containerStyle = useMemo(
-    () => [styles.topControls, { top: insets.top + 60 }],
+    () => [styles.topControls, { top: insets.top + 40 }],
     [insets.top]
   );
 
   return (
-    <View style={containerStyle}>
+    <View
+      style={containerStyle}
+      // Swallow taps on the chrome column so they never reach the viewport freeze/focus gesture.
+      onStartShouldSetResponder={() => true}
+    >
       <TouchableOpacity
         testID="lens-control-view-mode"
-        style={styles.topButton}
+        style={buttonStyle}
         onPress={onViewModeToggle}
+        disabled={isFrozen}
+        accessibilityState={{ disabled: isFrozen }}
+      >
+        <IconSymbol size={globalStyles.symbolSize} color={iconColor} name={viewModeIcon} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        testID="lens-control-grid"
+        style={buttonStyle}
+        onPress={onGridToggle}
+        disabled={isFrozen}
+        accessibilityState={{ disabled: isFrozen }}
       >
         <IconSymbol
           size={globalStyles.symbolSize}
-          color={colors.human.white}
-          name={viewModeIcon}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity testID="lens-control-grid" style={styles.topButton} onPress={onGridToggle}>
-        <IconSymbol
-          size={globalStyles.symbolSize}
-          color={colors.human.white}
+          color={iconColor}
           name={gridModeOptions[gridMode].icon}
         />
       </TouchableOpacity>
       <TouchableOpacity
         testID="lens-control-flash"
-        style={styles.topButton}
+        style={buttonStyle}
         onPress={onFlashToggle}
+        disabled={isFrozen}
+        accessibilityState={{ disabled: isFrozen }}
       >
         <IconSymbol
           size={globalStyles.symbolSize}
-          color={colors.human.white}
+          color={iconColor}
           name={flashModeOptions[flashMode].icon}
         />
       </TouchableOpacity>
       <TouchableOpacity
         testID="lens-control-flip-camera"
-        style={styles.topButton}
+        style={buttonStyle}
         onPress={onSwitchCameraToggle}
+        disabled={isFrozen}
+        accessibilityState={{ disabled: isFrozen }}
       >
         <IconSymbol
           size={globalStyles.symbolSize}
-          color={colors.human.white}
+          color={iconColor}
           name="arrow.trianglehead.2.clockwise.rotate.90.circle"
         />
       </TouchableOpacity>
       {showCameraDeviceToggle && (
         <TouchableOpacity
           testID="lens-control-lens-device"
-          style={styles.topButton}
+          style={buttonStyle}
           onPress={onCameraDeviceToggle}
+          disabled={isFrozen}
+          accessibilityState={{ disabled: isFrozen }}
           accessibilityLabel="Switch lens configuration"
         >
           <IconSymbol
             size={globalStyles.symbolSize}
-            color={colors.human.white}
+            color={iconColor}
             name="camera.aperture"
           />
         </TouchableOpacity>
@@ -122,12 +141,14 @@ export const CameraTopControls = memo(function CameraTopControls({
         <>
           <TouchableOpacity
             testID="lens-toggle-color-lens"
-            style={styles.topButton}
+            style={buttonStyle}
             onPress={onColorLensModeToggle}
+            disabled={isFrozen}
+            accessibilityState={{ disabled: isFrozen }}
           >
             <IconSymbol
               size={globalStyles.symbolSize}
-              color={colors.human.white}
+              color={iconColor}
               name={colorLensModeOptions[colorLensMode].icon}
             />
           </TouchableOpacity>
@@ -145,16 +166,44 @@ export const CameraTopControls = memo(function CameraTopControls({
       {showObskuraColorModeControls && (
         <TouchableOpacity
           testID="lens-control-obskura-color-mode"
-          style={styles.topButton}
+          style={buttonStyle}
           onPress={onObskuraColorModeToggle}
+          disabled={isFrozen}
+          accessibilityState={{ disabled: isFrozen }}
         >
           <IconSymbol
             size={globalStyles.symbolSize}
-            color={colors.human.white}
+            color={iconColor}
             name={obskuraColorMode === OBSKURA_COLOR_MODE.DEFAULT ? 'sun.max.fill' : 'moon.fill'}
           />
         </TouchableOpacity>
       )}
     </View>
   );
+});
+
+const styles = StyleSheet.create({
+  topControls: {
+    ...globalStyles.absolute,
+    right: 0,
+    ...globalStyles.flex1,
+    gap: 0,
+    marginHorizontal: spacing['2xl'],
+    backgroundColor: colors.human.semiTransparent,
+    borderRadius: 20,
+    zIndex: 10,
+  },
+  topButton: {
+    ...globalStyles.justifyCenter,
+    ...globalStyles.alignCenter,
+    padding: spacing.md,
+    borderRadius: 20,
+    height: 50,
+  },
+  topButtonDisabled: {
+    opacity: 0.45,
+  },
+  colorPaletteContainer: {
+    paddingBottom: spacing.md,
+  },
 });

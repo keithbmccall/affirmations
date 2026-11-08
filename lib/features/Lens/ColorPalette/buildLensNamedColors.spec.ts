@@ -1,6 +1,7 @@
 import { buildLensNamedColors, getLensPaletteCaptureHexes } from './buildLensNamedColors';
 import { COLOR_LENS_MODE } from './colorLensMode';
 import type { LensPalette } from './types';
+import { LENS_PALETTE_TYPE } from './types';
 
 describe('buildLensNamedColors', () => {
   it('preserves capture hex and maps pizza + pantone by requestedHex', () => {
@@ -49,7 +50,7 @@ describe('getLensPaletteCaptureHexes', () => {
       id: 'p1',
       uri: 'file:///p1.jpg',
       mediaType: 'photo',
-      type: COLOR_LENS_MODE.LENS_POINT,
+      type: LENS_PALETTE_TYPE.POINT,
       lensPointColor: { hex: '#AABBCC' },
     };
 

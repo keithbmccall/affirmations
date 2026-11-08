@@ -5,6 +5,7 @@
 export const spacing = {
   zip: 0,
   // Micro spacing (0-8px)
+  xxs: 2,
   xs: 4,
   sm: 8,
 

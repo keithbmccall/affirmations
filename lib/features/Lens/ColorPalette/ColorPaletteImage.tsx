@@ -1,5 +1,4 @@
 import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
-import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
@@ -7,6 +6,7 @@ import { memo, useMemo } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import type { LensPalette } from './types';
+import { LENS_PALETTE_TYPE } from './types';
 
 const { width } = Dimensions.get('window');
 
@@ -42,7 +42,7 @@ export const ColorPaletteImage = memo(function ColorPaletteImage({
   const paletteStrip = useMemo(() => {
     if (lensPalette === undefined) return null;
 
-    if (lensPalette.type === COLOR_LENS_MODE.LENS_POINT) {
+    if (lensPalette.type === LENS_PALETTE_TYPE.POINT) {
       return (
         <View style={styles.palette}>
           <View

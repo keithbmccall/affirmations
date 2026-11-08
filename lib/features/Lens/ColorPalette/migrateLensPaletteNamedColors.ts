@@ -1,11 +1,11 @@
 import { getLensPaletteCaptureHexes } from '@features/Lens/ColorPalette/buildLensNamedColors';
-import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { requestColorNames } from '@features/Lens/ColorPalette/requestColorNames';
 import type {
   LensNamedColor,
   LensPalette,
   LensPalettesMap,
 } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { loadData, saveData, StorageDevice } from '@storage/storage';
 
 /**
@@ -25,7 +25,7 @@ export const lensNamedColorNeedsEnrichment = (color: LensNamedColor): boolean =>
 };
 
 const lensPaletteNeedsEnrichment = (palette: LensPalette): boolean => {
-  if (palette.type === COLOR_LENS_MODE.LENS_POINT) {
+  if (palette.type === LENS_PALETTE_TYPE.POINT) {
     return lensNamedColorNeedsEnrichment(palette.lensPointColor);
   }
 

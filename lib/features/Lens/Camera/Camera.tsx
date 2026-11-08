@@ -18,13 +18,30 @@ import { useCameraFocus } from './hooks/useCameraFocus';
 import { LensCameraSurface } from './LensCameraSurface';
 import { CAMERA_VIEW_MODE, gridModeOptions } from './options';
 
-const CameraViewport = memo(function CameraViewport() {
+interface CameraViewportProps {
+  onViewportTap: (x: number, y: number) => void;
+  enableViewportTap: boolean;
+}
+
+const CameraViewport = memo(function CameraViewport({
+  onViewportTap,
+  enableViewportTap,
+}: CameraViewportProps) {
   const { showPreview, gridMode, cameraViewMode, chromeBindings } = useCameraSurface();
   const showGrid = gridModeOptions[gridMode].value === 'on';
   const isLensMode = cameraViewMode === CAMERA_VIEW_MODE.LENS;
 
-  return (
-    <View style={styles.cameraInnerContainer}>
+  const gesture = useMemo(
+    /* istanbul ignore next -- Gesture onEnd + runOnJS not executed under Jest RNGH/Reanimated mocks */
+    () =>
+      Gesture.Tap().onEnd(({ x, y }) => {
+        runOnJS(onViewportTap)(x, y);
+      }),
+    [onViewportTap]
+  );
+
+  const preview = (
+    <View collapsable={false} style={globalStyles.flex1}>
       {isLensMode ? <LensCameraSurface /> : <ObskuraCameraSurface />}
       {!showPreview && (
         <ThemedText style={styles.errorOverlay} accessibilityRole="text">
@@ -32,7 +49,14 @@ const CameraViewport = memo(function CameraViewport() {
         </ThemedText>
       )}
       {showGrid && <CameraGrid />}
+    </View>
+  );
+
+  return (
+    <View style={styles.cameraInnerContainer}>
+      {enableViewportTap ? <GestureDetector gesture={gesture}>{preview}</GestureDetector> : preview}
       <CameraTopControls
+        isFrozen={chromeBindings?.isFrozen}
         colorLensMode={chromeBindings?.colorLensMode}
         palette={chromeBindings?.palette}
         colorAnimationDuration={chromeBindings?.colorAnimationDuration}
@@ -44,6 +68,8 @@ const CameraViewport = memo(function CameraViewport() {
         photoOutput={chromeBindings?.photoOutput}
         videoOutput={chromeBindings?.videoOutput}
         enableVideoLongPress={chromeBindings?.enableVideoLongPress}
+        isFrozen={chromeBindings?.isFrozen}
+        onFreezeToggle={chromeBindings?.onFreezeToggle}
         onPhotoCaptureStart={chromeBindings?.onPhotoCaptureStart}
         processPhotoPath={chromeBindings?.processPhotoPath}
         onPhotoAssetSaved={chromeBindings?.onPhotoAssetSaved}
@@ -55,18 +81,20 @@ const CameraViewport = memo(function CameraViewport() {
 
 const CameraContent = memo(function CameraContent() {
   const insets = useSafeAreaInsets();
-  const { cameraRef, showPreview } = useCameraSurface();
+  const { cameraRef, showPreview, chromeBindings } = useCameraSurface();
   const { handleFocusTap } = useCameraFocus(cameraRef);
 
   const handleBackPress = useCallback(() => router.back(), []);
 
-  const gesture = useMemo(
-    /* istanbul ignore next -- Gesture onEnd + runOnJS not executed under Jest RNGH/Reanimated mocks */
-    () =>
-      Gesture.Tap().onEnd(({ x, y }) => {
-        runOnJS(handleFocusTap)(x, y);
-      }),
-    [handleFocusTap]
+  const handleViewportTap = useCallback(
+    (x: number, y: number) => {
+      if (chromeBindings?.isFrozen === true && chromeBindings.onFrozenTap !== undefined) {
+        chromeBindings.onFrozenTap(x, y);
+        return;
+      }
+      handleFocusTap(x, y);
+    },
+    [chromeBindings, handleFocusTap]
   );
 
   const backButtonStyle = useMemo(() => [styles.backButton, { top: insets.top }], [insets.top]);
@@ -74,15 +102,7 @@ const CameraContent = memo(function CameraContent() {
   return (
     <View style={styles.container}>
       <View style={styles.cameraContainer}>
-        {showPreview ? (
-          <GestureDetector gesture={gesture}>
-            <View collapsable={false} style={globalStyles.flex1}>
-              <CameraViewport />
-            </View>
-          </GestureDetector>
-        ) : (
-          <CameraViewport />
-        )}
+        <CameraViewport onViewportTap={handleViewportTap} enableViewportTap={showPreview} />
 
         <TouchableOpacity
           testID="lens-back-button"
@@ -136,6 +156,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.human.semiTransparent,
     ...globalStyles.justifyCenter,
     ...globalStyles.alignCenter,
-    zIndex: 10,
+    // Above viewport chrome (top/bottom controls use zIndex 10).
+    zIndex: 20,
   },
 });

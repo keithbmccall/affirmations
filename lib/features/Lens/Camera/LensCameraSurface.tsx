@@ -1,24 +1,21 @@
 import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
+import { useFrozenFrame } from '@features/Lens/Camera/FrozenFrame';
 import {
   COLOR_LENS_MODE,
   isColorLensActive,
-  isColorLensPoint,
   nextColorLensMode,
 } from '@features/Lens/ColorPalette/colorLensMode';
 import { lensPaletteConfig } from '@features/Lens/ColorPalette/lensPaletteConfig';
 import { requestColorNames } from '@features/Lens/ColorPalette/requestColorNames';
 import { snapshotPalette } from '@features/Lens/ColorPalette/snapshotPalette';
-import {
-  toLensDominantPaletteColors,
-  toLensNamedColor,
-} from '@features/Lens/ColorPalette/toLensNamedColor';
+import { toLensDominantPaletteColors } from '@features/Lens/ColorPalette/toLensNamedColor';
 import type { LensNamedColor, LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { useColorLensPalette } from '@features/Lens/ColorPalette/useColorLensPalette';
-import { useColorLensRegion } from '@features/Lens/ColorPalette/useColorLensRegion';
 import { useLens } from '@platform';
 import { globalStyles } from '@styles/globalStyles';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import { memo, useCallback, useEffect, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
   Camera as VisionCamera,
   useFrameOutput,
@@ -28,56 +25,47 @@ import {
 } from 'react-native-vision-camera';
 import { useCameraSurface } from './CameraSurfaceContext';
 import { useLensCameraSampleRects } from './hooks/useLensCameraSampleRects';
-import { LensColorRegionIndicator } from './LensColorRegionIndicator';
 import { runGatedColorLensSample } from './runGatedColorLensSample';
 
 export const COLOR_LENS_PALETTE_TARGET_FPS = 2;
-export const COLOR_LENS_REGION_TARGET_FPS = 10;
 
 const COLOR_ANIMATION_DURATION = 150;
 const DEFAULT_FPS = 30;
 /** Stable across color-lens mode changes — VisionCamera reconfigures the session when constraints change. */
 const CAMERA_CONSTRAINTS = [{ fps: DEFAULT_FPS }];
 const COLOR_LENS_PALETTE_FPS_KEY = 'color-lens-palette';
-const COLOR_LENS_REGION_FPS_KEY = 'color-lens-region';
 
-const getCaptureHexes = (context: LensPhotoCaptureContext): string[] => {
-  if (context.type === COLOR_LENS_MODE.LENS_POINT) {
-    return [context.lensPointColor];
-  }
-
-  return lensPaletteConfig.colorPaletteKeys.map(key => context.paletteSnapshot[key]);
-};
+const getCaptureHexes = (context: LensPhotoCaptureContext): string[] =>
+  lensPaletteConfig.colorPaletteKeys.map(key => context.paletteSnapshot[key]);
 
 export const LensCameraSurface = memo(function LensCameraSurface() {
   const { cameraRef, showPreview, isActive, device, setChromeBindings } = useCameraSurface();
-  const photoOutput = usePhotoOutput();
+  // JPEG required — Skia MakeImageFromEncoded cannot decode iOS native HEIC.
+  const photoOutput = usePhotoOutput({
+    containerFormat: 'jpeg',
+    quality: 1,
+    qualityPrioritization: 'speed',
+  });
   const videoOutput = useVideoOutput({ enableAudio: true });
   const { onAddLensPalette } = useLens();
   const { colorLensMode, setColorLensMode, palette, getColorLensPaletteWorklet } =
     useColorLensPalette();
-  const { regionColor, applyColorLensRegionWorklet } = useColorLensRegion();
-  const { sampleCorners, viewportCorners, updateSampleCameraRect } =
-    useLensCameraSampleRects(cameraRef);
-
-  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
-
-  const handleSurfaceLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      const { width, height } = event.nativeEvent.layout;
-      setViewportSize({ width, height });
-      updateSampleCameraRect(width, height);
-    },
-    [updateSampleCameraRect]
-  );
+  const {
+    viewportCorners,
+    viewportWidth,
+    viewportHeight,
+    onViewportLayout,
+    syncViewportCameraRect,
+  } = useLensCameraSampleRects(cameraRef, { deviceId: device?.id });
+  const { isFrozen, onFreezeToggle, onFrozenTap, isCameraActiveGate, overlay } = useFrozenFrame({
+    photoOutput,
+    viewportWidth,
+    viewportHeight,
+  });
 
   const handlePreviewStarted = useCallback(() => {
-    updateSampleCameraRect(viewportSize.width, viewportSize.height);
-  }, [updateSampleCameraRect, viewportSize.height, viewportSize.width]);
-
-  useEffect(() => {
-    updateSampleCameraRect(viewportSize.width, viewportSize.height);
-  }, [device, updateSampleCameraRect, viewportSize.height, viewportSize.width]);
+    syncViewportCameraRect();
+  }, [syncViewportCameraRect]);
 
   const isColorLensModeActive = isColorLensActive(colorLensMode);
 
@@ -87,50 +75,27 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
   );
 
   const onPhotoCaptureStart = useCallback((): LensPhotoCaptureContext | undefined => {
-    switch (colorLensMode) {
-      case COLOR_LENS_MODE.LENS_DOMINANT:
-        return {
-          type: COLOR_LENS_MODE.LENS_DOMINANT,
-          paletteSnapshot: snapshotPalette(palette),
-        };
-      case COLOR_LENS_MODE.LENS_POINT:
-        return {
-          type: COLOR_LENS_MODE.LENS_POINT,
-          lensPointColor: regionColor.value,
-        };
-      case COLOR_LENS_MODE.DISABLED:
-      default:
-        return undefined;
+    if (colorLensMode !== COLOR_LENS_MODE.LENS_DOMINANT) {
+      return undefined;
     }
-  }, [colorLensMode, palette, regionColor]);
+    return {
+      type: LENS_PALETTE_TYPE.DOMINANT,
+      paletteSnapshot: snapshotPalette(palette),
+    };
+  }, [colorLensMode, palette]);
 
   const onPhotoAssetSaved = useCallback(
     async (asset: CameraRollMediaAsset, context?: LensPhotoCaptureContext) => {
       if (context === undefined) return;
 
-      const base = {
+      const namedColors: LensNamedColor[] = await requestColorNames(getCaptureHexes(context));
+
+      onAddLensPalette({
         id: asset.id,
         uri: asset.uri,
         mediaType: asset.mediaType,
-      };
-
-      const namedColors: LensNamedColor[] = await requestColorNames(
-        getCaptureHexes(context)
-      );
-
-      if (context.type === COLOR_LENS_MODE.LENS_DOMINANT) {
-        onAddLensPalette({
-          ...base,
-          type: COLOR_LENS_MODE.LENS_DOMINANT,
-          palette: toLensDominantPaletteColors(context, namedColors),
-        });
-        return;
-      }
-
-      onAddLensPalette({
-        ...base,
-        type: COLOR_LENS_MODE.LENS_POINT,
-        lensPointColor: toLensNamedColor(context, namedColors),
+        type: LENS_PALETTE_TYPE.DOMINANT,
+        palette: toLensDominantPaletteColors(context, namedColors),
       });
     },
     [onAddLensPalette]
@@ -140,43 +105,25 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
     (frame: Frame) => {
       'worklet';
       try {
-        switch (colorLensMode) {
-          case COLOR_LENS_MODE.LENS_DOMINANT:
-            runGatedColorLensSample(frame, {
-              ...viewportCorners,
-              fpsKey: COLOR_LENS_PALETTE_FPS_KEY,
-              targetFps: COLOR_LENS_PALETTE_TARGET_FPS,
-              apply: getColorLensPaletteWorklet,
-            });
-            break;
-          case COLOR_LENS_MODE.LENS_POINT:
-            runGatedColorLensSample(frame, {
-              ...sampleCorners,
-              fpsKey: COLOR_LENS_REGION_FPS_KEY,
-              targetFps: COLOR_LENS_REGION_TARGET_FPS,
-              apply: applyColorLensRegionWorklet,
-            });
-            break;
-          case COLOR_LENS_MODE.DISABLED:
-          default:
-            break;
+        if (colorLensMode === COLOR_LENS_MODE.LENS_DOMINANT) {
+          runGatedColorLensSample(frame, {
+            ...viewportCorners,
+            fpsKey: COLOR_LENS_PALETTE_FPS_KEY,
+            targetFps: COLOR_LENS_PALETTE_TARGET_FPS,
+            apply: getColorLensPaletteWorklet,
+          });
         }
       } finally {
         frame.dispose();
       }
     },
-    [
-      colorLensMode,
-      getColorLensPaletteWorklet,
-      applyColorLensRegionWorklet,
-      sampleCorners,
-      viewportCorners,
-    ]
+    [colorLensMode, getColorLensPaletteWorklet, viewportCorners]
   );
 
   const frameOutput = useFrameOutput({
     pixelFormat: 'yuv',
     enablePreviewSizedOutputBuffers: true,
+    enablePhysicalBufferRotation: true,
     onFrame,
   });
 
@@ -191,6 +138,9 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       palette,
       colorAnimationDuration: COLOR_ANIMATION_DURATION,
       onColorLensModeToggle: handleColorLensModeToggle,
+      isFrozen,
+      onFreezeToggle,
+      onFrozenTap: isFrozen ? onFrozenTap : undefined,
       photoOutput,
       videoOutput,
       enableVideoLongPress: !isColorLensModeActive,
@@ -201,6 +151,9 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       colorLensMode,
       palette,
       handleColorLensModeToggle,
+      isFrozen,
+      onFreezeToggle,
+      onFrozenTap,
       photoOutput,
       videoOutput,
       isColorLensModeActive,
@@ -218,25 +171,25 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
   }, [chromeBindings, setChromeBindings]);
 
   return (
-    <View testID="lens-camera-surface" style={styles.surface} onLayout={handleSurfaceLayout}>
+    <View
+      testID="lens-camera-surface"
+      collapsable={false}
+      style={styles.surface}
+      onLayout={onViewportLayout}
+    >
       {showPreview && device !== undefined && (
         <VisionCamera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
           device={device}
-          isActive={isActive}
+          isActive={isActive && isCameraActiveGate}
           outputs={outputs}
           constraints={CAMERA_CONSTRAINTS}
           resizeMode="cover"
           onPreviewStarted={handlePreviewStarted}
         />
       )}
-      {isColorLensPoint(colorLensMode) && (
-        <LensColorRegionIndicator
-          color={regionColor}
-          animationDuration={COLOR_ANIMATION_DURATION}
-        />
-      )}
+      {overlay}
     </View>
   );
 });

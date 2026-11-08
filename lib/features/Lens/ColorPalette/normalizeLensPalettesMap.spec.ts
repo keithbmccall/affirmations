@@ -1,4 +1,5 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { normalizeLensPalettesMap } from './normalizeLensPalettesMap';
 
 const dominantPalette = {
@@ -55,7 +56,7 @@ describe('normalizeLensPalettesMap', () => {
         id: 'photo-2',
         uri: 'file:///photo-2.jpg',
         mediaType: 'photo',
-        type: COLOR_LENS_MODE.LENS_POINT,
+        type: LENS_PALETTE_TYPE.POINT,
         lensPointColor: '#AABBCC',
       },
     });
@@ -64,7 +65,7 @@ describe('normalizeLensPalettesMap', () => {
       id: 'photo-2',
       uri: 'file:///photo-2.jpg',
       mediaType: 'photo',
-      type: COLOR_LENS_MODE.LENS_POINT,
+      type: LENS_PALETTE_TYPE.POINT,
       lensPointColor: { hex: '#AABBCC' },
     });
   });
@@ -75,7 +76,7 @@ describe('normalizeLensPalettesMap', () => {
         id: 'photo-3',
         uri: 'file:///photo-3.jpg',
         mediaType: 'photo',
-        type: COLOR_LENS_MODE.LENS_POINT,
+        type: LENS_PALETTE_TYPE.POINT,
         lensPointColor: {
           hex: '#AABBCC',
           name: 'Cerulean',
@@ -106,7 +107,7 @@ describe('normalizeLensPalettesMap', () => {
         id: 'also-bad',
         uri: 'file:///x.jpg',
         mediaType: 'photo',
-        type: COLOR_LENS_MODE.LENS_POINT,
+        type: LENS_PALETTE_TYPE.POINT,
       },
       good: {
         id: 'good',
