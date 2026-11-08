@@ -1,9 +1,10 @@
+import { IconSymbol } from '@components/shared/icon-symbol/IconSymbol';
 import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { createCameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/createCameraRollMediaAsset';
 import { requestCameraRollHeadRefresh } from '@features/Lens/Camera/cameraRollPhotos/refreshCameraRollHead';
 import { useCameraSurface } from '@features/Lens/Camera/CameraSurfaceContext';
 import { useCameraRoll } from '@features/Lens/Camera/hooks/useCameraRoll';
-import { flashModeOptions } from '@features/Lens/Camera/options';
+import { flashModeOptions, freezeModeOptions } from '@features/Lens/Camera/options';
 import type { LensPhotoCaptureContext } from '@features/Lens/ColorPalette/types';
 import { colors } from '@styles/colors';
 import { globalStyles } from '@styles/globalStyles';
@@ -24,6 +25,8 @@ interface CameraBottomControlsProps {
   photoOutput?: CameraPhotoOutput;
   videoOutput?: CameraVideoOutput;
   enableVideoLongPress?: boolean;
+  isFrozen?: boolean;
+  onFreezeToggle?: () => void;
   onPhotoCaptureStart?: () => LensPhotoCaptureContext | undefined;
   processPhotoPath?: (inputPath: string) => Promise<string>;
   onPhotoAssetSaved?: (
@@ -39,6 +42,8 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   photoOutput,
   videoOutput,
   enableVideoLongPress = false,
+  isFrozen = false,
+  onFreezeToggle,
   onPhotoCaptureStart,
   processPhotoPath = identityPhotoPath,
   onPhotoAssetSaved,
@@ -171,6 +176,10 @@ export const CameraBottomControls = memo(function CameraBottomControls({
     () => [styles.captureButton, isRecording && styles.captureButtonRecording],
     [isRecording]
   );
+  const showFreezeControl = onFreezeToggle !== undefined;
+  const freezeModeIndex = isFrozen ? 1 : 0;
+  const freezeIcon = freezeModeOptions[freezeModeIndex].icon;
+  const freezeAccessibilityLabel = isFrozen ? 'Unfreeze camera frame' : 'Freeze camera frame';
 
   return (
     <View style={containerStyle}>
@@ -198,7 +207,22 @@ export const CameraBottomControls = memo(function CameraBottomControls({
         <View style={styles.captureButtonInner} />
       </TouchableOpacity>
 
-      <View style={styles.bottomStub} />
+      {showFreezeControl ? (
+        <TouchableOpacity
+          testID="lens-toggle-freeze-frame"
+          style={styles.cameraRollButton}
+          onPress={onFreezeToggle}
+          accessibilityLabel={freezeAccessibilityLabel}
+        >
+          <IconSymbol
+            size={globalStyles.symbolSize}
+            color={colors.human.white}
+            name={freezeIcon}
+          />
+        </TouchableOpacity>
+      ) : (
+        <View testID="lens-freeze-frame-spacer" style={styles.bottomStub} />
+      )}
     </View>
   );
 });
@@ -215,8 +239,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.human.transparent,
   },
   bottomStub: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
     backgroundColor: colors.human.transparent,
   },
   captureButton: {

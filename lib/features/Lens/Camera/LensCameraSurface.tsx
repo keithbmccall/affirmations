@@ -47,6 +47,11 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
   const { viewportCorners, updateViewportCameraRect } = useLensCameraSampleRects(cameraRef);
 
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+  const [isFrozen, setIsFrozen] = useState(false);
+
+  const handleFreezeToggle = useCallback(() => {
+    setIsFrozen(prev => !prev);
+  }, []);
 
   const handleSurfaceLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -136,6 +141,8 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       palette,
       colorAnimationDuration: COLOR_ANIMATION_DURATION,
       onColorLensModeToggle: handleColorLensModeToggle,
+      isFrozen,
+      onFreezeToggle: handleFreezeToggle,
       photoOutput,
       videoOutput,
       enableVideoLongPress: !isColorLensModeActive,
@@ -146,6 +153,8 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
       colorLensMode,
       palette,
       handleColorLensModeToggle,
+      isFrozen,
+      handleFreezeToggle,
       photoOutput,
       videoOutput,
       isColorLensModeActive,
@@ -174,7 +183,7 @@ export const LensCameraSurface = memo(function LensCameraSurface() {
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
           device={device}
-          isActive={isActive}
+          isActive={isActive && !isFrozen}
           outputs={outputs}
           constraints={CAMERA_CONSTRAINTS}
           resizeMode="cover"

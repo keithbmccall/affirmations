@@ -38,6 +38,8 @@ export interface CameraChromeBindings {
   onColorLensModeToggle?: () => void;
   obskuraColorMode?: ObskuraColorMode;
   onObskuraColorModeToggle?: () => void;
+  isFrozen?: boolean;
+  onFreezeToggle?: () => void;
   photoOutput?: CameraPhotoOutput;
   videoOutput?: CameraVideoOutput;
   enableVideoLongPress?: boolean;

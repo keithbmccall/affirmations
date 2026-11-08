@@ -1,5 +1,5 @@
 import { COLOR_LENS_MODE, type ColorLensMode } from '@features/Lens/ColorPalette/colorLensMode';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import React, { createRef } from 'react';
 import type { CameraDevice, CameraPhotoOutput, CameraRef, CameraVideoOutput } from 'react-native-vision-camera';
 
@@ -96,6 +96,8 @@ const latestChromeBindings = () => {
     photoOutput?: unknown;
     videoOutput?: unknown;
     enableVideoLongPress?: boolean;
+    isFrozen?: boolean;
+    onFreezeToggle?: () => void;
   };
 };
 
@@ -212,6 +214,39 @@ describe('LensCameraSurface', () => {
 
   it('passes isActive false to the camera when the session is inactive', () => {
     renderLensSurface({ isActive: false });
+
+    expect(lastCameraProps?.isActive).toBe(false);
+  });
+
+  it('registers freeze chrome bindings and gates isActive when frozen', () => {
+    renderLensSurface();
+
+    const bindings = latestChromeBindings();
+    expect(bindings?.isFrozen).toBe(false);
+    expect(bindings?.onFreezeToggle).toEqual(expect.any(Function));
+    expect(lastCameraProps?.isActive).toBe(true);
+
+    act(() => {
+      bindings?.onFreezeToggle?.();
+    });
+
+    expect(latestChromeBindings()?.isFrozen).toBe(true);
+    expect(lastCameraProps?.isActive).toBe(false);
+
+    act(() => {
+      latestChromeBindings()?.onFreezeToggle?.();
+    });
+
+    expect(latestChromeBindings()?.isFrozen).toBe(false);
+    expect(lastCameraProps?.isActive).toBe(true);
+  });
+
+  it('keeps isActive false when frozen while the session is inactive', () => {
+    renderLensSurface({ isActive: false });
+
+    act(() => {
+      latestChromeBindings()?.onFreezeToggle?.();
+    });
 
     expect(lastCameraProps?.isActive).toBe(false);
   });

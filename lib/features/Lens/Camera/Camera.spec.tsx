@@ -371,6 +371,29 @@ describe('Camera', () => {
     expect(screen.queryByTestId('lens-toggle-color-lens')).toBeNull();
   });
 
+  it('shows freeze control in Lens mode and toggles its icon', async () => {
+    renderCamera(<Camera />);
+
+    expect(await screen.findByTestId('lens-toggle-freeze-frame')).toBeTruthy();
+    expect(screen.getByTestId('icon-pause.fill')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('lens-toggle-freeze-frame'));
+
+    expect(await screen.findByTestId('icon-play.fill')).toBeTruthy();
+    expect(screen.queryByTestId('icon-pause.fill')).toBeNull();
+  });
+
+  it('replaces freeze control with a spacer in Obskura mode', async () => {
+    renderCamera(<Camera />);
+
+    expect(await screen.findByTestId('lens-toggle-freeze-frame')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('lens-control-view-mode'));
+
+    expect(await screen.findByTestId('lens-freeze-frame-spacer')).toBeTruthy();
+    expect(screen.queryByTestId('lens-toggle-freeze-frame')).toBeNull();
+  });
+
   it('toggles grid overlay', async () => {
     renderCamera(<Camera />);
 

@@ -62,6 +62,13 @@ jest.mock('expo-image', () => ({
   },
 }));
 
+jest.mock('@components/shared/icon-symbol/IconSymbol', () => ({
+  IconSymbol: ({ name }: { name: string }) => {
+    const RN = jest.requireActual('react-native');
+    return <RN.View testID={`icon-${name}`} />;
+  },
+}));
+
 const mockCapturePhotoToFile = jest.fn(() =>
   Promise.resolve({ filePath: '/tmp/photo.jpg' })
 );
@@ -348,5 +355,39 @@ describe('CameraBottomControls', () => {
     const { findByTestId } = renderBottomControls();
 
     expect(await findByTestId('expo-image')).toBeTruthy();
+  });
+
+  it('shows a spacer when freeze chrome is unbound', () => {
+    const { getByTestId, queryByTestId } = renderBottomControls();
+
+    expect(getByTestId('lens-freeze-frame-spacer')).toBeTruthy();
+    expect(queryByTestId('lens-toggle-freeze-frame')).toBeNull();
+  });
+
+  it('renders freeze control and calls onFreezeToggle when pressed', () => {
+    const onFreezeToggle = jest.fn();
+    const { getByTestId, queryByTestId } = renderBottomControls({
+      isFrozen: false,
+      onFreezeToggle,
+    });
+
+    expect(queryByTestId('lens-freeze-frame-spacer')).toBeNull();
+    expect(getByTestId('icon-pause.fill')).toBeTruthy();
+
+    fireEvent.press(getByTestId('lens-toggle-freeze-frame'));
+
+    expect(onFreezeToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows play icon when frozen', () => {
+    const { getByTestId } = renderBottomControls({
+      isFrozen: true,
+      onFreezeToggle: jest.fn(),
+    });
+
+    expect(getByTestId('icon-play.fill')).toBeTruthy();
+    expect(getByTestId('lens-toggle-freeze-frame').props.accessibilityLabel).toBe(
+      'Unfreeze camera frame'
+    );
   });
 });
