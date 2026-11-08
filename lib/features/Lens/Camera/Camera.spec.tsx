@@ -416,6 +416,21 @@ describe('Camera', () => {
     expect(mockHandleFocusTap).not.toHaveBeenCalled();
   });
 
+  it('disables top controls while frozen', async () => {
+    renderCamera(<Camera />);
+
+    fireEvent.press(await screen.findByTestId('lens-toggle-freeze-frame'));
+    expect(await screen.findByTestId('lens-freeze-frame-overlay')).toBeTruthy();
+
+    const viewModeButton = screen.getByTestId('lens-control-view-mode');
+    expect(viewModeButton.props.accessibilityState?.disabled).toBe(true);
+
+    fireEvent.press(viewModeButton);
+
+    expect(screen.queryByTestId('lens-control-obskura-color-mode')).toBeNull();
+    expect(screen.getByTestId('lens-toggle-color-lens')).toBeTruthy();
+  });
+
   it('toggles grid overlay', async () => {
     renderCamera(<Camera />);
 

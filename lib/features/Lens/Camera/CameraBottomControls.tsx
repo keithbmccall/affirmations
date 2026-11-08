@@ -183,7 +183,11 @@ export const CameraBottomControls = memo(function CameraBottomControls({
   const freezeAccessibilityLabel = isFrozen ? 'Unfreeze camera frame' : 'Freeze camera frame';
 
   return (
-    <View style={containerStyle}>
+    <View
+      style={containerStyle}
+      // Swallow taps on the chrome row so they never reach the viewport freeze/focus gesture.
+      onStartShouldSetResponder={() => true}
+    >
       <TouchableOpacity
         testID="lens-camera-roll-open"
         style={styles.cameraRollButton}

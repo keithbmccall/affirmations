@@ -21,7 +21,7 @@ export const globalStyles = {
   },
 
   /** Toolbar / header SF Symbol size (IconSymbol `size` prop). */
-  symbolSize: 30,
+  symbolSize: 25,
 
   // Centering
   justifyCenter: {
