@@ -86,9 +86,9 @@ describe('useColorLensPalette', () => {
     const { result } = renderHook(() => useColorLensPalette());
 
     act(() => {
-      result.current.setColorLensMode(COLOR_LENS_MODE.LENS_POINT);
+      result.current.setColorLensMode(COLOR_LENS_MODE.LENS_DOMINANT);
     });
 
-    expect(result.current.colorLensMode).toBe(COLOR_LENS_MODE.LENS_POINT);
+    expect(result.current.colorLensMode).toBe(COLOR_LENS_MODE.LENS_DOMINANT);
   });
 });

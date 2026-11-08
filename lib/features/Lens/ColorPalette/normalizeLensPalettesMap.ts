@@ -5,6 +5,7 @@ import type {
   LensPalette,
   LensPalettesMap,
 } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -79,14 +80,14 @@ const normalizeLensPaletteEntry = (value: unknown): LensPalette | undefined => {
     return undefined;
   }
 
-  if (value.type === COLOR_LENS_MODE.LENS_POINT) {
+  if (value.type === LENS_PALETTE_TYPE.POINT) {
     const lensPointColor = normalizeLensNamedColor(value.lensPointColor);
     if (lensPointColor === undefined) return undefined;
     return {
       id,
       uri,
       mediaType,
-      type: COLOR_LENS_MODE.LENS_POINT,
+      type: LENS_PALETTE_TYPE.POINT,
       lensPointColor,
     };
   }

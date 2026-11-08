@@ -109,25 +109,21 @@ Do **not** rely on the plugin for permission strings after removal — they must
 | [`Camera/CameraBottomControls.tsx`](Camera/CameraBottomControls.tsx)       | `cameraRef.takePhoto`, `startRecording`, `stopRecording` | **`usePhotoOutput` / `useVideoOutput`**; write `Photo` to cache before `createAssetAsync` |
 | [`Camera/CameraSurfaceContext.tsx`](Camera/CameraSurfaceContext.tsx)       | `cameraRef`, `useCameraDevice`                           | Hold output refs; expose photo/video outputs to bottom controls                           |
 | [`Camera/options.ts`](Camera/options.ts)                                   | `PhysicalCameraDeviceType`                               | Confirm type re-exports on v5 `CameraDevice`                                              |
-| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)             | `useFrameProcessor`, fixed-center lens-point sampling  | **`useFrameOutput`** + VC5 coords → YUV sample (region + dominant)    |
+| [`Camera/LensCameraSurface.tsx`](Camera/LensCameraSurface.tsx)             | `useFrameProcessor`, fixed-center lens-point sampling  | **`useFrameOutput`** + VC5 coords → YUV sample (dominant only; lens-point removed)    |
 | [`Obskura/ObskuraCameraSurface.tsx`](Obskura/ObskuraCameraSurface.tsx)     | `useSkiaFrameProcessor`, `useCameraFormat`, `Templates`  | **`react-native-vision-camera-skia`** + **Constraints API**                               |
 | [`Camera/hooks/useCameraFocus.ts`](Camera/hooks/useCameraFocus.ts)         | `cameraRef.focus({ x, y })`                              | Verify v5 focus API on preview ref / controller                                           |
 | [`Camera/hooks/useLensPermissions.ts`](Camera/hooks/useLensPermissions.ts) | `useCameraPermission`, `useMicrophonePermission`         | Hooks unchanged in spirit — **not** `Camera.getCameraPermissionStatus()`                  |
 
-### Lens point + dominant palette (shipped Nitro modernize)
+### Dominant palette (shipped Nitro modernize)
 
-**Region (lens-point):** JS-thread `convertViewPointToCameraPoint` on sample-square corners → SharedValues → worklet `convertCameraPointToFramePoint` → `extractRegionColor(frame, rect)` (YUV sample + MMCQ) → **`frame.dispose()`**. See [`LENS_POINT_CONTEXT.md`](LENS_POINT_CONTEXT.md).
-
-**Dominant:** same pipeline with viewport corners → `extractFramePalette(frame, rect)`. Palette targets **2 FPS**, region **10 FPS**; color animation is **150 ms ease-out**.
+**Dominant:** viewport corners → `extractFramePalette(frame, rect)` → **`frame.dispose()`**. Palette targets **2 FPS**; color animation is **150 ms ease-out**. Live **lens-point** (`extractRegionColor` / region indicator) has been removed; stored `lens-point` palettes remain readable in history UI.
 
 ### Color lens frame processors
 
 | File                                                                         | Role                                                                 |
 | ---------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | [`ColorPalette/getColorLensPalette.ts`](ColorPalette/getColorLensPalette.ts) | `getColorLensProcessor().extractFramePalette(frame, rect)`           |
-| [`ColorPalette/getColorLensRegion.ts`](ColorPalette/getColorLensRegion.ts)   | `extractRegionColor(frame, rect)`                                    |
 | [`ColorPalette/useColorLensPalette.ts`](ColorPalette/useColorLensPalette.ts) | Palette SharedValues mutated on the frame thread                     |
-| [`ColorPalette/useColorLensRegion.ts`](ColorPalette/useColorLensRegion.ts)   | Region color SharedValue mutated on the frame thread                 |
 
 ### Native local module
 

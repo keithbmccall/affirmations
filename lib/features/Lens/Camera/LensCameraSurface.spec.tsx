@@ -7,12 +7,7 @@ import {
   CameraSurfaceContextForTesting,
   type CameraSurfaceContextValue,
 } from './CameraSurfaceContext';
-import {
-  COLOR_LENS_PALETTE_TARGET_FPS,
-  COLOR_LENS_REGION_TARGET_FPS,
-  LensCameraSurface,
-} from './LensCameraSurface';
-import { getLensPointSampleRect } from './lensPointSampleRegion';
+import { COLOR_LENS_PALETTE_TARGET_FPS, LensCameraSurface } from './LensCameraSurface';
 import { CAMERA_VIEW_MODE } from './options';
 
 const mockPalette = {
@@ -28,12 +23,9 @@ const mockPalette = {
 
 const mockOnAddLensPalette = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
-const mockApplyColorLensRegionWorklet = jest.fn();
-const mockRegionColor = { value: '#AABBCC' };
 let mockColorLensMode: ColorLensMode = COLOR_LENS_MODE.DISABLED;
 
 const COLOR_LENS_PALETTE_MIN_INTERVAL_MS = 1000 / COLOR_LENS_PALETTE_TARGET_FPS;
-const COLOR_LENS_REGION_MIN_INTERVAL_MS = 1000 / COLOR_LENS_REGION_TARGET_FPS;
 
 const mockPhotoOutput = { id: 'photo' } as unknown as CameraPhotoOutput;
 const mockVideoOutput = { id: 'video' } as unknown as CameraVideoOutput;
@@ -51,13 +43,6 @@ jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
   }),
 }));
 
-jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
-  useColorLensRegion: () => ({
-    applyColorLensRegionWorklet: mockApplyColorLensRegionWorklet,
-    regionColor: mockRegionColor,
-  }),
-}));
-
 jest.mock('@features/Lens/ColorPalette/requestColorNames', () => ({
   requestColorNames: jest.fn(async (hexes: string[]) =>
     hexes.map(hex => ({ hex, name: 'Test', pantone: null }))
@@ -66,7 +51,6 @@ jest.mock('@features/Lens/ColorPalette/requestColorNames', () => ({
 
 jest.mock('@features/Lens/ColorPalette/toLensNamedColor', () => ({
   toLensDominantPaletteColors: jest.fn(() => ({ primaryColor: { hex: '#111111' } })),
-  toLensNamedColor: jest.fn(() => ({ hex: '#AABBCC' })),
 }));
 
 const mockDevice = { id: 'back' } as unknown as CameraDevice;
@@ -75,7 +59,8 @@ const createMockCameraRef = (): React.RefObject<CameraRef | null> => {
   const ref = createRef<CameraRef | null>();
   (ref as { current: CameraRef }).current = {
     convertViewPointToCameraPoint: ({ x, y }: { x: number; y: number }) => ({ x, y }),
-  } as CameraRef;
+    focusTo: jest.fn(() => Promise.resolve()),
+  } as unknown as CameraRef;
   return ref;
 };
 
@@ -165,16 +150,6 @@ const layoutViewport = (surface: ReturnType<typeof renderLensSurface>, width = 3
   });
 };
 
-const expectedSampleRect = (width: number, height: number) => {
-  const sampleRect = getLensPointSampleRect({ x: 0, y: 0, width, height });
-  return {
-    left: sampleRect.x,
-    top: sampleRect.y,
-    right: sampleRect.x + sampleRect.size,
-    bottom: sampleRect.y + sampleRect.size,
-  };
-};
-
 const expectedViewportRect = (width: number, height: number) => ({
   left: 0,
   top: 0,
@@ -219,7 +194,7 @@ describe('LensCameraSurface', () => {
     expect(bindings?.enableVideoLongPress).toBe(true);
   });
 
-  it('configures frame output for yuv + preview-sized buffers', () => {
+  it('configures frame output for upright preview-sized yuv buffers', () => {
     const { useFrameOutput } = jest.requireMock('react-native-vision-camera') as {
       useFrameOutput: jest.Mock;
     };
@@ -229,6 +204,7 @@ describe('LensCameraSurface', () => {
       expect.objectContaining({
         pixelFormat: 'yuv',
         enablePreviewSizedOutputBuffers: true,
+        enablePhysicalBufferRotation: true,
         onFrame: expect.any(Function),
       })
     );
@@ -295,7 +271,6 @@ describe('LensCameraSurface', () => {
     layoutViewport(surface);
 
     expect(mockGetColorLensPaletteWorklet).not.toHaveBeenCalled();
-    expect(mockApplyColorLensRegionWorklet).not.toHaveBeenCalled();
   });
 
   it('passes resizeMode cover to the camera', () => {
@@ -352,74 +327,6 @@ describe('LensCameraSurface', () => {
     expect(order).toEqual(['palette', 'frameDispose']);
   });
 
-  it('does not call region worklets in lens-dominant mode', () => {
-    mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
-
-    const surface = renderLensSurface();
-    layoutViewport(surface);
-
-    const onFrame = lastOnFrame as (frame: MockFrame) => void;
-    try {
-      onFrame(createMockFrame());
-    } catch {
-      /* worklet body may throw outside native runtime */
-    }
-
-    expect(mockGetColorLensPaletteWorklet).toHaveBeenCalledTimes(1);
-    expect(mockApplyColorLensRegionWorklet).not.toHaveBeenCalled();
-  });
-
-  it('applies region color then disposes frame in lens-point mode', () => {
-    mockColorLensMode = COLOR_LENS_MODE.LENS_POINT;
-    const width = 390;
-    const height = 844;
-    const frame = createMockFrame();
-    let disposeOrder = 0;
-    let frameDisposeAt = 0;
-    let applyAt = 0;
-
-    frame.dispose = jest.fn(() => {
-      disposeOrder += 1;
-      frameDisposeAt = disposeOrder;
-    });
-    mockApplyColorLensRegionWorklet.mockImplementation(() => {
-      disposeOrder += 1;
-      applyAt = disposeOrder;
-    });
-
-    const surface = renderLensSurface();
-    layoutViewport(surface, width, height);
-
-    const onFrame = lastOnFrame as (frame: MockFrame) => void;
-    try {
-      onFrame(frame);
-    } catch {
-      /* worklet body may throw outside native runtime */
-    }
-
-    expect(mockGetColorLensPaletteWorklet).not.toHaveBeenCalled();
-    expect(mockApplyColorLensRegionWorklet).toHaveBeenCalledWith(
-      expect.objectContaining({
-        dispose: expect.any(Function),
-        convertCameraPointToFramePoint: expect.any(Function),
-      }),
-      expectedSampleRect(width, height)
-    );
-    expect(frame.dispose).toHaveBeenCalled();
-    expect(applyAt).toBeGreaterThan(0);
-    expect(frameDisposeAt).toBeGreaterThan(applyAt);
-  });
-
-  it('skips region sampling until the camera sample rect is ready', () => {
-    mockColorLensMode = COLOR_LENS_MODE.LENS_POINT;
-
-    renderLensSurface({
-      cameraRef: createRef<CameraRef | null>(),
-    });
-
-    expect(mockApplyColorLensRegionWorklet).not.toHaveBeenCalled();
-  });
-
   it('skips dominant sampling until the viewport camera rect is ready', () => {
     mockColorLensMode = COLOR_LENS_MODE.LENS_DOMINANT;
 
@@ -428,49 +335,6 @@ describe('LensCameraSurface', () => {
     });
 
     expect(mockGetColorLensPaletteWorklet).not.toHaveBeenCalled();
-  });
-
-  it('throttles region apply to COLOR_LENS_REGION_TARGET_FPS', () => {
-    mockColorLensMode = COLOR_LENS_MODE.LENS_POINT;
-    const baseTimeMs = 1_700_000_000_000;
-    let nowMs = baseTimeMs;
-    const performanceNowSpy = jest.spyOn(performance, 'now').mockImplementation(() => nowMs);
-
-    const surface = renderLensSurface();
-    layoutViewport(surface);
-
-    const onFrame = lastOnFrame as (frame: MockFrame) => void;
-    try {
-      onFrame(createMockFrame());
-    } catch {
-      /* worklet body may throw outside native runtime */
-    }
-    expect(mockApplyColorLensRegionWorklet).toHaveBeenCalledTimes(1);
-
-    try {
-      onFrame(createMockFrame());
-    } catch {
-      /* worklet body may throw outside native runtime */
-    }
-    expect(mockApplyColorLensRegionWorklet).toHaveBeenCalledTimes(1);
-
-    nowMs = baseTimeMs + COLOR_LENS_REGION_MIN_INTERVAL_MS - 1;
-    try {
-      onFrame(createMockFrame());
-    } catch {
-      /* worklet body may throw outside native runtime */
-    }
-    expect(mockApplyColorLensRegionWorklet).toHaveBeenCalledTimes(1);
-
-    nowMs = baseTimeMs + COLOR_LENS_REGION_MIN_INTERVAL_MS;
-    try {
-      onFrame(createMockFrame());
-    } catch {
-      /* worklet body may throw outside native runtime */
-    }
-    expect(mockApplyColorLensRegionWorklet).toHaveBeenCalledTimes(2);
-
-    performanceNowSpy.mockRestore();
   });
 
   it('keeps constant fps constraints when color lens mode is active', () => {
@@ -497,28 +361,6 @@ describe('LensCameraSurface', () => {
         expect.objectContaining({
           id: 'asset-1',
           type: COLOR_LENS_MODE.LENS_DOMINANT,
-        })
-      );
-    });
-  });
-
-  it('saves lens-point color via onPhotoAssetSaved', async () => {
-    mockColorLensMode = COLOR_LENS_MODE.LENS_POINT;
-    renderLensSurface();
-
-    const bindings = latestChromeBindings();
-    const context = bindings.onPhotoCaptureStart?.();
-    await bindings.onPhotoAssetSaved?.(
-      { id: 'asset-1', uri: 'file:///asset', mediaType: 'image' },
-      context
-    );
-
-    await waitFor(() => {
-      expect(mockOnAddLensPalette).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'asset-1',
-          type: COLOR_LENS_MODE.LENS_POINT,
-          lensPointColor: { hex: '#AABBCC' },
         })
       );
     });

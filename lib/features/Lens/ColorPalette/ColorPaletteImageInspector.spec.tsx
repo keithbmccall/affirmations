@@ -1,6 +1,7 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPaletteImageInspector } from '@features/Lens/ColorPalette/ColorPaletteImageInspector';
 import type { InspectionAsset } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { renderWithContext } from '@testing/renderWithContext';
 import type { StyleProp, ViewStyle } from 'react-native';
@@ -28,7 +29,7 @@ const createPointInspectionAsset = (id: string): InspectionAsset => ({
   mediaType: 'photo',
   width: 100,
   height: 100,
-  type: COLOR_LENS_MODE.LENS_POINT,
+  type: LENS_PALETTE_TYPE.POINT,
   lensPointColor: { hex: '#AABBCC' },
 });
 
@@ -38,7 +39,7 @@ const createNamedPointInspectionAsset = (id: string): InspectionAsset => ({
   mediaType: 'photo',
   width: 100,
   height: 100,
-  type: COLOR_LENS_MODE.LENS_POINT,
+  type: LENS_PALETTE_TYPE.POINT,
   lensPointColor: {
     hex: '#AABBCC',
     name: 'Ice',

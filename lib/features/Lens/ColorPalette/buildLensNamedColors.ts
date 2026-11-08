@@ -1,11 +1,11 @@
 import type { ColorPizzaColor } from '@api/fetchColorNames';
-import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { lensPaletteConfig } from '@features/Lens/ColorPalette/lensPaletteConfig';
 import type { PantoneColorMatch } from '@features/Lens/ColorPalette/matchPantoneColors';
 import type {
   LensNamedColor,
   LensPalette,
 } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 
 const toHexKey = (hex: string): string => hex.replace(/^#/, '').toLowerCase();
 
@@ -51,7 +51,7 @@ export const buildLensNamedColors = (
 };
 
 export const getLensPaletteCaptureHexes = (palette: LensPalette): string[] => {
-  if (palette.type === COLOR_LENS_MODE.LENS_POINT) {
+  if (palette.type === LENS_PALETTE_TYPE.POINT) {
     return [palette.lensPointColor.hex];
   }
 

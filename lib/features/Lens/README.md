@@ -199,11 +199,11 @@ Used when `cameraViewMode === CAMERA_VIEW_MODE.LENS`.
 
 1. **`LensCameraSurface`** mounts `ReanimatedCamera` with `useFrameProcessor` whenever the screen is active (even when color lens is off—the worklet runs each frame but skips palette work until color lens is enabled).
 2. Each frame, the worklet runs on the camera thread (`'worklet'` directive required).
-3. If color lens is enabled, sampling is throttled via `shouldRunAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (2 FPS)** and **`COLOR_LENS_REGION_TARGET_FPS` (10 FPS)**. Dominant mode converts viewport corners to a frame rect and calls `getColorLensPaletteWorklet(frame, rect)`; point mode calls `applyColorLensRegionWorklet(frame, rect)`. The camera `Frame` is disposed in `finally` after the native call.
-4. **`getColorLensPaletteWorklet`** / **`applyColorLensRegionWorklet`** call Nitro **`extractFramePalette`** / **`extractRegionColor`** on `ColorLensProcessor` (`expo-color-lens-frame-processor`, iOS only).
-5. Native Swift (`ColorLensYUVSampler` + MMCQ) samples YUV from the buffer rect, runs palette extraction (up to **6** colors) or dominant hex, applies temporal smoothing, and caps work at roughly **20 FPS** (`minProcessingInterval` 0.05s).
+3. If color lens is enabled (dominant), sampling is throttled via `shouldRunAtTargetFps` at **`COLOR_LENS_PALETTE_TARGET_FPS` (2 FPS)**. Viewport corners convert to a frame rect and call `getColorLensPaletteWorklet(frame, rect)`. The camera `Frame` is disposed in `finally` after the native call.
+4. **`getColorLensPaletteWorklet`** calls Nitro **`extractFramePalette`** on `ColorLensProcessor` (`expo-color-lens-frame-processor`, iOS only).
+5. Native Swift (`ColorLensYUVSampler` + MMCQ) samples YUV from the buffer rect, runs palette extraction (up to **6** colors), applies temporal smoothing, and caps work at roughly **20 FPS** (`minProcessingInterval` 0.05s).
 6. Results mutate Reanimated SharedValues on the frame thread.
-7. **`ColorPalette`** / lens-point ring animate those SharedValues on the UI thread (**150 ms ease-out**).
+7. **`ColorPalette`** animates those SharedValues on the UI thread (**150 ms ease-out**).
 
 ### Capture flow (lens mode)
 
@@ -216,7 +216,7 @@ Video recording (long-press capture) is allowed only in **Lens mode with color l
 
 ### FPS
 
-In Lens view mode, `LensCameraSurface` keeps preview constraints at a constant **30** fps (`CAMERA_CONSTRAINTS`) across color lens modes. Changing `constraints` would force VisionCamera to reconfigure the capture session (visible reload / hitch). Palette and region sampling stay throttled in the worklet via `runAtTargetFps` (`COLOR_LENS_PALETTE_TARGET_FPS` / `COLOR_LENS_REGION_TARGET_FPS`). Obskura view mode always uses **15** on `ObskuraCameraSurface`, independent of color lens.
+In Lens view mode, `LensCameraSurface` keeps preview constraints at a constant **30** fps (`CAMERA_CONSTRAINTS`) across color lens modes. Changing `constraints` would force VisionCamera to reconfigure the capture session (visible reload / hitch). Palette sampling stays throttled in the worklet via `runAtTargetFps` (`COLOR_LENS_PALETTE_TARGET_FPS`). Obskura view mode always uses **15** on `ObskuraCameraSurface`, independent of color lens.
 
 ## Obskura mode (filter path)
 

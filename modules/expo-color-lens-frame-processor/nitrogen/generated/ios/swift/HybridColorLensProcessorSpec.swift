@@ -14,7 +14,6 @@ public protocol HybridColorLensProcessorSpec_protocol: HybridObject {
   
 
   // Methods
-  func extractRegionColor(frame: (any HybridFrameSpec), left: Double, top: Double, right: Double, bottom: Double) throws -> String?
   func extractFramePalette(frame: (any HybridFrameSpec), left: Double, top: Double, right: Double, bottom: Double) throws -> ColorLensPaletteResult?
 }
 

@@ -1,6 +1,7 @@
 import type { CameraRollMediaAsset } from '@features/Lens/Camera/cameraRollPhotos/CameraRollMediaAsset';
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { toInspectionAsset } from './toInspectionAsset';
 
 const asset: CameraRollMediaAsset = {
@@ -62,7 +63,7 @@ describe('toInspectionAsset', () => {
       id: 'asset-1',
       uri: 'file:///asset-1.jpg',
       mediaType: 'image',
-      type: COLOR_LENS_MODE.LENS_POINT,
+      type: LENS_PALETTE_TYPE.POINT,
       lensPointColor: { hex: '#AABBCC' },
     };
 
@@ -72,7 +73,7 @@ describe('toInspectionAsset', () => {
       mediaType: 'image',
       height: 200,
       width: 100,
-      type: COLOR_LENS_MODE.LENS_POINT,
+      type: LENS_PALETTE_TYPE.POINT,
       lensPointColor: { hex: '#AABBCC' },
     });
   });

@@ -14,7 +14,6 @@ namespace margelo::nitro::colorlens {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridMethod("extractRegionColor", &HybridColorLensProcessorSpec::extractRegionColor);
       prototype.registerHybridMethod("extractFramePalette", &HybridColorLensProcessorSpec::extractFramePalette);
     });
   }

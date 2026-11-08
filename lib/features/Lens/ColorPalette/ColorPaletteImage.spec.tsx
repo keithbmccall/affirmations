@@ -1,6 +1,7 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { ColorPaletteImage } from '@features/Lens/ColorPalette/ColorPaletteImage';
 import type { LensPalette } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import { renderWithContext } from '@testing/renderWithContext';
 import { screen } from '@testing-library/react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
@@ -48,7 +49,7 @@ const pointPalette: LensPalette = {
   id: 'photo-2',
   uri: 'file:///photo-2.jpg',
   mediaType: 'photo',
-  type: COLOR_LENS_MODE.LENS_POINT,
+  type: LENS_PALETTE_TYPE.POINT,
   lensPointColor: { hex: '#AABBCC' },
 };
 

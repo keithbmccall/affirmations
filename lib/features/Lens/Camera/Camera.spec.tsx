@@ -14,12 +14,10 @@ const mockOnUpdateLensPaletteNamedColors = jest.fn();
 const mockFetchRecentMedia = jest.fn(() => Promise.resolve());
 const mockHandleCameraRollPress = jest.fn();
 const mockGetColorLensPaletteWorklet = jest.fn();
-const mockApplyColorLensRegionWorklet = jest.fn();
 const mockFetchColorNames = jest.fn((_hexes: string[]) =>
   Promise.resolve({ paletteTitle: 'Test', colors: [] })
 );
 const mockMatchPantoneColors = jest.fn((_hexes: string[]) => ({ colors: [] }));
-const mockRegionColor = { value: '#AABBCC' };
 
 const mockPalette = {
   primaryColor: { value: '#111111' },
@@ -76,24 +74,10 @@ jest.mock('@features/Lens/ColorPalette/useColorLensPalette', () => ({
   useColorLensPalette: () => mockUseColorLensPalette(),
 }));
 
-jest.mock('@features/Lens/ColorPalette/useColorLensRegion', () => ({
-  useColorLensRegion: () => ({
-    applyColorLensRegionWorklet: mockApplyColorLensRegionWorklet,
-    regionColor: mockRegionColor,
-  }),
-}));
-
 jest.mock('@features/Lens/ColorPalette/ColorPalette', () => ({
   ColorPalette: () => {
     const RN = jest.requireActual('react-native');
     return <RN.View testID="color-palette-mock" />;
-  },
-}));
-
-jest.mock('./LensColorRegionIndicator', () => ({
-  LensColorRegionIndicator: () => {
-    const RN = jest.requireActual('react-native');
-    return <RN.View testID="lens-color-region-indicator" />;
   },
 }));
 
@@ -419,35 +403,6 @@ describe('Camera', () => {
     expect(screen.queryByTestId('icon-swatchpalette')).toBeNull();
   });
 
-  it('shows scope icon on the color lens toggle in lens-point mode', async () => {
-    mockUseColorLensPalette.mockReturnValue({
-      colorLensMode: COLOR_LENS_MODE.LENS_POINT,
-      setColorLensMode: mockSetColorLensMode,
-      palette: mockPalette,
-      getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
-    });
-
-    renderCamera(<Camera />);
-
-    expect(await screen.findByTestId('icon-scope')).toBeTruthy();
-    expect(screen.queryByTestId('icon-swatchpalette.fill')).toBeNull();
-    expect(screen.queryByTestId('icon-swatchpalette')).toBeNull();
-  });
-
-  it('shows color region indicator when color lens is in lens-point mode', async () => {
-    mockUseColorLensPalette.mockReturnValue({
-      colorLensMode: COLOR_LENS_MODE.LENS_POINT,
-      setColorLensMode: mockSetColorLensMode,
-      palette: mockPalette,
-      getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
-    });
-
-    renderCamera(<Camera />);
-
-    expect(await screen.findByTestId('lens-color-region-indicator')).toBeTruthy();
-    expect(screen.queryByTestId('color-palette-mock')).toBeNull();
-  });
-
   it('saves a plain photo in lens mode when color lens is disabled', async () => {
     renderCamera(<Camera />);
 
@@ -511,33 +466,6 @@ describe('Camera', () => {
         '#777777',
         '#888888',
       ]);
-    });
-  });
-
-  it('captures photo in lens-point mode and saves lensPointColor', async () => {
-    mockUseColorLensPalette.mockReturnValue({
-      colorLensMode: COLOR_LENS_MODE.LENS_POINT,
-      setColorLensMode: mockSetColorLensMode,
-      palette: mockPalette,
-      getColorLensPaletteWorklet: mockGetColorLensPaletteWorklet,
-    });
-
-    renderCamera(<Camera />);
-
-    fireEvent.press(await screen.findByTestId('lens-capture-button'));
-
-    await waitFor(() => {
-      expect(mockCapturePhotoToFile).toHaveBeenCalled();
-      expect(mockedCreateCameraRollMediaAsset).toHaveBeenCalledWith('/tmp/photo.jpg');
-      expect(mockOnAddLensPalette).toHaveBeenCalledWith({
-        id: 'asset-1',
-        uri: 'file:///asset',
-        mediaType: 'image',
-        type: COLOR_LENS_MODE.LENS_POINT,
-        lensPointColor: { hex: '#AABBCC' },
-      });
-      expect(mockFetchColorNames).toHaveBeenCalledWith(['#AABBCC']);
-      expect(mockMatchPantoneColors).toHaveBeenCalledWith(['#AABBCC']);
     });
   });
 
@@ -702,8 +630,7 @@ describe('Camera', () => {
       prev: ColorLensMode
     ) => ColorLensMode;
     expect(updater(COLOR_LENS_MODE.DISABLED)).toBe(COLOR_LENS_MODE.LENS_DOMINANT);
-    expect(updater(COLOR_LENS_MODE.LENS_DOMINANT)).toBe(COLOR_LENS_MODE.LENS_POINT);
-    expect(updater(COLOR_LENS_MODE.LENS_POINT)).toBe(COLOR_LENS_MODE.DISABLED);
+    expect(updater(COLOR_LENS_MODE.LENS_DOMINANT)).toBe(COLOR_LENS_MODE.DISABLED);
   });
 
   it('queues rapid view-mode toggles and settles on the latest intent', async () => {

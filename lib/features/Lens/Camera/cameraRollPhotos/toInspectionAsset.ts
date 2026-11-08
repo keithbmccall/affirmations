@@ -1,5 +1,6 @@
 import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import type { InspectionAsset, LensPalette } from '@features/Lens/ColorPalette/types';
+import { LENS_PALETTE_TYPE } from '@features/Lens/ColorPalette/types';
 import type { CameraRollMediaAsset } from './CameraRollMediaAsset';
 
 export const toInspectionAsset = (
@@ -22,10 +23,10 @@ export const toInspectionAsset = (
     };
   }
 
-  if (lensPalette?.type === COLOR_LENS_MODE.LENS_POINT) {
+  if (lensPalette?.type === LENS_PALETTE_TYPE.POINT) {
     return {
       ...base,
-      type: COLOR_LENS_MODE.LENS_POINT,
+      type: LENS_PALETTE_TYPE.POINT,
       lensPointColor: lensPalette.lensPointColor,
     };
   }

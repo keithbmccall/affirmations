@@ -8,22 +8,34 @@ export interface FrameBounds {
   bottom: number;
 }
 
+export interface CameraPoint {
+  x: number;
+  y: number;
+}
+
 /**
- * Convert opposite camera-space corners to an axis-aligned frame-pixel rect.
+ * Convert camera-space corners to an axis-aligned frame-pixel rect.
  * Call from a frame worklet — uses `frame.convertCameraPointToFramePoint`.
+ * Pass all four rect corners so orientation/cover mapping cannot shrink the AABB
+ * to a two-point diagonal.
  */
 export function frameBoundsFromCameraCorners(
   frame: Frame,
-  corner1: { x: number; y: number },
-  corner2: { x: number; y: number }
+  ...cameraCorners: CameraPoint[]
 ): FrameBounds {
   'worklet';
-  const framePoint1 = frame.convertCameraPointToFramePoint(corner1);
-  const framePoint2 = frame.convertCameraPointToFramePoint(corner2);
-  return {
-    left: Math.min(framePoint1.x, framePoint2.x),
-    right: Math.max(framePoint1.x, framePoint2.x),
-    top: Math.min(framePoint1.y, framePoint2.y),
-    bottom: Math.max(framePoint1.y, framePoint2.y),
-  };
+  let left = Number.POSITIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.NEGATIVE_INFINITY;
+
+  for (let index = 0; index < cameraCorners.length; index += 1) {
+    const framePoint = frame.convertCameraPointToFramePoint(cameraCorners[index]);
+    left = Math.min(left, framePoint.x);
+    right = Math.max(right, framePoint.x);
+    top = Math.min(top, framePoint.y);
+    bottom = Math.max(bottom, framePoint.y);
+  }
+
+  return { left, top, right, bottom };
 }

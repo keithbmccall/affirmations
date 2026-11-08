@@ -1,5 +1,4 @@
 import { ThemedText } from '@components/shared/ThemedText';
-import { COLOR_LENS_MODE } from '@features/Lens/ColorPalette/colorLensMode';
 import { globalStyles } from '@styles/globalStyles';
 import { spacing } from '@styles/spacing';
 import { Image } from 'expo-image';
@@ -8,6 +7,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { lensPaletteConfig } from './lensPaletteConfig';
 import type { InspectionAsset, LensNamedColor } from './types';
+import { LENS_PALETTE_TYPE } from './types';
 
 interface ColorPaletteImageInspectorProps {
   image: InspectionAsset;
@@ -87,7 +87,7 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
   );
 
   const palette = useMemo(() => {
-    if (image.type === COLOR_LENS_MODE.LENS_POINT) {
+    if (image.type === LENS_PALETTE_TYPE.POINT) {
       return (
         <View style={styles.palette}>
           <SwatchButton swatch={image.lensPointColor} onSelect={handleSwatchPress} />
@@ -96,7 +96,7 @@ export const ColorPaletteImageInspector = memo(function ColorPaletteImageInspect
     }
 
     const dominantPalette =
-      image.type === COLOR_LENS_MODE.LENS_DOMINANT
+      image.type === LENS_PALETTE_TYPE.DOMINANT
         ? image.palette
         : 'palette' in image
           ? image.palette

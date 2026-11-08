@@ -12,11 +12,9 @@ private struct RGBTriplet {
 /// Nitro singleton — shared `pixelBuffer` and `histogram` are not safe under concurrent entry points.
 class HybridColorLensProcessor: HybridColorLensProcessorSpec {
   private var lastPaletteProcessTime: TimeInterval = 0
-  private var lastRegionProcessTime: TimeInterval = 0
   private let minProcessingInterval: TimeInterval = 0.05
 
   private var previousPaletteRGB: [String: RGBTriplet] = [:]
-  private var previousRegionRGB: RGBTriplet?
 
   // Fixed palette slots (avoids Dictionary allocs on the hot path).
   private var cachedPrimary = ""
@@ -34,7 +32,6 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
   private static let defaultQuality = 15
   private static let defaultIgnoreWhite = true
   private static let paletteMaxColors = 6
-  private static let regionMaxColors = 2
   private let stabilityThreshold: Int = 900
 
   private static let hexLookup: [String] = (0..<256).map { String(format: "%02X", $0) }
@@ -50,37 +47,6 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
     // Worst case: full maxSide×maxSide grid with quality 1.
     pixelBuffer.reserveCapacity(maxSide * maxSide * 3)
     histogram = Array(repeating: 0, count: MMCQ.histogramSize)
-  }
-
-  /// Axis-aligned rect in raw CVPixelBuffer pixel coordinates (top-left origin) → dominant hex.
-  func extractRegionColor(
-    frame: any HybridFrameSpec,
-    left: Double,
-    top: Double,
-    right: Double,
-    bottom: Double
-  ) throws -> String? {
-    let currentTime = CACurrentMediaTime()
-    if currentTime - lastRegionProcessTime < minProcessingInterval {
-      return previousRegionRGB.map(formatHex)
-    }
-    lastRegionProcessTime = currentTime
-
-    guard sampleFrame(
-      frame: frame,
-      left: left,
-      top: top,
-      right: right,
-      bottom: bottom
-    ) else {
-      return previousRegionRGB.map(formatHex)
-    }
-
-    guard let dominantRGB = getDominantRGBFromPixelBuffer() else {
-      return previousRegionRGB.map(formatHex)
-    }
-
-    return applyRegionTemporalSmoothing(dominantRGB)
   }
 
   /// Axis-aligned rect in raw CVPixelBuffer pixel coordinates → 6-slot palette.
@@ -231,21 +197,6 @@ class HybridColorLensProcessor: HybridColorLensProcessorSpec {
     previousPaletteRGB["detail"] = previousPaletteRGB["secondary"]
 
     return true
-  }
-
-  // MARK: - Region MMCQ
-
-  private func getDominantRGBFromPixelBuffer() -> RGBTriplet? {
-    guard let palette = getPaletteSwatches(maxColors: Self.regionMaxColors)?.first else {
-      return nil
-    }
-    return rgbFromSwatch(palette)
-  }
-
-  private func applyRegionTemporalSmoothing(_ newRGB: RGBTriplet) -> String {
-    let smoothed = smoothRGB(newRGB, previous: previousRegionRGB)
-    previousRegionRGB = smoothed
-    return formatHex(smoothed)
   }
 
   // MARK: - Color helpers
